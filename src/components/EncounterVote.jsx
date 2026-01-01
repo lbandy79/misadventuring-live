@@ -61,14 +61,27 @@ export default function EncounterVote({ config }) {
   }, [startedAt, timer, isOpen]);
 
   const castVote = useCallback(async (optionId) => {
-    if (hasVoted || !isOpen) return;
+    if (!isOpen) return;
+    
+    // If clicking the same option, do nothing (or could unvote here if desired)
+    if (selectedOption === optionId) return;
 
     try {
       const voteRef = doc(db, 'votes', VOTE_DOC_ID);
-      await updateDoc(voteRef, {
-        [`counts.${optionId}`]: increment(1),
-        totalVotes: increment(1)
-      });
+      
+      if (hasVoted && selectedOption) {
+        // Changing vote: decrement old, increment new
+        await updateDoc(voteRef, {
+          [`counts.${selectedOption}`]: increment(-1),
+          [`counts.${optionId}`]: increment(1)
+        });
+      } else {
+        // First vote
+        await updateDoc(voteRef, {
+          [`counts.${optionId}`]: increment(1),
+          totalVotes: increment(1)
+        });
+      }
 
       localStorage.setItem(`voted-${VOTE_DOC_ID}`, optionId);
       setHasVoted(true);
@@ -77,7 +90,7 @@ export default function EncounterVote({ config }) {
       console.error('Vote failed:', error);
       alert('Vote failed - please try again!');
     }
-  }, [hasVoted, isOpen]);
+  }, [hasVoted, isOpen, selectedOption]);
 
   // Calculate percentages
   const totalVotes = Object.values(votes).reduce((sum, count) => sum + count, 0);
@@ -120,11 +133,11 @@ export default function EncounterVote({ config }) {
         {options?.map((option, index) => (
           <motion.button
             key={option.id}
-            className={`vote-btn ${optionColors[index]} ${hasVoted ? 'disabled' : ''} ${selectedOption === option.id ? 'selected' : ''}`}
+            className={`vote-btn ${optionColors[index]} ${selectedOption === option.id ? 'selected' : ''}`}
             onClick={() => castVote(option.id)}
-            whileHover={!hasVoted && isOpen ? { scale: 1.03 } : {}}
-            whileTap={!hasVoted && isOpen ? { scale: 0.97 } : {}}
-            disabled={hasVoted || votingClosed}
+            whileHover={isOpen ? { scale: 1.03 } : {}}
+            whileTap={isOpen ? { scale: 0.97 } : {}}
+            disabled={votingClosed}
           >
             <span className="emoji">{option.emoji}</span>
             <span className="label">{option.label}</span>
@@ -170,14 +183,14 @@ export default function EncounterVote({ config }) {
       <p className="total-votes">{totalVotes} adventurer{totalVotes !== 1 ? 's have' : ' has'} voted</p>
 
       <AnimatePresence>
-        {hasVoted && (
+        {hasVoted && !votingClosed && (
           <motion.p 
             className="voted-message"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
           >
-            Your voice has been heard! ✨
+            Changed your mind? Tap another option! 🔄
           </motion.p>
         )}
       </AnimatePresence>
