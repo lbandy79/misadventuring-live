@@ -1,0 +1,294 @@
+.group-roll-container {
+  padding: 1.5rem;
+  text-align: center;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.group-roll-container h2 {
+  color: var(--primary);
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+/* Idle State */
+.group-roll-container.idle {
+  opacity: 0.8;
+}
+
+.waiting-icon {
+  font-size: 3rem;
+  animation: bounce 1s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(15deg); }
+}
+
+/* Roll Info */
+.roll-info {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.dice-type {
+  background: var(--primary);
+  color: var(--bg);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: bold;
+}
+
+.modifier {
+  color: var(--secondary, #4ade80);
+  font-weight: bold;
+}
+
+.dc {
+  opacity: 0.8;
+}
+
+/* Roll Button */
+.roll-button {
+  padding: 1.5rem 3rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+  background: linear-gradient(135deg, var(--primary), var(--secondary, var(--primary)));
+  color: var(--bg);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(var(--primary-rgb, 255, 215, 0), 0.4);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.roll-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 30px rgba(var(--primary-rgb, 255, 215, 0), 0.6);
+}
+
+.roll-button:disabled {
+  cursor: default;
+}
+
+.rolling-number {
+  font-size: 2rem;
+  animation: shake 0.1s infinite;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* My Roll Result */
+.my-roll-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.roll-value {
+  font-size: 4rem;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.roll-value.success {
+  color: #4ade80;
+  text-shadow: 0 0 20px rgba(74, 222, 128, 0.5);
+}
+
+.roll-value.fail {
+  color: #f87171;
+  text-shadow: 0 0 20px rgba(248, 113, 113, 0.5);
+}
+
+.modifier-display {
+  font-size: 1.5rem;
+  opacity: 0.7;
+  margin-left: 0.5rem;
+}
+
+.roll-outcome {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+/* Roll Count */
+.roll-count {
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+/* Live Rolls Feed */
+.live-rolls {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  min-height: 50px;
+  align-items: center;
+}
+
+.roll-pip {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.roll-pip.success {
+  background: rgba(74, 222, 128, 0.3);
+  border: 2px solid #4ade80;
+  color: #4ade80;
+}
+
+.roll-pip.fail {
+  background: rgba(248, 113, 113, 0.3);
+  border: 2px solid #f87171;
+  color: #f87171;
+}
+
+/* Results Grid */
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  width: 100%;
+  max-width: 350px;
+}
+
+.result-card {
+  padding: 1rem;
+  background: var(--card-bg, rgba(255,255,255,0.05));
+  border-radius: 12px;
+  border: 2px solid transparent;
+}
+
+.result-card.successes {
+  border-color: #4ade80;
+}
+
+.result-card.failures {
+  border-color: #f87171;
+}
+
+.result-card.average,
+.result-card.highest {
+  border-color: var(--primary);
+}
+
+.result-value {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: var(--primary);
+}
+
+.result-card.successes .result-value {
+  color: #4ade80;
+}
+
+.result-card.failures .result-value {
+  color: #f87171;
+}
+
+.result-label {
+  font-size: 0.9rem;
+  opacity: 0.7;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Success Bar */
+.success-bar {
+  width: 100%;
+  max-width: 350px;
+  height: 20px;
+  background: rgba(248, 113, 113, 0.3);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.success-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4ade80, #22c55e);
+  border-radius: 10px;
+  transition: width 0.5s ease-out;
+}
+
+.success-label {
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+/* Display View Overrides */
+.display-view .group-roll-container {
+  min-height: 80vh;
+}
+
+.display-view .group-roll-container h2 {
+  font-size: 3rem;
+}
+
+.display-view .roll-info {
+  font-size: 2rem;
+}
+
+.display-view .roll-button {
+  font-size: 2.5rem;
+  padding: 2rem 4rem;
+}
+
+.display-view .roll-value {
+  font-size: 8rem;
+}
+
+.display-view .live-rolls {
+  gap: 1rem;
+}
+
+.display-view .roll-pip {
+  width: 80px;
+  height: 80px;
+  font-size: 2rem;
+}
+
+.display-view .results-grid {
+  max-width: 600px;
+  gap: 2rem;
+}
+
+.display-view .result-card {
+  padding: 2rem;
+}
+
+.display-view .result-value {
+  font-size: 5rem;
+}
+
+.display-view .result-label {
+  font-size: 1.2rem;
+}
+
+.display-view .success-bar {
+  max-width: 600px;
+  height: 40px;
+}
+
+.display-view .success-label {
+  font-size: 1.5rem;
+}

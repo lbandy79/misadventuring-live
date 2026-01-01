@@ -1,0 +1,212 @@
+.npc-naming-container {
+  padding: 1.5rem;
+  text-align: center;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.npc-naming-container h2 {
+  color: var(--primary);
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+/* Idle State */
+.npc-naming-container.idle {
+  opacity: 0.8;
+}
+
+.waiting-icon {
+  font-size: 3rem;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* NPC Portrait */
+.npc-portrait {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 4px solid var(--primary);
+  box-shadow: 0 0 20px rgba(var(--primary-rgb, 255, 215, 0), 0.3);
+}
+
+.npc-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* NPC Description */
+.npc-description {
+  font-size: 1.1rem;
+  font-style: italic;
+  opacity: 0.9;
+  padding: 1rem;
+  background: var(--card-bg, rgba(255,255,255,0.05));
+  border-radius: 8px;
+  border-left: 4px solid var(--primary);
+  max-width: 400px;
+}
+
+/* Submission Form */
+.submission-form {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 300px;
+}
+
+.submission-form input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--primary);
+  border-radius: 8px;
+  background: var(--card-bg, rgba(255,255,255,0.05));
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.submission-form input:focus {
+  outline: none;
+  border-color: var(--secondary, var(--primary));
+}
+
+.submission-form button {
+  padding: 0.75rem 1.5rem;
+  background: var(--primary);
+  color: var(--bg);
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.submission-form button:hover:not(:disabled) {
+  transform: scale(1.05);
+}
+
+.submission-form button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Submitted Message */
+.submitted-message {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: rgba(74, 222, 128, 0.2);
+  border-radius: 8px;
+  color: #4ade80;
+}
+
+.submitted-message span {
+  font-size: 1.5rem;
+}
+
+/* Submission Count */
+.submission-count {
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+/* Voting Options */
+.voting-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 350px;
+}
+
+.vote-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: var(--card-bg, rgba(255,255,255,0.05));
+  border: 2px solid var(--primary);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.vote-option:hover:not(:disabled) {
+  background: var(--primary);
+  color: var(--bg);
+}
+
+.vote-option:disabled {
+  cursor: default;
+}
+
+.vote-option.voted {
+  opacity: 0.8;
+}
+
+.vote-option .name {
+  font-weight: bold;
+}
+
+.vote-option .vote-count {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+/* Winner Name */
+.winner-name {
+  font-size: 3rem;
+  font-weight: bold;
+  color: var(--primary);
+  text-shadow: 0 0 30px var(--primary);
+  padding: 1rem 2rem;
+  background: var(--card-bg, rgba(255,255,255,0.05));
+  border-radius: 12px;
+  border: 3px solid var(--primary);
+}
+
+/* Display View Overrides */
+.display-view .npc-naming-container {
+  min-height: 80vh;
+}
+
+.display-view .npc-portrait {
+  width: 250px;
+  height: 250px;
+}
+
+.display-view .npc-description {
+  font-size: 2rem;
+  max-width: 800px;
+}
+
+.display-view .winner-name {
+  font-size: 6rem;
+}
+
+.display-view .voting-options {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 100%;
+  gap: 1rem;
+}
+
+.display-view .vote-option {
+  font-size: 1.5rem;
+  padding: 1.5rem 2rem;
+}

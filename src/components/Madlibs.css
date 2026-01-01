@@ -1,0 +1,181 @@
+.madlibs-container {
+  padding: 1.5rem;
+  text-align: center;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.madlibs-container h2 {
+  color: var(--primary);
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+/* Idle State */
+.madlibs-container.idle {
+  opacity: 0.8;
+}
+
+.waiting-icon {
+  font-size: 3rem;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Template Preview */
+.template-preview {
+  font-size: 1.2rem;
+  line-height: 1.8;
+  padding: 1rem;
+  background: var(--card-bg, rgba(255,255,255,0.05));
+  border-radius: 8px;
+  max-width: 100%;
+}
+
+.template-preview .blank {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  margin: 0 0.2rem;
+  background: var(--primary);
+  color: var(--bg);
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.template-preview .blank.filled {
+  background: var(--secondary, #4ade80);
+}
+
+.template-preview .blank.current {
+  animation: pulse-blank 1s ease-in-out infinite;
+}
+
+@keyframes pulse-blank {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* Current Blank Info */
+.current-blank {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.blank-type {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--primary);
+}
+
+.blank-hint {
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+/* Submission Form */
+.submission-form {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 300px;
+}
+
+.submission-form input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--primary);
+  border-radius: 8px;
+  background: var(--card-bg, rgba(255,255,255,0.05));
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.submission-form input:focus {
+  outline: none;
+  border-color: var(--secondary, var(--primary));
+}
+
+.submission-form button {
+  padding: 0.75rem 1.5rem;
+  background: var(--primary);
+  color: var(--bg);
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.submission-form button:hover:not(:disabled) {
+  transform: scale(1.05);
+}
+
+.submission-form button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Submitted Message */
+.submitted-message {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: rgba(74, 222, 128, 0.2);
+  border-radius: 8px;
+  color: #4ade80;
+}
+
+.submitted-message span {
+  font-size: 1.5rem;
+}
+
+/* Submission Count */
+.submission-count {
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+/* Winner Reveal */
+.winner-reveal {
+  font-size: 3rem;
+  font-weight: bold;
+  color: var(--primary);
+  text-shadow: 0 0 20px var(--primary);
+}
+
+/* Final Story */
+.final-story {
+  font-size: 1.3rem;
+  line-height: 1.8;
+  padding: 1.5rem;
+  background: var(--card-bg, rgba(255,255,255,0.05));
+  border-radius: 12px;
+  border: 2px solid var(--primary);
+}
+
+/* Display View Overrides */
+.display-view .madlibs-container {
+  min-height: 80vh;
+}
+
+.display-view .template-preview {
+  font-size: 2.5rem;
+}
+
+.display-view .winner-reveal {
+  font-size: 6rem;
+}
+
+.display-view .final-story {
+  font-size: 2.5rem;
+}
