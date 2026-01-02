@@ -31,7 +31,7 @@ export default function DisplayView() {
   const [votes, setVotes] = useState<VotesData>({});
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [debugInfo, setDebugInfo] = useState('Connecting...');
-  const { themeId } = useTheme();
+  useTheme(); 
   
   // Track previous state for sound triggers
   const prevInteractionRef = useRef<ActiveInteraction>({ type: 'none' });

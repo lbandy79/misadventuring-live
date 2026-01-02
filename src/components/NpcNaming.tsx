@@ -159,8 +159,8 @@ export default function NpcNaming({ isAdmin: _isAdmin = false }: NpcNamingProps)
             <motion.button
               key={index}
               className={`vote-option ${hasVoted ? 'voted' : ''}`}
-              onClick={() => voteForName(npcData.submissions.indexOf(sub))}
-              disabled={hasVoted}
+              onClick={() => !hasVoted && voteForName(npcData.submissions.indexOf(sub))}
+              aria-disabled={hasVoted}
               whileHover={{ scale: hasVoted ? 1 : 1.05 }}
               whileTap={{ scale: hasVoted ? 1 : 0.95 }}
             >

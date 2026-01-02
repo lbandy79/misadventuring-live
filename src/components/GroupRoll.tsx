@@ -125,10 +125,10 @@ export default function GroupRoll({ isAdmin: _isAdmin = false }: GroupRollProps)
         {!hasRolled ? (
           <motion.button
             className="roll-button"
-            onClick={rollDice}
-            disabled={isRolling}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            onClick={isRolling ? undefined : rollDice}
+            style={isRolling ? { pointerEvents: 'none', opacity: 0.7 } : {}}
+            whileHover={isRolling ? {} : { scale: 1.05 }}
+            whileTap={isRolling ? {} : { scale: 0.95 }}
           >
             {isRolling ? (
               <span className="rolling-number">{myRoll}</span>

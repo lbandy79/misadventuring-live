@@ -184,11 +184,11 @@ export default function EncounterVote({ config }: EncounterVoteProps) {
         {options?.map((option, index) => (
           <motion.button
             key={option.id}
-            className={`vote-btn ${optionColors[index]} ${selectedOption === option.id ? 'selected' : ''}`}
-            onClick={() => castVote(option.id)}
-            whileHover={isOpen ? { scale: 1.03 } : {}}
-            whileTap={isOpen ? { scale: 0.97 } : {}}
-            disabled={votingClosed}
+            className={`vote-btn ${optionColors[index]} ${selectedOption === option.id ? 'selected' : ''} ${votingClosed ? 'disabled' : ''}`}
+            onClick={() => !votingClosed && castVote(option.id)}
+            whileHover={!votingClosed ? { scale: 1.03 } : {}}
+            whileTap={!votingClosed ? { scale: 0.97 } : {}}
+            aria-disabled={votingClosed}
           >
             <span className="emoji">{option.emoji}</span>
             <span className="label">{option.label}</span>
