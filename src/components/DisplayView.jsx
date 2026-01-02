@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { doc, onSnapshot } from 'firebase/firestore'
 import { motion, AnimatePresence } from 'framer-motion'
 import { db } from '../firebase'
-import { useTheme } from '../ThemeContext'
+import { useTheme } from '../themes'
 import './DisplayView.css'
 
 /**

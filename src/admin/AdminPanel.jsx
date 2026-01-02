@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react'
 import { doc, onSnapshot, setDoc, deleteDoc, collection, getDocs } from 'firebase/firestore'
 import { db } from '../firebase'
-import { useTheme } from '../ThemeContext'
-import themes from '../themes'
+import { useTheme, themeRegistry } from '../themes'
 import './AdminPanel.css'
 
 const ADMIN_PASSWORD = 'misadventure2025' // Change this! Or move to env var later
@@ -429,7 +428,7 @@ export default function AdminPanel() {
           <h2>🎨 Show Theme</h2>
           <p className="theme-hint">Changes apply to all connected audiences instantly</p>
           <div className="theme-options">
-            {Object.values(themes).map((t) => (
+            {Object.values(themeRegistry).map((t) => (
               <button
                 key={t.id}
                 className={`theme-btn ${themeId === t.id ? 'active' : ''}`}

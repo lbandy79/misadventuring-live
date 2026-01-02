@@ -1,0 +1,412 @@
+/**
+ * Soggy Bottom Pirates - Theme Animations
+ * 
+ * CSS keyframe animations for the cereal-punk pirate theme.
+ * These create the "floating on milk" feel with bobbing, splashing,
+ * and wave-like movements.
+ * 
+ * USAGE:
+ * Import this file in your main CSS/SCSS or include in your build.
+ * Animations are referenced by name in the theme's animations.keyframes object.
+ * 
+ * ANIMATION NAMING CONVENTION:
+ * - Prefix: sbp- (Soggy Bottom Pirates)
+ * - Descriptive name: sbp-float, sbp-splash, etc.
+ */
+
+/* =============================================================================
+   IDLE / AMBIENT ANIMATIONS
+   ============================================================================= */
+
+/**
+ * Gentle floating animation - like bobbing on the Milky Bowl.
+ * Use for idle states, waiting screens, or ambient elements.
+ */
+@keyframes sbp-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/**
+ * Slow rotation for decorative elements.
+ * Good for loading spinners or background decorations.
+ */
+@keyframes sbp-drift {
+  0% {
+    transform: rotate(0deg) translateX(0);
+  }
+  25% {
+    transform: rotate(2deg) translateX(5px);
+  }
+  50% {
+    transform: rotate(0deg) translateX(0);
+  }
+  75% {
+    transform: rotate(-2deg) translateX(-5px);
+  }
+  100% {
+    transform: rotate(0deg) translateX(0);
+  }
+}
+
+/* =============================================================================
+   VOTING ANIMATIONS
+   ============================================================================= */
+
+/**
+ * Vote selection - splash effect when user picks an option.
+ * Scales up then settles with a bounce.
+ */
+@keyframes sbp-vote-splash {
+  0% {
+    transform: scale(1);
+  }
+  15% {
+    transform: scale(0.95);
+  }
+  30% {
+    transform: scale(1.08);
+  }
+  45% {
+    transform: scale(1.02);
+  }
+  60% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/**
+ * Vote count increment - number bobs up when votes come in.
+ * Quick upward pop with settle.
+ */
+@keyframes sbp-vote-bob {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  20% {
+    transform: translateY(-12px) scale(1.1);
+    opacity: 1;
+  }
+  40% {
+    transform: translateY(-8px) scale(1.05);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/**
+ * Progress bar wave fill - water-like fill effect.
+ * Use with progress bars to create undulating fill.
+ */
+@keyframes sbp-wave-fill {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
+/**
+ * Voting open pulse - draws attention when voting starts.
+ */
+@keyframes sbp-voting-open-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 20px rgba(255, 215, 0, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 215, 0, 0);
+  }
+}
+
+/* =============================================================================
+   VICTORY / CELEBRATION ANIMATIONS
+   ============================================================================= */
+
+/**
+ * Victory burst - explosive celebration when voting closes.
+ * Scale burst with rotation.
+ */
+@keyframes sbp-victory-burst {
+  0% {
+    transform: scale(1) rotate(0deg);
+    filter: brightness(1);
+  }
+  25% {
+    transform: scale(1.2) rotate(5deg);
+    filter: brightness(1.3);
+  }
+  50% {
+    transform: scale(1.15) rotate(-3deg);
+    filter: brightness(1.2);
+  }
+  75% {
+    transform: scale(1.1) rotate(2deg);
+    filter: brightness(1.1);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    filter: brightness(1);
+  }
+}
+
+/**
+ * Confetti fall - for particle effects (apply to individual elements).
+ */
+@keyframes sbp-confetti-fall {
+  0% {
+    transform: translateY(-100vh) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/**
+ * Winner glow pulse - highlight the winning option.
+ */
+@keyframes sbp-winner-glow {
+  0%, 100% {
+    box-shadow: 
+      0 0 20px rgba(255, 215, 0, 0.4),
+      0 0 40px rgba(255, 215, 0, 0.2),
+      inset 0 0 20px rgba(255, 215, 0, 0.1);
+  }
+  50% {
+    box-shadow: 
+      0 0 30px rgba(255, 215, 0, 0.6),
+      0 0 60px rgba(255, 215, 0, 0.3),
+      inset 0 0 30px rgba(255, 215, 0, 0.2);
+  }
+}
+
+/* =============================================================================
+   BUTTON / INTERACTIVE ANIMATIONS
+   ============================================================================= */
+
+/**
+ * Ripple effect for button clicks.
+ * Apply to a pseudo-element that expands from click point.
+ */
+@keyframes sbp-ripple {
+  0% {
+    transform: scale(0);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/**
+ * Button hover - subtle lift and glow.
+ */
+@keyframes sbp-button-lift {
+  0% {
+    transform: translateY(0);
+    box-shadow: var(--tmp-shadow-medium);
+  }
+  100% {
+    transform: translateY(-2px);
+    box-shadow: var(--tmp-shadow-large);
+  }
+}
+
+/**
+ * Shake animation - for errors or "no" feedback.
+ */
+@keyframes sbp-shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-4px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(4px);
+  }
+}
+
+/* =============================================================================
+   ENTRANCE / EXIT ANIMATIONS
+   ============================================================================= */
+
+/**
+ * Splash entrance - element rises from below like emerging from milk.
+ */
+@keyframes sbp-splash-in {
+  0% {
+    transform: translateY(30px) scale(0.9);
+    opacity: 0;
+  }
+  60% {
+    transform: translateY(-5px) scale(1.02);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/**
+ * Sink exit - element sinks down like dropping into milk.
+ */
+@keyframes sbp-sink-out {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(20px) scale(0.95);
+    opacity: 0;
+  }
+}
+
+/**
+ * Fade in with slight scale.
+ */
+@keyframes sbp-fade-scale-in {
+  0% {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* =============================================================================
+   COUNTDOWN ANIMATIONS
+   ============================================================================= */
+
+/**
+ * Countdown tick - pulse effect for timer.
+ */
+@keyframes sbp-countdown-tick {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/**
+ * Urgent countdown - faster pulse for last 10 seconds.
+ */
+@keyframes sbp-countdown-urgent {
+  0%, 100% {
+    transform: scale(1);
+    color: var(--tmp-color-text-primary);
+  }
+  50% {
+    transform: scale(1.1);
+    color: var(--tmp-color-status-warning);
+  }
+}
+
+/* =============================================================================
+   UTILITY ANIMATION CLASSES
+   ============================================================================= */
+
+.sbp-animate-float {
+  animation: sbp-float 3s ease-in-out infinite;
+}
+
+.sbp-animate-drift {
+  animation: sbp-drift 8s ease-in-out infinite;
+}
+
+.sbp-animate-splash-in {
+  animation: sbp-splash-in 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+.sbp-animate-sink-out {
+  animation: sbp-sink-out 0.3s ease-in forwards;
+}
+
+.sbp-animate-pulse {
+  animation: sbp-voting-open-pulse 2s ease-out infinite;
+}
+
+.sbp-animate-winner {
+  animation: sbp-winner-glow 1.5s ease-in-out infinite;
+}
+
+.sbp-animate-shake {
+  animation: sbp-shake 0.5s ease-in-out;
+}
+
+/* =============================================================================
+   BACKGROUND TEXTURE (GRAIN)
+   ============================================================================= */
+
+/**
+ * Noise/grain overlay for texture.
+ * Apply to a pseudo-element covering the background.
+ */
+.theme-soggy-bottom::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+/* =============================================================================
+   WAVE PROGRESS BAR STYLES
+   ============================================================================= */
+
+/**
+ * Animated wave pattern for progress bars.
+ * Creates undulating "milk wave" effect.
+ */
+.sbp-wave-progress {
+  position: relative;
+  overflow: hidden;
+}
+
+.sbp-wave-progress::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.1) 25%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0.1) 75%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: sbp-wave-fill 2s linear infinite;
+}

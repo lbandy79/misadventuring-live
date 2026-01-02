@@ -1,0 +1,270 @@
+/**
+ * Neon Nightmares - Animation Keyframes
+ * 
+ * 80s VHS horror glitch effects and neon pulse animations.
+ */
+
+/* Glitch effect when voting */
+@keyframes nn-glitch {
+  0% {
+    transform: translate(0);
+    filter: hue-rotate(0deg);
+  }
+  10% {
+    transform: translate(-2px, 2px);
+    filter: hue-rotate(90deg);
+  }
+  20% {
+    transform: translate(2px, -2px);
+    filter: hue-rotate(180deg);
+  }
+  30% {
+    transform: translate(-1px, -1px);
+    filter: hue-rotate(270deg);
+  }
+  40% {
+    transform: translate(1px, 1px);
+    filter: hue-rotate(360deg);
+  }
+  50% {
+    transform: translate(0);
+    filter: hue-rotate(0deg);
+  }
+  100% {
+    transform: translate(0);
+    filter: hue-rotate(0deg);
+  }
+}
+
+/* Flicker effect for vote increments */
+@keyframes nn-flicker {
+  0%, 100% {
+    opacity: 1;
+  }
+  5% {
+    opacity: 0.8;
+  }
+  10% {
+    opacity: 1;
+  }
+  15% {
+    opacity: 0.6;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 0.7;
+  }
+  90% {
+    opacity: 1;
+  }
+}
+
+/* Scanline sweep for progress updates */
+@keyframes nn-scan {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 0 100vh;
+  }
+}
+
+/* VHS static for idle state */
+@keyframes nn-static {
+  0%, 100% {
+    background-position: 0% 0%;
+  }
+  10% {
+    background-position: -5% 10%;
+  }
+  20% {
+    background-position: 10% -5%;
+  }
+  30% {
+    background-position: -10% 5%;
+  }
+  40% {
+    background-position: 5% -10%;
+  }
+  50% {
+    background-position: -5% 10%;
+  }
+  60% {
+    background-position: 10% -5%;
+  }
+  70% {
+    background-position: -10% 5%;
+  }
+  80% {
+    background-position: 5% -10%;
+  }
+  90% {
+    background-position: -5% 10%;
+  }
+}
+
+/* Strobe effect for victory */
+@keyframes nn-strobe {
+  0%, 100% {
+    filter: brightness(1);
+    text-shadow: 0 0 10px var(--tmp-color-primary);
+  }
+  25% {
+    filter: brightness(1.5);
+    text-shadow: 0 0 20px var(--tmp-color-primary), 0 0 40px var(--tmp-color-secondary);
+  }
+  50% {
+    filter: brightness(1);
+    text-shadow: 0 0 10px var(--tmp-color-secondary);
+  }
+  75% {
+    filter: brightness(1.3);
+    text-shadow: 0 0 30px var(--tmp-color-tertiary), 0 0 60px var(--tmp-color-primary);
+  }
+}
+
+/* Neon glow pulse for button hover */
+@keyframes nn-glow-pulse {
+  0%, 100% {
+    box-shadow: 
+      0 0 5px var(--tmp-color-primary),
+      0 0 10px var(--tmp-color-primary),
+      0 0 15px var(--tmp-color-primary);
+  }
+  50% {
+    box-shadow: 
+      0 0 10px var(--tmp-color-primary),
+      0 0 20px var(--tmp-color-primary),
+      0 0 30px var(--tmp-color-primary),
+      0 0 40px var(--tmp-color-secondary);
+  }
+}
+
+/* VHS tracking distortion */
+@keyframes nn-tracking {
+  0% {
+    transform: translateX(0) skewX(0deg);
+    filter: saturate(1);
+  }
+  10% {
+    transform: translateX(-2px) skewX(-0.5deg);
+    filter: saturate(1.2);
+  }
+  20% {
+    transform: translateX(2px) skewX(0.5deg);
+    filter: saturate(0.8);
+  }
+  30% {
+    transform: translateX(-1px) skewX(0deg);
+    filter: saturate(1.1);
+  }
+  40%, 100% {
+    transform: translateX(0) skewX(0deg);
+    filter: saturate(1);
+  }
+}
+
+/* RGB split effect */
+@keyframes nn-rgb-split {
+  0%, 100% {
+    text-shadow: 
+      -1px 0 var(--tmp-color-primary),
+      1px 0 var(--tmp-color-secondary);
+  }
+  25% {
+    text-shadow: 
+      -2px 0 var(--tmp-color-primary),
+      2px 0 var(--tmp-color-secondary);
+  }
+  50% {
+    text-shadow: 
+      -1px 0 var(--tmp-color-secondary),
+      1px 0 var(--tmp-color-primary);
+  }
+  75% {
+    text-shadow: 
+      -3px 0 var(--tmp-color-primary),
+      3px 0 var(--tmp-color-tertiary);
+  }
+}
+
+/* =============================================================================
+   UTILITY CLASSES
+   ============================================================================= */
+
+[data-theme="neon-nightmares"] .animate-glitch {
+  animation: nn-glitch 0.3s linear;
+}
+
+[data-theme="neon-nightmares"] .animate-flicker {
+  animation: nn-flicker 2s linear infinite;
+}
+
+[data-theme="neon-nightmares"] .animate-static {
+  animation: nn-static 0.5s linear infinite;
+}
+
+[data-theme="neon-nightmares"] .animate-strobe {
+  animation: nn-strobe 1s ease-in-out infinite;
+}
+
+[data-theme="neon-nightmares"] .animate-tracking {
+  animation: nn-tracking 4s ease-in-out infinite;
+}
+
+[data-theme="neon-nightmares"] .animate-rgb {
+  animation: nn-rgb-split 3s linear infinite;
+}
+
+/* Neon glow button */
+[data-theme="neon-nightmares"] .btn-primary {
+  box-shadow: 
+    0 0 5px var(--tmp-color-primary),
+    0 0 10px var(--tmp-color-primary);
+  transition: box-shadow var(--tmp-duration-fast) ease;
+}
+
+[data-theme="neon-nightmares"] .btn-primary:hover {
+  animation: nn-glow-pulse 1.5s ease-in-out infinite;
+}
+
+/* CRT scanline overlay */
+[data-theme="neon-nightmares"] .crt-overlay::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15) 0px,
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+}
+
+/* VHS noise texture - apply to containers */
+[data-theme="neon-nightmares"] .vhs-noise {
+  position: relative;
+}
+
+[data-theme="neon-nightmares"] .vhs-noise::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23noise)'/%3E%3C/svg%3E");
+  animation: nn-static 0.2s steps(10) infinite;
+}

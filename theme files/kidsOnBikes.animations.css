@@ -1,0 +1,553 @@
+/**
+ * Kids on Bikes - Theme Animations
+ * 
+ * CSS keyframe animations for the 80s vaporwave/VHS aesthetic.
+ * Features glitchy effects, scan lines, neon flicker, and CRT artifacts.
+ * 
+ * ANIMATION NAMING CONVENTION:
+ * - Prefix: kob- (Kids on Bikes)
+ * - Descriptive name: kob-glitch, kob-flicker, etc.
+ */
+
+/* =============================================================================
+   IDLE / AMBIENT ANIMATIONS
+   ============================================================================= */
+
+/**
+ * Subtle static/noise animation for idle states.
+ * Creates that "signal interference" feel.
+ */
+@keyframes kob-static {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.98;
+  }
+  52% {
+    opacity: 1;
+  }
+  54% {
+    opacity: 0.97;
+  }
+}
+
+/**
+ * Slow neon pulse - like a sign flickering in a small town.
+ */
+@keyframes kob-neon-breathe {
+  0%, 100% {
+    filter: brightness(1) drop-shadow(0 0 10px currentColor);
+  }
+  50% {
+    filter: brightness(1.1) drop-shadow(0 0 20px currentColor);
+  }
+}
+
+/**
+ * VHS tracking wobble - subtle horizontal shift.
+ */
+@keyframes kob-tracking {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-1px);
+  }
+  75% {
+    transform: translateX(1px);
+  }
+}
+
+/* =============================================================================
+   VOTING ANIMATIONS
+   ============================================================================= */
+
+/**
+ * Glitch selection effect - RGB split and shake.
+ */
+@keyframes kob-glitch-select {
+  0% {
+    transform: translate(0);
+    text-shadow: none;
+  }
+  10% {
+    transform: translate(-2px, 1px);
+    text-shadow: 2px 0 #FF2D95, -2px 0 #00F0FF;
+  }
+  20% {
+    transform: translate(2px, -1px);
+    text-shadow: -2px 0 #FF2D95, 2px 0 #00F0FF;
+  }
+  30% {
+    transform: translate(-1px, 2px);
+    text-shadow: 1px 0 #FF2D95, -1px 0 #00F0FF;
+  }
+  40% {
+    transform: translate(1px, -2px);
+    text-shadow: -1px 0 #FF2D95, 1px 0 #00F0FF;
+  }
+  50% {
+    transform: translate(0);
+    text-shadow: none;
+  }
+  100% {
+    transform: translate(0);
+    text-shadow: none;
+  }
+}
+
+/**
+ * Flicker effect for vote count updates.
+ */
+@keyframes kob-flicker {
+  0% {
+    opacity: 1;
+  }
+  5% {
+    opacity: 0.8;
+  }
+  10% {
+    opacity: 1;
+  }
+  15% {
+    opacity: 0.9;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/**
+ * Scan line fill for progress bars.
+ */
+@keyframes kob-scan-fill {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 0% 100%;
+  }
+}
+
+/**
+ * Voting open pulse - neon ring expansion.
+ */
+@keyframes kob-voting-open {
+  0% {
+    box-shadow: 
+      0 0 0 0 rgba(255, 45, 149, 0.7),
+      0 0 0 0 rgba(0, 240, 255, 0.5);
+  }
+  50% {
+    box-shadow: 
+      0 0 0 15px rgba(255, 45, 149, 0),
+      0 0 0 30px rgba(0, 240, 255, 0);
+  }
+  100% {
+    box-shadow: 
+      0 0 0 0 rgba(255, 45, 149, 0),
+      0 0 0 0 rgba(0, 240, 255, 0);
+  }
+}
+
+/* =============================================================================
+   VICTORY / CELEBRATION ANIMATIONS
+   ============================================================================= */
+
+/**
+ * Neon burst - winner celebration with RGB split.
+ */
+@keyframes kob-neon-burst {
+  0% {
+    transform: scale(1);
+    filter: brightness(1);
+    text-shadow: none;
+  }
+  25% {
+    transform: scale(1.05);
+    filter: brightness(1.3);
+    text-shadow: 
+      3px 0 #FF2D95,
+      -3px 0 #00F0FF,
+      0 0 20px rgba(255, 45, 149, 0.8);
+  }
+  50% {
+    transform: scale(1.02);
+    filter: brightness(1.2);
+    text-shadow: 
+      -2px 0 #FF2D95,
+      2px 0 #00F0FF,
+      0 0 30px rgba(0, 240, 255, 0.8);
+  }
+  75% {
+    transform: scale(1.03);
+    filter: brightness(1.1);
+    text-shadow: 
+      1px 0 #FF2D95,
+      -1px 0 #00F0FF,
+      0 0 15px rgba(255, 45, 149, 0.5);
+  }
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+    text-shadow: none;
+  }
+}
+
+/**
+ * Winner glow - pulsing neon outline.
+ */
+@keyframes kob-winner-glow {
+  0%, 100% {
+    box-shadow: 
+      0 0 10px rgba(255, 45, 149, 0.5),
+      0 0 20px rgba(0, 240, 255, 0.3),
+      inset 0 0 10px rgba(255, 45, 149, 0.1);
+  }
+  50% {
+    box-shadow: 
+      0 0 20px rgba(255, 45, 149, 0.8),
+      0 0 40px rgba(0, 240, 255, 0.5),
+      inset 0 0 20px rgba(255, 45, 149, 0.2);
+  }
+}
+
+/* =============================================================================
+   BUTTON / INTERACTIVE ANIMATIONS
+   ============================================================================= */
+
+/**
+ * Glow pulse on hover.
+ */
+@keyframes kob-glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(255, 45, 149, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 45, 149, 0.6), 0 0 30px rgba(0, 240, 255, 0.3);
+  }
+}
+
+/**
+ * RGB split on hover - chromatic aberration effect.
+ */
+@keyframes kob-chromatic {
+  0%, 100% {
+    text-shadow: none;
+  }
+  50% {
+    text-shadow: 
+      1px 0 #FF2D95,
+      -1px 0 #00F0FF;
+  }
+}
+
+/**
+ * Digital shake for errors.
+ */
+@keyframes kob-digital-shake {
+  0%, 100% {
+    transform: translateX(0);
+    filter: none;
+  }
+  10%, 50%, 90% {
+    transform: translateX(-3px);
+    filter: hue-rotate(10deg);
+  }
+  30%, 70% {
+    transform: translateX(3px);
+    filter: hue-rotate(-10deg);
+  }
+}
+
+/* =============================================================================
+   ENTRANCE / EXIT ANIMATIONS
+   ============================================================================= */
+
+/**
+ * Glitch entrance - appears with interference.
+ */
+@keyframes kob-glitch-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+    clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
+  }
+  20% {
+    opacity: 1;
+    clip-path: polygon(0 0, 100% 0, 100% 30%, 0 30%);
+  }
+  40% {
+    clip-path: polygon(0 0, 100% 0, 100% 60%, 0 60%);
+    transform: translateY(-5px) translateX(2px);
+  }
+  60% {
+    clip-path: polygon(0 0, 100% 0, 100% 80%, 0 80%);
+    transform: translateY(-2px) translateX(-2px);
+  }
+  80% {
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    transform: translateY(0) translateX(1px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) translateX(0);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+  }
+}
+
+/**
+ * Static exit - dissolves into noise.
+ */
+@keyframes kob-static-out {
+  0% {
+    opacity: 1;
+    filter: none;
+  }
+  50% {
+    opacity: 0.7;
+    filter: contrast(2) brightness(2);
+  }
+  100% {
+    opacity: 0;
+    filter: contrast(3) brightness(3) blur(2px);
+  }
+}
+
+/**
+ * Scan line reveal - content appears behind moving scan line.
+ */
+@keyframes kob-scan-reveal {
+  0% {
+    clip-path: inset(0 0 100% 0);
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* =============================================================================
+   COUNTDOWN ANIMATIONS
+   ============================================================================= */
+
+/**
+ * Digital countdown tick.
+ */
+@keyframes kob-countdown-tick {
+  0%, 100% {
+    transform: scale(1);
+    filter: none;
+  }
+  50% {
+    transform: scale(1.02);
+    filter: brightness(1.2);
+  }
+}
+
+/**
+ * Urgent countdown - flashing neon.
+ */
+@keyframes kob-countdown-urgent {
+  0%, 100% {
+    color: var(--tmp-color-text-primary);
+    text-shadow: none;
+  }
+  50% {
+    color: #FF2D95;
+    text-shadow: 0 0 10px #FF2D95, 0 0 20px #FF2D95;
+  }
+}
+
+/* =============================================================================
+   UTILITY ANIMATION CLASSES
+   ============================================================================= */
+
+.kob-animate-static {
+  animation: kob-static 0.5s steps(4) infinite;
+}
+
+.kob-animate-neon-breathe {
+  animation: kob-neon-breathe 3s ease-in-out infinite;
+}
+
+.kob-animate-tracking {
+  animation: kob-tracking 4s ease-in-out infinite;
+}
+
+.kob-animate-glitch-in {
+  animation: kob-glitch-in 0.4s ease-out forwards;
+}
+
+.kob-animate-static-out {
+  animation: kob-static-out 0.3s ease-in forwards;
+}
+
+.kob-animate-pulse {
+  animation: kob-voting-open 1.5s ease-out infinite;
+}
+
+.kob-animate-winner {
+  animation: kob-winner-glow 1s ease-in-out infinite;
+}
+
+.kob-animate-shake {
+  animation: kob-digital-shake 0.4s ease-in-out;
+}
+
+.kob-animate-chromatic:hover {
+  animation: kob-chromatic 0.3s ease-in-out infinite;
+}
+
+/* =============================================================================
+   SCAN LINE OVERLAY
+   ============================================================================= */
+
+/**
+ * CRT scan line effect.
+ * Apply to a pseudo-element covering the viewport.
+ */
+.theme-kids-on-bikes::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9998;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.15) 2px,
+    rgba(0, 0, 0, 0.15) 4px
+  );
+}
+
+/**
+ * Noise/grain overlay for additional texture.
+ */
+.theme-kids-on-bikes::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  animation: kob-static 0.1s steps(5) infinite;
+}
+
+/* =============================================================================
+   VHS TRACKING BAR (Optional decorative element)
+   ============================================================================= */
+
+/**
+ * VHS tracking bar that occasionally slides across screen.
+ * Use sparingly - add class to trigger.
+ */
+@keyframes kob-tracking-bar {
+  0% {
+    top: -20px;
+    opacity: 0;
+  }
+  5% {
+    opacity: 0.8;
+  }
+  95% {
+    opacity: 0.8;
+  }
+  100% {
+    top: calc(100% + 20px);
+    opacity: 0;
+  }
+}
+
+.kob-tracking-bar {
+  position: fixed;
+  left: 0;
+  width: 100%;
+  height: 20px;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgba(255, 255, 255, 0.1) 30%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0.1) 70%,
+    transparent
+  );
+  pointer-events: none;
+  z-index: 10000;
+  animation: kob-tracking-bar 3s linear forwards;
+}
+
+/* =============================================================================
+   NEON TEXT STYLES
+   ============================================================================= */
+
+/**
+ * Neon glow text effect.
+ * Apply to headings or important text.
+ */
+.kob-neon-text {
+  color: #FF2D95;
+  text-shadow:
+    0 0 5px #FF2D95,
+    0 0 10px #FF2D95,
+    0 0 20px #FF2D95,
+    0 0 40px #FF2D95;
+}
+
+.kob-neon-text-cyan {
+  color: #00F0FF;
+  text-shadow:
+    0 0 5px #00F0FF,
+    0 0 10px #00F0FF,
+    0 0 20px #00F0FF,
+    0 0 40px #00F0FF;
+}
+
+/**
+ * Dual-color neon for extra impact.
+ */
+.kob-neon-text-dual {
+  color: #F0E6FF;
+  text-shadow:
+    2px 2px 0 #FF2D95,
+    -2px -2px 0 #00F0FF,
+    0 0 20px rgba(255, 45, 149, 0.5),
+    0 0 40px rgba(0, 240, 255, 0.3);
+}
+
+/* =============================================================================
+   PROGRESS BAR WITH SCAN LINES
+   ============================================================================= */
+
+.kob-scan-progress {
+  position: relative;
+  overflow: hidden;
+}
+
+.kob-scan-progress::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 1px,
+    rgba(0, 0, 0, 0.2) 1px,
+    rgba(0, 0, 0, 0.2) 2px
+  );
+  pointer-events: none;
+}
