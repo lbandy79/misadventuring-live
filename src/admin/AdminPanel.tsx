@@ -1,5 +1,5 @@
-import { useState, useEffect, type FormEvent, type ChangeEvent } from 'react';
-import { doc, onSnapshot, setDoc, collection, getDocs } from 'firebase/firestore';
+import { useState, useEffect, type FormEvent } from 'react';
+import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useTheme, themeRegistry } from '../themes';
 import type { ThemeId } from '../themes';

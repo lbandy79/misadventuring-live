@@ -1,6 +1,13 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getFirestore, doc, setDoc } from 'firebase/firestore';
 
+// Extend Window interface for our test flag
+declare global {
+  interface Window {
+    __firebaseTestRan?: boolean;
+  }
+}
+
 // Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyCtoiu476Nd765FSsspVzIgl4hOqjwL-TU",
@@ -31,7 +38,8 @@ if (!window.__firebaseTestRan) {
       });
       console.log('✅ Firebase connection SUCCESS!');
     } catch (error) {
-      console.error('❌ Firebase connection FAILED:', error.code, error.message);
+      const firebaseError = error as { code?: string; message?: string };
+      console.error('❌ Firebase connection FAILED:', firebaseError.code, firebaseError.message);
       console.error('Full error:', error);
     }
   }, 2000);

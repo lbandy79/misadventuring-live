@@ -24,7 +24,7 @@ interface GroupRollProps {
   isAdmin?: boolean;
 }
 
-export default function GroupRoll({ isAdmin = false }: GroupRollProps) {
+export default function GroupRoll({ isAdmin: _isAdmin = false }: GroupRollProps) {
   const [rollData, setRollData] = useState<RollData | null>(null);
   const [hasRolled, setHasRolled] = useState(false);
   const [myRoll, setMyRoll] = useState<number | null>(null);
@@ -180,7 +180,7 @@ export default function GroupRoll({ isAdmin = false }: GroupRollProps) {
     const total = rolls.reduce((sum, r) => sum + r.result, 0);
     const average = rolls.length > 0 ? (total / rolls.length).toFixed(1) : '0';
     const highest = rolls.length > 0 ? Math.max(...rolls.map(r => r.result)) : 0;
-    const lowest = rolls.length > 0 ? Math.min(...rolls.map(r => r.result)) : 0;
+    const _lowest = rolls.length > 0 ? Math.min(...rolls.map(r => r.result)) : 0;
 
     return (
       <div className="group-roll-container results">

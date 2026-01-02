@@ -24,7 +24,7 @@ interface NpcNamingProps {
   isAdmin?: boolean;
 }
 
-export default function NpcNaming({ isAdmin = false }: NpcNamingProps) {
+export default function NpcNaming({ isAdmin: _isAdmin = false }: NpcNamingProps) {
   const [npcData, setNpcData] = useState<NpcData | null>(null);
   const [submission, setSubmission] = useState('');
   const [hasSubmitted, setHasSubmitted] = useState(false);

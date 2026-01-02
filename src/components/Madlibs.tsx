@@ -23,7 +23,7 @@ interface MadlibsProps {
   isAdmin?: boolean;
 }
 
-export default function Madlibs({ isAdmin = false }: MadlibsProps) {
+export default function Madlibs({ isAdmin: _isAdmin = false }: MadlibsProps) {
   const [madlibData, setMadlibData] = useState<MadlibData | null>(null);
   const [submission, setSubmission] = useState('');
   const [hasSubmitted, setHasSubmitted] = useState(false);
