@@ -1,19 +1,42 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { doc, onSnapshot, updateDoc, increment } from 'firebase/firestore';
 import { db } from '../firebase';
+import { playSound, initAudio } from '../utils/sounds';
 import './EncounterVote.css';
 
 const VOTE_DOC_ID = 'current-vote';
 
-export default function EncounterVote({ config }) {
-  const [votes, setVotes] = useState({});
-  const [hasVoted, setHasVoted] = useState(false);
-  const [selectedOption, setSelectedOption] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [timeRemaining, setTimeRemaining] = useState(null);
+interface VoteOption {
+  id: string;
+  label: string;
+  emoji: string;
+}
 
-  const { question, options, isOpen, timer, startedAt } = config || {};
+interface VoteConfig {
+  question?: string;
+  options?: VoteOption[];
+  isOpen?: boolean;
+  timer?: number;
+  startedAt?: number;
+  sessionId?: string; // Unique ID for this voting session
+}
+
+interface EncounterVoteProps {
+  config: VoteConfig;
+}
+
+export default function EncounterVote({ config }: EncounterVoteProps) {
+  const [votes, setVotes] = useState<Record<string, number>>({});
+  const [hasVoted, setHasVoted] = useState(false);
+  const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
+
+  const { question, options, isOpen, timer, startedAt, sessionId } = config || {};
+  
+  // Generate storage key based on session ID to prevent stale votes
+  const storageKey = sessionId ? `voted-${sessionId}` : `voted-${VOTE_DOC_ID}`;
 
   // Listen for real-time vote updates
   useEffect(() => {
@@ -32,17 +55,26 @@ export default function EncounterVote({ config }) {
       }
     );
 
-    // Check if user already voted this session
-    const voted = localStorage.getItem(`voted-${VOTE_DOC_ID}`);
-    if (voted) {
-      setHasVoted(true);
-      setSelectedOption(voted);
-    }
-
     return () => unsubscribe();
   }, []);
 
-  // Countdown timer
+  // Check if user already voted THIS session (reset when session changes)
+  useEffect(() => {
+    const voted = localStorage.getItem(storageKey);
+    if (voted) {
+      setHasVoted(true);
+      setSelectedOption(voted);
+    } else {
+      // New session - reset vote state
+      setHasVoted(false);
+      setSelectedOption(null);
+    }
+  }, [storageKey]);
+
+  // Track previous time for sound effects
+  const prevTimeRef = useRef<number | null>(null);
+
+  // Countdown timer with sound effects
   useEffect(() => {
     if (!startedAt || !timer || !isOpen) {
       setTimeRemaining(null);
@@ -52,6 +84,18 @@ export default function EncounterVote({ config }) {
     const updateTimer = () => {
       const elapsed = Math.floor((Date.now() - startedAt) / 1000);
       const remaining = Math.max(0, timer - elapsed);
+      
+      // Play tick sound in last 10 seconds
+      if (remaining <= 10 && remaining > 0 && remaining !== prevTimeRef.current) {
+        playSound('tick');
+      }
+      
+      // Play buzz when time's up
+      if (remaining === 0 && prevTimeRef.current !== 0) {
+        playSound('buzz');
+      }
+      
+      prevTimeRef.current = remaining;
       setTimeRemaining(remaining);
     };
 
@@ -60,10 +104,13 @@ export default function EncounterVote({ config }) {
     return () => clearInterval(interval);
   }, [startedAt, timer, isOpen]);
 
-  const castVote = useCallback(async (optionId) => {
+  const castVote = useCallback(async (optionId: string) => {
     if (!isOpen) return;
     
-    // If clicking the same option, do nothing (or could unvote here if desired)
+    // Initialize audio on first interaction
+    initAudio();
+    
+    // If clicking the same option, do nothing
     if (selectedOption === optionId) return;
 
     try {
@@ -83,18 +130,22 @@ export default function EncounterVote({ config }) {
         });
       }
 
-      localStorage.setItem(`voted-${VOTE_DOC_ID}`, optionId);
+      // Play satisfying vote sound!
+      playSound('vote');
+
+      localStorage.setItem(storageKey, optionId);
       setHasVoted(true);
       setSelectedOption(optionId);
     } catch (error) {
       console.error('Vote failed:', error);
+      playSound('error');
       alert('Vote failed - please try again!');
     }
-  }, [hasVoted, isOpen, selectedOption]);
+  }, [hasVoted, isOpen, selectedOption, storageKey]);
 
   // Calculate percentages
   const totalVotes = Object.values(votes).reduce((sum, count) => sum + count, 0);
-  const getPercent = (optionId) => {
+  const getPercent = (optionId: string): number => {
     if (totalVotes === 0) return 100 / (options?.length || 2);
     return ((votes[optionId] || 0) / totalVotes) * 100;
   };
@@ -169,7 +220,7 @@ export default function EncounterVote({ config }) {
           <motion.div 
             key={option.id}
             className={`bar-fill ${optionColors[index]}`}
-            initial={{ width: `${100 / options.length}%` }}
+            initial={{ width: `${100 / (options?.length || 2)}%` }}
             animate={{ width: `${getPercent(option.id)}%` }}
             transition={{ type: 'spring', stiffness: 100, damping: 20 }}
           >

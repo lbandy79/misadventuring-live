@@ -1,41 +1,40 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type KeyboardEvent } from 'react';
 import { db } from '../firebase';
-import { doc, onSnapshot, setDoc, updateDoc, arrayUnion } from 'firebase/firestore';
-import { motion, AnimatePresence } from 'framer-motion';
+import { doc, onSnapshot, updateDoc, arrayUnion } from 'firebase/firestore';
+import { motion } from 'framer-motion';
 import './Madlibs.css';
 
-/**
- * MADLIBS D&D
- * 
- * Flow:
- * 1. GM creates a template: "The [ADJECTIVE] wizard casts [SPELL] at the [CREATURE]"
- * 2. Audience members each submit ONE word for the current blank
- * 3. Random selection (or voting) picks the winner for each blank
- * 4. Final reveal shows the completed sentence with dramatic flair
- * 
- * Firebase structure:
- * madlibs/current {
- *   template: "The [ADJECTIVE] wizard casts [SPELL]",
- *   blanks: ["ADJECTIVE", "SPELL"],
- *   currentBlankIndex: 0,
- *   submissions: { "ADJECTIVE": ["brave", "smelly", "drunk"], "SPELL": [] },
- *   winners: { "ADJECTIVE": "smelly", "SPELL": null },
- *   status: "collecting" | "revealing" | "complete" | "idle"
- * }
- */
+interface MadlibSubmission {
+  word: string;
+  userId: string;
+  timestamp: number;
+}
 
-export default function Madlibs({ isAdmin = false }) {
-  const [madlibData, setMadlibData] = useState(null);
+interface MadlibData {
+  template: string;
+  blanks: string[];
+  currentBlankIndex: number;
+  submissions: Record<string, MadlibSubmission[]>;
+  winners: Record<string, string>;
+  status: 'collecting' | 'revealing' | 'complete' | 'idle';
+}
+
+interface MadlibsProps {
+  isAdmin?: boolean;
+}
+
+export default function Madlibs({ isAdmin = false }: MadlibsProps) {
+  const [madlibData, setMadlibData] = useState<MadlibData | null>(null);
   const [submission, setSubmission] = useState('');
   const [hasSubmitted, setHasSubmitted] = useState(false);
-  const [userId] = useState(() => localStorage.getItem('userId') || Math.random().toString(36).substr(2, 9));
+  const [userId] = useState(() => localStorage.getItem('audience-id') || Math.random().toString(36).substr(2, 9));
 
   useEffect(() => {
     localStorage.setItem('audience-id', userId);
     
     const unsubscribe = onSnapshot(doc(db, 'madlibs', 'current'), (snapshot) => {
       if (snapshot.exists()) {
-        setMadlibData(snapshot.data());
+        setMadlibData(snapshot.data() as MadlibData);
         // Reset submission state when blank changes
         setHasSubmitted(false);
         setSubmission('');
@@ -64,6 +63,10 @@ export default function Madlibs({ isAdmin = false }) {
     } catch (error) {
       console.error('Failed to submit word:', error);
     }
+  };
+
+  const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') submitWord();
   };
 
   // Idle state - no active madlib
@@ -103,7 +106,7 @@ export default function Madlibs({ isAdmin = false }) {
               onChange={(e) => setSubmission(e.target.value)}
               placeholder={`Enter a ${currentBlank.toLowerCase()}...`}
               maxLength={30}
-              onKeyPress={(e) => e.key === 'Enter' && submitWord()}
+              onKeyPress={handleKeyPress}
             />
             <button onClick={submitWord} disabled={!submission.trim()}>
               Submit
@@ -159,7 +162,7 @@ export default function Madlibs({ isAdmin = false }) {
 }
 
 // Helper: Render template with filled/unfilled blanks
-function renderTemplate(template, winners, currentBlank) {
+function renderTemplate(template: string, winners: Record<string, string>, currentBlank: string) {
   const parts = template.split(/(\[[A-Z_]+\])/g);
   
   return parts.map((part, i) => {
@@ -183,7 +186,7 @@ function renderTemplate(template, winners, currentBlank) {
 }
 
 // Helper: Render final completed story
-function renderFinalStory(template, winners) {
+function renderFinalStory(template: string, winners: Record<string, string>): string {
   let result = template;
   Object.entries(winners).forEach(([blank, word]) => {
     result = result.replace(`[${blank}]`, word);
@@ -192,8 +195,8 @@ function renderFinalStory(template, winners) {
 }
 
 // Helper: Get hint text for blank types
-function getHintForType(type) {
-  const hints = {
+function getHintForType(type: string): string {
+  const hints: Record<string, string> = {
     'ADJECTIVE': 'describes something',
     'NOUN': 'person, place, or thing',
     'VERB': 'action word',

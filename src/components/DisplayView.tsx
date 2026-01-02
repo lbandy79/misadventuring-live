@@ -1,81 +1,127 @@
-import { useState, useEffect } from 'react'
-import { doc, onSnapshot } from 'firebase/firestore'
-import { motion, AnimatePresence } from 'framer-motion'
-import { db } from '../firebase'
-import { useTheme } from '../themes'
-import './DisplayView.css'
+import { useState, useEffect, useRef } from 'react';
+import { doc, onSnapshot } from 'firebase/firestore';
+import { motion, AnimatePresence } from 'framer-motion';
+import { db } from '../firebase';
+import { useTheme } from '../themes';
+import { playSound, initAudio } from '../utils/sounds';
+import './DisplayView.css';
 
-/**
- * DisplayView - The theatrical projection screen
- * 
- * This is meant to be captured by OBS or shown on a venue projector.
- * It displays dramatic reveals, animations, and results.
- * No interactive elements - just pure visual spectacle.
- */
+interface VoteOption {
+  id: string;
+  label: string;
+  emoji: string;
+}
+
+interface ActiveInteraction {
+  type: 'none' | 'vote' | 'madlibs' | 'npc-naming' | 'group-roll';
+  question?: string;
+  options?: VoteOption[];
+  isOpen?: boolean;
+  timer?: number;
+  startedAt?: number;
+}
+
+interface VotesData {
+  counts?: Record<string, number>;
+  totalVotes?: number;
+}
+
 export default function DisplayView() {
-  const [activeInteraction, setActiveInteraction] = useState({ type: 'none' })
-  const [votes, setVotes] = useState({})
-  const [soundEnabled, setSoundEnabled] = useState(true)
-  const [debugInfo, setDebugInfo] = useState('Connecting...')
-  const { theme } = useTheme()
+  const [activeInteraction, setActiveInteraction] = useState<ActiveInteraction>({ type: 'none' });
+  const [votes, setVotes] = useState<VotesData>({});
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [debugInfo, setDebugInfo] = useState('Connecting...');
+  const { theme } = useTheme();
+  
+  // Track previous state for sound triggers
+  const prevInteractionRef = useRef<ActiveInteraction>({ type: 'none' });
+  const prevVotesRef = useRef<number>(0);
 
-  // Listen to active interaction
+  // Initialize audio on first click (required by browsers)
+  const handleEnableSound = () => {
+    initAudio();
+    setSoundEnabled(true);
+  };
+
+  // Listen to active interaction with sound effects
   useEffect(() => {
-    console.log('DisplayView: Setting up listener for active-interaction')
+    console.log('DisplayView: Setting up listener for active-interaction');
     const unsubscribe = onSnapshot(
       doc(db, 'config', 'active-interaction'),
       (snapshot) => {
-        console.log('DisplayView: Got snapshot', snapshot.exists(), snapshot.data())
+        console.log('DisplayView: Got snapshot', snapshot.exists(), snapshot.data());
         if (snapshot.exists()) {
-          setActiveInteraction(snapshot.data())
-          setDebugInfo(`Type: ${snapshot.data().type}`)
+          const newInteraction = snapshot.data() as ActiveInteraction;
+          
+          // Play whoosh when new interaction starts
+          if (newInteraction.type !== 'none' && prevInteractionRef.current.type === 'none') {
+            playSound('whoosh');
+          }
+          
+          // Play chime when voting closes
+          if (prevInteractionRef.current.isOpen && !newInteraction.isOpen && newInteraction.type === 'vote') {
+            playSound('chime');
+          }
+          
+          prevInteractionRef.current = newInteraction;
+          setActiveInteraction(newInteraction);
+          setDebugInfo(`Type: ${snapshot.data().type}`);
         } else {
-          setActiveInteraction({ type: 'none' })
-          setDebugInfo('No active interaction doc')
+          setActiveInteraction({ type: 'none' });
+          setDebugInfo('No active interaction doc');
         }
       },
       (error) => {
-        console.error('DisplayView: Listener error', error)
-        setDebugInfo(`Error: ${error.message}`)
+        console.error('DisplayView: Listener error', error);
+        setDebugInfo(`Error: ${error.message}`);
       }
-    )
-    return () => unsubscribe()
-  }, [])
+    );
+    return () => unsubscribe();
+  }, []);
 
-  // Listen to votes
+  // Listen to votes with sound effects
   useEffect(() => {
     const unsubscribe = onSnapshot(
       doc(db, 'votes', 'current-vote'),
       (snapshot) => {
         if (snapshot.exists()) {
-          setVotes(snapshot.data())
+          const newVotes = snapshot.data() as VotesData;
+          
+          // Play subtle tick when votes come in (on display only)
+          if (newVotes.totalVotes && newVotes.totalVotes > prevVotesRef.current) {
+            // Soft tick for each new vote on the display
+            playSound('tick');
+          }
+          
+          prevVotesRef.current = newVotes.totalVotes || 0;
+          setVotes(newVotes);
         }
       }
-    )
-    return () => unsubscribe()
-  }, [])
+    );
+    return () => unsubscribe();
+  }, []);
 
   // Calculate vote percentages
-  const totalVotes = votes.totalVotes || 0
-  const getPercent = (optionId) => {
-    if (totalVotes === 0) return 0
-    return ((votes.counts?.[optionId] || 0) / totalVotes) * 100
-  }
+  const totalVotes = votes.totalVotes || 0;
+  const getPercent = (optionId: string): number => {
+    if (totalVotes === 0) return 0;
+    return ((votes.counts?.[optionId] || 0) / totalVotes) * 100;
+  };
 
   // Find the winner
-  const getWinner = () => {
-    if (!activeInteraction.options || totalVotes === 0) return null
-    let maxVotes = 0
-    let winner = null
+  const getWinner = (): VoteOption | null => {
+    if (!activeInteraction.options || totalVotes === 0) return null;
+    let maxVotes = 0;
+    let winner: VoteOption | null = null;
     activeInteraction.options.forEach(opt => {
-      const count = votes.counts?.[opt.id] || 0
+      const count = votes.counts?.[opt.id] || 0;
       if (count > maxVotes) {
-        maxVotes = count
-        winner = opt
+        maxVotes = count;
+        winner = opt;
       }
-    })
-    return winner
-  }
+    });
+    return winner;
+  };
 
   return (
     <div className="display-container">
@@ -87,7 +133,8 @@ export default function DisplayView() {
       {/* Sound toggle - small, corner */}
       <button 
         className="sound-toggle"
-        onClick={() => setSoundEnabled(!soundEnabled)}
+        onClick={handleEnableSound}
+        title={soundEnabled ? 'Sound enabled' : 'Click to enable sound'}
       >
         {soundEnabled ? '🔊' : '🔇'}
       </button>
@@ -151,13 +198,13 @@ export default function DisplayView() {
             {/* Giant tug-of-war bar */}
             <div className="display-results-bar">
               {activeInteraction.options?.map((option, index) => {
-                const percent = getPercent(option.id)
-                const colors = ['bar-a', 'bar-b', 'bar-c']
+                const percent = getPercent(option.id);
+                const colors = ['bar-a', 'bar-b', 'bar-c'];
                 return (
                   <motion.div
                     key={option.id}
                     className={`display-bar-segment ${colors[index]}`}
-                    initial={{ width: `${100 / activeInteraction.options.length}%` }}
+                    initial={{ width: `${100 / (activeInteraction.options?.length || 2)}%` }}
                     animate={{ width: `${Math.max(percent, 5)}%` }}
                     transition={{ type: 'spring', stiffness: 50, damping: 15 }}
                   >
@@ -167,7 +214,7 @@ export default function DisplayView() {
                       <span className="segment-percent">{Math.round(percent)}%</span>
                     </div>
                   </motion.div>
-                )
+                );
               })}
             </div>
 
@@ -210,5 +257,5 @@ export default function DisplayView() {
         )}
       </AnimatePresence>
     </div>
-  )
+  );
 }

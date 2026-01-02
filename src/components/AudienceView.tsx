@@ -1,46 +1,55 @@
-import { useState, useEffect } from 'react'
-import { doc, onSnapshot } from 'firebase/firestore'
-import { db } from '../firebase'
-import EncounterVote from './EncounterVote'
-import Madlibs from './Madlibs'
-import NpcNaming from './NpcNaming'
-import GroupRoll from './GroupRoll'
-import './AudienceView.css'
+import { useState, useEffect } from 'react';
+import { doc, onSnapshot } from 'firebase/firestore';
+import { db } from '../firebase';
+import EncounterVote from './EncounterVote';
+import Madlibs from './Madlibs';
+import NpcNaming from './NpcNaming';
+import GroupRoll from './GroupRoll';
+import './AudienceView.css';
+
+interface ActiveInteraction {
+  type: 'none' | 'vote' | 'madlibs' | 'npc-naming' | 'group-roll';
+  question?: string;
+  options?: Array<{ id: string; label: string; emoji: string }>;
+  isOpen?: boolean;
+  timer?: number;
+  startedAt?: number;
+}
 
 export default function AudienceView() {
-  const [activeInteraction, setActiveInteraction] = useState(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [connectionError, setConnectionError] = useState(false)
+  const [activeInteraction, setActiveInteraction] = useState<ActiveInteraction | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [connectionError, setConnectionError] = useState(false);
 
   useEffect(() => {
-    let unsubscribe
+    let unsubscribe: (() => void) | undefined;
 
     try {
       unsubscribe = onSnapshot(
         doc(db, 'config', 'active-interaction'),
         (snapshot) => {
           if (snapshot.exists()) {
-            setActiveInteraction(snapshot.data())
+            setActiveInteraction(snapshot.data() as ActiveInteraction);
           } else {
-            setActiveInteraction({ type: 'none' })
+            setActiveInteraction({ type: 'none' });
           }
-          setIsLoading(false)
-          setConnectionError(false)
+          setIsLoading(false);
+          setConnectionError(false);
         },
         (error) => {
-          console.error('Firebase connection error:', error)
-          setConnectionError(true)
-          setIsLoading(false)
+          console.error('Firebase connection error:', error);
+          setConnectionError(true);
+          setIsLoading(false);
         }
-      )
+      );
     } catch (error) {
-      console.error('Firebase setup error:', error)
-      setConnectionError(true)
-      setIsLoading(false)
+      console.error('Firebase setup error:', error);
+      setConnectionError(true);
+      setIsLoading(false);
     }
 
-    return () => unsubscribe && unsubscribe()
-  }, [])
+    return () => unsubscribe && unsubscribe();
+  }, []);
 
   if (isLoading) {
     return (
@@ -50,7 +59,7 @@ export default function AudienceView() {
           <p>Connecting to the adventure...</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (connectionError) {
@@ -65,7 +74,7 @@ export default function AudienceView() {
           </button>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -88,17 +97,10 @@ export default function AudienceView() {
           </div>
         )}
 
-        {/* Future interaction types will plug in here */}
-        {activeInteraction?.type === 'madlibs' && (
-          <Madlibs />
-        )}
-        {activeInteraction?.type === 'npc-naming' && (
-          <NpcNaming />
-        )}
-        {activeInteraction?.type === 'group-roll' && (
-          <GroupRoll />
-        )}
+        {activeInteraction?.type === 'madlibs' && <Madlibs />}
+        {activeInteraction?.type === 'npc-naming' && <NpcNaming />}
+        {activeInteraction?.type === 'group-roll' && <GroupRoll />}
       </main>
     </div>
-  )
+  );
 }

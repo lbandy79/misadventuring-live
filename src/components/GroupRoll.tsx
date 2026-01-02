@@ -4,37 +4,30 @@ import { doc, onSnapshot, updateDoc, arrayUnion } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'framer-motion';
 import './GroupRoll.css';
 
-/**
- * GROUP ROLL
- * 
- * Flow:
- * 1. GM triggers a group roll: "Stealth check! Everyone roll!"
- * 2. Each audience member rolls (random d20, or custom dice)
- * 3. Results stream in real-time, building tension
- * 4. Final tally shown: success/fail count, total, average, etc.
- * 
- * Modes:
- * - "collective": Sum/average all rolls vs DC
- * - "individual": Each person's pass/fail counted
- * - "best-of": Highest roll wins for the group
- * - "worst-of": Lowest roll determines outcome
- * 
- * Firebase structure:
- * group-roll/current {
- *   prompt: "Stealth check to sneak past the guards!",
- *   diceType: "d20",
- *   modifier: 0,
- *   dc: 15,
- *   mode: "individual",
- *   rolls: [{ userId: "xxx", result: 17, timestamp: 123 }],
- *   status: "rolling" | "results" | "idle"
- * }
- */
+interface RollEntry {
+  userId: string;
+  result: number;
+  timestamp: number;
+}
 
-export default function GroupRoll({ isAdmin = false }) {
-  const [rollData, setRollData] = useState(null);
+interface RollData {
+  prompt: string;
+  diceType: string;
+  modifier: number;
+  dc: number;
+  mode: 'collective' | 'individual' | 'best-of' | 'worst-of';
+  rolls: RollEntry[];
+  status: 'rolling' | 'results' | 'idle';
+}
+
+interface GroupRollProps {
+  isAdmin?: boolean;
+}
+
+export default function GroupRoll({ isAdmin = false }: GroupRollProps) {
+  const [rollData, setRollData] = useState<RollData | null>(null);
   const [hasRolled, setHasRolled] = useState(false);
-  const [myRoll, setMyRoll] = useState(null);
+  const [myRoll, setMyRoll] = useState<number | null>(null);
   const [isRolling, setIsRolling] = useState(false);
   const [userId] = useState(() => localStorage.getItem('audience-id') || Math.random().toString(36).substr(2, 9));
 
@@ -43,7 +36,7 @@ export default function GroupRoll({ isAdmin = false }) {
     
     const unsubscribe = onSnapshot(doc(db, 'group-roll', 'current'), (snapshot) => {
       if (snapshot.exists()) {
-        const data = snapshot.data();
+        const data = snapshot.data() as RollData;
         setRollData(data);
         
         // Check if user already rolled
@@ -70,12 +63,11 @@ export default function GroupRoll({ isAdmin = false }) {
     
     // Animate the roll
     const diceMax = parseInt(rollData.diceType.replace('d', ''));
-    let animationRoll = 0;
     
     // Quick animation of changing numbers
     for (let i = 0; i < 10; i++) {
       await new Promise(resolve => setTimeout(resolve, 50));
-      animationRoll = Math.floor(Math.random() * diceMax) + 1;
+      const animationRoll = Math.floor(Math.random() * diceMax) + 1;
       setMyRoll(animationRoll);
     }
     
@@ -146,12 +138,12 @@ export default function GroupRoll({ isAdmin = false }) {
           </motion.button>
         ) : (
           <div className="my-roll-result">
-            <div className={`roll-value ${myRoll + modifier >= dc ? 'success' : 'fail'}`}>
+            <div className={`roll-value ${(myRoll ?? 0) + modifier >= dc ? 'success' : 'fail'}`}>
               {myRoll}
-              {modifier !== 0 && <span className="modifier-display">+{modifier}={myRoll + modifier}</span>}
+              {modifier !== 0 && <span className="modifier-display">+{modifier}={(myRoll ?? 0) + modifier}</span>}
             </div>
             <div className="roll-outcome">
-              {myRoll + modifier >= dc ? '✓ Success!' : '✗ Failed'}
+              {(myRoll ?? 0) + modifier >= dc ? '✓ Success!' : '✗ Failed'}
             </div>
           </div>
         )}
@@ -163,7 +155,7 @@ export default function GroupRoll({ isAdmin = false }) {
         {/* Live roll feed */}
         <div className="live-rolls">
           <AnimatePresence>
-            {rollData.rolls?.slice(-5).reverse().map((roll, index) => (
+            {rollData.rolls?.slice(-5).reverse().map((roll) => (
               <motion.div
                 key={roll.timestamp}
                 className={`roll-pip ${roll.result + modifier >= dc ? 'success' : 'fail'}`}
@@ -186,9 +178,9 @@ export default function GroupRoll({ isAdmin = false }) {
     const successes = rolls.filter(r => r.result + modifier >= dc).length;
     const failures = rolls.length - successes;
     const total = rolls.reduce((sum, r) => sum + r.result, 0);
-    const average = rolls.length > 0 ? (total / rolls.length).toFixed(1) : 0;
-    const highest = Math.max(...rolls.map(r => r.result), 0);
-    const lowest = Math.min(...rolls.map(r => r.result), 20);
+    const average = rolls.length > 0 ? (total / rolls.length).toFixed(1) : '0';
+    const highest = rolls.length > 0 ? Math.max(...rolls.map(r => r.result)) : 0;
+    const lowest = rolls.length > 0 ? Math.min(...rolls.map(r => r.result)) : 0;
 
     return (
       <div className="group-roll-container results">
@@ -216,11 +208,11 @@ export default function GroupRoll({ isAdmin = false }) {
         <div className="success-bar">
           <div 
             className="success-fill"
-            style={{ width: `${(successes / rolls.length) * 100}%` }}
+            style={{ width: `${rolls.length > 0 ? (successes / rolls.length) * 100 : 0}%` }}
           />
         </div>
         <div className="success-label">
-          {Math.round((successes / rolls.length) * 100)}% success rate
+          {rolls.length > 0 ? Math.round((successes / rolls.length) * 100) : 0}% success rate
         </div>
       </div>
     );

@@ -1,16 +1,57 @@
-import { useState, useEffect } from 'react'
-import { doc, onSnapshot, setDoc, deleteDoc, collection, getDocs } from 'firebase/firestore'
-import { db } from '../firebase'
-import { useTheme, themeRegistry } from '../themes'
-import './AdminPanel.css'
+import { useState, useEffect, type FormEvent, type ChangeEvent } from 'react';
+import { doc, onSnapshot, setDoc, collection, getDocs } from 'firebase/firestore';
+import { db } from '../firebase';
+import { useTheme, themeRegistry } from '../themes';
+import type { ThemeId } from '../themes';
+import './AdminPanel.css';
 
-const ADMIN_PASSWORD = 'misadventure2025' // Change this! Or move to env var later
+const ADMIN_PASSWORD = 'misadventure2025'; // Change this! Or move to env var later
+
+interface VoteOption {
+  id: string;
+  label: string;
+  emoji: string;
+}
+
+interface VoteConfig {
+  question: string;
+  options: VoteOption[];
+  isOpen: boolean;
+  timer: number;
+}
+
+interface MadlibsConfig {
+  template: string;
+}
+
+interface NpcConfig {
+  description: string;
+  imageUrl?: string;
+  selectionMode: string;
+}
+
+interface RollConfig {
+  prompt: string;
+  diceType: string;
+  dc: number;
+  modifier: number;
+}
+
+interface ActiveInteraction {
+  type: 'none' | 'vote' | 'madlibs' | 'npc-naming' | 'group-roll';
+  question?: string;
+  options?: VoteOption[];
+  isOpen?: boolean;
+  timer?: number;
+  startedAt?: number;
+  currentBlankIndex?: number;
+}
 
 export default function AdminPanel() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [password, setPassword] = useState('')
-  const [activeInteraction, setActiveInteraction] = useState({ type: 'none' })
-  const [voteConfig, setVoteConfig] = useState({
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [password, setPassword] = useState('');
+  const [activeInteraction, setActiveInteraction] = useState<ActiveInteraction>({ type: 'none' });
+  const [voteConfig, setVoteConfig] = useState<VoteConfig>({
     question: 'What should the party do?',
     options: [
       { id: 'a', label: 'Fight', emoji: '⚔️' },
@@ -18,161 +59,175 @@ export default function AdminPanel() {
     ],
     isOpen: false,
     timer: 60
-  })
-  const [madlibsConfig, setMadlibsConfig] = useState({
+  });
+  const [madlibsConfig, setMadlibsConfig] = useState<MadlibsConfig>({
     template: 'The [ADJECTIVE] wizard casts [SPELL] at the [CREATURE]!',
-  })
-  const [npcConfig, setNpcConfig] = useState({
+  });
+  const [npcConfig, setNpcConfig] = useState<NpcConfig>({
     description: 'A mysterious tavern keeper with a scar across their face',
     selectionMode: 'random'
-  })
-  const [rollConfig, setRollConfig] = useState({
+  });
+  const [rollConfig, setRollConfig] = useState<RollConfig>({
     prompt: 'Stealth check to sneak past the guards!',
     diceType: 'd20',
     dc: 15,
     modifier: 0
-  })
-  const [voteCounts, setVoteCounts] = useState({})
-  const [participantCount, setParticipantCount] = useState(0)
-  const { themeId, setThemeId } = useTheme()
+  });
+  const [voteCounts, setVoteCounts] = useState<Record<string, number>>({});
+  const [participantCount, setParticipantCount] = useState(0);
+  const { themeId, setThemeId } = useTheme();
 
   // Check session storage for existing auth
   useEffect(() => {
-    const auth = sessionStorage.getItem('mtp-admin-auth')
-    if (auth === 'true') setIsAuthenticated(true)
-  }, [])
+    const auth = sessionStorage.getItem('mtp-admin-auth');
+    if (auth === 'true') setIsAuthenticated(true);
+  }, []);
 
   // Listen to active interaction
   useEffect(() => {
-    if (!isAuthenticated) return
+    if (!isAuthenticated) return;
 
     const unsubscribe = onSnapshot(
       doc(db, 'config', 'active-interaction'),
       (snapshot) => {
         if (snapshot.exists()) {
-          setActiveInteraction(snapshot.data())
+          setActiveInteraction(snapshot.data() as ActiveInteraction);
         }
       }
-    )
+    );
 
-    return () => unsubscribe()
-  }, [isAuthenticated])
+    return () => unsubscribe();
+  }, [isAuthenticated]);
 
   // Listen to vote counts
   useEffect(() => {
-    if (!isAuthenticated) return
+    if (!isAuthenticated) return;
 
     const unsubscribe = onSnapshot(
       doc(db, 'votes', 'current-vote'),
       (snapshot) => {
         if (snapshot.exists()) {
-          const data = snapshot.data()
-          setVoteCounts(data.counts || {})
-          setParticipantCount(data.totalVotes || 0)
+          const data = snapshot.data();
+          setVoteCounts(data.counts || {});
+          setParticipantCount(data.totalVotes || 0);
         } else {
-          setVoteCounts({})
-          setParticipantCount(0)
+          setVoteCounts({});
+          setParticipantCount(0);
         }
       }
-    )
+    );
 
-    return () => unsubscribe()
-  }, [isAuthenticated])
+    return () => unsubscribe();
+  }, [isAuthenticated]);
 
-  const handleLogin = (e) => {
-    e.preventDefault()
+  const handleLogin = (e: FormEvent) => {
+    e.preventDefault();
     if (password === ADMIN_PASSWORD) {
-      setIsAuthenticated(true)
-      sessionStorage.setItem('mtp-admin-auth', 'true')
+      setIsAuthenticated(true);
+      sessionStorage.setItem('mtp-admin-auth', 'true');
     } else {
-      alert('Wrong password, adventurer!')
+      alert('Wrong password, adventurer!');
     }
-  }
+  };
 
   const handleLogout = () => {
-    setIsAuthenticated(false)
-    sessionStorage.removeItem('mtp-admin-auth')
-  }
+    setIsAuthenticated(false);
+    sessionStorage.removeItem('mtp-admin-auth');
+  };
 
   // Activate voting
   const activateVoting = async () => {
     try {
-      console.log('Attempting to launch voting...')
+      console.log('Attempting to launch voting...');
+      const sessionId = `vote-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      
       await setDoc(doc(db, 'config', 'active-interaction'), {
         type: 'vote',
         question: voteConfig.question,
         options: voteConfig.options,
         isOpen: true,
         timer: voteConfig.timer,
-        startedAt: Date.now()
-      })
-      console.log('active-interaction written successfully')
+        startedAt: Date.now(),
+        sessionId // Unique ID for this voting round
+      });
+      console.log('active-interaction written successfully');
 
       // Initialize vote counts
-      const initialCounts = {}
+      const initialCounts: Record<string, number> = {};
       voteConfig.options.forEach(opt => {
-        initialCounts[opt.id] = 0
-      })
+        initialCounts[opt.id] = 0;
+      });
       await setDoc(doc(db, 'votes', 'current-vote'), {
         counts: initialCounts,
         totalVotes: 0
-      })
-      console.log('votes/current-vote written successfully')
+      });
+      console.log('votes/current-vote written successfully');
     } catch (error) {
-      console.error('Failed to launch voting:', error)
-      alert(`Failed to launch voting: ${error.message}`)
+      console.error('Failed to launch voting:', error);
+      alert(`Failed to launch voting: ${(error as Error).message}`);
     }
-  }
+  };
 
   // Close voting (keep results visible)
   const closeVoting = async () => {
     await setDoc(doc(db, 'config', 'active-interaction'), {
       ...activeInteraction,
       isOpen: false
-    })
-  }
+    });
+  };
 
   // Reopen voting
   const reopenVoting = async () => {
     await setDoc(doc(db, 'config', 'active-interaction'), {
       ...activeInteraction,
-      isOpen: true
-    })
-  }
+      isOpen: true,
+      startedAt: Date.now() // Reset timer when reopening!
+    });
+  };
 
   // End interaction entirely
   const endInteraction = async () => {
     await setDoc(doc(db, 'config', 'active-interaction'), {
       type: 'none'
-    })
-  }
+    });
+  };
 
-  // Reset all votes
+  // Reset all votes - generates new sessionId so previous votes don't carry over
   const resetVotes = async () => {
-    if (!confirm('Reset all votes? This cannot be undone.')) return
+    if (!confirm('Reset all votes? This cannot be undone.')) return;
     
-    const initialCounts = {}
+    const newSessionId = `vote-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
+    const initialCounts: Record<string, number> = {};
     activeInteraction.options?.forEach(opt => {
-      initialCounts[opt.id] = 0
-    })
+      initialCounts[opt.id] = 0;
+    });
+    
+    // Update both the session ID (to invalidate previous votes) and reset counts
+    await setDoc(doc(db, 'config', 'active-interaction'), {
+      ...activeInteraction,
+      sessionId: newSessionId,
+      startedAt: Date.now() // Also reset timer
+    });
+    
     await setDoc(doc(db, 'votes', 'current-vote'), {
       counts: initialCounts,
       totalVotes: 0
-    })
-  }
+    });
+  };
 
   // ============ MADLIBS FUNCTIONS ============
   const activateMadlibs = async () => {
     try {
       // Parse template for blanks
-      const blanks = [...madlibsConfig.template.matchAll(/\[([A-Z_]+)\]/g)].map(m => m[1])
+      const blanks = [...madlibsConfig.template.matchAll(/\[([A-Z_]+)\]/g)].map(m => m[1]);
       
-      const submissions = {}
-      blanks.forEach(b => { submissions[b] = [] })
+      const submissions: Record<string, never[]> = {};
+      blanks.forEach(b => { submissions[b] = []; });
       
       await setDoc(doc(db, 'config', 'active-interaction'), {
         type: 'madlibs'
-      })
+      });
       
       await setDoc(doc(db, 'madlibs', 'current'), {
         template: madlibsConfig.template,
@@ -181,30 +236,19 @@ export default function AdminPanel() {
         submissions,
         winners: {},
         status: 'collecting'
-      })
+      });
     } catch (error) {
-      console.error('Failed to launch madlibs:', error)
-      alert(`Failed to launch madlibs: ${error.message}`)
+      console.error('Failed to launch madlibs:', error);
+      alert(`Failed to launch madlibs: ${(error as Error).message}`);
     }
-  }
-
-  const advanceMadlibsBlank = async () => {
-    // Move to next blank or complete
-    const currentIndex = activeInteraction.currentBlankIndex || 0
-    const madlibDoc = await getDocs(collection(db, 'madlibs'))
-    // For now, just increment - we'd need to read the current doc properly
-    await setDoc(doc(db, 'madlibs', 'current'), {
-      ...activeInteraction,
-      currentBlankIndex: currentIndex + 1
-    }, { merge: true })
-  }
+  };
 
   // ============ NPC NAMING FUNCTIONS ============
   const activateNpcNaming = async () => {
     try {
       await setDoc(doc(db, 'config', 'active-interaction'), {
         type: 'npc-naming'
-      })
+      });
       
       await setDoc(doc(db, 'npc-naming', 'current'), {
         description: npcConfig.description,
@@ -213,28 +257,19 @@ export default function AdminPanel() {
         winner: null,
         status: 'collecting',
         selectionMode: npcConfig.selectionMode
-      })
+      });
     } catch (error) {
-      console.error('Failed to launch NPC naming:', error)
-      alert(`Failed to launch NPC naming: ${error.message}`)
+      console.error('Failed to launch NPC naming:', error);
+      alert(`Failed to launch NPC naming: ${(error as Error).message}`);
     }
-  }
-
-  const pickNpcWinner = async (mode = 'random') => {
-    // Read current submissions and pick winner
-    const docSnap = await getDocs(collection(db, 'npc-naming'))
-    // Simplified - pick random from submissions
-    await setDoc(doc(db, 'npc-naming', 'current'), {
-      status: 'revealing'
-    }, { merge: true })
-  }
+  };
 
   // ============ GROUP ROLL FUNCTIONS ============
   const activateGroupRoll = async () => {
     try {
       await setDoc(doc(db, 'config', 'active-interaction'), {
         type: 'group-roll'
-      })
+      });
       
       await setDoc(doc(db, 'group-roll', 'current'), {
         prompt: rollConfig.prompt,
@@ -243,41 +278,35 @@ export default function AdminPanel() {
         modifier: rollConfig.modifier,
         rolls: [],
         status: 'rolling'
-      })
+      });
     } catch (error) {
-      console.error('Failed to launch group roll:', error)
-      alert(`Failed to launch group roll: ${error.message}`)
+      console.error('Failed to launch group roll:', error);
+      alert(`Failed to launch group roll: ${(error as Error).message}`);
     }
-  }
-
-  const showRollResults = async () => {
-    await setDoc(doc(db, 'group-roll', 'current'), {
-      status: 'results'
-    }, { merge: true })
-  }
+  };
 
   // Update vote option
-  const updateOption = (index, field, value) => {
-    const newOptions = [...voteConfig.options]
-    newOptions[index] = { ...newOptions[index], [field]: value }
-    setVoteConfig({ ...voteConfig, options: newOptions })
-  }
+  const updateOption = (index: number, field: keyof VoteOption, value: string) => {
+    const newOptions = [...voteConfig.options];
+    newOptions[index] = { ...newOptions[index], [field]: value };
+    setVoteConfig({ ...voteConfig, options: newOptions });
+  };
 
   // Add third option
   const addOption = () => {
-    if (voteConfig.options.length >= 3) return
+    if (voteConfig.options.length >= 3) return;
     setVoteConfig({
       ...voteConfig,
       options: [...voteConfig.options, { id: 'c', label: 'Option C', emoji: '🎭' }]
-    })
-  }
+    });
+  };
 
   // Remove option
-  const removeOption = (index) => {
-    if (voteConfig.options.length <= 2) return
-    const newOptions = voteConfig.options.filter((_, i) => i !== index)
-    setVoteConfig({ ...voteConfig, options: newOptions })
-  }
+  const removeOption = (index: number) => {
+    if (voteConfig.options.length <= 2) return;
+    const newOptions = voteConfig.options.filter((_, i) => i !== index);
+    setVoteConfig({ ...voteConfig, options: newOptions });
+  };
 
   if (!isAuthenticated) {
     return (
@@ -297,7 +326,7 @@ export default function AdminPanel() {
           </form>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -433,8 +462,8 @@ export default function AdminPanel() {
                 key={t.id}
                 className={`theme-btn ${themeId === t.id ? 'active' : ''}`}
                 onClick={async () => {
-                  setThemeId(t.id)
-                  await setDoc(doc(db, 'config', 'theme'), { themeId: t.id })
+                  setThemeId(t.id as ThemeId);
+                  await setDoc(doc(db, 'config', 'theme'), { themeId: t.id });
                 }}
               >
                 <span className="theme-name">{t.name}</span>
@@ -556,5 +585,5 @@ export default function AdminPanel() {
         </section>
       </div>
     </div>
-  )
+  );
 }

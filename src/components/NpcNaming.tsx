@@ -1,31 +1,31 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type KeyboardEvent } from 'react';
 import { db } from '../firebase';
 import { doc, onSnapshot, updateDoc, arrayUnion } from 'firebase/firestore';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import './NpcNaming.css';
 
-/**
- * NPC NAMING
- * 
- * Flow:
- * 1. GM triggers NPC naming with a description: "Name this sketchy tavern keeper"
- * 2. Audience submits name suggestions
- * 3. Either: random pick, GM pick, or audience votes on top submissions
- * 4. Winner revealed with fanfare!
- * 
- * Firebase structure:
- * npc-naming/current {
- *   description: "A sketchy tavern keeper with an eye patch",
- *   imageUrl: null, // optional NPC portrait
- *   submissions: [{ name: "Grog McStabby", userId: "xxx", votes: 0 }],
- *   winner: null,
- *   status: "collecting" | "voting" | "revealing" | "idle",
- *   selectionMode: "random" | "vote" | "gm-pick"
- * }
- */
+interface NpcSubmission {
+  name: string;
+  userId: string;
+  votes: number;
+  timestamp: number;
+}
 
-export default function NpcNaming({ isAdmin = false }) {
-  const [npcData, setNpcData] = useState(null);
+interface NpcData {
+  description: string;
+  imageUrl?: string | null;
+  submissions: NpcSubmission[];
+  winner: string | null;
+  status: 'collecting' | 'voting' | 'revealing' | 'idle';
+  selectionMode: 'random' | 'vote' | 'gm-pick';
+}
+
+interface NpcNamingProps {
+  isAdmin?: boolean;
+}
+
+export default function NpcNaming({ isAdmin = false }: NpcNamingProps) {
+  const [npcData, setNpcData] = useState<NpcData | null>(null);
   const [submission, setSubmission] = useState('');
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [hasVoted, setHasVoted] = useState(false);
@@ -36,7 +36,7 @@ export default function NpcNaming({ isAdmin = false }) {
     
     const unsubscribe = onSnapshot(doc(db, 'npc-naming', 'current'), (snapshot) => {
       if (snapshot.exists()) {
-        const data = snapshot.data();
+        const data = snapshot.data() as NpcData;
         setNpcData(data);
         
         // Check if user already submitted
@@ -68,7 +68,11 @@ export default function NpcNaming({ isAdmin = false }) {
     }
   };
 
-  const voteForName = async (submissionIndex) => {
+  const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') submitName();
+  };
+
+  const voteForName = async (submissionIndex: number) => {
     if (hasVoted || !npcData) return;
     
     try {
@@ -119,7 +123,7 @@ export default function NpcNaming({ isAdmin = false }) {
               onChange={(e) => setSubmission(e.target.value)}
               placeholder="Enter a name..."
               maxLength={40}
-              onKeyPress={(e) => e.key === 'Enter' && submitName()}
+              onKeyPress={handleKeyPress}
             />
             <button onClick={submitName} disabled={!submission.trim()}>
               Submit
