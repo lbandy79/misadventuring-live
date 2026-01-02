@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react'
 import { doc, onSnapshot } from 'firebase/firestore'
 import { db } from '../firebase'
 import EncounterVote from './EncounterVote'
+import Madlibs from './Madlibs'
+import NpcNaming from './NpcNaming'
+import GroupRoll from './GroupRoll'
 import './AudienceView.css'
 
 export default function AudienceView() {
@@ -87,13 +90,13 @@ export default function AudienceView() {
 
         {/* Future interaction types will plug in here */}
         {activeInteraction?.type === 'madlibs' && (
-          <div className="coming-soon">Madlibs coming soon!</div>
+          <Madlibs />
         )}
         {activeInteraction?.type === 'npc-naming' && (
-          <div className="coming-soon">NPC Naming coming soon!</div>
+          <NpcNaming />
         )}
         {activeInteraction?.type === 'group-roll' && (
-          <div className="coming-soon">Group Roll coming soon!</div>
+          <GroupRoll />
         )}
       </main>
     </div>

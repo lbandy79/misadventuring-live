@@ -20,6 +20,19 @@ export default function AdminPanel() {
     isOpen: false,
     timer: 60
   })
+  const [madlibsConfig, setMadlibsConfig] = useState({
+    template: 'The [ADJECTIVE] wizard casts [SPELL] at the [CREATURE]!',
+  })
+  const [npcConfig, setNpcConfig] = useState({
+    description: 'A mysterious tavern keeper with a scar across their face',
+    selectionMode: 'random'
+  })
+  const [rollConfig, setRollConfig] = useState({
+    prompt: 'Stealth check to sneak past the guards!',
+    diceType: 'd20',
+    dc: 15,
+    modifier: 0
+  })
   const [voteCounts, setVoteCounts] = useState({})
   const [participantCount, setParticipantCount] = useState(0)
   const { themeId, setThemeId } = useTheme()
@@ -147,6 +160,101 @@ export default function AdminPanel() {
       counts: initialCounts,
       totalVotes: 0
     })
+  }
+
+  // ============ MADLIBS FUNCTIONS ============
+  const activateMadlibs = async () => {
+    try {
+      // Parse template for blanks
+      const blanks = [...madlibsConfig.template.matchAll(/\[([A-Z_]+)\]/g)].map(m => m[1])
+      
+      const submissions = {}
+      blanks.forEach(b => { submissions[b] = [] })
+      
+      await setDoc(doc(db, 'config', 'active-interaction'), {
+        type: 'madlibs'
+      })
+      
+      await setDoc(doc(db, 'madlibs', 'current'), {
+        template: madlibsConfig.template,
+        blanks,
+        currentBlankIndex: 0,
+        submissions,
+        winners: {},
+        status: 'collecting'
+      })
+    } catch (error) {
+      console.error('Failed to launch madlibs:', error)
+      alert(`Failed to launch madlibs: ${error.message}`)
+    }
+  }
+
+  const advanceMadlibsBlank = async () => {
+    // Move to next blank or complete
+    const currentIndex = activeInteraction.currentBlankIndex || 0
+    const madlibDoc = await getDocs(collection(db, 'madlibs'))
+    // For now, just increment - we'd need to read the current doc properly
+    await setDoc(doc(db, 'madlibs', 'current'), {
+      ...activeInteraction,
+      currentBlankIndex: currentIndex + 1
+    }, { merge: true })
+  }
+
+  // ============ NPC NAMING FUNCTIONS ============
+  const activateNpcNaming = async () => {
+    try {
+      await setDoc(doc(db, 'config', 'active-interaction'), {
+        type: 'npc-naming'
+      })
+      
+      await setDoc(doc(db, 'npc-naming', 'current'), {
+        description: npcConfig.description,
+        imageUrl: npcConfig.imageUrl || null,
+        submissions: [],
+        winner: null,
+        status: 'collecting',
+        selectionMode: npcConfig.selectionMode
+      })
+    } catch (error) {
+      console.error('Failed to launch NPC naming:', error)
+      alert(`Failed to launch NPC naming: ${error.message}`)
+    }
+  }
+
+  const pickNpcWinner = async (mode = 'random') => {
+    // Read current submissions and pick winner
+    const docSnap = await getDocs(collection(db, 'npc-naming'))
+    // Simplified - pick random from submissions
+    await setDoc(doc(db, 'npc-naming', 'current'), {
+      status: 'revealing'
+    }, { merge: true })
+  }
+
+  // ============ GROUP ROLL FUNCTIONS ============
+  const activateGroupRoll = async () => {
+    try {
+      await setDoc(doc(db, 'config', 'active-interaction'), {
+        type: 'group-roll'
+      })
+      
+      await setDoc(doc(db, 'group-roll', 'current'), {
+        prompt: rollConfig.prompt,
+        diceType: rollConfig.diceType,
+        dc: rollConfig.dc,
+        modifier: rollConfig.modifier,
+        rolls: [],
+        status: 'rolling'
+      })
+    } catch (error) {
+      console.error('Failed to launch group roll:', error)
+      alert(`Failed to launch group roll: ${error.message}`)
+    }
+  }
+
+  const showRollResults = async () => {
+    await setDoc(doc(db, 'group-roll', 'current'), {
+      status: 'results'
+    }, { merge: true })
   }
 
   // Update vote option
@@ -337,14 +445,115 @@ export default function AdminPanel() {
           </div>
         </section>
 
-        {/* Future: Other interaction types */}
-        <section className="admin-card coming-soon-card">
-          <h2>Coming Soon</h2>
-          <ul>
-            <li>📝 Madlibs D&D</li>
-            <li>🏷️ NPC Naming</li>
-            <li>🎲 Group Rolls</li>
-          </ul>
+        {/* Madlibs Config */}
+        <section className="admin-card config-card">
+          <h2>📝 Madlibs D&D</h2>
+          <div className="form-group">
+            <label>Template</label>
+            <textarea
+              value={madlibsConfig.template}
+              onChange={(e) => setMadlibsConfig({ ...madlibsConfig, template: e.target.value })}
+              placeholder="The [ADJECTIVE] wizard casts [SPELL]..."
+              rows={3}
+            />
+            <small>Use [ADJECTIVE], [NOUN], [VERB], [CREATURE], [SPELL], etc.</small>
+          </div>
+          <button 
+            onClick={activateMadlibs} 
+            className="btn-primary"
+            disabled={activeInteraction.type !== 'none'}
+          >
+            🚀 Launch Madlibs
+          </button>
+        </section>
+
+        {/* NPC Naming Config */}
+        <section className="admin-card config-card">
+          <h2>🧙 NPC Naming</h2>
+          <div className="form-group">
+            <label>NPC Description</label>
+            <textarea
+              value={npcConfig.description}
+              onChange={(e) => setNpcConfig({ ...npcConfig, description: e.target.value })}
+              placeholder="A mysterious tavern keeper..."
+              rows={2}
+            />
+          </div>
+          <div className="form-group">
+            <label>Selection Mode</label>
+            <select
+              value={npcConfig.selectionMode}
+              onChange={(e) => setNpcConfig({ ...npcConfig, selectionMode: e.target.value })}
+            >
+              <option value="random">Random Pick</option>
+              <option value="vote">Audience Vote</option>
+              <option value="gm-pick">GM Picks</option>
+            </select>
+          </div>
+          <button 
+            onClick={activateNpcNaming} 
+            className="btn-primary"
+            disabled={activeInteraction.type !== 'none'}
+          >
+            🚀 Launch NPC Naming
+          </button>
+        </section>
+
+        {/* Group Roll Config */}
+        <section className="admin-card config-card">
+          <h2>🎲 Group Roll</h2>
+          <div className="form-group">
+            <label>Prompt</label>
+            <input
+              type="text"
+              value={rollConfig.prompt}
+              onChange={(e) => setRollConfig({ ...rollConfig, prompt: e.target.value })}
+              placeholder="Stealth check!"
+            />
+          </div>
+          <div className="form-row">
+            <div className="form-group">
+              <label>Dice</label>
+              <select
+                value={rollConfig.diceType}
+                onChange={(e) => setRollConfig({ ...rollConfig, diceType: e.target.value })}
+              >
+                <option value="d20">d20</option>
+                <option value="d12">d12</option>
+                <option value="d10">d10</option>
+                <option value="d8">d8</option>
+                <option value="d6">d6</option>
+                <option value="d4">d4</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label>DC</label>
+              <input
+                type="number"
+                value={rollConfig.dc}
+                onChange={(e) => setRollConfig({ ...rollConfig, dc: parseInt(e.target.value) || 10 })}
+                min="1"
+                max="30"
+              />
+            </div>
+            <div className="form-group">
+              <label>Modifier</label>
+              <input
+                type="number"
+                value={rollConfig.modifier}
+                onChange={(e) => setRollConfig({ ...rollConfig, modifier: parseInt(e.target.value) || 0 })}
+                min="-10"
+                max="10"
+              />
+            </div>
+          </div>
+          <button 
+            onClick={activateGroupRoll} 
+            className="btn-primary"
+            disabled={activeInteraction.type !== 'none'}
+          >
+            🚀 Launch Group Roll
+          </button>
         </section>
       </div>
     </div>
