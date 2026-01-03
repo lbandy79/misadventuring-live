@@ -3,7 +3,13 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { db } from '../firebase';
 import { useTheme } from '../themes';
-import { playSound, initAudio } from '../utils/sounds';
+import { audioMixer, initAudio } from '../utils/audioMixer';
+import { initConfetti, celebrateWinner, destroyConfetti } from '../utils/confetti';
+import { useCueListener } from '../hooks';
+import { TMPSoundOn, TMPSoundOff, TMPVotingOpen, TMPVotingClosed } from './icons/TMPIcons';
+import { TMPLogo } from './icons/TMPLogo';
+import DiceRollerDisplay from './DiceRollerDisplay';
+import VoteParticlesSimple, { useVoteParticles } from './VoteParticlesSimple';
 import './DisplayView.css';
 
 interface VoteOption {
@@ -31,15 +37,31 @@ export default function DisplayView() {
   const [votes, setVotes] = useState<VotesData>({});
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [debugInfo, setDebugInfo] = useState('Connecting...');
+  const [isShaking, setIsShaking] = useState(false);
+  const [showWinnerReveal, setShowWinnerReveal] = useState(false);
   useTheme(); 
+  
+  // Listen for GM-triggered cues from Firebase (synced effects across all displays)
+  useCueListener();
+  
+  // Vote particles system
+  const { emitVoteParticle } = useVoteParticles();
+  const prevVoteCountsRef = useRef<Record<string, number>>({});
   
   // Track previous state for sound triggers
   const prevInteractionRef = useRef<ActiveInteraction>({ type: 'none' });
   const prevVotesRef = useRef<number>(0);
 
+  // Initialize confetti on mount
+  useEffect(() => {
+    initConfetti();
+    return () => destroyConfetti();
+  }, []);
+
   // Initialize audio on first click (required by browsers)
   const handleEnableSound = () => {
     initAudio();
+    audioMixer.init();
     setSoundEnabled(true);
   };
 
@@ -55,12 +77,24 @@ export default function DisplayView() {
           
           // Play whoosh when new interaction starts
           if (newInteraction.type !== 'none' && prevInteractionRef.current.type === 'none') {
-            playSound('whoosh');
+            audioMixer.play('whoosh');
+            setShowWinnerReveal(false); // Reset winner reveal for new interaction
           }
           
-          // Play chime when voting closes
+          // 🎉 THE BIG MOMENT: Voting closes - trigger celebration!
           if (prevInteractionRef.current.isOpen && !newInteraction.isOpen && newInteraction.type === 'vote') {
-            playSound('chime');
+            audioMixer.play('uiClick');
+            
+            // Screen shake for impact
+            setIsShaking(true);
+            setTimeout(() => setIsShaking(false), 800);
+            
+            // Dramatic reveal timing
+            setTimeout(() => {
+              setShowWinnerReveal(true);
+              audioMixer.playVictoryFanfare();
+              celebrateWinner({ intensity: 'epic' });
+            }, 600);
           }
           
           prevInteractionRef.current = newInteraction;
@@ -79,27 +113,55 @@ export default function DisplayView() {
     return () => unsubscribe();
   }, []);
 
-  // Listen to votes with sound effects
+  // Listen to votes with sound effects and particle emission
   useEffect(() => {
     const unsubscribe = onSnapshot(
       doc(db, 'votes', 'current-vote'),
       (snapshot) => {
         if (snapshot.exists()) {
           const newVotes = snapshot.data() as VotesData;
+          const newCounts = newVotes.counts || {};
           
-          // Play subtle tick when votes come in (on display only)
+          console.log('📊 Vote update:', { 
+            total: newVotes.totalVotes, 
+            prevTotal: prevVotesRef.current,
+            counts: newCounts,
+            prevCounts: prevVoteCountsRef.current 
+          });
+          
+          // Play subtle tick when total votes increase (new voter)
           if (newVotes.totalVotes && newVotes.totalVotes > prevVotesRef.current) {
-            // Soft tick for each new vote on the display
-            playSound('tick');
+            audioMixer.play('timerTick', { volume: 0.3 });
           }
           
+          // Emit particles for each option that gained votes
+          // This works for both new votes AND revotes (changing your vote)
+          Object.keys(newCounts).forEach(optionId => {
+            const prevCount = prevVoteCountsRef.current[optionId] || 0;
+            const newCount = newCounts[optionId] || 0;
+            const diff = newCount - prevCount;
+            
+            console.log(`🗳️ Option ${optionId}: ${prevCount} → ${newCount} (diff: ${diff})`);
+            
+            if (diff > 0) {
+              // Emit particles for new votes (max 5 at once to avoid overload)
+              const particleCount = Math.min(diff, 5);
+              console.log(`🎯 Emitting ${particleCount} particles for option ${optionId}`);
+              for (let i = 0; i < particleCount; i++) {
+                setTimeout(() => emitVoteParticle(optionId, 1), i * 100);
+              }
+            }
+          });
+          
+          prevVoteCountsRef.current = { ...newCounts };
           prevVotesRef.current = newVotes.totalVotes || 0;
           setVotes(newVotes);
         }
       }
     );
     return () => unsubscribe();
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Don't depend on emitVoteParticle - it reads from window at call time
 
   // Calculate vote percentages
   const totalVotes = votes.totalVotes || 0;
@@ -124,7 +186,10 @@ export default function DisplayView() {
   };
 
   return (
-    <div className="display-container">
+    <div className={`display-container crt-overlay ${isShaking ? 'shake-intense' : ''}`}>
+      {/* Vote Particles Layer - Simple DOM version */}
+      <VoteParticlesSimple enabled={activeInteraction.type === 'vote'} />
+
       {/* Debug info - remove in production */}
       <div style={{ position: 'absolute', top: '1rem', left: '1rem', color: '#666', fontSize: '0.8rem', zIndex: 100 }}>
         {debugInfo} | Active: {activeInteraction.type}
@@ -136,7 +201,7 @@ export default function DisplayView() {
         onClick={handleEnableSound}
         title={soundEnabled ? 'Sound enabled' : 'Click to enable sound'}
       >
-        {soundEnabled ? '🔊' : '🔇'}
+        {soundEnabled ? <TMPSoundOn size={28} /> : <TMPSoundOff size={28} />}
       </button>
 
       <AnimatePresence mode="wait">
@@ -150,15 +215,20 @@ export default function DisplayView() {
             exit={{ opacity: 0 }}
           >
             <div className="idle-content">
-              <motion.div 
-                className="logo-container"
+              {/* The actual TMP Logo - hero branding moment */}
+              <motion.div
+                className="idle-logo"
                 animate={{ 
-                  y: [0, -10, 0],
-                  filter: ['drop-shadow(0 0 20px var(--accent-muted))', 'drop-shadow(0 0 40px var(--accent-muted))', 'drop-shadow(0 0 20px var(--accent-muted))']
+                  y: [0, -15, 0],
+                  filter: [
+                    'drop-shadow(0 0 8px var(--tmp-color-primary))', 
+                    'drop-shadow(0 0 20px var(--tmp-color-primary))', 
+                    'drop-shadow(0 0 8px var(--tmp-color-primary))'
+                  ]
                 }}
-                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
               >
-                <h1>The Misadventuring Party</h1>
+                <TMPLogo size={280} />
               </motion.div>
               <p className="join-prompt">Join the adventure</p>
               <div className="url-display">play.misadventuringparty.com</div>
@@ -224,22 +294,45 @@ export default function DisplayView() {
               animate={activeInteraction.isOpen ? { scale: [1, 1.05, 1] } : {}}
               transition={{ repeat: Infinity, duration: 1.5 }}
             >
-              {activeInteraction.isOpen ? '⚡ VOTING OPEN ⚡' : '🏁 VOTING CLOSED'}
+              {activeInteraction.isOpen ? (
+                <><TMPVotingOpen size={32} /> VOTING OPEN <TMPVotingOpen size={32} /></>
+              ) : (
+                <><TMPVotingClosed size={32} /> VOTING CLOSED</>
+              )}
             </motion.div>
 
-            {/* Winner announcement when closed */}
-            {!activeInteraction.isOpen && totalVotes > 0 && (
-              <motion.div 
-                className="winner-announcement"
-                initial={{ scale: 0, rotate: -10 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{ type: 'spring', stiffness: 200, damping: 10, delay: 0.5 }}
-              >
-                <span className="winner-emoji">{getWinner()?.emoji}</span>
-                <span className="winner-text">{getWinner()?.label}</span>
-                <span className="winner-subtitle">THE PEOPLE HAVE SPOKEN</span>
-              </motion.div>
-            )}
+            {/* 🏆 WINNER ANNOUNCEMENT - The Big Reveal! */}
+            <AnimatePresence>
+              {!activeInteraction.isOpen && totalVotes > 0 && showWinnerReveal && (
+                <motion.div 
+                  className="winner-announcement winner-pulse"
+                  initial={{ scale: 0, rotate: -10, opacity: 0 }}
+                  animate={{ scale: 1, rotate: 0, opacity: 1 }}
+                  exit={{ scale: 0, opacity: 0 }}
+                  transition={{ type: 'spring', stiffness: 200, damping: 10 }}
+                >
+                  <motion.span 
+                    className="winner-emoji"
+                    animate={{ 
+                      scale: [1, 1.2, 1],
+                      rotate: [0, -5, 5, 0]
+                    }}
+                    transition={{ duration: 0.6, delay: 0.3 }}
+                  >
+                    {getWinner()?.emoji}
+                  </motion.span>
+                  <span className="winner-text glitch-text">{getWinner()?.label}</span>
+                  <motion.span 
+                    className="winner-subtitle"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                  >
+                    THE PEOPLE HAVE SPOKEN
+                  </motion.span>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
         )}
 
@@ -251,9 +344,7 @@ export default function DisplayView() {
         )}
 
         {activeInteraction.type === 'group-roll' && (
-          <motion.div className="coming-soon-display" key="roll">
-            <h2>🎲 Group Roll Animation Coming Soon</h2>
-          </motion.div>
+          <DiceRollerDisplay key="roll" />
         )}
       </AnimatePresence>
     </div>

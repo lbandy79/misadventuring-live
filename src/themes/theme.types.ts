@@ -20,7 +20,7 @@ export interface TMPTheme {
   description: string;
   
   /** Associated game system or campaign */
-  system: 'dnd-5e' | 'kids-on-bikes' | 'custom';
+  system: 'dnd-5e' | 'kids-on-bikes' | 'universal' | 'custom';
   
   /** Color palette */
   colors: ThemeColors;
@@ -42,7 +42,7 @@ export interface TMPTheme {
 // THEME IDS - Add new themes here
 // =============================================================================
 
-export type ThemeId = 'soggy-bottom-pirates' | 'neon-nightmares';
+export type ThemeId = 'tmp-base' | 'soggy-bottom-pirates' | 'neon-nightmares';
 
 // =============================================================================
 // COLOR DEFINITIONS

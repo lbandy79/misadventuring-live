@@ -5,8 +5,15 @@ import DisplayView from './components/DisplayView';
 import './index.css';
 
 // Import theme animation CSS files
+import './themes/tmpBase.animations.css';
 import './themes/soggyBottomPirates.animations.css';
 import './themes/neonNightmares.animations.css';
+
+// Import global effects (CRT, shake, glitch, etc.)
+import './styles/effects.css';
+
+// Import TMP icon styles
+import './components/icons/TMPIcons.css';
 
 function App() {
   return (

@@ -10,6 +10,12 @@
   margin-bottom: 1rem;
 }
 
+.show-header .header-logo {
+  max-width: 100%;
+  height: auto;
+  filter: drop-shadow(0 0 10px var(--tmp-color-primary, #e84393));
+}
+
 .show-header h1 {
   color: var(--accent);
   font-size: 1.75rem;
@@ -112,6 +118,17 @@
   font-size: 4rem;
   margin-bottom: 1rem;
   animation: pulse 2s ease-in-out infinite;
+}
+
+.waiting-logo {
+  margin-bottom: 1.5rem;
+  filter: drop-shadow(0 0 15px var(--tmp-color-primary, #e84393));
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
 
 @keyframes pulse {

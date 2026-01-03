@@ -5,6 +5,8 @@ import EncounterVote from './EncounterVote';
 import Madlibs from './Madlibs';
 import NpcNaming from './NpcNaming';
 import GroupRoll from './GroupRoll';
+import { TMPWarning } from './icons/TMPIcons';
+import { TMPLogo } from './icons/TMPLogo';
 import './AudienceView.css';
 
 interface ActiveInteraction {
@@ -66,7 +68,7 @@ export default function AudienceView() {
     return (
       <div className="audience-container">
         <div className="error-state">
-          <span className="error-icon">⚠️</span>
+          <TMPWarning size={64} className="error-icon" />
           <h2>Connection Lost</h2>
           <p>Having trouble reaching the server. Check your connection and refresh.</p>
           <button onClick={() => window.location.reload()} className="retry-btn">
@@ -91,7 +93,7 @@ export default function AudienceView() {
 
         {activeInteraction?.type === 'none' && (
           <div className="waiting-state">
-            <span className="waiting-icon">🎲</span>
+            <TMPLogo size={180} className="waiting-logo" />
             <h2>The Adventure Continues...</h2>
             <p>Stand by for your moment to influence the story!</p>
           </div>

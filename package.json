@@ -9,13 +9,21 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@rive-app/react-canvas": "^4.25.1",
+    "@tsparticles/react": "^3.0.0",
+    "@tsparticles/slim": "^3.9.1",
+    "canvas-confetti": "^1.9.4",
     "firebase": "^10.7.1",
     "framer-motion": "^10.16.16",
+    "gsap": "^3.14.2",
+    "howler": "^2.2.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.21.1"
   },
   "devDependencies": {
+    "@types/canvas-confetti": "^1.9.0",
+    "@types/howler": "^2.2.12",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^4.2.1",

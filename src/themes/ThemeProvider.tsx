@@ -5,7 +5,7 @@
  * - Manages active theme state
  * - Generates CSS variables from theme
  * - Injects Google Fonts
- * - Handles sound playback
+ * - Handles sound playback via AudioMixer
  */
 
 import {
@@ -27,6 +27,7 @@ import type {
 
 import { CSS_VAR_PREFIX } from './theme.types';
 import { themeRegistry, defaultThemeId, getTheme, getAvailableThemes } from './index';
+import { audioMixer, type SoundKey } from '../utils/audioMixer';
 
 // =============================================================================
 // CONTEXT
@@ -66,6 +67,10 @@ function generateCSSVariables(theme: TMPTheme): string {
   vars.push(`${prefix}-status-warning: ${theme.colors.status.warning}`);
   vars.push(`${prefix}-status-error: ${theme.colors.status.error}`);
   vars.push(`${prefix}-status-info: ${theme.colors.status.info}`);
+
+  // Icon colors (uses primary/secondary from theme)
+  vars.push(`--tmp-icon-primary: ${theme.colors.primary}`);
+  vars.push(`--tmp-icon-secondary: ${theme.colors.secondary}`);
 
   // Typography
   vars.push(`${prefix}-font-display: ${theme.typography.fonts.display}`);
@@ -188,24 +193,34 @@ export function ThemeProvider({
     localStorage.setItem('tmp-sound-enabled', String(soundEnabled));
   }, [soundEnabled]);
 
-  // Sound playback function
+  // Initialize AudioMixer on mount & load theme audio when theme changes
+  useEffect(() => {
+    // Initialize audio system (will unlock on first user interaction)
+    audioMixer.init();
+    // Load audio assets for current theme
+    audioMixer.loadTheme(themeId);
+  }, [themeId]);
+
+  // Sound playback function - now uses AudioMixer!
   const playSound = useCallback((soundKey: keyof ThemeSounds) => {
     if (!soundEnabled) return;
-    
-    const soundUrl = theme.sounds[soundKey];
-    if (!soundUrl) return;
 
-    try {
-      const audio = new Audio(soundUrl);
-      audio.volume = 0.5;
-      audio.play().catch(() => {
-        // Autoplay may be blocked - that's okay
-        console.debug(`Sound playback blocked: ${soundKey}`);
-      });
-    } catch (error) {
-      console.debug(`Sound playback error: ${soundKey}`, error);
+    // Map ThemeSounds keys to AudioMixer SoundKeys
+    const soundMap: Record<keyof ThemeSounds, SoundKey> = {
+      votecast: 'votecast',
+      timerTick: 'timerTick',
+      timerEnd: 'timerEnd',
+      victory: 'victory',
+      uiClick: 'uiClick',
+      error: 'error',
+      ambient: 'ambient',
+    };
+
+    const audioKey = soundMap[soundKey];
+    if (audioKey) {
+      audioMixer.play(audioKey);
     }
-  }, [soundEnabled, theme.sounds]);
+  }, [soundEnabled]);
 
   const contextValue = useMemo<ThemeContextValue>(() => ({
     theme,

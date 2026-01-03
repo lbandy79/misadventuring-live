@@ -1,0 +1,64 @@
+/**
+ * Vote Particles Simple - CSS Animations
+ * 
+ * DOM-based particles that actually work reliably.
+ */
+
+.vote-particles-simple-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: visible;
+}
+
+.vote-particle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 1;
+  transform: scale(1);
+  /* Make them VERY visible */
+  background: #FF0000 !important;
+  box-shadow: 
+    0 0 20px #FF0000,
+    0 0 40px #FF0000,
+    0 0 60px #FF0000 !important;
+}
+
+.vote-particle.flying {
+  animation: flyToTarget 1.5s ease-in-out forwards;
+}
+
+@keyframes flyToTarget {
+  0% {
+    opacity: 1;
+    transform: scale(1) translate(0, 0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(2) translate(calc(var(--target-x) * 0.5), calc(var(--target-y) * 0.5));
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.5) translate(var(--target-x), var(--target-y));
+  }
+}
+
+/* Glowing trail effect */
+.vote-particle::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 300%;
+  height: 300%;
+  background: inherit;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0.5;
+  filter: blur(15px);
+}

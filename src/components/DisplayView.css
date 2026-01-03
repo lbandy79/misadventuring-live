@@ -16,16 +16,19 @@
   background: rgba(0, 0, 0, 0.5);
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 0.5rem 0.75rem;
-  font-size: 1.5rem;
+  padding: 0.5rem;
   cursor: pointer;
   z-index: 100;
-  opacity: 0.5;
-  transition: opacity 0.2s;
+  opacity: 0.6;
+  transition: opacity 0.2s, transform 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .sound-toggle:hover {
   opacity: 1;
+  transform: scale(1.1);
 }
 
 /* Idle State */
@@ -39,6 +42,21 @@
   flex-direction: column;
   align-items: center;
   gap: 2rem;
+}
+
+.idle-d20 {
+  margin-bottom: 1rem;
+  filter: drop-shadow(0 0 30px var(--tmp-icon-primary, #e84393));
+}
+
+.idle-logo {
+  margin-bottom: 1rem;
+}
+
+.idle-logo img {
+  max-width: 100%;
+  height: auto;
+  filter: drop-shadow(0 0 20px var(--tmp-color-primary, #e84393));
 }
 
 .logo-container h1 {
@@ -169,12 +187,15 @@
 
 /* Voting Status */
 .voting-status {
-  font-size: 2rem;
+  font-size: 1.75rem;
   font-weight: bold;
-  padding: 1rem 3rem;
+  padding: 1rem 2.5rem;
   border-radius: 50px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .voting-status.open {

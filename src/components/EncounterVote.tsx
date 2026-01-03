@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { doc, onSnapshot, updateDoc, increment } from 'firebase/firestore';
 import { db } from '../firebase';
 import { playSound, initAudio } from '../utils/sounds';
+import { TMPCheck } from './icons/TMPIcons';
 import './EncounterVote.css';
 
 const VOTE_DOC_ID = 'current-vote';
@@ -32,11 +33,39 @@ export default function EncounterVote({ config }: EncounterVoteProps) {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const { question, options, isOpen, timer, startedAt, sessionId } = config || {};
   
   // Generate storage key based on session ID to prevent stale votes
   const storageKey = sessionId ? `voted-${sessionId}` : `voted-${VOTE_DOC_ID}`;
+
+  // 🚀 Spawn flying vote particle for "votes fly to screen" illusion
+  const spawnVoteFlyAway = (optionId: string) => {
+    const option = options?.find(o => o.id === optionId);
+    if (!option || !containerRef.current) return;
+    
+    // Create a particle element
+    const particle = document.createElement('div');
+    particle.textContent = option.emoji;
+    particle.style.cssText = `
+      position: fixed;
+      font-size: 3rem;
+      z-index: 10000;
+      pointer-events: none;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    `;
+    
+    // Add our fly-away animation class
+    particle.classList.add('vote-fly-away');
+    
+    document.body.appendChild(particle);
+    
+    // Remove after animation completes
+    setTimeout(() => particle.remove(), 700);
+  };
 
   // Listen for real-time vote updates
   useEffect(() => {
@@ -113,6 +142,9 @@ export default function EncounterVote({ config }: EncounterVoteProps) {
     // If clicking the same option, do nothing
     if (selectedOption === optionId) return;
 
+    // 🚀 Spawn fly-away particle for visual feedback
+    spawnVoteFlyAway(optionId);
+
     try {
       const voteRef = doc(db, 'votes', VOTE_DOC_ID);
       
@@ -160,7 +192,7 @@ export default function EncounterVote({ config }: EncounterVoteProps) {
   const votingClosed = !isOpen || (timeRemaining !== null && timeRemaining <= 0);
 
   return (
-    <div className="vote-container">
+    <div className="vote-container" ref={containerRef}>
       <h2>{question || 'What should the party do?'}</h2>
       
       {/* Timer */}
@@ -207,7 +239,7 @@ export default function EncounterVote({ config }: EncounterVoteProps) {
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
               >
-                ✓ Your vote
+                <TMPCheck size={18} /> Your vote
               </motion.span>
             )}
           </motion.button>

@@ -1,0 +1,603 @@
+/**
+ * Epic Dice Roller Display Styles
+ * 
+ * 3D CSS dice with full rotation, particle effects, and theme-aware styling.
+ * Built to put Dimension 20's dice tower to shame.
+ */
+
+/* =============================================================================
+   BASE LAYOUT
+   ============================================================================= */
+
+.dice-roller-display {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: transparent; /* Let parent handle background */
+  color: var(--tmp-text-primary);
+  font-family: var(--tmp-font-display);
+  perspective: 1000px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* =============================================================================
+   IDLE STATE
+   ============================================================================= */
+
+.dice-roller-display.idle {
+  gap: 2rem;
+}
+
+.idle-dice {
+  transform-style: preserve-3d;
+}
+
+.idle-text {
+  font-size: var(--tmp-size-h1);
+  opacity: 0.6;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+/* =============================================================================
+   3D DICE STYLES
+   ============================================================================= */
+
+.dice-stage {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 2rem 0;
+  perspective: 800px;
+}
+
+.dice-3d {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  transform-style: preserve-3d;
+  transition: transform 0.1s ease-out;
+}
+
+.dice-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--tmp-radius-medium);
+  font-size: 4rem;
+  font-weight: 900;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.dice-number {
+  font-family: var(--tmp-font-display);
+  font-variant-numeric: tabular-nums;
+}
+
+/* D20 Theme Styles */
+.dice-3d.d20 .dice-face {
+  background: linear-gradient(
+    135deg,
+    var(--tmp-color-primary) 0%,
+    var(--tmp-color-secondary) 100%
+  );
+  color: var(--tmp-text-on-primary);
+  box-shadow:
+    0 0 20px color-mix(in srgb, var(--tmp-color-primary) 50%, transparent),
+    inset 0 0 30px rgba(255, 255, 255, 0.1);
+  border: 3px solid color-mix(in srgb, var(--tmp-color-primary) 80%, white);
+  clip-path: polygon(
+    50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%
+  );
+}
+
+/* D6 Theme Styles */
+.dice-3d.d6 .dice-face {
+  background: linear-gradient(
+    145deg,
+    var(--tmp-bg-elevated) 0%,
+    var(--tmp-bg-card) 100%
+  );
+  color: var(--tmp-text-primary);
+  border-radius: 12px;
+  border: 2px solid var(--tmp-color-secondary);
+}
+
+/* Rolling Animation State */
+.dice-3d.rolling {
+  animation: dice-glow-pulse 0.2s ease-in-out infinite;
+}
+
+@keyframes dice-glow-pulse {
+  0%, 100% { 
+    filter: drop-shadow(0 0 10px var(--tmp-color-primary));
+  }
+  50% { 
+    filter: drop-shadow(0 0 25px var(--tmp-color-secondary));
+  }
+}
+
+/* =============================================================================
+   RESULT STATES
+   ============================================================================= */
+
+/* NAT 20 - Critical Success */
+.dice-3d.nat-20 .dice-face {
+  background: linear-gradient(
+    135deg,
+    #FFD700 0%,
+    #FFA500 50%,
+    #FFD700 100%
+  ) !important;
+  color: #1a1a1a !important;
+  animation: nat20-glow 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes nat20-glow {
+  from {
+    box-shadow:
+      0 0 30px #FFD700,
+      0 0 60px #FFA500,
+      0 0 90px #FFD700,
+      inset 0 0 20px rgba(255, 255, 255, 0.5);
+  }
+  to {
+    box-shadow:
+      0 0 50px #FFD700,
+      0 0 100px #FFA500,
+      0 0 150px #FFD700,
+      inset 0 0 30px rgba(255, 255, 255, 0.7);
+  }
+}
+
+/* NAT 1 - Critical Fail */
+.dice-3d.nat-1 .dice-face {
+  background: linear-gradient(
+    135deg,
+    #4a0000 0%,
+    #8b0000 100%
+  ) !important;
+  color: #ff4444 !important;
+}
+
+/* Success */
+.dice-3d.success .dice-face {
+  box-shadow: 0 0 30px var(--tmp-status-success);
+}
+
+/* Fail */
+.dice-3d.fail .dice-face {
+  box-shadow: 0 0 20px var(--tmp-status-error);
+}
+
+/* =============================================================================
+   ROLLING STATE UI
+   ============================================================================= */
+
+.roll-prompt {
+  font-size: var(--tmp-size-hero);
+  text-align: center;
+  margin-bottom: 1rem;
+  text-shadow: 0 0 20px var(--tmp-color-primary);
+}
+
+.roll-info-bar {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.dice-type-badge,
+.modifier-badge,
+.dc-badge {
+  padding: 0.5rem 1rem;
+  border-radius: var(--tmp-radius-button);
+  font-family: var(--tmp-font-display);
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+.dice-type-badge {
+  background: var(--tmp-color-primary);
+  color: var(--tmp-text-on-primary);
+}
+
+.modifier-badge {
+  background: var(--tmp-color-secondary);
+  color: var(--tmp-text-on-primary);
+}
+
+.dc-badge {
+  background: var(--tmp-bg-elevated);
+  color: var(--tmp-text-primary);
+  border: 2px solid var(--tmp-color-tertiary);
+}
+
+/* Roll Counter */
+.roll-counter {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.roll-counter .count {
+  display: block;
+  font-size: 4rem;
+  font-weight: 900;
+  color: var(--tmp-color-primary);
+  text-shadow: 0 0 20px var(--tmp-color-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.roll-counter .label {
+  font-size: 1.2rem;
+  opacity: 0.8;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* Live Roll Feed */
+.live-roll-feed {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 2rem;
+  min-height: 60px;
+}
+
+.roll-pip {
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-weight: 900;
+  font-size: 1.2rem;
+  font-family: var(--tmp-font-display);
+}
+
+.roll-pip.success {
+  background: var(--tmp-status-success);
+  color: white;
+}
+
+.roll-pip.fail {
+  background: var(--tmp-status-error);
+  color: white;
+}
+
+.roll-pip.nat-20 {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: #1a1a1a;
+  box-shadow: 0 0 15px #FFD700;
+  animation: nat20-pip-pulse 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes nat20-pip-pulse {
+  from { transform: scale(1); }
+  to { transform: scale(1.1); }
+}
+
+.roll-pip.nat-1 {
+  background: linear-gradient(135deg, #4a0000, #8b0000);
+  color: #ff4444;
+}
+
+/* =============================================================================
+   RESULTS STATE
+   ============================================================================= */
+
+.dice-roller-display.results {
+  gap: 1.5rem;
+}
+
+.results-title {
+  font-size: var(--tmp-size-hero);
+  text-align: center;
+  text-shadow: 0 0 30px var(--tmp-color-primary);
+}
+
+.results-hero {
+  display: flex;
+  gap: 3rem;
+  justify-content: center;
+}
+
+.hero-stat {
+  text-align: center;
+  padding: 2rem;
+  border-radius: var(--tmp-radius-large);
+  min-width: 150px;
+}
+
+.hero-stat .value {
+  display: block;
+  font-size: 5rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.hero-stat .label {
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  opacity: 0.9;
+}
+
+.hero-stat.successes {
+  background: linear-gradient(135deg, var(--tmp-status-success), color-mix(in srgb, var(--tmp-status-success) 70%, black));
+  color: white;
+  box-shadow: 0 0 30px var(--tmp-status-success);
+}
+
+.hero-stat.failures {
+  background: linear-gradient(135deg, var(--tmp-status-error), color-mix(in srgb, var(--tmp-status-error) 70%, black));
+  color: white;
+  box-shadow: 0 0 20px var(--tmp-status-error);
+}
+
+/* Success Rate Bar */
+.success-rate-container {
+  width: 100%;
+  max-width: 600px;
+  text-align: center;
+}
+
+.success-rate-bar {
+  height: 30px;
+  background: var(--tmp-bg-elevated);
+  border-radius: var(--tmp-radius-large);
+  overflow: hidden;
+  border: 2px solid var(--tmp-color-tertiary);
+}
+
+.success-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--tmp-status-success), var(--tmp-color-primary));
+  border-radius: var(--tmp-radius-large);
+  box-shadow: 0 0 20px var(--tmp-status-success);
+}
+
+.success-rate-label {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--tmp-text-primary);
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.stats-grid .stat {
+  text-align: center;
+  padding: 1rem 1.5rem;
+  background: var(--tmp-bg-card);
+  border-radius: var(--tmp-radius-medium);
+  border: 1px solid var(--tmp-color-tertiary);
+}
+
+.stats-grid .stat .value {
+  display: block;
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: var(--tmp-color-primary);
+}
+
+.stats-grid .stat .label {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  text-transform: uppercase;
+}
+
+.stats-grid .stat.highlight .value {
+  color: var(--tmp-color-secondary);
+  text-shadow: 0 0 10px var(--tmp-color-secondary);
+}
+
+.stats-grid .stat.nat-20 {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 165, 0, 0.1));
+  border-color: #FFD700;
+}
+
+.stats-grid .stat.nat-20 .value {
+  color: #FFD700;
+  text-shadow: 0 0 15px #FFD700;
+}
+
+.stats-grid .stat.nat-1 {
+  background: linear-gradient(135deg, rgba(139, 0, 0, 0.2), rgba(74, 0, 0, 0.1));
+  border-color: #8b0000;
+}
+
+.stats-grid .stat.nat-1 .value {
+  color: #ff4444;
+}
+
+/* =============================================================================
+   THEME VARIANTS - SOGGY BOTTOM PIRATES
+   ============================================================================= */
+
+.theme-soggy-bottom-pirates .dice-3d.d20 .dice-face {
+  /* Wooden dice with gold inlay */
+  background: 
+    linear-gradient(135deg, #8B4513 0%, #654321 50%, #8B4513 100%);
+  border-color: #E4A11B;
+  color: #E4A11B;
+  text-shadow: 
+    1px 1px 0 #5C4033,
+    -1px -1px 0 #5C4033,
+    0 0 10px rgba(228, 161, 27, 0.5);
+  /* Wood grain texture overlay */
+  background-image: 
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.1) 2px,
+      rgba(0,0,0,0.1) 4px
+    ),
+    linear-gradient(135deg, #8B4513 0%, #654321 50%, #8B4513 100%);
+}
+
+.theme-soggy-bottom-pirates .dice-3d.nat-20 .dice-face {
+  background: 
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.1) 2px,
+      rgba(0,0,0,0.1) 4px
+    ),
+    linear-gradient(135deg, #E4A11B 0%, #FFD700 50%, #E4A11B 100%) !important;
+  color: #5C4033 !important;
+}
+
+/* =============================================================================
+   THEME VARIANTS - NEON NIGHTMARES
+   ============================================================================= */
+
+.theme-neon-nightmares .dice-3d.d20 .dice-face {
+  /* Neon wireframe dice */
+  background: transparent;
+  border: 3px solid var(--tmp-color-primary);
+  color: var(--tmp-color-primary);
+  text-shadow: 
+    0 0 10px var(--tmp-color-primary),
+    0 0 20px var(--tmp-color-primary),
+    0 0 40px var(--tmp-color-secondary);
+  box-shadow:
+    0 0 20px var(--tmp-color-primary),
+    inset 0 0 20px rgba(255, 0, 255, 0.1);
+}
+
+.theme-neon-nightmares .dice-3d.rolling {
+  animation: neon-flicker 0.1s ease-in-out infinite;
+}
+
+@keyframes neon-flicker {
+  0%, 100% { 
+    opacity: 1;
+    filter: drop-shadow(0 0 15px var(--tmp-color-primary));
+  }
+  50% { 
+    opacity: 0.8;
+    filter: drop-shadow(0 0 25px var(--tmp-color-secondary));
+  }
+  75% {
+    opacity: 0.95;
+  }
+}
+
+.theme-neon-nightmares .dice-3d.nat-20 .dice-face {
+  border-color: #00FF00 !important;
+  color: #00FF00 !important;
+  text-shadow: 
+    0 0 10px #00FF00,
+    0 0 20px #00FF00,
+    0 0 40px #FFFF00 !important;
+  animation: neon-nat20 0.3s ease-in-out infinite alternate;
+}
+
+@keyframes neon-nat20 {
+  from {
+    box-shadow: 
+      0 0 20px #00FF00,
+      0 0 40px #00FF00,
+      inset 0 0 10px rgba(0, 255, 0, 0.2);
+  }
+  to {
+    box-shadow: 
+      0 0 40px #00FF00,
+      0 0 80px #FFFF00,
+      inset 0 0 20px rgba(0, 255, 0, 0.4);
+  }
+}
+
+/* VHS Scanline overlay for Neon Nightmares */
+.theme-neon-nightmares .dice-roller-display::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.15) 2px,
+    rgba(0, 0, 0, 0.15) 4px
+  );
+  pointer-events: none;
+  z-index: 1000;
+}
+
+/* =============================================================================
+   RESPONSIVE
+   ============================================================================= */
+
+@media (max-width: 768px) {
+  .dice-stage {
+    width: 150px;
+    height: 150px;
+  }
+
+  .dice-3d {
+    width: 120px;
+    height: 120px;
+  }
+
+  .dice-face {
+    font-size: 3rem;
+  }
+
+  .roll-prompt {
+    font-size: var(--tmp-size-h1);
+  }
+
+  .results-hero {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .hero-stat .value {
+    font-size: 3.5rem;
+  }
+}
+
+/* =============================================================================
+   REDUCED MOTION
+   ============================================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .dice-3d,
+  .idle-dice,
+  .roll-pip {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .dice-3d.rolling {
+    animation: none;
+  }
+}

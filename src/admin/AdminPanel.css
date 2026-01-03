@@ -484,3 +484,198 @@
     grid-row: 2 / 3;
   }
 }
+
+/* =============================================================================
+   AWESOME MIX CUE SYSTEM
+   ============================================================================= */
+
+.cue-card {
+  grid-column: 1 / -1; /* Full width */
+  background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 50%, #16213e 100%) !important;
+  border: 2px solid #ffd700 !important;
+}
+
+.cue-card h2 {
+  color: #ffd700;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.cue-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.cue-group {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid #333;
+}
+
+.cue-group h3 {
+  margin: 0 0 0.75rem;
+  font-size: 0.9rem;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.cue-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.cue-btn {
+  padding: 0.6rem 1rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.cue-btn:hover {
+  transform: scale(1.05);
+}
+
+.cue-btn:active {
+  transform: scale(0.98);
+}
+
+/* Sound FX buttons */
+.cue-btn.sfx {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white;
+}
+
+.cue-btn.sfx:hover {
+  box-shadow: 0 0 15px rgba(52, 152, 219, 0.5);
+}
+
+/* Battle mode button */
+.cue-btn.battle {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: white;
+  padding: 1rem 1.5rem;
+  font-size: 1rem;
+  width: 100%;
+}
+
+.cue-btn.battle:hover {
+  box-shadow: 0 0 20px rgba(231, 76, 60, 0.5);
+}
+
+.cue-btn.battle.active {
+  background: linear-gradient(135deg, #c0392b, #922b21);
+  animation: battle-pulse 1s ease-in-out infinite;
+}
+
+@keyframes battle-pulse {
+  0%, 100% { box-shadow: 0 0 10px rgba(231, 76, 60, 0.5); }
+  50% { box-shadow: 0 0 25px rgba(231, 76, 60, 0.8); }
+}
+
+/* Ambient buttons */
+.cue-btn.ambient {
+  background: linear-gradient(135deg, #1abc9c, #16a085);
+  color: white;
+}
+
+.cue-btn.ambient:hover {
+  box-shadow: 0 0 15px rgba(26, 188, 156, 0.5);
+}
+
+/* Celebration buttons */
+.cue-btn.celebration {
+  background: linear-gradient(135deg, #f1c40f, #f39c12);
+  color: #1a1a2e;
+}
+
+.cue-btn.celebration:hover {
+  box-shadow: 0 0 15px rgba(241, 196, 15, 0.5);
+}
+
+.cue-btn.celebration.epic {
+  background: linear-gradient(135deg, #9b59b6, #8e44ad);
+  color: white;
+}
+
+.cue-btn.celebration.epic:hover {
+  box-shadow: 0 0 15px rgba(155, 89, 182, 0.5);
+}
+
+.cue-btn.celebration.legendary {
+  background: linear-gradient(135deg, #ffd700, #ff6b00, #ff00ff);
+  color: #1a1a2e;
+  animation: legendary-glow 2s ease-in-out infinite;
+}
+
+@keyframes legendary-glow {
+  0%, 100% { 
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+  }
+  33% { 
+    box-shadow: 0 0 15px rgba(255, 107, 0, 0.6);
+  }
+  66% { 
+    box-shadow: 0 0 15px rgba(255, 0, 255, 0.6);
+  }
+}
+
+/* Screen FX buttons */
+.cue-btn.screen {
+  background: linear-gradient(135deg, #34495e, #2c3e50);
+  color: white;
+}
+
+.cue-btn.screen:hover {
+  box-shadow: 0 0 15px rgba(52, 73, 94, 0.5);
+}
+
+.cue-btn.screen.danger {
+  background: linear-gradient(135deg, #ff4757, #ff6348);
+  color: white;
+}
+
+.cue-btn.screen.danger:hover {
+  box-shadow: 0 0 20px rgba(255, 71, 87, 0.6);
+}
+
+/* Test buttons */
+.cue-btn.test {
+  background: linear-gradient(135deg, #636e72, #2d3436);
+  color: white;
+}
+
+.cue-hint {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: #666;
+  font-style: italic;
+}
+
+/* Cue card responsive */
+@media (max-width: 768px) {
+  .cue-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .cue-btn {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .cue-grid {
+    grid-template-columns: 1fr;
+  }
+}

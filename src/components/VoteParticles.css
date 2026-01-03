@@ -1,0 +1,80 @@
+/**
+ * Vote Particles Styles
+ * 
+ * Particle container positioning and any visual overlays.
+ */
+
+.vote-particles-container {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  pointer-events: none !important;
+  z-index: 9999 !important;
+}
+
+/* Ensure the canvas inside also fills */
+.vote-particles-container canvas {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+}
+
+/* Glow effect behind particles (CSS fallback) */
+.vote-particles-container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at 50% 50%,
+    transparent 0%,
+    transparent 100%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.vote-particles-container.active::before {
+  opacity: 0.1;
+  background: radial-gradient(
+    circle at 50% 50%,
+    var(--tmp-color-primary) 0%,
+    transparent 70%
+  );
+}
+
+/* Vote stream trail effect */
+@keyframes vote-trail {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+}
+
+.vote-trail {
+  animation: vote-trail 0.5s ease-out forwards;
+}
+
+/* Pulse on the target bar when votes arrive */
+@keyframes vote-impact {
+  0% {
+    box-shadow: 0 0 0 0 var(--tmp-color-primary);
+  }
+  50% {
+    box-shadow: 0 0 20px 10px var(--tmp-color-primary);
+  }
+  100% {
+    box-shadow: 0 0 0 0 var(--tmp-color-primary);
+  }
+}
+
+.vote-bar.receiving {
+  animation: vote-impact 0.3s ease-out;
+}

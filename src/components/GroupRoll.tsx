@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { doc, onSnapshot, updateDoc, arrayUnion } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'framer-motion';
+import { TMPD20 } from './icons/TMPIcons';
 import './GroupRoll.css';
 
 interface RollEntry {
@@ -95,7 +96,7 @@ export default function GroupRoll({ isAdmin: _isAdmin = false }: GroupRollProps)
   if (!rollData || rollData.status === 'idle') {
     return (
       <div className="group-roll-container idle">
-        <div className="waiting-icon">🎲</div>
+        <TMPD20 size={72} animated className="waiting-icon tmp-icon-float" />
         <h2>Group Roll</h2>
         <p>Waiting for the GM to call for a roll...</p>
       </div>

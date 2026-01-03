@@ -1,0 +1,342 @@
+/**
+ * TMP Live Show Effects Library
+ * Codename: "Awesome Mix"
+ * 
+ * Reusable animation effects for maximum "how did they do that?" moments.
+ * Pure CSS = zero bundle cost, GPU-accelerated, buttery smooth.
+ */
+
+/* ==========================================================================
+   CRT OVERLAY EFFECTS
+   Scanlines and retro CRT monitor vibes
+   ========================================================================== */
+
+/**
+ * CRT Scanlines - Apply to a container to get that retro monitor look
+ * Usage: Add class "crt-overlay" to any element (usually the main container)
+ */
+.crt-overlay::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: 
+    linear-gradient(
+      rgba(18, 16, 16, 0) 50%,
+      rgba(0, 0, 0, 0.15) 50%
+    ),
+    linear-gradient(
+      90deg,
+      rgba(255, 0, 0, 0.03),
+      rgba(0, 255, 0, 0.02),
+      rgba(0, 0, 255, 0.03)
+    );
+  background-size: 100% 2px, 3px 100%;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: var(--crt-intensity, 0.5);
+}
+
+/**
+ * CRT Flicker - Subtle screen flicker for extra authenticity
+ * Usage: Add "crt-flicker" alongside "crt-overlay"
+ */
+.crt-flicker::before {
+  animation: crt-flicker 0.15s infinite;
+}
+
+@keyframes crt-flicker {
+  0% { opacity: var(--crt-intensity, 0.5); }
+  50% { opacity: calc(var(--crt-intensity, 0.5) * 0.95); }
+  100% { opacity: var(--crt-intensity, 0.5); }
+}
+
+/* ==========================================================================
+   GLITCH TEXT EFFECTS
+   Chromatic aberration and digital corruption
+   ========================================================================== */
+
+/**
+ * Glitch Text - Digital corruption effect
+ * Usage: Add class "glitch-text" to any text element
+ */
+.glitch-text {
+  animation: glitch-text 2.5s infinite;
+}
+
+@keyframes glitch-text {
+  0%, 100% {
+    text-shadow: 
+      0.05em 0 0 rgba(255, 0, 0, 0.75),
+      -0.025em -0.05em 0 rgba(0, 255, 0, 0.75),
+      0.025em 0.05em 0 rgba(0, 0, 255, 0.75);
+  }
+  14% {
+    text-shadow: 
+      0.05em 0 0 rgba(255, 0, 0, 0.75),
+      -0.025em -0.05em 0 rgba(0, 255, 0, 0.75),
+      0.025em 0.05em 0 rgba(0, 0, 255, 0.75);
+  }
+  15% {
+    text-shadow: 
+      -0.05em -0.025em 0 rgba(255, 0, 0, 0.75),
+      0.025em 0.025em 0 rgba(0, 255, 0, 0.75),
+      -0.05em -0.05em 0 rgba(0, 0, 255, 0.75);
+  }
+  49% {
+    text-shadow: 
+      -0.05em -0.025em 0 rgba(255, 0, 0, 0.75),
+      0.025em 0.025em 0 rgba(0, 255, 0, 0.75),
+      -0.05em -0.05em 0 rgba(0, 0, 255, 0.75);
+  }
+  50% {
+    text-shadow: 
+      0.025em 0.05em 0 rgba(255, 0, 0, 0.75),
+      0.05em 0 0 rgba(0, 255, 0, 0.75),
+      0 -0.05em 0 rgba(0, 0, 255, 0.75);
+  }
+  99% {
+    text-shadow: 
+      0.025em 0.05em 0 rgba(255, 0, 0, 0.75),
+      0.05em 0 0 rgba(0, 255, 0, 0.75),
+      0 -0.05em 0 rgba(0, 0, 255, 0.75);
+  }
+}
+
+/**
+ * Glitch Burst - Intense momentary glitch for transitions
+ * Usage: Add/remove class "glitch-burst" via JS for one-shot effect
+ */
+.glitch-burst {
+  animation: glitch-burst 0.3s ease-out forwards;
+}
+
+@keyframes glitch-burst {
+  0% {
+    transform: translate(0);
+    filter: hue-rotate(0deg);
+  }
+  20% {
+    transform: translate(-5px, 3px);
+    filter: hue-rotate(90deg);
+  }
+  40% {
+    transform: translate(5px, -3px);
+    filter: hue-rotate(180deg);
+  }
+  60% {
+    transform: translate(-3px, -2px);
+    filter: hue-rotate(270deg);
+  }
+  80% {
+    transform: translate(2px, 2px);
+    filter: hue-rotate(360deg);
+  }
+  100% {
+    transform: translate(0);
+    filter: hue-rotate(0deg);
+  }
+}
+
+/* ==========================================================================
+   SCREEN SHAKE
+   For dramatic reveals and impact moments
+   ========================================================================== */
+
+/**
+ * Screen Shake - Dramatic impact effect
+ * Usage: Add class "shake" to container, remove after animation
+ */
+.shake {
+  animation: shake 0.6s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+  40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+/**
+ * Intense Shake - For big winner reveals
+ */
+.shake-intense {
+  animation: shake-intense 0.8s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake-intense {
+  10%, 90% { transform: translate3d(-2px, -1px, 0); }
+  20%, 80% { transform: translate3d(4px, 1px, 0); }
+  30%, 50%, 70% { transform: translate3d(-8px, -2px, 0) rotate(-1deg); }
+  40%, 60% { transform: translate3d(8px, 2px, 0) rotate(1deg); }
+}
+
+/* ==========================================================================
+   VOTE FLY-AWAY ANIMATION
+   When user casts vote, element "flies" off screen
+   ========================================================================== */
+
+/**
+ * Vote Fly Away - Particle flies toward top of screen
+ * Applied to a spawned element when vote is cast
+ */
+.vote-fly-away {
+  animation: vote-fly-away 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  pointer-events: none;
+}
+
+@keyframes vote-fly-away {
+  0% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(0.8) translateY(-30vh);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.3) translateY(-100vh);
+  }
+}
+
+/**
+ * Vote Fly Variants - Different directions for visual variety
+ */
+.vote-fly-away-left {
+  animation: vote-fly-away-left 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  pointer-events: none;
+}
+
+@keyframes vote-fly-away-left {
+  0% {
+    opacity: 1;
+    transform: scale(1) translate(0, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.3) translate(-50vw, -100vh);
+  }
+}
+
+.vote-fly-away-right {
+  animation: vote-fly-away-right 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  pointer-events: none;
+}
+
+@keyframes vote-fly-away-right {
+  0% {
+    opacity: 1;
+    transform: scale(1) translate(0, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.3) translate(50vw, -100vh);
+  }
+}
+
+/* ==========================================================================
+   WINNER REVEAL EFFECTS
+   Dramatic presentation for vote results
+   ========================================================================== */
+
+/**
+ * Winner Pulse - Glowing pulse effect for the winning option
+ */
+.winner-pulse {
+  animation: winner-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes winner-pulse {
+  0%, 100% {
+    box-shadow: 
+      0 0 20px var(--winner-glow-color, #ffd700),
+      0 0 40px var(--winner-glow-color, #ffd700),
+      0 0 60px var(--winner-glow-color, #ffd700);
+  }
+  50% {
+    box-shadow: 
+      0 0 40px var(--winner-glow-color, #ffd700),
+      0 0 80px var(--winner-glow-color, #ffd700),
+      0 0 120px var(--winner-glow-color, #ffd700);
+  }
+}
+
+/**
+ * Dramatic Entrance - For winner text reveal
+ */
+.dramatic-entrance {
+  animation: dramatic-entrance 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes dramatic-entrance {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(-10deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2) rotate(5deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/**
+ * Bar Fill Animation - Staggered reveal for vote bars
+ */
+.bar-fill-reveal {
+  animation: bar-fill-reveal 1s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+  transform-origin: left center;
+}
+
+@keyframes bar-fill-reveal {
+  0% {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+/* ==========================================================================
+   UTILITY CLASSES
+   ========================================================================== */
+
+/**
+ * Disable all animations (accessibility/preference)
+ */
+@media (prefers-reduced-motion: reduce) {
+  .crt-overlay::before,
+  .glitch-text,
+  .glitch-burst,
+  .shake,
+  .shake-intense,
+  .vote-fly-away,
+  .vote-fly-away-left,
+  .vote-fly-away-right,
+  .winner-pulse,
+  .dramatic-entrance,
+  .bar-fill-reveal {
+    animation: none !important;
+  }
+}
+
+/**
+ * Animation delay utilities for staggered effects
+ */
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
+.delay-500 { animation-delay: 0.5s; }
+.delay-600 { animation-delay: 0.6s; }
+.delay-700 { animation-delay: 0.7s; }
+.delay-800 { animation-delay: 0.8s; }

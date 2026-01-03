@@ -3,6 +3,7 @@ import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useTheme, themeRegistry } from '../themes';
 import type { ThemeId } from '../themes';
+import { useAwesomeMix, broadcastCue } from '../hooks';
 import './AdminPanel.css';
 
 const ADMIN_PASSWORD = 'misadventure2025'; // Change this! Or move to env var later
@@ -75,7 +76,51 @@ export default function AdminPanel() {
   });
   const [voteCounts, setVoteCounts] = useState<Record<string, number>>({});
   const [participantCount, setParticipantCount] = useState(0);
+  const [isBattleMusicPlaying, setIsBattleMusicPlaying] = useState(false);
   const { themeId, setThemeId } = useTheme();
+  
+  // Awesome Mix hook for sound/effects (local preview - displays get effects via Firebase)
+  const {
+    playSound,
+    startAmbient,
+    stopAmbient,
+    shakeScreen,
+    triggerCelebration,
+    enterBattleMode,
+    exitBattleMode,
+    audioMixer,
+  } = useAwesomeMix();
+
+  // Broadcast helpers - trigger locally AND send to all displays
+  const broadcastBattle = (start: boolean) => {
+    if (start) {
+      enterBattleMode();
+      setIsBattleMusicPlaying(true);
+    } else {
+      exitBattleMode();
+      setIsBattleMusicPlaying(false);
+    }
+    broadcastCue(start ? 'battle-start' : 'battle-end');
+  };
+
+  const broadcastCelebration = (type: 'quick' | 'winner' | 'fireworks') => {
+    triggerCelebration(type);
+    broadcastCue(`celebration-${type}` as 'celebration-quick' | 'celebration-winner' | 'celebration-fireworks');
+  };
+
+  const broadcastShake = (intensity: 'light' | 'heavy' | 'earthquake') => {
+    shakeScreen({ intensity: intensity === 'light' ? 'subtle' : intensity });
+    broadcastCue(`shake-${intensity}` as 'shake-light' | 'shake-heavy' | 'shake-earthquake');
+  };
+
+  const broadcastAmbient = (start: boolean) => {
+    if (start) {
+      startAmbient();
+    } else {
+      stopAmbient();
+    }
+    broadcastCue(start ? 'ambient-start' : 'ambient-stop');
+  };
 
   // Check session storage for existing auth
   useEffect(() => {
@@ -470,6 +515,165 @@ export default function AdminPanel() {
                 <span className="theme-desc">{t.description}</span>
               </button>
             ))}
+          </div>
+        </section>
+
+        {/* 🎵 AWESOME MIX CUE SYSTEM */}
+        <section className="admin-card cue-card">
+          <h2>🎵 Awesome Mix - Live Cues</h2>
+          <p className="theme-hint">Manual effect triggers for dramatic moments</p>
+          
+          <div className="cue-grid">
+            {/* Sound Effects */}
+            <div className="cue-group">
+              <h3>🔊 Sound FX</h3>
+              <div className="cue-buttons">
+                <button 
+                  className="cue-btn sfx"
+                  onClick={() => playSound('victory')}
+                  title="Victory fanfare"
+                >
+                  🏆 Victory
+                </button>
+                <button 
+                  className="cue-btn sfx"
+                  onClick={() => playSound('error')}
+                  title="Failure sound"
+                >
+                  💀 Fail
+                </button>
+                <button 
+                  className="cue-btn sfx"
+                  onClick={() => playSound('whoosh')}
+                  title="Transition swoosh"
+                >
+                  💨 Whoosh
+                </button>
+                <button 
+                  className="cue-btn sfx"
+                  onClick={() => playSound('diceRoll')}
+                  title="Dice rolling sound"
+                >
+                  🎲 Dice
+                </button>
+              </div>
+            </div>
+
+            {/* Battle Music */}
+            <div className="cue-group">
+              <h3>⚔️ Battle Mode</h3>
+              <div className="cue-buttons">
+                <button 
+                  className={`cue-btn battle ${isBattleMusicPlaying ? 'active' : ''}`}
+                  onClick={() => broadcastBattle(!isBattleMusicPlaying)}
+                >
+                  {isBattleMusicPlaying ? '🛑 End Combat' : '⚔️ Start Combat!'}
+                </button>
+              </div>
+              <small className="cue-hint">
+                {isBattleMusicPlaying ? 'Battle music playing... (synced to all displays)' : 'Triggers battle music + visual intensity on ALL displays'}
+              </small>
+            </div>
+
+            {/* Ambient */}
+            <div className="cue-group">
+              <h3>🌊 Ambient</h3>
+              <div className="cue-buttons">
+                <button 
+                  className="cue-btn ambient"
+                  onClick={() => broadcastAmbient(true)}
+                  title="Start ambient loop on all displays"
+                >
+                  ▶️ Start Ambient
+                </button>
+                <button 
+                  className="cue-btn ambient"
+                  onClick={() => broadcastAmbient(false)}
+                  title="Stop ambient loop on all displays"
+                >
+                  ⏹️ Stop
+                </button>
+              </div>
+            </div>
+
+            {/* Celebrations */}
+            <div className="cue-group">
+              <h3>🎉 Celebrations</h3>
+              <div className="cue-buttons">
+                <button 
+                  className="cue-btn celebration"
+                  onClick={() => broadcastCelebration('quick')}
+                  title="Small confetti burst (all displays)"
+                >
+                  ✨ Quick
+                </button>
+                <button 
+                  className="cue-btn celebration epic"
+                  onClick={() => broadcastCelebration('winner')}
+                  title="Winner reveal celebration (all displays)"
+                >
+                  🏆 Winner
+                </button>
+                <button 
+                  className="cue-btn celebration legendary"
+                  onClick={() => broadcastCelebration('fireworks')}
+                  title="Full fireworks display (all displays)"
+                >
+                  🎆 Fireworks
+                </button>
+              </div>
+            </div>
+
+            {/* Screen Effects */}
+            <div className="cue-group">
+              <h3>📺 Screen FX</h3>
+              <div className="cue-buttons">
+                <button 
+                  className="cue-btn screen"
+                  onClick={() => broadcastShake('light')}
+                >
+                  Shake (Light)
+                </button>
+                <button 
+                  className="cue-btn screen"
+                  onClick={() => broadcastShake('heavy')}
+                >
+                  Shake (Heavy)
+                </button>
+                <button 
+                  className="cue-btn screen danger"
+                  onClick={() => broadcastShake('earthquake')}
+                >
+                  🌋 EARTHQUAKE
+                </button>
+              </div>
+            </div>
+
+            {/* Audio Test */}
+            <div className="cue-group">
+              <h3>🔧 Audio Test</h3>
+              <div className="cue-buttons">
+                <button 
+                  className="cue-btn test"
+                  onClick={() => {
+                    audioMixer.init();
+                    playSound('uiClick');
+                  }}
+                  title="Initialize audio (required for first interaction)"
+                >
+                  🔓 Unlock Audio
+                </button>
+                <button 
+                  className="cue-btn test"
+                  onClick={() => audioMixer.toggleMute()}
+                >
+                  🔇 Toggle Mute
+                </button>
+              </div>
+              <small className="cue-hint">
+                Click "Unlock Audio" once to enable sounds (browser requirement)
+              </small>
+            </div>
           </div>
         </section>
 
