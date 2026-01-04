@@ -1,0 +1,41 @@
+<!-- Soggy Bottom Pirates - Jolly Roger Skull Icon (Don Bluth style) -->
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .skull-bone { fill: #FFF8E7; }
+    .skull-outline { fill: none; stroke: #1A1A1A; stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; }
+    .skull-shadow { fill: #D4C5A9; }
+    .skull-dark { fill: #1A1A1A; }
+    .skull-highlight { fill: #FFFFFF; opacity: 0.5; }
+  </style>
+  <!-- Crossbones behind -->
+  <rect class="skull-bone" x="4" y="44" width="56" height="8" rx="4" transform="rotate(-30 32 48)"/>
+  <rect class="skull-bone" x="4" y="44" width="56" height="8" rx="4" transform="rotate(30 32 48)"/>
+  <rect class="skull-outline" x="4" y="44" width="56" height="8" rx="4" transform="rotate(-30 32 48)"/>
+  <rect class="skull-outline" x="4" y="44" width="56" height="8" rx="4" transform="rotate(30 32 48)"/>
+  <!-- Skull shape -->
+  <ellipse class="skull-shadow" cx="34" cy="26" rx="20" ry="18"/>
+  <ellipse class="skull-bone" cx="32" cy="24" rx="20" ry="18"/>
+  <!-- Jaw -->
+  <path class="skull-bone" d="M16 32 Q16 44 32 44 Q48 44 48 32 L48 28 Q48 36 32 36 Q16 36 16 28 Z"/>
+  <!-- Eye sockets -->
+  <ellipse class="skull-dark" cx="24" cy="22" rx="6" ry="7"/>
+  <ellipse class="skull-dark" cx="40" cy="22" rx="6" ry="7"/>
+  <!-- Nose -->
+  <path class="skull-dark" d="M32 28 L29 34 L35 34 Z"/>
+  <!-- Teeth -->
+  <rect class="skull-bone" x="22" y="38" width="4" height="5" rx="1"/>
+  <rect class="skull-bone" x="28" y="38" width="4" height="5" rx="1"/>
+  <rect class="skull-bone" x="34" y="38" width="4" height="5" rx="1"/>
+  <rect class="skull-bone" x="40" y="38" width="4" height="5" rx="1"/>
+  <!-- Highlight -->
+  <ellipse class="skull-highlight" cx="26" cy="16" rx="8" ry="4"/>
+  <!-- Outlines -->
+  <ellipse class="skull-outline" cx="32" cy="24" rx="20" ry="18"/>
+  <path class="skull-outline" d="M16 32 Q16 44 32 44 Q48 44 48 32"/>
+  <ellipse class="skull-outline" cx="24" cy="22" rx="6" ry="7"/>
+  <ellipse class="skull-outline" cx="40" cy="22" rx="6" ry="7"/>
+  <path class="skull-outline" d="M32 28 L29 34 L35 34 Z"/>
+  <line class="skull-outline" x1="26" y1="38" x2="26" y2="43"/>
+  <line class="skull-outline" x1="32" y1="38" x2="32" y2="43"/>
+  <line class="skull-outline" x1="38" y1="38" x2="38" y2="43"/>
+</svg>

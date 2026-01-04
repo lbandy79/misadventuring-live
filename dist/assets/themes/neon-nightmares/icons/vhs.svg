@@ -1,0 +1,47 @@
+<!-- Neon Nightmares - VHS Tape Icon (80s horror) -->
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="vhsGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <style>
+    .vhs-body { fill: #1A1A2E; }
+    .vhs-label { fill: #FF2D95; }
+    .vhs-window { fill: #0A0A0F; }
+    .vhs-reel { fill: #39FF14; }
+    .vhs-outline { fill: none; stroke: #00F5FF; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+    .vhs-glow { fill: none; stroke: #FF2D95; stroke-width: 2; filter: url(#vhsGlow); }
+    .vhs-text { fill: #EAEAEA; font-family: 'VT323', monospace; font-size: 6px; }
+  </style>
+  <!-- VHS Body -->
+  <rect class="vhs-body" x="4" y="16" width="56" height="36" rx="2"/>
+  <!-- Label area -->
+  <rect class="vhs-label" x="8" y="18" width="48" height="14" rx="1"/>
+  <!-- Label text area -->
+  <rect fill="#0A0A0F" x="10" y="20" width="44" height="10" rx="1"/>
+  <text class="vhs-text" x="32" y="28" text-anchor="middle">NIGHTMARE VOL.1</text>
+  <!-- Window showing reels -->
+  <rect class="vhs-window" x="12" y="36" width="40" height="12" rx="2"/>
+  <!-- Reels -->
+  <circle class="vhs-reel" cx="22" cy="42" r="4"/>
+  <circle class="vhs-reel" cx="42" cy="42" r="4"/>
+  <circle fill="#0A0A0F" cx="22" cy="42" r="1.5"/>
+  <circle fill="#0A0A0F" cx="42" cy="42" r="1.5"/>
+  <!-- Tape between reels -->
+  <line stroke="#39FF14" stroke-width="1" x1="26" y1="42" x2="38" y2="42"/>
+  <!-- Bottom slot -->
+  <rect fill="#0A0A0F" x="20" y="50" width="24" height="2"/>
+  <!-- Neon glow -->
+  <rect class="vhs-glow" x="4" y="16" width="56" height="36" rx="2"/>
+  <!-- Hard outline -->
+  <rect class="vhs-outline" x="4" y="16" width="56" height="36" rx="2"/>
+  <rect class="vhs-outline" x="12" y="36" width="40" height="12" rx="2"/>
+  <circle class="vhs-outline" cx="22" cy="42" r="4"/>
+  <circle class="vhs-outline" cx="42" cy="42" r="4"/>
+</svg>

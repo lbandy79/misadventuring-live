@@ -18,6 +18,9 @@ import {
   type ReactNode,
 } from 'react';
 
+import { doc, onSnapshot } from 'firebase/firestore';
+import { db } from '../firebase';
+
 import type {
   TMPTheme,
   ThemeId,
@@ -192,6 +195,26 @@ export function ThemeProvider({
   useEffect(() => {
     localStorage.setItem('tmp-sound-enabled', String(soundEnabled));
   }, [soundEnabled]);
+
+  // 🔥 Firebase theme sync - listen for GM theme changes across all displays
+  useEffect(() => {
+    const unsubscribe = onSnapshot(
+      doc(db, 'config', 'theme'),
+      (snapshot) => {
+        if (snapshot.exists()) {
+          const data = snapshot.data();
+          if (data.themeId && data.themeId in themeRegistry && data.themeId !== themeId) {
+            console.log('🎨 Theme sync from Firebase:', data.themeId);
+            setThemeId(data.themeId as ThemeId);
+          }
+        }
+      },
+      (error) => {
+        console.warn('Theme sync error:', error);
+      }
+    );
+    return () => unsubscribe();
+  }, [themeId]);
 
   // Initialize AudioMixer on mount & load theme audio when theme changes
   useEffect(() => {

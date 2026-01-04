@@ -36,6 +36,9 @@ export interface TMPTheme {
   
   /** Visual effects and decorations */
   effects: ThemeEffects;
+  
+  /** Theme-specific visual assets (icons, frames, banners) */
+  assets?: ThemeAssets;
 }
 
 // =============================================================================
@@ -199,6 +202,75 @@ export interface ThemeEffects {
     main: string;
     overlay?: string;
   };
+}
+
+// =============================================================================
+// ASSETS DEFINITIONS - Don Bluth / Robin Hood Visual Style
+// =============================================================================
+
+export interface ThemeAssets {
+  /** Base path for theme assets */
+  basePath: string;
+  
+  /** Vote option icons - illustrated SVGs with personality */
+  voteIcons: {
+    /** Default icons for options A, B, C */
+    optionA: ThemeIcon;
+    optionB: ThemeIcon;
+    optionC: ThemeIcon;
+    /** Optional additional icons by name */
+    [key: string]: ThemeIcon | undefined;
+  };
+  
+  /** Card frame decoration */
+  cardFrame: {
+    /** SVG or image path for frame border */
+    border: string;
+    /** Optional texture overlay */
+    texture?: string;
+    /** CSS filter or effect to apply */
+    effect?: string;
+  };
+  
+  /** Progress bar styling */
+  progressBar: {
+    /** Container/track background */
+    trackTexture?: string;
+    /** Fill texture or gradient CSS */
+    fillStyle: string;
+    /** Cap/end decoration */
+    endCap?: string;
+  };
+  
+  /** Winner announcement assets */
+  winnerBanner: {
+    /** Main banner graphic path */
+    graphic: string;
+    /** Animated version (Lottie JSON) */
+    animation?: string;
+    /** Particle effect type */
+    particles?: 'confetti' | 'sparkle' | 'glitch' | 'splash';
+  };
+  
+  /** Decorative flourishes */
+  decorations?: {
+    divider?: string;
+    corner?: string;
+    accent?: string;
+  };
+}
+
+export interface ThemeIcon {
+  /** SVG path or Lottie JSON path */
+  src: string;
+  /** Type of asset */
+  type: 'svg' | 'lottie' | 'img';
+  /** Alt text for accessibility */
+  alt: string;
+  /** CSS class for idle animation */
+  idleAnimation?: string;
+  /** CSS class for selected/active animation */
+  selectAnimation?: string;
 }
 
 // =============================================================================

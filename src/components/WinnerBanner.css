@@ -1,0 +1,337 @@
+/**
+ * WinnerBanner.css - Don Bluth Style Winner Announcement
+ * 
+ * Dramatic, hand-drawn aesthetic with thick outlines and cel-shading.
+ */
+
+/* =============================================================================
+   OVERLAY
+   ============================================================================= */
+
+.winner-banner-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 9999;
+  padding: 1rem;
+}
+
+/* =============================================================================
+   BANNER CONTAINER
+   ============================================================================= */
+
+.winner-banner {
+  position: relative;
+  padding: 2.5rem 3rem;
+  border-radius: 24px;
+  text-align: center;
+  max-width: 90vw;
+  min-width: 320px;
+}
+
+/* =============================================================================
+   SOGGY BOTTOM PIRATES - Treasure Scroll Aesthetic
+   ============================================================================= */
+
+.winner-banner--soggy-bottom-pirates .winner-banner {
+  background: 
+    linear-gradient(135deg, rgba(255, 248, 231, 0.1) 0%, transparent 50%),
+    linear-gradient(180deg, #1A3050 0%, #132238 50%, #0A1628 100%);
+  border: 6px solid #8B4513;
+  box-shadow: 
+    8px 8px 0 rgba(0, 0, 0, 0.5),
+    inset 0 0 30px rgba(228, 161, 27, 0.2),
+    0 0 60px rgba(228, 161, 27, 0.4);
+}
+
+/* Parchment texture effect */
+.winner-banner--soggy-bottom-pirates .winner-banner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  background: 
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+/* Gold trim inner border */
+.winner-banner--soggy-bottom-pirates .winner-banner::after {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border: 3px solid rgba(228, 161, 27, 0.4);
+  border-radius: 14px;
+  pointer-events: none;
+}
+
+.winner-banner--soggy-bottom-pirates .winner-banner__message {
+  font-family: 'Permanent Marker', cursive;
+  color: #E4A11B;
+  font-size: 1.5rem;
+  text-shadow: 
+    3px 3px 0 rgba(0, 0, 0, 0.5),
+    0 0 20px rgba(228, 161, 27, 0.5);
+  letter-spacing: 2px;
+  margin-bottom: 1rem;
+}
+
+.winner-banner--soggy-bottom-pirates .winner-banner__name {
+  font-family: 'Luckiest Guy', 'Titan One', cursive;
+  color: #FFF8E7;
+  font-size: 3rem;
+  text-shadow: 
+    4px 4px 0 #8B4513,
+    6px 6px 0 rgba(0, 0, 0, 0.4),
+    0 0 30px rgba(228, 161, 27, 0.6);
+  display: block;
+  margin: 0.5rem 0;
+}
+
+.winner-banner--soggy-bottom-pirates .winner-banner__percentage {
+  font-family: 'Patrick Hand', cursive;
+  color: #A8C5D8;
+  font-size: 1.25rem;
+}
+
+/* Rope flourishes */
+.winner-banner--soggy-bottom-pirates .winner-banner__flourish {
+  height: 8px;
+  margin: 1rem auto;
+  max-width: 200px;
+  background: 
+    repeating-linear-gradient(
+      90deg,
+      #C4A35A 0px,
+      #8B7355 4px,
+      #C4A35A 8px
+    );
+  border-radius: 4px;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* =============================================================================
+   NEON NIGHTMARES - VHS / CRT Aesthetic
+   ============================================================================= */
+
+.winner-banner--neon-nightmares .winner-banner {
+  background: 
+    repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.1) 0px,
+      rgba(0, 0, 0, 0.1) 1px,
+      transparent 1px,
+      transparent 2px
+    ),
+    linear-gradient(180deg, #1A1A2E 0%, #12121A 50%, #0A0A0F 100%);
+  border: 4px solid #FF2D95;
+  box-shadow: 
+    0 0 20px rgba(255, 45, 149, 0.6),
+    0 0 40px rgba(0, 245, 255, 0.4),
+    0 0 80px rgba(255, 45, 149, 0.3),
+    inset 0 0 40px rgba(0, 245, 255, 0.1);
+  animation: crt-flicker-banner 3s infinite;
+}
+
+@keyframes crt-flicker-banner {
+  0%, 100% { opacity: 1; }
+  92% { opacity: 1; }
+  93% { opacity: 0.9; }
+  94% { opacity: 1; }
+  95% { opacity: 0.95; }
+  96% { opacity: 1; }
+}
+
+/* Scanlines overlay */
+.winner-banner--neon-nightmares .winner-banner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  background: 
+    repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      transparent 2px,
+      rgba(0, 0, 0, 0.15) 2px,
+      rgba(0, 0, 0, 0.15) 4px
+    );
+  pointer-events: none;
+  animation: scanline-scroll-banner 4s linear infinite;
+}
+
+@keyframes scanline-scroll-banner {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(4px); }
+}
+
+/* Inner neon border */
+.winner-banner--neon-nightmares .winner-banner::after {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border: 2px solid rgba(0, 245, 255, 0.5);
+  border-radius: 16px;
+  pointer-events: none;
+  animation: neon-pulse-border 2s ease-in-out infinite;
+}
+
+@keyframes neon-pulse-border {
+  0%, 100% { opacity: 0.5; box-shadow: inset 0 0 10px rgba(0, 245, 255, 0.3); }
+  50% { opacity: 0.8; box-shadow: inset 0 0 20px rgba(0, 245, 255, 0.5); }
+}
+
+.winner-banner--neon-nightmares .winner-banner__message {
+  font-family: 'Orbitron', sans-serif;
+  color: #00F5FF;
+  font-size: 1.25rem;
+  text-shadow: 
+    0 0 10px #00F5FF,
+    0 0 20px #00F5FF,
+    0 0 40px rgba(0, 245, 255, 0.5);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  animation: glitch-text 3s infinite;
+}
+
+@keyframes glitch-text {
+  0%, 100% { transform: translate(0); }
+  92% { transform: translate(0); }
+  93% { transform: translate(-2px, 1px); filter: hue-rotate(90deg); }
+  94% { transform: translate(2px, -1px); }
+  95% { transform: translate(-1px, 2px); filter: hue-rotate(0deg); }
+  96% { transform: translate(0); }
+}
+
+.winner-banner--neon-nightmares .winner-banner__name {
+  font-family: 'Monoton', cursive;
+  color: #FF2D95;
+  font-size: 2.5rem;
+  text-shadow: 
+    0 0 10px #FF2D95,
+    0 0 20px #FF2D95,
+    0 0 40px #FF2D95,
+    0 0 80px rgba(255, 45, 149, 0.5);
+  display: block;
+  margin: 0.5rem 0;
+  letter-spacing: 4px;
+}
+
+.winner-banner--neon-nightmares .winner-banner__percentage {
+  font-family: 'VT323', monospace;
+  color: #39FF14;
+  font-size: 1.5rem;
+  text-shadow: 0 0 10px #39FF14;
+}
+
+/* Static flourishes */
+.winner-banner--neon-nightmares .winner-banner__flourish {
+  height: 4px;
+  margin: 1rem auto;
+  max-width: 200px;
+  background: 
+    linear-gradient(90deg, 
+      transparent 0%,
+      #FF2D95 20%,
+      #00F5FF 50%,
+      #39FF14 80%,
+      transparent 100%
+    );
+  box-shadow: 0 0 10px currentColor;
+  animation: static-bar 0.5s steps(3) infinite;
+}
+
+@keyframes static-bar {
+  0% { opacity: 1; transform: scaleX(1); }
+  50% { opacity: 0.8; transform: scaleX(0.98); }
+  100% { opacity: 1; transform: scaleX(1); }
+}
+
+/* =============================================================================
+   TMP BASE - Default fallback
+   ============================================================================= */
+
+.winner-banner--tmp-base .winner-banner {
+  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+  border: 4px solid #e84393;
+  box-shadow: 
+    0 0 30px rgba(232, 67, 147, 0.4),
+    0 0 60px rgba(93, 173, 226, 0.3);
+}
+
+.winner-banner--tmp-base .winner-banner__message {
+  font-family: 'Bangers', cursive;
+  color: #5dade2;
+  font-size: 1.5rem;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+}
+
+.winner-banner--tmp-base .winner-banner__name {
+  font-family: 'Righteous', cursive;
+  color: #e84393;
+  font-size: 3rem;
+  text-shadow: 
+    3px 3px 0 rgba(0, 0, 0, 0.5),
+    0 0 20px rgba(232, 67, 147, 0.5);
+  display: block;
+  margin: 0.5rem 0;
+}
+
+.winner-banner--tmp-base .winner-banner__percentage {
+  font-family: 'Nunito', sans-serif;
+  color: #f39c12;
+  font-size: 1.25rem;
+}
+
+.winner-banner--tmp-base .winner-banner__flourish {
+  height: 4px;
+  margin: 1rem auto;
+  max-width: 200px;
+  background: linear-gradient(90deg, #e84393, #5dade2, #f39c12);
+  border-radius: 2px;
+}
+
+/* =============================================================================
+   SHARED ELEMENTS
+   ============================================================================= */
+
+.winner-banner__winner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.winner-banner__icon {
+  margin-bottom: 0.5rem;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
+}
+
+/* =============================================================================
+   RESPONSIVE
+   ============================================================================= */
+
+@media (max-width: 480px) {
+  .winner-banner {
+    padding: 1.5rem 2rem;
+  }
+  
+  .winner-banner--soggy-bottom-pirates .winner-banner__name,
+  .winner-banner--tmp-base .winner-banner__name {
+    font-size: 2rem;
+  }
+  
+  .winner-banner--neon-nightmares .winner-banner__name {
+    font-size: 1.75rem;
+    letter-spacing: 2px;
+  }
+  
+  .winner-banner__icon {
+    width: 60px !important;
+    height: 60px !important;
+  }
+}

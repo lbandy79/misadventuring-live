@@ -1,0 +1,42 @@
+<!-- Soggy Bottom Pirates - Treasure Chest Icon (Don Bluth style) -->
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .chest-body { fill: #8B4513; }
+    .chest-gold { fill: #E4A11B; }
+    .chest-lid { fill: #A0522D; }
+    .chest-outline { fill: none; stroke: #1A1A1A; stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; }
+    .chest-highlight { fill: #FFF8E7; opacity: 0.35; }
+    .chest-shadow { fill: #5D2E0C; }
+    .coin { fill: #FFD700; }
+    .coin-shine { fill: #FFFACD; }
+  </style>
+  <!-- Shadow -->
+  <ellipse class="chest-shadow" cx="34" cy="56" rx="22" ry="4"/>
+  <!-- Chest base -->
+  <rect class="chest-body" x="8" y="32" width="48" height="22" rx="3"/>
+  <!-- Lid -->
+  <path class="chest-lid" d="M8 32 Q8 18 32 18 Q56 18 56 32 L56 32 L8 32 Z"/>
+  <!-- Gold trim bands -->
+  <rect class="chest-gold" x="6" y="30" width="52" height="6" rx="2"/>
+  <rect class="chest-gold" x="28" y="18" width="8" height="36" rx="2"/>
+  <!-- Lock -->
+  <circle class="chest-gold" cx="32" cy="40" r="6"/>
+  <rect class="chest-gold" x="30" y="42" width="4" height="8" rx="1"/>
+  <!-- Coins peeking out -->
+  <circle class="coin" cx="20" cy="26" r="5"/>
+  <circle class="coin" cx="44" cy="26" r="5"/>
+  <circle class="coin" cx="32" cy="24" r="5"/>
+  <circle class="coin-shine" cx="19" cy="24" r="2"/>
+  <circle class="coin-shine" cx="43" cy="24" r="2"/>
+  <circle class="coin-shine" cx="31" cy="22" r="2"/>
+  <!-- Highlights -->
+  <path class="chest-highlight" d="M12 34 L12 48 Q12 50 14 50 L20 50 L20 34 Z"/>
+  <!-- Outlines -->
+  <rect class="chest-outline" x="8" y="32" width="48" height="22" rx="3"/>
+  <path class="chest-outline" d="M8 32 Q8 18 32 18 Q56 18 56 32"/>
+  <rect class="chest-outline" x="6" y="30" width="52" height="6" rx="2"/>
+  <circle class="chest-outline" cx="32" cy="40" r="6"/>
+  <circle class="chest-outline" cx="20" cy="26" r="5"/>
+  <circle class="chest-outline" cx="44" cy="26" r="5"/>
+  <circle class="chest-outline" cx="32" cy="24" r="5"/>
+</svg>

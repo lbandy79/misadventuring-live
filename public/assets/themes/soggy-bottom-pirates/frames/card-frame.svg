@@ -1,0 +1,51 @@
+<!-- Soggy Bottom Pirates - Weathered Wood Frame Border -->
+<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+  <defs>
+    <pattern id="woodGrain" patternUnits="userSpaceOnUse" width="100" height="20">
+      <rect fill="#8B4513" width="100" height="20"/>
+      <path d="M0 5 Q25 3 50 5 T100 5" stroke="#6B3510" stroke-width="1" fill="none" opacity="0.5"/>
+      <path d="M0 10 Q25 12 50 10 T100 10" stroke="#5D2E0C" stroke-width="0.5" fill="none" opacity="0.4"/>
+      <path d="M0 15 Q25 13 50 15 T100 15" stroke="#6B3510" stroke-width="1" fill="none" opacity="0.3"/>
+    </pattern>
+    <filter id="weathered">
+      <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+  <style>
+    .plank { fill: url(#woodGrain); filter: url(#weathered); }
+    .plank-outline { fill: none; stroke: #1A1A1A; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+    .nail { fill: #4A4A4A; }
+    .nail-highlight { fill: #7A7A7A; }
+    .rope { fill: none; stroke: #C4A35A; stroke-width: 6; stroke-linecap: round; }
+    .rope-detail { fill: none; stroke: #8B7355; stroke-width: 2; stroke-dasharray: 4 4; }
+  </style>
+  
+  <!-- Top plank -->
+  <rect class="plank" x="0" y="0" width="400" height="24" rx="2"/>
+  <rect class="plank-outline" x="0" y="0" width="400" height="24" rx="2"/>
+  
+  <!-- Bottom plank -->
+  <rect class="plank" x="0" y="276" width="400" height="24" rx="2"/>
+  <rect class="plank-outline" x="0" y="276" width="400" height="24" rx="2"/>
+  
+  <!-- Left plank -->
+  <rect class="plank" x="0" y="20" width="20" height="264" rx="2"/>
+  <rect class="plank-outline" x="0" y="20" width="20" height="264" rx="2"/>
+  
+  <!-- Right plank -->
+  <rect class="plank" x="380" y="20" width="20" height="264" rx="2"/>
+  <rect class="plank-outline" x="380" y="20" width="20" height="264" rx="2"/>
+  
+  <!-- Corner nails -->
+  <circle class="nail" cx="10" cy="12" r="4"/><circle class="nail-highlight" cx="9" cy="11" r="1.5"/>
+  <circle class="nail" cx="390" cy="12" r="4"/><circle class="nail-highlight" cx="389" cy="11" r="1.5"/>
+  <circle class="nail" cx="10" cy="288" r="4"/><circle class="nail-highlight" cx="9" cy="287" r="1.5"/>
+  <circle class="nail" cx="390" cy="288" r="4"/><circle class="nail-highlight" cx="389" cy="287" r="1.5"/>
+  
+  <!-- Rope decorations at corners -->
+  <path class="rope" d="M30 8 Q40 15 30 24"/>
+  <path class="rope" d="M370 8 Q360 15 370 24"/>
+  <path class="rope" d="M30 276 Q40 283 30 292"/>
+  <path class="rope" d="M370 276 Q360 283 370 292"/>
+</svg>

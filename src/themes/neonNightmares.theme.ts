@@ -50,11 +50,11 @@ export const neonNightmaresTheme: TMPTheme = {
 
   typography: {
     fonts: {
-      display: '"VT323", "Courier New", monospace',
-      body: '"Inter", "Segoe UI", sans-serif',
+      display: '"Monoton", "Bungee", cursive',
+      body: '"VT323", "Courier New", monospace',
       accent: '"Orbitron", sans-serif',
     },
-    googleFontsUrl: 'https://fonts.googleapis.com/css2?family=VT323&family=Inter:wght@400;500;600;700&family=Orbitron:wght@500;700&display=swap',
+    googleFontsUrl: 'https://fonts.googleapis.com/css2?family=Monoton&family=Bungee&family=VT323&family=Orbitron:wght@500;700&display=swap',
     sizes: {
       hero: '4rem',
       h1: '2.5rem',
@@ -134,6 +134,67 @@ export const neonNightmaresTheme: TMPTheme = {
         linear-gradient(180deg, #0A0A0F 0%, #1A1A2E 100%)
       `,
       overlay: 'url(/images/nn/scanlines.svg)',
+    },
+  },
+
+  assets: {
+    basePath: '/assets/themes/neon-nightmares',
+    
+    voteIcons: {
+      optionA: {
+        src: '/assets/themes/neon-nightmares/icons/eye.svg',
+        type: 'svg',
+        alt: 'Watching Eye',
+        idleAnimation: 'nn-glow-pulse',
+        selectAnimation: 'nn-glitch',
+      },
+      optionB: {
+        src: '/assets/themes/neon-nightmares/icons/vhs.svg',
+        type: 'svg',
+        alt: 'VHS Tape',
+        idleAnimation: 'nn-static',
+        selectAnimation: 'nn-flicker',
+      },
+      optionC: {
+        src: '/assets/themes/neon-nightmares/icons/static.svg',
+        type: 'svg',
+        alt: 'Static TV',
+        idleAnimation: 'nn-scan',
+        selectAnimation: 'nn-strobe',
+      },
+    },
+    
+    cardFrame: {
+      border: '/assets/themes/neon-nightmares/frames/card-frame.svg',
+      texture: '/assets/themes/neon-nightmares/frames/crt-overlay.png',
+      effect: `
+        drop-shadow(0 0 10px rgba(255, 45, 149, 0.5))
+        drop-shadow(0 0 20px rgba(0, 245, 255, 0.3))
+      `,
+    },
+    
+    progressBar: {
+      trackTexture: '/assets/themes/neon-nightmares/frames/vhs-track.svg',
+      fillStyle: `
+        linear-gradient(90deg, 
+          #FF2D95 0%, 
+          #FF2D95 45%,
+          #00F5FF 55%,
+          #00F5FF 100%
+        )
+      `,
+      endCap: '/assets/themes/neon-nightmares/icons/eye.svg',
+    },
+    
+    winnerBanner: {
+      graphic: '/assets/themes/neon-nightmares/banners/winner-glitch.svg',
+      animation: '/assets/themes/neon-nightmares/banners/winner-glitch.json',
+      particles: 'glitch',
+    },
+    
+    decorations: {
+      divider: '/assets/themes/neon-nightmares/frames/scanline-divider.svg',
+      corner: '/assets/themes/neon-nightmares/frames/corner-static.svg',
     },
   },
 };

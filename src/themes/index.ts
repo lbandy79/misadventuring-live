@@ -13,6 +13,8 @@ export type {
   ThemeAnimations,
   ThemeSounds,
   ThemeEffects,
+  ThemeAssets,
+  ThemeIcon as ThemeIconConfig,
   ThemeContextValue,
 } from './theme.types';
 
@@ -25,6 +27,14 @@ export { neonNightmaresTheme } from './neonNightmares.theme';
 
 // Provider exports
 export { ThemeProvider, useTheme } from './ThemeProvider';
+
+// Asset component exports (ThemeIcon is a React component, not to be confused with ThemeIconConfig type)
+export { 
+  ThemeIcon,
+  CardFrame, 
+  ThemedProgressBar,
+  usePreloadThemeAssets,
+} from './ThemeAssets';
 
 // Theme registry
 import type { TMPTheme, ThemeId } from './theme.types';

@@ -7,13 +7,42 @@
   color: var(--text-primary);
   font-family: var(--font-body);
   text-align: center;
+  position: relative;
+}
+
+/* Don Bluth Style Card Frame */
+.vote-container::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 20px;
+  padding: 4px;
+  background: var(--card-frame-gradient, linear-gradient(135deg, var(--accent), var(--bar-b)));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Thick outline effect for hand-drawn look */
+.vote-container::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  border: 4px solid var(--card-outline-color, rgba(0, 0, 0, 0.8));
+  pointer-events: none;
+  opacity: 0.6;
 }
 
 .vote-container h2 {
   margin-bottom: 1rem;
-  font-size: 1.4rem;
+  font-size: 1.5rem;
   color: var(--accent);
   font-family: var(--font-heading);
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+  letter-spacing: 0.5px;
 }
 
 /* Timer */
@@ -61,32 +90,70 @@
 .vote-btn {
   flex: 1;
   padding: 1.5rem 1rem;
-  border: 2px solid transparent;
+  border: 4px solid rgba(0, 0, 0, 0.7);
   border-radius: 12px;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   position: relative;
+  /* Cel-shaded gradient effect */
+  background-size: 100% 200%;
+  background-position: 0 0;
+  /* Hand-drawn shadow */
+  box-shadow: 
+    4px 4px 0 rgba(0, 0, 0, 0.4),
+    inset 0 -8px 0 rgba(0, 0, 0, 0.15),
+    inset 0 8px 0 rgba(255, 255, 255, 0.1);
 }
 
 .vote-btn.left {
-  background: var(--option-a);
+  background: 
+    linear-gradient(180deg, 
+      var(--option-a) 0%,
+      color-mix(in srgb, var(--option-a) 85%, black) 50%,
+      color-mix(in srgb, var(--option-a) 70%, black) 100%
+    );
 }
 
 .vote-btn.right {
-  background: var(--option-b);
+  background: 
+    linear-gradient(180deg, 
+      var(--option-b) 0%,
+      color-mix(in srgb, var(--option-b) 85%, black) 50%,
+      color-mix(in srgb, var(--option-b) 70%, black) 100%
+    );
 }
 
 .vote-btn.center {
-  background: var(--option-c);
+  background: 
+    linear-gradient(180deg, 
+      var(--option-c) 0%,
+      color-mix(in srgb, var(--option-c) 85%, black) 50%,
+      color-mix(in srgb, var(--option-c) 70%, black) 100%
+    );
 }
 
+/* Hover - Don Bluth bounce lift */
 .vote-btn:hover:not(.disabled) {
   border-color: var(--accent);
-  box-shadow: var(--glow);
+  box-shadow: 
+    var(--glow),
+    6px 6px 0 rgba(0, 0, 0, 0.3),
+    inset 0 -8px 0 rgba(0, 0, 0, 0.15),
+    inset 0 8px 0 rgba(255, 255, 255, 0.15);
+  transform: translateY(-4px) scale(1.02);
+}
+
+/* Active press - squash effect */
+.vote-btn:active:not(.disabled) {
+  transform: translateY(-2px) scale(0.98);
+  box-shadow: 
+    2px 2px 0 rgba(0, 0, 0, 0.4),
+    inset 0 -4px 0 rgba(0, 0, 0, 0.2),
+    inset 0 4px 0 rgba(255, 255, 255, 0.05);
 }
 
 .vote-btn.disabled {
@@ -96,11 +163,51 @@
 
 .vote-btn.selected {
   border-color: var(--accent);
-  box-shadow: var(--glow-strong);
+  box-shadow: 
+    var(--glow-strong),
+    0 0 20px var(--accent),
+    inset 0 -8px 0 rgba(0, 0, 0, 0.15),
+    inset 0 8px 0 rgba(255, 255, 255, 0.15);
+  animation: selected-pulse 1.5s ease-in-out infinite;
 }
 
-.vote-btn .emoji {
+@keyframes selected-pulse {
+  0%, 100% { box-shadow: var(--glow-strong), 0 0 20px var(--accent); }
+  50% { box-shadow: var(--glow-strong), 0 0 35px var(--accent); }
+}
+
+.vote-btn .emoji,
+.vote-btn .theme-icon {
   font-size: 2.5rem;
+  filter: drop-shadow(2px 2px 0 rgba(0, 0, 0, 0.3));
+  transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Icon idle animation */
+.vote-btn:not(.selected) .emoji,
+.vote-btn:not(.selected) .theme-icon {
+  animation: icon-idle-bob 3s ease-in-out infinite;
+}
+
+@keyframes icon-idle-bob {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-3px) rotate(-2deg); }
+  75% { transform: translateY(-3px) rotate(2deg); }
+}
+
+/* Icon select animation - squash stretch */
+.vote-btn.selected .emoji,
+.vote-btn.selected .theme-icon {
+  animation: icon-select-squash 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes icon-select-squash {
+  0% { transform: scale(1, 1); }
+  20% { transform: scale(1.3, 0.7); }
+  40% { transform: scale(0.8, 1.2); }
+  60% { transform: scale(1.1, 0.9); }
+  80% { transform: scale(0.95, 1.05); }
+  100% { transform: scale(1, 1); }
 }
 
 .vote-btn .label {
@@ -129,11 +236,56 @@
 
 .results-bar {
   display: flex;
-  height: 28px;
-  border-radius: 14px;
+  height: 36px;
+  border-radius: 18px;
   overflow: hidden;
   background: var(--bg-primary);
   margin-bottom: 1rem;
+  border: 4px solid rgba(0, 0, 0, 0.6);
+  box-shadow: 
+    inset 0 4px 8px rgba(0, 0, 0, 0.4),
+    0 4px 8px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+/* Rope texture overlay for pirate theme */
+[data-theme="soggy-bottom-pirates"] .results-bar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 18px,
+      rgba(0, 0, 0, 0.15) 18px,
+      rgba(0, 0, 0, 0.15) 20px
+    );
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Scanline overlay for neon theme */
+[data-theme="neon-nightmares"] .results-bar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      transparent 2px,
+      rgba(0, 0, 0, 0.2) 2px,
+      rgba(0, 0, 0, 0.2) 4px
+    );
+  pointer-events: none;
+  z-index: 2;
+  animation: scanline-scroll 2s linear infinite;
+}
+
+@keyframes scanline-scroll {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(4px); }
 }
 
 .bar-fill {
@@ -141,21 +293,46 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   font-weight: bold;
   min-width: 2px;
+  position: relative;
+  /* Cel-shaded effect */
+  box-shadow: 
+    inset 0 4px 0 rgba(255, 255, 255, 0.25),
+    inset 0 -4px 0 rgba(0, 0, 0, 0.2);
 }
 
 .bar-fill.left {
-  background: var(--bar-a);
+  background: linear-gradient(180deg, 
+    color-mix(in srgb, var(--bar-a) 120%, white) 0%,
+    var(--bar-a) 30%,
+    color-mix(in srgb, var(--bar-a) 80%, black) 100%
+  );
 }
 
 .bar-fill.right {
-  background: var(--bar-b);
+  background: linear-gradient(180deg, 
+    color-mix(in srgb, var(--bar-b) 120%, white) 0%,
+    var(--bar-b) 30%,
+    color-mix(in srgb, var(--bar-b) 80%, black) 100%
+  );
 }
 
 .bar-fill.center {
-  background: var(--bar-c);
+  background: linear-gradient(180deg, 
+    color-mix(in srgb, var(--bar-c) 120%, white) 0%,
+    var(--bar-c) 30%,
+    color-mix(in srgb, var(--bar-c) 80%, black) 100%
+  );
+}
+
+/* Neon glow for neon theme */
+[data-theme="neon-nightmares"] .bar-fill {
+  box-shadow: 
+    inset 0 4px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -4px 0 rgba(0, 0, 0, 0.3),
+    0 0 10px currentColor;
 }
 
 .bar-label {

@@ -3,13 +3,15 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { db } from '../firebase';
 import { useTheme } from '../themes';
+import { ThemeIcon } from '../themes/ThemeAssets';
 import { audioMixer, initAudio } from '../utils/audioMixer';
-import { initConfetti, celebrateWinner, destroyConfetti } from '../utils/confetti';
+import { initConfetti, destroyConfetti } from '../utils/confetti';
 import { useCueListener } from '../hooks';
 import { TMPSoundOn, TMPSoundOff, TMPVotingOpen, TMPVotingClosed } from './icons/TMPIcons';
 import { TMPLogo } from './icons/TMPLogo';
 import DiceRollerDisplay from './DiceRollerDisplay';
 import VoteParticlesSimple, { useVoteParticles } from './VoteParticlesSimple';
+import WinnerBanner from './WinnerBanner';
 import './DisplayView.css';
 
 interface VoteOption {
@@ -39,7 +41,7 @@ export default function DisplayView() {
   const [debugInfo, setDebugInfo] = useState('Connecting...');
   const [isShaking, setIsShaking] = useState(false);
   const [showWinnerReveal, setShowWinnerReveal] = useState(false);
-  useTheme(); 
+  const { theme } = useTheme(); 
   
   // Listen for GM-triggered cues from Firebase (synced effects across all displays)
   useCueListener();
@@ -89,11 +91,9 @@ export default function DisplayView() {
             setIsShaking(true);
             setTimeout(() => setIsShaking(false), 800);
             
-            // Dramatic reveal timing
+            // Dramatic reveal timing - WinnerBanner handles confetti & sound
             setTimeout(() => {
               setShowWinnerReveal(true);
-              audioMixer.playVictoryFanfare();
-              celebrateWinner({ intensity: 'epic' });
             }, 600);
           }
           
@@ -265,11 +265,13 @@ export default function DisplayView() {
               <span className="count-label">votes cast</span>
             </motion.div>
 
-            {/* Giant tug-of-war bar */}
+            {/* Giant tug-of-war bar with themed icons */}
             <div className="display-results-bar">
               {activeInteraction.options?.map((option, index) => {
                 const percent = getPercent(option.id);
                 const colors = ['bar-a', 'bar-b', 'bar-c'];
+                const iconKeys = ['optionA', 'optionB', 'optionC'];
+                const hasThemeIcon = theme.assets?.voteIcons?.[iconKeys[index]];
                 return (
                   <motion.div
                     key={option.id}
@@ -279,7 +281,15 @@ export default function DisplayView() {
                     transition={{ type: 'spring', stiffness: 50, damping: 15 }}
                   >
                     <div className="segment-content">
-                      <span className="segment-emoji">{option.emoji}</span>
+                      {hasThemeIcon ? (
+                        <ThemeIcon 
+                          iconKey={iconKeys[index]} 
+                          size={48} 
+                          className="segment-icon"
+                        />
+                      ) : (
+                        <span className="segment-emoji">{option.emoji}</span>
+                      )}
                       <span className="segment-label">{option.label}</span>
                       <span className="segment-percent">{Math.round(percent)}%</span>
                     </div>
@@ -301,38 +311,17 @@ export default function DisplayView() {
               )}
             </motion.div>
 
-            {/* 🏆 WINNER ANNOUNCEMENT - The Big Reveal! */}
-            <AnimatePresence>
-              {!activeInteraction.isOpen && totalVotes > 0 && showWinnerReveal && (
-                <motion.div 
-                  className="winner-announcement winner-pulse"
-                  initial={{ scale: 0, rotate: -10, opacity: 0 }}
-                  animate={{ scale: 1, rotate: 0, opacity: 1 }}
-                  exit={{ scale: 0, opacity: 0 }}
-                  transition={{ type: 'spring', stiffness: 200, damping: 10 }}
-                >
-                  <motion.span 
-                    className="winner-emoji"
-                    animate={{ 
-                      scale: [1, 1.2, 1],
-                      rotate: [0, -5, 5, 0]
-                    }}
-                    transition={{ duration: 0.6, delay: 0.3 }}
-                  >
-                    {getWinner()?.emoji}
-                  </motion.span>
-                  <span className="winner-text glitch-text">{getWinner()?.label}</span>
-                  <motion.span 
-                    className="winner-subtitle"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5 }}
-                  >
-                    THE PEOPLE HAVE SPOKEN
-                  </motion.span>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {/* 🏆 WINNER ANNOUNCEMENT - GSAP Animated Theme Banner! */}
+            <WinnerBanner
+              show={!activeInteraction.isOpen && totalVotes > 0 && showWinnerReveal}
+              winner={getWinner()?.label || ''}
+              winnerId={getWinner()?.id}
+              percentage={getWinner() ? getPercent(getWinner()!.id) : 0}
+              onAnimationComplete={() => {
+                // Auto-hide after 5 seconds
+                setTimeout(() => setShowWinnerReveal(false), 5000);
+              }}
+            />
           </motion.div>
         )}
 

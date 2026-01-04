@@ -1,0 +1,45 @@
+<!-- Neon Nightmares - TV Static Icon (VHS horror) -->
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="staticGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="1.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <pattern id="staticPattern" patternUnits="userSpaceOnUse" width="4" height="4">
+      <rect width="2" height="2" fill="#39FF14" opacity="0.8"/>
+      <rect x="2" y="2" width="2" height="2" fill="#00F5FF" opacity="0.6"/>
+    </pattern>
+  </defs>
+  <style>
+    .tv-body { fill: #1A1A2E; }
+    .tv-screen { fill: #0A0A0F; }
+    .tv-outline { fill: none; stroke: #FF2D95; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+    .tv-glow { fill: none; stroke: #00F5FF; stroke-width: 2; filter: url(#staticGlow); }
+    .static { fill: url(#staticPattern); opacity: 0.7; }
+    .antenna { stroke: #39FF14; stroke-width: 3; stroke-linecap: round; filter: url(#staticGlow); }
+  </style>
+  <!-- TV Body -->
+  <rect class="tv-body" x="8" y="20" width="48" height="36" rx="4"/>
+  <!-- Screen -->
+  <rect class="tv-screen" x="12" y="24" width="40" height="28" rx="2"/>
+  <!-- Static pattern on screen -->
+  <rect class="static" x="12" y="24" width="40" height="28" rx="2"/>
+  <!-- Scan lines -->
+  <line stroke="#FFFFFF" stroke-width="0.5" opacity="0.3" x1="12" y1="30" x2="52" y2="30"/>
+  <line stroke="#FFFFFF" stroke-width="0.5" opacity="0.3" x1="12" y1="38" x2="52" y2="38"/>
+  <line stroke="#FFFFFF" stroke-width="0.5" opacity="0.3" x1="12" y1="46" x2="52" y2="46"/>
+  <!-- Antennas -->
+  <line class="antenna" x1="24" y1="20" x2="16" y2="6"/>
+  <line class="antenna" x1="40" y1="20" x2="48" y2="6"/>
+  <!-- Control knobs -->
+  <circle fill="#FF2D95" cx="50" cy="50" r="2"/>
+  <circle fill="#00F5FF" cx="50" cy="44" r="2"/>
+  <!-- Neon glow outline -->
+  <rect class="tv-glow" x="8" y="20" width="48" height="36" rx="4"/>
+  <!-- Hard outline -->
+  <rect class="tv-outline" x="8" y="20" width="48" height="36" rx="4"/>
+  <rect class="tv-outline" x="12" y="24" width="40" height="28" rx="2"/>
+</svg>

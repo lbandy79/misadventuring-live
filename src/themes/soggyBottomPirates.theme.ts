@@ -50,11 +50,11 @@ export const soggyBottomPiratesTheme: TMPTheme = {
 
   typography: {
     fonts: {
-      display: '"Pirata One", "Cinzel", serif',
-      body: '"Nunito", "Segoe UI", sans-serif',
+      display: '"Luckiest Guy", "Titan One", cursive',
+      body: '"Patrick Hand", "Comic Neue", cursive',
       accent: '"Permanent Marker", cursive',
     },
-    googleFontsUrl: 'https://fonts.googleapis.com/css2?family=Pirata+One&family=Nunito:wght@400;600;700;800&family=Permanent+Marker&display=swap',
+    googleFontsUrl: 'https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Patrick+Hand&family=Titan+One&family=Permanent+Marker&display=swap',
     sizes: {
       hero: '4rem',
       h1: '2.5rem',
@@ -124,6 +124,56 @@ export const soggyBottomPiratesTheme: TMPTheme = {
         linear-gradient(180deg, #0A1628 0%, #132238 100%)
       `,
       overlay: 'url(/images/sbp/wave-pattern.svg)',
+    },
+  },
+
+  assets: {
+    basePath: '/assets/themes/soggy-bottom-pirates',
+    
+    voteIcons: {
+      optionA: {
+        src: '/assets/themes/soggy-bottom-pirates/icons/anchor.svg',
+        type: 'svg',
+        alt: 'Golden Anchor',
+        idleAnimation: 'sbp-float',
+        selectAnimation: 'sbp-splash',
+      },
+      optionB: {
+        src: '/assets/themes/soggy-bottom-pirates/icons/treasure.svg',
+        type: 'svg',
+        alt: 'Treasure Chest',
+        idleAnimation: 'sbp-bob',
+        selectAnimation: 'sbp-treasure',
+      },
+      optionC: {
+        src: '/assets/themes/soggy-bottom-pirates/icons/skull.svg',
+        type: 'svg',
+        alt: 'Jolly Roger',
+        idleAnimation: 'sbp-float',
+        selectAnimation: 'sbp-splash',
+      },
+    },
+    
+    cardFrame: {
+      border: '/assets/themes/soggy-bottom-pirates/frames/card-frame.svg',
+      texture: '/assets/themes/soggy-bottom-pirates/frames/parchment-texture.png',
+      effect: 'drop-shadow(0 4px 8px rgba(0,0,0,0.4))',
+    },
+    
+    progressBar: {
+      trackTexture: '/assets/themes/soggy-bottom-pirates/frames/rope-track.svg',
+      fillStyle: 'linear-gradient(180deg, #FFD700 0%, #E4A11B 50%, #C4920B 100%)',
+      endCap: '/assets/themes/soggy-bottom-pirates/icons/anchor.svg',
+    },
+    
+    winnerBanner: {
+      graphic: '/assets/themes/soggy-bottom-pirates/banners/winner-scroll.svg',
+      particles: 'confetti',
+    },
+    
+    decorations: {
+      divider: '/assets/themes/soggy-bottom-pirates/frames/rope-divider.svg',
+      corner: '/assets/themes/soggy-bottom-pirates/frames/corner-flourish.svg',
     },
   },
 };

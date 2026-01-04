@@ -1,0 +1,30 @@
+<!-- Soggy Bottom Pirates - Anchor Icon (Don Bluth style thick outlines) -->
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .anchor-body { fill: #E4A11B; }
+    .anchor-outline { fill: none; stroke: #1A1A1A; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+    .anchor-highlight { fill: #FFF8E7; opacity: 0.4; }
+    .anchor-shadow { fill: #8B6914; }
+  </style>
+  <!-- Shadow layer -->
+  <path class="anchor-shadow" d="M34 58c-12 0-20-6-20-12h4c0 4 7 8 16 8s16-4 16-8h4c0 6-8 12-20 12z" transform="translate(2, 2)"/>
+  <!-- Main anchor body -->
+  <circle class="anchor-body" cx="32" cy="12" r="8"/>
+  <rect class="anchor-body" x="28" y="16" width="8" height="30" rx="2"/>
+  <path class="anchor-body" d="M14 46c0-6 8-10 18-10s18 4 18 10h-4c0-4-7-6-14-6s-14 2-14 6h-4z"/>
+  <!-- Crossbar -->
+  <rect class="anchor-body" x="16" y="24" width="32" height="6" rx="3"/>
+  <!-- Flukes (bottom curves) -->
+  <path class="anchor-body" d="M10 52c0-4 6-8 12-8v6c-3 0-6 1-6 2h-6z"/>
+  <path class="anchor-body" d="M54 52c0-4-6-8-12-8v6c3 0 6 1 6 2h6z"/>
+  <!-- Highlight for cel-shaded look -->
+  <circle class="anchor-highlight" cx="30" cy="10" r="3"/>
+  <rect class="anchor-highlight" x="29" y="18" width="3" height="12" rx="1"/>
+  <!-- Thick outlines -->
+  <circle class="anchor-outline" cx="32" cy="12" r="8"/>
+  <line class="anchor-outline" x1="32" y1="20" x2="32" y2="48"/>
+  <line class="anchor-outline" x1="18" y1="27" x2="46" y2="27"/>
+  <path class="anchor-outline" d="M14 52c0-8 8-12 18-12s18 4 18 12"/>
+  <path class="anchor-outline" d="M10 52l8-8"/>
+  <path class="anchor-outline" d="M54 52l-8-8"/>
+</svg>

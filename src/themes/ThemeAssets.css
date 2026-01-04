@@ -1,0 +1,340 @@
+/**
+ * ThemeAssets.css - Don Bluth / Robin Hood Aesthetic Styling
+ * 
+ * Hand-drawn animation style with thick outlines, cel-shaded colors,
+ * and personality-filled animations.
+ */
+
+/* =============================================================================
+   THEME ICON
+   ============================================================================= */
+
+.theme-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: transform 0.2s var(--tmp-easing-bounce, cubic-bezier(0.68, -0.55, 0.265, 1.55));
+  cursor: default;
+}
+
+.theme-icon[role="button"] {
+  cursor: pointer;
+}
+
+.theme-icon[role="button"]:focus {
+  outline: 3px solid var(--tmp-color-primary);
+  outline-offset: 4px;
+  border-radius: 8px;
+}
+
+.theme-icon--loaded {
+  opacity: 1;
+}
+
+.theme-icon:not(.theme-icon--loaded) {
+  opacity: 0.5;
+}
+
+.theme-icon__svg,
+.theme-icon__img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.theme-icon__svg svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Selected state - squash and stretch */
+.theme-icon--selected {
+  animation: icon-select-squash 0.4s var(--tmp-easing-bounce);
+}
+
+@keyframes icon-select-squash {
+  0% { transform: scale(1, 1); }
+  25% { transform: scale(1.2, 0.8); }
+  50% { transform: scale(0.9, 1.1); }
+  75% { transform: scale(1.05, 0.95); }
+  100% { transform: scale(1, 1); }
+}
+
+/* Fallback emoji icon */
+.theme-icon--fallback {
+  font-size: calc(var(--icon-size, 48px) * 0.8);
+  line-height: 1;
+}
+
+/* =============================================================================
+   CARD FRAME - Don Bluth Style
+   ============================================================================= */
+
+.card-frame {
+  position: relative;
+  border-radius: var(--tmp-radius-card, 12px);
+  overflow: hidden;
+}
+
+.card-frame__border {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.card-frame__border svg {
+  width: 100%;
+  height: 100%;
+}
+
+.card-frame__texture {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.15;
+  pointer-events: none;
+  z-index: 1;
+  mix-blend-mode: overlay;
+}
+
+.card-frame__content {
+  position: relative;
+  z-index: 3;
+  padding: 24px;
+}
+
+/* Soggy Bottom Pirates - Weathered parchment feel */
+.card-frame--soggy-bottom-pirates {
+  background: 
+    linear-gradient(135deg, rgba(255, 248, 231, 0.05) 0%, transparent 50%),
+    var(--tmp-color-bg-card, #132238);
+  border: 4px solid #8B4513;
+  box-shadow: 
+    inset 0 0 20px rgba(139, 69, 19, 0.2),
+    0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.card-frame--soggy-bottom-pirates::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 2px solid rgba(228, 161, 27, 0.3);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* Neon Nightmares - CRT monitor feel */
+.card-frame--neon-nightmares {
+  background: 
+    repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.1) 0px,
+      rgba(0, 0, 0, 0.1) 1px,
+      transparent 1px,
+      transparent 2px
+    ),
+    var(--tmp-color-bg-card, #12121A);
+  border: 3px solid #FF2D95;
+  box-shadow: 
+    0 0 10px rgba(255, 45, 149, 0.5),
+    0 0 20px rgba(0, 245, 255, 0.3),
+    inset 0 0 30px rgba(0, 245, 255, 0.1);
+}
+
+.card-frame--neon-nightmares::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(0, 245, 255, 0.5);
+  border-radius: inherit;
+  pointer-events: none;
+  animation: crt-flicker 4s infinite;
+}
+
+@keyframes crt-flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.95; }
+  52% { opacity: 1; }
+  54% { opacity: 0.9; }
+  56% { opacity: 1; }
+}
+
+/* =============================================================================
+   THEMED PROGRESS BAR
+   ============================================================================= */
+
+.themed-progress {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  background: var(--tmp-color-voting-track, #1A1A2E);
+}
+
+.themed-progress__track {
+  display: flex;
+  height: 100%;
+  border-radius: inherit;
+  overflow: hidden;
+}
+
+.themed-progress__fill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2px;
+  transition: width 0.5s var(--tmp-easing-default);
+  position: relative;
+}
+
+.themed-progress__label {
+  font-family: var(--tmp-font-accent);
+  font-size: 0.875rem;
+  font-weight: bold;
+  color: var(--tmp-color-text-on-primary, #1A1A1A);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+  padding: 0 8px;
+}
+
+.themed-progress__endcap {
+  position: absolute;
+  right: -4px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Soggy Bottom Pirates - Rope/plank container */
+.themed-progress--soggy-bottom-pirates {
+  border: 4px solid #8B4513;
+  background: 
+    linear-gradient(180deg, #5D2E0C 0%, #3D1E08 100%);
+  box-shadow: 
+    inset 0 2px 4px rgba(0, 0, 0, 0.5),
+    0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.themed-progress--soggy-bottom-pirates::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 20px,
+      rgba(0, 0, 0, 0.2) 20px,
+      rgba(0, 0, 0, 0.2) 22px
+    );
+  pointer-events: none;
+}
+
+.themed-progress--soggy-bottom-pirates .themed-progress__fill {
+  background: linear-gradient(180deg, #FFD700 0%, #E4A11B 50%, #C4920B 100%);
+  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.3);
+}
+
+.themed-progress--soggy-bottom-pirates .themed-progress__fill::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 4px;
+  right: 4px;
+  height: 30%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, transparent 100%);
+  border-radius: 4px;
+}
+
+/* Neon Nightmares - VHS tracking bar */
+.themed-progress--neon-nightmares {
+  border: 2px solid #FF2D95;
+  background: #0A0A0F;
+  box-shadow: 
+    0 0 10px rgba(255, 45, 149, 0.4),
+    inset 0 0 20px rgba(0, 245, 255, 0.1);
+}
+
+.themed-progress--neon-nightmares::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      transparent 2px,
+      rgba(0, 0, 0, 0.3) 2px,
+      rgba(0, 0, 0, 0.3) 4px
+    );
+  pointer-events: none;
+  z-index: 1;
+  animation: vhs-scan 2s linear infinite;
+}
+
+@keyframes vhs-scan {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(4px); }
+}
+
+.themed-progress--neon-nightmares .themed-progress__fill {
+  background: linear-gradient(90deg, #FF2D95 0%, #00F5FF 100%);
+  box-shadow: 
+    0 0 10px currentColor,
+    inset 0 0 10px rgba(255, 255, 255, 0.2);
+  position: relative;
+}
+
+.themed-progress--neon-nightmares .themed-progress__fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, transparent 50%, rgba(0, 0, 0, 0.2) 100%);
+}
+
+.themed-progress--neon-nightmares .themed-progress__label {
+  color: #0A0A0F;
+  text-shadow: 
+    0 0 4px rgba(255, 255, 255, 0.8),
+    0 0 8px currentColor;
+  font-family: var(--tmp-font-display);
+  letter-spacing: 1px;
+}
+
+/* =============================================================================
+   DON BLUTH STYLE - Thick Outlines & Cel Shading
+   ============================================================================= */
+
+/* Global thick outline style for themed elements */
+[data-theme="soggy-bottom-pirates"] .vote-option,
+[data-theme="neon-nightmares"] .vote-option {
+  border-width: 4px;
+  border-style: solid;
+}
+
+[data-theme="soggy-bottom-pirates"] .vote-option {
+  border-color: #1A1A1A;
+  box-shadow: 
+    4px 4px 0 rgba(0, 0, 0, 0.3),
+    inset 0 -4px 0 rgba(0, 0, 0, 0.2),
+    inset 0 4px 0 rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="neon-nightmares"] .vote-option {
+  border-color: #FF2D95;
+  box-shadow: 
+    0 0 15px rgba(255, 45, 149, 0.4),
+    0 0 30px rgba(0, 245, 255, 0.2),
+    inset 0 0 20px rgba(0, 245, 255, 0.1);
+}
+
+/* Hover states with Don Bluth bounce */
+[data-theme] .vote-option:hover {
+  transform: translateY(-4px) scale(1.02);
+}
+
+[data-theme] .vote-option:active {
+  transform: translateY(-2px) scale(0.98);
+}
