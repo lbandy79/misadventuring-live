@@ -265,13 +265,40 @@ export default function DisplayView() {
               <span className="count-label">votes cast</span>
             </motion.div>
 
-            {/* Giant tug-of-war bar with themed icons */}
+            {/* Vote Option Cards - positioned above the bar */}
+            <div className="vote-option-cards">
+              {activeInteraction.options?.map((option, index) => {
+                const percent = getPercent(option.id);
+                const colors = ['option-a', 'option-b', 'option-c'];
+                const iconKeys = ['optionA', 'optionB', 'optionC'];
+                const hasThemeIcon = theme.assets?.voteIcons?.[iconKeys[index]];
+                return (
+                  <motion.div
+                    key={option.id}
+                    className={`vote-option-card ${colors[index]}`}
+                    initial={{ y: 50, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.3 + index * 0.1 }}
+                  >
+                    <div className="option-icon">
+                      {hasThemeIcon ? (
+                        <ThemeIcon iconKey={iconKeys[index]} size={64} />
+                      ) : (
+                        <span className="option-emoji">{option.emoji}</span>
+                      )}
+                    </div>
+                    <span className="option-label">{option.label}</span>
+                    <span className="option-percent">{Math.round(percent)}%</span>
+                  </motion.div>
+                );
+              })}
+            </div>
+
+            {/* Giant tug-of-war bar */}
             <div className="display-results-bar">
               {activeInteraction.options?.map((option, index) => {
                 const percent = getPercent(option.id);
                 const colors = ['bar-a', 'bar-b', 'bar-c'];
-                const iconKeys = ['optionA', 'optionB', 'optionC'];
-                const hasThemeIcon = theme.assets?.voteIcons?.[iconKeys[index]];
                 return (
                   <motion.div
                     key={option.id}
@@ -279,21 +306,7 @@ export default function DisplayView() {
                     initial={{ width: `${100 / (activeInteraction.options?.length || 2)}%` }}
                     animate={{ width: `${Math.max(percent, 5)}%` }}
                     transition={{ type: 'spring', stiffness: 50, damping: 15 }}
-                  >
-                    <div className="segment-content">
-                      {hasThemeIcon ? (
-                        <ThemeIcon 
-                          iconKey={iconKeys[index]} 
-                          size={48} 
-                          className="segment-icon"
-                        />
-                      ) : (
-                        <span className="segment-emoji">{option.emoji}</span>
-                      )}
-                      <span className="segment-label">{option.label}</span>
-                      <span className="segment-percent">{Math.round(percent)}%</span>
-                    </div>
-                  </motion.div>
+                  />
                 );
               })}
             </div>

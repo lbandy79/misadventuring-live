@@ -126,12 +126,258 @@
 }
 
 /* ============================================
+   VOTE OPTION CARDS - Theme Treatments
+   ============================================ */
+
+.vote-option-cards {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  gap: 2rem;
+  padding: 0 2rem;
+}
+
+.vote-option-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.5rem 2rem;
+  background: var(--bg-card);
+  border-radius: 16px;
+  border: 4px solid rgba(0, 0, 0, 0.6);
+  position: relative;
+  /* Cel-shaded shadow */
+  box-shadow: 
+    6px 6px 0 rgba(0, 0, 0, 0.4),
+    inset 0 4px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -4px 0 rgba(0, 0, 0, 0.15);
+}
+
+.option-icon {
+  font-size: 4rem;
+  filter: drop-shadow(3px 3px 0 rgba(0, 0, 0, 0.3));
+}
+
+.option-emoji {
+  font-size: 4rem;
+}
+
+.option-label {
+  font-family: var(--font-heading);
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.option-percent {
+  font-family: var(--font-heading);
+  font-size: 3rem;
+  font-weight: bold;
+  color: var(--text-primary);
+}
+
+/* ============================================
+   NEON NIGHTMARES - VHS Tape Cards
+   ============================================ */
+
+[data-theme="neon-nightmares"] .vote-option-card {
+  background: linear-gradient(180deg,
+    #1a1a2e 0%,
+    #12121a 50%,
+    #0a0a0f 100%
+  );
+  border: 3px solid #444;
+  border-radius: 8px;
+  box-shadow: 
+    0 0 20px rgba(0, 0, 0, 0.8),
+    inset 4px 4px 0 rgba(80, 80, 80, 0.3),
+    inset -4px -4px 0 rgba(0, 0, 0, 0.5);
+  position: relative;
+  overflow: hidden;
+}
+
+/* CRT monitor bezel effect */
+[data-theme="neon-nightmares"] .vote-option-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 4px;
+  box-shadow: 
+    inset 3px 3px 0 rgba(60, 60, 60, 0.4),
+    inset -3px -3px 0 rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Scanline overlay */
+[data-theme="neon-nightmares"] .vote-option-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 2px,
+    rgba(0, 0, 0, 0.15) 2px,
+    rgba(0, 0, 0, 0.15) 4px
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Option A - Hot Pink */
+[data-theme="neon-nightmares"] .vote-option-card.option-a {
+  border-color: #FF2D95;
+  box-shadow: 
+    0 0 30px rgba(255, 45, 149, 0.4),
+    inset 4px 4px 0 rgba(80, 80, 80, 0.3),
+    inset -4px -4px 0 rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="neon-nightmares"] .vote-option-card.option-a .option-label,
+[data-theme="neon-nightmares"] .vote-option-card.option-a .option-percent {
+  color: #FF2D95;
+  text-shadow: 
+    0 0 10px #FF2D95,
+    0 0 20px #FF2D95;
+}
+
+/* Option B - Electric Cyan */
+[data-theme="neon-nightmares"] .vote-option-card.option-b {
+  border-color: #00F5FF;
+  box-shadow: 
+    0 0 30px rgba(0, 245, 255, 0.4),
+    inset 4px 4px 0 rgba(80, 80, 80, 0.3),
+    inset -4px -4px 0 rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="neon-nightmares"] .vote-option-card.option-b .option-label,
+[data-theme="neon-nightmares"] .vote-option-card.option-b .option-percent {
+  color: #00F5FF;
+  text-shadow: 
+    0 0 10px #00F5FF,
+    0 0 20px #00F5FF;
+}
+
+/* Option C - CRT Green */
+[data-theme="neon-nightmares"] .vote-option-card.option-c {
+  border-color: #39FF14;
+  box-shadow: 
+    0 0 30px rgba(57, 255, 20, 0.4),
+    inset 4px 4px 0 rgba(80, 80, 80, 0.3),
+    inset -4px -4px 0 rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="neon-nightmares"] .vote-option-card.option-c .option-label,
+[data-theme="neon-nightmares"] .vote-option-card.option-c .option-percent {
+  color: #39FF14;
+  text-shadow: 
+    0 0 10px #39FF14,
+    0 0 20px #39FF14;
+}
+
+/* Neon typography */
+[data-theme="neon-nightmares"] .option-label {
+  font-family: 'Orbitron', sans-serif;
+  letter-spacing: 0.1em;
+}
+
+[data-theme="neon-nightmares"] .option-percent {
+  font-family: 'VT323', monospace;
+  font-size: 3.5rem;
+}
+
+/* ============================================
+   SOGGY BOTTOM PIRATES - Treasure Cards
+   ============================================ */
+
+[data-theme="soggy-bottom-pirates"] .vote-option-card {
+  background: linear-gradient(180deg,
+    #F5E6C8 0%,
+    #E8D4A8 30%,
+    #D4C08A 70%,
+    #C9B57A 100%
+  );
+  border: 5px solid #2C1810;
+  border-radius: 12px;
+  box-shadow: 
+    8px 8px 0 rgba(0, 0, 0, 0.4),
+    inset 0 4px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -4px 0 rgba(0, 0, 0, 0.15);
+  position: relative;
+}
+
+/* Parchment texture overlay */
+[data-theme="soggy-bottom-pirates"] .vote-option-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(ellipse at 20% 20%, rgba(139, 90, 43, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(139, 90, 43, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+  border-radius: 8px;
+}
+
+/* Rope border decoration */
+[data-theme="soggy-bottom-pirates"] .vote-option-card::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border: 3px dashed rgba(139, 90, 43, 0.3);
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+/* Option A - Gold/Treasure */
+[data-theme="soggy-bottom-pirates"] .vote-option-card.option-a .option-label,
+[data-theme="soggy-bottom-pirates"] .vote-option-card.option-a .option-percent {
+  color: #8B6914;
+  text-shadow: 
+    1px 1px 0 rgba(255, 255, 255, 0.4),
+    2px 2px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* Option B - Ocean Teal */
+[data-theme="soggy-bottom-pirates"] .vote-option-card.option-b .option-label,
+[data-theme="soggy-bottom-pirates"] .vote-option-card.option-b .option-percent {
+  color: #00695C;
+  text-shadow: 
+    1px 1px 0 rgba(255, 255, 255, 0.4),
+    2px 2px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* Option C - Coral */
+[data-theme="soggy-bottom-pirates"] .vote-option-card.option-c .option-label,
+[data-theme="soggy-bottom-pirates"] .vote-option-card.option-c .option-percent {
+  color: #BF360C;
+  text-shadow: 
+    1px 1px 0 rgba(255, 255, 255, 0.4),
+    2px 2px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* Pirate typography */
+[data-theme="soggy-bottom-pirates"] .option-label {
+  font-family: 'Luckiest Guy', cursive;
+  color: #2C1810;
+}
+
+[data-theme="soggy-bottom-pirates"] .option-percent {
+  font-family: 'Luckiest Guy', cursive;
+  color: #2C1810;
+}
+
+/* ============================================
    GIANT RESULTS BAR - Theme Treatments
    ============================================ */
 
 .display-results-bar {
   width: 100%;
-  height: 150px;
+  height: 80px;
   display: flex;
   border-radius: 20px;
   overflow: hidden;
