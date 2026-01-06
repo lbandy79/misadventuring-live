@@ -163,13 +163,13 @@
 }
 
 /* =============================================================================
-   THEMED PROGRESS BAR
+   THEMED PROGRESS BAR - Don Bluth Theatrical Style
    ============================================================================= */
 
 .themed-progress {
   position: relative;
   border-radius: 20px;
-  overflow: hidden;
+  overflow: visible; /* Allow decorations to extend */
   background: var(--tmp-color-voting-track, #1A1A2E);
 }
 
@@ -178,6 +178,7 @@
   height: 100%;
   border-radius: inherit;
   overflow: hidden;
+  position: relative;
 }
 
 .themed-progress__fill {
@@ -185,18 +186,19 @@
   align-items: center;
   justify-content: center;
   min-width: 2px;
-  transition: width 0.5s var(--tmp-easing-default);
+  transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); /* Bouncy fill */
   position: relative;
 }
 
 .themed-progress__label {
   font-family: var(--tmp-font-accent);
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   font-weight: bold;
   color: var(--tmp-color-text-on-primary, #1A1A1A);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 2px 3px rgba(0, 0, 0, 0.4);
   white-space: nowrap;
-  padding: 0 8px;
+  padding: 0 12px;
+  z-index: 5;
 }
 
 .themed-progress__endcap {
@@ -206,56 +208,177 @@
   transform: translateY(-50%);
 }
 
-/* Soggy Bottom Pirates - Rope/plank container */
+/* =============================================================================
+   SOGGY BOTTOM PIRATES - Rope & Treasure Progress Bar
+   Nautical rope with gold liquid fill
+   ============================================================================= */
+
 .themed-progress--soggy-bottom-pirates {
-  border: 4px solid #8B4513;
+  /* Rope texture container */
+  border: none;
+  border-radius: 12px;
   background: 
-    linear-gradient(180deg, #5D2E0C 0%, #3D1E08 100%);
+    /* Rope fiber texture */
+    repeating-linear-gradient(
+      45deg,
+      #8B6914 0px,
+      #6B4E0A 2px,
+      #A67C1A 4px,
+      #6B4E0A 6px,
+      #8B6914 8px
+    ),
+    linear-gradient(180deg, #5D3A0A 0%, #3D2506 100%);
   box-shadow: 
-    inset 0 2px 4px rgba(0, 0, 0, 0.5),
-    0 4px 8px rgba(0, 0, 0, 0.3);
+    /* Rope depth */
+    inset 0 3px 6px rgba(0, 0, 0, 0.6),
+    inset 0 -2px 4px rgba(255, 255, 255, 0.1),
+    /* Drop shadow */
+    0 6px 12px rgba(0, 0, 0, 0.4),
+    /* Outer glow */
+    0 0 20px rgba(228, 161, 27, 0.2);
+  padding: 4px;
+}
+
+/* Rope binding wraps */
+.themed-progress--soggy-bottom-pirates::before,
+.themed-progress--soggy-bottom-pirates::after {
+  content: '⚓';
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.5rem;
+  color: #E4A11B;
+  text-shadow: 
+    2px 2px 0 #3D2506,
+    0 0 10px rgba(228, 161, 27, 0.5);
+  z-index: 10;
 }
 
 .themed-progress--soggy-bottom-pirates::before {
-  content: '';
-  position: absolute;
-  inset: 0;
+  left: -28px;
+}
+
+.themed-progress--soggy-bottom-pirates::after {
+  right: -28px;
+}
+
+/* Inner track - dark wood barrel */
+.themed-progress--soggy-bottom-pirates .themed-progress__track {
   background: 
+    /* Wood grain */
     repeating-linear-gradient(
       90deg,
-      transparent 0px,
-      transparent 20px,
-      rgba(0, 0, 0, 0.2) 20px,
-      rgba(0, 0, 0, 0.2) 22px
-    );
-  pointer-events: none;
+      rgba(0, 0, 0, 0.1) 0px,
+      transparent 1px,
+      transparent 8px,
+      rgba(0, 0, 0, 0.1) 9px
+    ),
+    linear-gradient(180deg, #2A1A0A 0%, #1A0F05 50%, #2A1A0A 100%);
+  border-radius: 8px;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.8);
 }
 
+/* Liquid gold fill */
 .themed-progress--soggy-bottom-pirates .themed-progress__fill {
-  background: linear-gradient(180deg, #FFD700 0%, #E4A11B 50%, #C4920B 100%);
-  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.3);
+  background: 
+    /* Liquid shine */
+    linear-gradient(180deg, 
+      #FFE55C 0%, 
+      #FFD700 15%, 
+      #E4A11B 50%, 
+      #C4920B 85%, 
+      #A67C00 100%
+    );
+  border-radius: 6px;
+  box-shadow: 
+    /* Inner glow */
+    inset 0 2px 8px rgba(255, 255, 255, 0.5),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.3),
+    /* Outer glow */
+    0 0 15px rgba(228, 161, 27, 0.6);
+  animation: gold-shimmer 2s ease-in-out infinite;
 }
 
-.themed-progress--soggy-bottom-pirates .themed-progress__fill::after {
+@keyframes gold-shimmer {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.15); }
+}
+
+/* Liquid surface highlight */
+.themed-progress--soggy-bottom-pirates .themed-progress__fill::before {
   content: '';
   position: absolute;
-  top: 2px;
-  left: 4px;
-  right: 4px;
-  height: 30%;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, transparent 100%);
+  top: 3px;
+  left: 6px;
+  right: 6px;
+  height: 35%;
+  background: linear-gradient(180deg, 
+    rgba(255, 255, 255, 0.6) 0%, 
+    rgba(255, 255, 255, 0.2) 50%,
+    transparent 100%
+  );
   border-radius: 4px;
 }
 
-/* Neon Nightmares - VHS tracking bar */
-.themed-progress--neon-nightmares {
-  border: 2px solid #FF2D95;
-  background: #0A0A0F;
-  box-shadow: 
-    0 0 10px rgba(255, 45, 149, 0.4),
-    inset 0 0 20px rgba(0, 245, 255, 0.1);
+/* Bubble/sparkle effect */
+.themed-progress--soggy-bottom-pirates .themed-progress__fill::after {
+  content: '✦';
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.9rem;
+  color: #FFF8E7;
+  text-shadow: 0 0 8px #FFD700;
+  animation: sparkle-float 1.5s ease-in-out infinite;
+  opacity: 0.8;
 }
 
+@keyframes sparkle-float {
+  0%, 100% { transform: translateY(-50%) translateX(0); opacity: 0.6; }
+  50% { transform: translateY(-60%) translateX(-3px); opacity: 1; }
+}
+
+.themed-progress--soggy-bottom-pirates .themed-progress__label {
+  color: #1A0F05;
+  font-family: 'Luckiest Guy', 'Patrick Hand', cursive;
+  text-shadow: 
+    0 1px 0 rgba(255, 255, 255, 0.4),
+    0 2px 4px rgba(0, 0, 0, 0.3);
+  font-size: 1rem;
+}
+
+/* =============================================================================
+   NEON NIGHTMARES - VHS Tracking Bar
+   Full retro horror with glitch and chromatic aberration
+   ============================================================================= */
+
+.themed-progress--neon-nightmares {
+  /* CRT bezel frame */
+  border: 3px solid #2A2A3E;
+  border-radius: 4px; /* More angular, like old tech */
+  background: #0A0A0F;
+  box-shadow: 
+    /* Bezel highlight */
+    inset 2px 2px 0 rgba(255, 255, 255, 0.1),
+    inset -2px -2px 0 rgba(0, 0, 0, 0.5),
+    /* Neon glow */
+    0 0 20px rgba(255, 45, 149, 0.5),
+    0 0 40px rgba(0, 245, 255, 0.3);
+  padding: 3px;
+  animation: vhs-jitter 4s steps(1) infinite;
+}
+
+@keyframes vhs-jitter {
+  0%, 100% { transform: translateX(0); }
+  92% { transform: translateX(0); }
+  93% { transform: translateX(-2px); }
+  94% { transform: translateX(1px); }
+  95% { transform: translateX(-1px); }
+  96% { transform: translateX(0); }
+}
+
+/* Scanline overlay */
 .themed-progress--neon-nightmares::before {
   content: '';
   position: absolute;
@@ -265,42 +388,154 @@
       0deg,
       transparent 0px,
       transparent 2px,
-      rgba(0, 0, 0, 0.3) 2px,
-      rgba(0, 0, 0, 0.3) 4px
+      rgba(0, 0, 0, 0.4) 2px,
+      rgba(0, 0, 0, 0.4) 4px
     );
   pointer-events: none;
-  z-index: 1;
-  animation: vhs-scan 2s linear infinite;
+  z-index: 10;
+  border-radius: inherit;
+  animation: scanline-crawl 3s linear infinite;
 }
 
-@keyframes vhs-scan {
+@keyframes scanline-crawl {
   0% { transform: translateY(0); }
   100% { transform: translateY(4px); }
 }
 
+/* VHS counter display */
+.themed-progress--neon-nightmares::after {
+  content: '▶ 00:42:17';
+  position: absolute;
+  top: -20px;
+  right: 0;
+  font-family: 'VT323', monospace;
+  font-size: 0.85rem;
+  color: #39FF14;
+  text-shadow: 0 0 8px #39FF14;
+  letter-spacing: 2px;
+  animation: counter-flicker 0.5s steps(1) infinite;
+}
+
+@keyframes counter-flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.themed-progress--neon-nightmares .themed-progress__track {
+  background: #0A0A0F;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+/* Neon fill with chromatic aberration */
 .themed-progress--neon-nightmares .themed-progress__fill {
-  background: linear-gradient(90deg, #FF2D95 0%, #00F5FF 100%);
+  background: linear-gradient(90deg, 
+    #FF2D95 0%, 
+    #FF2D95 40%,
+    #00F5FF 60%,
+    #00F5FF 100%
+  );
+  border-radius: 2px;
   box-shadow: 
-    0 0 10px currentColor,
-    inset 0 0 10px rgba(255, 255, 255, 0.2);
+    0 0 15px rgba(255, 45, 149, 0.8),
+    0 0 30px rgba(0, 245, 255, 0.5);
   position: relative;
+  /* Chromatic aberration via pseudo-elements */
+}
+
+/* RGB split layers */
+.themed-progress--neon-nightmares .themed-progress__fill::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: inherit;
+  border-radius: inherit;
+  opacity: 0.5;
+  transform: translateX(-3px);
+  filter: hue-rotate(60deg);
+  mix-blend-mode: screen;
 }
 
 .themed-progress--neon-nightmares .themed-progress__fill::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: 
-    linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, transparent 50%, rgba(0, 0, 0, 0.2) 100%);
+  background: inherit;
+  border-radius: inherit;
+  opacity: 0.5;
+  transform: translateX(3px);
+  filter: hue-rotate(-60deg);
+  mix-blend-mode: screen;
+}
+
+/* Glitch slice effect */
+.themed-progress--neon-nightmares .themed-progress__fill {
+  animation: fill-glitch 3s steps(1) infinite;
+}
+
+@keyframes fill-glitch {
+  0%, 100% { clip-path: inset(0 0 0 0); }
+  91% { clip-path: inset(0 0 0 0); }
+  92% { clip-path: inset(20% 0 40% 0); }
+  93% { clip-path: inset(60% 0 10% 0); }
+  94% { clip-path: inset(0 0 0 0); }
 }
 
 .themed-progress--neon-nightmares .themed-progress__label {
   color: #0A0A0F;
+  font-family: 'VT323', 'Orbitron', monospace;
+  font-size: 1.1rem;
+  letter-spacing: 2px;
   text-shadow: 
-    0 0 4px rgba(255, 255, 255, 0.8),
-    0 0 8px currentColor;
-  font-family: var(--tmp-font-display);
-  letter-spacing: 1px;
+    0 0 4px rgba(255, 255, 255, 0.9),
+    -1px 0 0 #00F5FF,
+    1px 0 0 #39FF14;
+  z-index: 5;
+}
+
+/* =============================================================================
+   TMP BASE - Clean Theatrical Style
+   ============================================================================= */
+
+.themed-progress--tmp-base {
+  border: 3px solid;
+  border-image: linear-gradient(90deg, #e84393, #5dade2) 1;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.3),
+    inset 0 2px 4px rgba(0, 0, 0, 0.2);
+  padding: 3px;
+}
+
+.themed-progress--tmp-base .themed-progress__track {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+}
+
+.themed-progress--tmp-base .themed-progress__fill {
+  background: linear-gradient(90deg, #e84393 0%, #5dade2 50%, #f39c12 100%);
+  border-radius: 10px;
+  box-shadow: 
+    inset 0 2px 4px rgba(255, 255, 255, 0.3),
+    0 0 15px rgba(232, 67, 147, 0.4);
+}
+
+.themed-progress--tmp-base .themed-progress__fill::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 4px;
+  right: 4px;
+  height: 40%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, transparent 100%);
+  border-radius: 8px;
+}
+
+.themed-progress--tmp-base .themed-progress__label {
+  color: white;
+  font-family: 'Bangers', 'Righteous', cursive;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 /* =============================================================================
