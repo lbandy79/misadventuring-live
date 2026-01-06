@@ -185,7 +185,10 @@
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
-/* Voting Status */
+/* ============================================
+   VOTING STATUS BUTTON - Theme Treatments
+   ============================================ */
+
 .voting-status {
   font-size: 1.75rem;
   font-weight: bold;
@@ -196,18 +199,230 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  position: relative;
+  font-family: var(--font-heading);
 }
 
+/* === DEFAULT / TMP BASE === */
 .voting-status.open {
-  background: linear-gradient(135deg, var(--success) 0%, var(--success-light) 100%);
+  background: linear-gradient(180deg, 
+    #FF6B9D 0%,
+    #e84393 40%,
+    #c0357a 100%
+  );
   color: #fff;
-  box-shadow: 0 0 30px var(--success);
+  border: 4px solid rgba(0, 0, 0, 0.7);
+  box-shadow: 
+    0 0 30px #e84393,
+    4px 4px 0 rgba(0, 0, 0, 0.4),
+    inset 0 4px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -4px 0 rgba(0, 0, 0, 0.2);
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
 }
 
 .voting-status.closed {
   background: var(--bg-secondary);
   color: var(--text-secondary);
-  border: 2px solid var(--border);
+  border: 4px solid rgba(0, 0, 0, 0.5);
+  box-shadow: 
+    inset 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================
+   NEON NIGHTMARES - VHS/CRT Treatment
+   ============================================ */
+[data-theme="neon-nightmares"] .voting-status {
+  font-family: 'VT323', monospace;
+  font-size: 2rem;
+  letter-spacing: 0.15em;
+  overflow: visible;
+}
+
+[data-theme="neon-nightmares"] .voting-status.open {
+  background: linear-gradient(180deg,
+    #1a1a2e 0%,
+    #12121a 50%,
+    #0a0a0f 100%
+  );
+  border: 3px solid #FF2D95;
+  color: #FF2D95;
+  border-radius: 8px;
+  box-shadow: 
+    0 0 20px rgba(255, 45, 149, 0.6),
+    0 0 40px rgba(255, 45, 149, 0.3),
+    inset 0 0 30px rgba(255, 45, 149, 0.1);
+  text-shadow: 
+    0 0 10px #FF2D95,
+    0 0 20px #FF2D95,
+    0 0 40px #FF2D95;
+  animation: neon-status-flicker 3s ease-in-out infinite;
+}
+
+/* Chromatic aberration - RGB split layers */
+[data-theme="neon-nightmares"] .voting-status.open::before {
+  content: attr(data-text);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  color: #00F5FF;
+  text-shadow: 0 0 10px #00F5FF;
+  clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+  opacity: 0.7;
+  animation: chromatic-shift-top 0.1s infinite;
+  pointer-events: none;
+}
+
+[data-theme="neon-nightmares"] .voting-status.open::after {
+  content: attr(data-text);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  color: #39FF14;
+  text-shadow: 0 0 10px #39FF14;
+  clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
+  opacity: 0.5;
+  animation: chromatic-shift-bottom 0.1s infinite;
+  pointer-events: none;
+}
+
+@keyframes chromatic-shift-top {
+  0%, 100% { transform: translate(calc(-50% - 2px), -50%); }
+  50% { transform: translate(calc(-50% + 1px), -50%); }
+}
+
+@keyframes chromatic-shift-bottom {
+  0%, 100% { transform: translate(calc(-50% + 2px), -50%); }
+  50% { transform: translate(calc(-50% - 1px), -50%); }
+}
+
+/* VHS REC indicator style */
+[data-theme="neon-nightmares"] .voting-status.open .status-indicator {
+  width: 12px;
+  height: 12px;
+  background: #FF2D95;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #FF2D95, 0 0 20px #FF2D95;
+  animation: rec-blink 1s ease-in-out infinite;
+}
+
+@keyframes rec-blink {
+  0%, 100% { opacity: 1; box-shadow: 0 0 10px #FF2D95, 0 0 20px #FF2D95; }
+  50% { opacity: 0.3; box-shadow: 0 0 5px #FF2D95; }
+}
+
+@keyframes neon-status-flicker {
+  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+    opacity: 1;
+    text-shadow: 
+      0 0 10px #FF2D95,
+      0 0 20px #FF2D95,
+      0 0 40px #FF2D95;
+  }
+  20%, 24%, 55% {
+    opacity: 0.8;
+    text-shadow: 
+      0 0 5px #FF2D95,
+      0 0 10px #FF2D95;
+  }
+}
+
+/* Neon closed state */
+[data-theme="neon-nightmares"] .voting-status.closed {
+  background: #0a0a0f;
+  border: 3px solid #333;
+  border-radius: 8px;
+  color: #666;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+/* ============================================
+   SOGGY BOTTOM PIRATES - Treasure Map Treatment
+   ============================================ */
+[data-theme="soggy-bottom-pirates"] .voting-status {
+  font-family: 'Luckiest Guy', cursive;
+  font-size: 1.6rem;
+  letter-spacing: 0.05em;
+}
+
+[data-theme="soggy-bottom-pirates"] .voting-status.open {
+  background: linear-gradient(180deg,
+    #FFD700 0%,
+    #DAA520 30%,
+    #B8860B 70%,
+    #8B6914 100%
+  );
+  color: #2C1810;
+  border: 5px solid #2C1810;
+  border-radius: 12px;
+  box-shadow: 
+    6px 6px 0 rgba(0, 0, 0, 0.5),
+    inset 0 4px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -4px 0 rgba(0, 0, 0, 0.3),
+    0 0 20px rgba(255, 215, 0, 0.4);
+  text-shadow: 
+    1px 1px 0 rgba(255, 255, 255, 0.3),
+    2px 2px 0 rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+/* Rope border effect */
+[data-theme="soggy-bottom-pirates"] .voting-status.open::before {
+  content: '⚓';
+  position: absolute;
+  left: -20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.5rem;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="soggy-bottom-pirates"] .voting-status.open::after {
+  content: '⚓';
+  position: absolute;
+  right: -20px;
+  top: 50%;
+  transform: translateY(-50%) scaleX(-1);
+  font-size: 1.5rem;
+  text-shadow: -2px 2px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* Coin shimmer animation */
+[data-theme="soggy-bottom-pirates"] .voting-status.open {
+  animation: gold-shimmer 3s ease-in-out infinite;
+}
+
+@keyframes gold-shimmer {
+  0%, 100% {
+    box-shadow: 
+      6px 6px 0 rgba(0, 0, 0, 0.5),
+      inset 0 4px 0 rgba(255, 255, 255, 0.4),
+      inset 0 -4px 0 rgba(0, 0, 0, 0.3),
+      0 0 20px rgba(255, 215, 0, 0.4);
+  }
+  50% {
+    box-shadow: 
+      6px 6px 0 rgba(0, 0, 0, 0.5),
+      inset 0 4px 0 rgba(255, 255, 255, 0.6),
+      inset 0 -4px 0 rgba(0, 0, 0, 0.3),
+      0 0 35px rgba(255, 215, 0, 0.6);
+  }
+}
+
+/* Pirates closed state - weathered wood */
+[data-theme="soggy-bottom-pirates"] .voting-status.closed {
+  background: linear-gradient(180deg,
+    #5D4037 0%,
+    #4E342E 50%,
+    #3E2723 100%
+  );
+  color: #8D6E63;
+  border: 4px solid #2C1810;
+  border-radius: 12px;
+  box-shadow: 
+    4px 4px 0 rgba(0, 0, 0, 0.4),
+    inset 0 2px 0 rgba(255, 255, 255, 0.1);
 }
 
 /* Winner Announcement */

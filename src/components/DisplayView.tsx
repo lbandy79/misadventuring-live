@@ -301,11 +301,15 @@ export default function DisplayView() {
             {/* Voting status */}
             <motion.div 
               className={`voting-status ${activeInteraction.isOpen ? 'open' : 'closed'}`}
-              animate={activeInteraction.isOpen ? { scale: [1, 1.05, 1] } : {}}
-              transition={{ repeat: Infinity, duration: 1.5 }}
+              data-text={activeInteraction.isOpen ? 'VOTING OPEN' : 'VOTING CLOSED'}
+              animate={activeInteraction.isOpen ? { scale: [1, 1.02, 1] } : {}}
+              transition={{ repeat: Infinity, duration: 2 }}
             >
               {activeInteraction.isOpen ? (
-                <><TMPVotingOpen size={32} /> VOTING OPEN <TMPVotingOpen size={32} /></>
+                <>
+                  <span className="status-indicator" />
+                  VOTING OPEN
+                </>
               ) : (
                 <><TMPVotingClosed size={32} /> VOTING CLOSED</>
               )}
