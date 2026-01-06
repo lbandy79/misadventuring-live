@@ -303,22 +303,45 @@
 }
 
 .winner-banner--neon-nightmares .winner-banner__name {
-  font-family: 'Monoton', cursive;
+  font-family: 'Monoton', 'Bungee', cursive;
   color: #FF2D95;
-  font-size: 2.8rem;
+  font-size: 3rem;
+  /* Heavy chromatic aberration - very visible VHS effect */
   text-shadow: 
     /* Neon tube glow */
     0 0 10px #FF2D95,
     0 0 20px #FF2D95,
     0 0 40px #FF2D95,
     0 0 80px rgba(255, 45, 149, 0.6),
-    /* Chromatic aberration for that VHS feel */
-    -3px 0 0 rgba(0, 245, 255, 0.7),
-    3px 0 0 rgba(57, 255, 20, 0.7);
+    /* STRONG chromatic aberration - RGB split */
+    -4px 0 0 #00F5FF,
+    4px 0 0 #39FF14,
+    -2px -2px 0 rgba(0, 245, 255, 0.5),
+    2px 2px 0 rgba(57, 255, 20, 0.5);
   display: block;
-  margin: 0.75rem 0;
-  letter-spacing: 6px;
-  animation: neon-flicker-text 3s infinite;
+  margin: 1rem 0;
+  letter-spacing: 8px;
+  animation: neon-flicker-text 3s infinite, chromatic-shift 0.15s infinite;
+}
+
+/* Chromatic aberration animation */
+@keyframes chromatic-shift {
+  0%, 100% { 
+    text-shadow: 
+      0 0 10px #FF2D95,
+      0 0 20px #FF2D95,
+      0 0 40px #FF2D95,
+      -4px 0 0 #00F5FF,
+      4px 0 0 #39FF14;
+  }
+  50% { 
+    text-shadow: 
+      0 0 10px #FF2D95,
+      0 0 20px #FF2D95,
+      0 0 40px #FF2D95,
+      -5px 1px 0 #00F5FF,
+      5px -1px 0 #39FF14;
+  }
 }
 
 @keyframes neon-flicker-text {
@@ -344,8 +367,10 @@
 .winner-banner--neon-nightmares .winner-banner__flourish {
   position: relative;
   height: 6px;
-  margin: 1.25rem auto;
-  max-width: 250px;
+  margin: 1.5rem auto;
+  width: 250px;
+  max-width: 70%;
+  overflow: visible; /* Allow pseudo-elements to show */
   /* VHS tracking distortion bar */
   background: 
     linear-gradient(90deg, 
@@ -378,30 +403,34 @@
   }
 }
 
-/* Decorative tracking lines */
+/* VHS PLAY indicator */
 .winner-banner--neon-nightmares .winner-banner__flourish::before {
-  content: '▌▌▌ PLAY ▶';
+  content: '▌▌ PLAY ▶';
   position: absolute;
-  left: -60px;
-  top: 50%;
-  transform: translateY(-50%);
+  left: 0;
+  bottom: 100%;
+  margin-bottom: 8px;
   font-family: 'VT323', monospace;
-  font-size: 0.75rem;
+  font-size: 1rem;
   color: #39FF14;
-  text-shadow: 0 0 5px #39FF14;
+  text-shadow: 0 0 8px #39FF14, 0 0 16px rgba(57, 255, 20, 0.5);
   white-space: nowrap;
+  letter-spacing: 2px;
 }
 
+/* VHS REC indicator */
 .winner-banner--neon-nightmares .winner-banner__flourish::after {
-  content: 'REC ●';
+  content: '● REC';
   position: absolute;
-  right: -50px;
-  top: 50%;
-  transform: translateY(-50%);
+  right: 0;
+  bottom: 100%;
+  margin-bottom: 8px;
   font-family: 'VT323', monospace;
-  font-size: 0.75rem;
+  font-size: 1rem;
   color: #EF4444;
-  text-shadow: 0 0 5px #EF4444;
+  text-shadow: 0 0 8px #EF4444, 0 0 16px rgba(239, 68, 68, 0.5);
+  white-space: nowrap;
+  letter-spacing: 2px;
   animation: rec-blink 1s infinite;
 }
 
