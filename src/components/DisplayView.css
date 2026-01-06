@@ -125,7 +125,10 @@
   letter-spacing: 0.2em;
 }
 
-/* Giant Results Bar */
+/* ============================================
+   GIANT RESULTS BAR - Theme Treatments
+   ============================================ */
+
 .display-results-bar {
   width: 100%;
   height: 150px;
@@ -134,6 +137,8 @@
   overflow: hidden;
   background: var(--bg-secondary);
   box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.5);
+  position: relative;
+  border: 4px solid rgba(0, 0, 0, 0.6);
 }
 
 .display-bar-segment {
@@ -144,18 +149,257 @@
   min-width: 50px;
   position: relative;
   overflow: hidden;
+  /* Cel-shaded gradient */
+  box-shadow: 
+    inset 0 8px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -8px 0 rgba(0, 0, 0, 0.2);
 }
 
 .display-bar-segment.bar-a {
-  background: var(--bar-a);
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--bar-a) 130%, white) 0%,
+    var(--bar-a) 30%,
+    color-mix(in srgb, var(--bar-a) 80%, black) 100%
+  );
 }
 
 .display-bar-segment.bar-b {
-  background: var(--bar-b);
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--bar-b) 130%, white) 0%,
+    var(--bar-b) 30%,
+    color-mix(in srgb, var(--bar-b) 80%, black) 100%
+  );
 }
 
 .display-bar-segment.bar-c {
-  background: var(--bar-c);
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--bar-c) 130%, white) 0%,
+    var(--bar-c) 30%,
+    color-mix(in srgb, var(--bar-c) 80%, black) 100%
+  );
+}
+
+/* ============================================
+   NEON NIGHTMARES - VHS/CRT Results Bar
+   ============================================ */
+
+[data-theme="neon-nightmares"] .display-results-bar {
+  background: #0a0a0f;
+  border: 4px solid #333;
+  border-radius: 8px;
+  box-shadow: 
+    inset 0 0 40px rgba(0, 0, 0, 0.8),
+    0 0 20px rgba(255, 45, 149, 0.2);
+  position: relative;
+}
+
+/* CRT bezel frame */
+[data-theme="neon-nightmares"] .display-results-bar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 4px;
+  box-shadow: 
+    inset 4px 4px 0 rgba(80, 80, 80, 0.4),
+    inset -4px -4px 0 rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* Scanline overlay */
+[data-theme="neon-nightmares"] .display-results-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 2px,
+    rgba(0, 0, 0, 0.3) 2px,
+    rgba(0, 0, 0, 0.3) 4px
+  );
+  pointer-events: none;
+  z-index: 10;
+  animation: scanline-crawl 8s linear infinite;
+}
+
+@keyframes scanline-crawl {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(40px); }
+}
+
+/* Neon bar segments with glow */
+[data-theme="neon-nightmares"] .display-bar-segment {
+  box-shadow: 
+    inset 0 8px 0 rgba(255, 255, 255, 0.15),
+    inset 0 -8px 0 rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+[data-theme="neon-nightmares"] .display-bar-segment.bar-a {
+  background: linear-gradient(180deg,
+    color-mix(in srgb, #FF2D95 120%, white) 0%,
+    #FF2D95 30%,
+    color-mix(in srgb, #FF2D95 60%, black) 100%
+  );
+  box-shadow: 
+    0 0 30px rgba(255, 45, 149, 0.5),
+    inset 0 8px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -8px 0 rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="neon-nightmares"] .display-bar-segment.bar-b {
+  background: linear-gradient(180deg,
+    color-mix(in srgb, #00F5FF 120%, white) 0%,
+    #00F5FF 30%,
+    color-mix(in srgb, #00F5FF 60%, black) 100%
+  );
+  box-shadow: 
+    0 0 30px rgba(0, 245, 255, 0.5),
+    inset 0 8px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -8px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* VHS glitch effect on segments */
+[data-theme="neon-nightmares"] .display-bar-segment::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 100%
+  );
+  animation: vhs-shimmer 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes vhs-shimmer {
+  0%, 100% { transform: translateX(-100%); opacity: 0; }
+  50% { transform: translateX(100%); opacity: 1; }
+}
+
+/* Neon text glow */
+[data-theme="neon-nightmares"] .segment-label,
+[data-theme="neon-nightmares"] .segment-percent {
+  font-family: 'VT323', monospace;
+  text-shadow: 
+    0 0 10px currentColor,
+    0 0 20px currentColor,
+    0 0 40px currentColor;
+}
+
+[data-theme="neon-nightmares"] .segment-percent {
+  font-size: 3rem;
+}
+
+/* ============================================
+   SOGGY BOTTOM PIRATES - Treasure Chest Bar
+   ============================================ */
+
+[data-theme="soggy-bottom-pirates"] .display-results-bar {
+  background: linear-gradient(180deg,
+    #5D4037 0%,
+    #4E342E 50%,
+    #3E2723 100%
+  );
+  border: 6px solid #2C1810;
+  border-radius: 16px;
+  box-shadow: 
+    8px 8px 0 rgba(0, 0, 0, 0.4),
+    inset 0 0 30px rgba(0, 0, 0, 0.5),
+    inset 0 4px 0 rgba(255, 255, 255, 0.1);
+  position: relative;
+}
+
+/* Wood grain texture */
+[data-theme="soggy-bottom-pirates"] .display-results-bar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0px,
+    transparent 40px,
+    rgba(0, 0, 0, 0.1) 40px,
+    rgba(0, 0, 0, 0.1) 42px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Gold rivets decoration */
+[data-theme="soggy-bottom-pirates"] .display-results-bar::after {
+  content: '⚓ ⚓ ⚓';
+  position: absolute;
+  bottom: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.5rem;
+  color: #DAA520;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+  letter-spacing: 2rem;
+}
+
+/* Treasure gold fills */
+[data-theme="soggy-bottom-pirates"] .display-bar-segment.bar-a {
+  background: linear-gradient(180deg,
+    #FFD700 0%,
+    #DAA520 30%,
+    #B8860B 70%,
+    #8B6914 100%
+  );
+  box-shadow: 
+    inset 0 8px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -8px 0 rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+/* Shimmer animation for gold */
+[data-theme="soggy-bottom-pirates"] .display-bar-segment.bar-a::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    transparent 100%
+  );
+  animation: gold-shine 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes gold-shine {
+  0%, 100% { transform: translateX(-100%) rotate(45deg); }
+  50% { transform: translateX(100%) rotate(45deg); }
+}
+
+[data-theme="soggy-bottom-pirates"] .display-bar-segment.bar-b {
+  background: linear-gradient(180deg,
+    #4ECDC4 0%,
+    #26A69A 30%,
+    #00897B 70%,
+    #00695C 100%
+  );
+  box-shadow: 
+    inset 0 8px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -8px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* Pirate themed text */
+[data-theme="soggy-bottom-pirates"] .segment-label,
+[data-theme="soggy-bottom-pirates"] .segment-percent {
+  font-family: 'Luckiest Guy', cursive;
+  color: #2C1810;
+  text-shadow: 
+    1px 1px 0 rgba(255, 255, 255, 0.4),
+    2px 2px 0 rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="soggy-bottom-pirates"] .segment-percent {
+  font-size: 3rem;
 }
 
 .segment-content {
