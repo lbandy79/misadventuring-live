@@ -12,6 +12,7 @@ import { TMPLogo } from './icons/TMPLogo';
 import DiceRollerDisplay from './DiceRollerDisplay';
 import VoteParticlesSimple, { useVoteParticles } from './VoteParticlesSimple';
 import WinnerBanner from './WinnerBanner';
+import IdleDisplay from './IdleDisplay';
 import './DisplayView.css';
 
 interface VoteOption {
@@ -205,34 +206,22 @@ export default function DisplayView() {
       </button>
 
       <AnimatePresence mode="wait">
-        {/* Idle State */}
+        {/* Idle State - QR Code & CTA */}
         {activeInteraction.type === 'none' && (
           <motion.div 
             className="idle-state"
             key="idle"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
           >
-            <div className="idle-content">
-              {/* The actual TMP Logo - hero branding moment */}
-              <motion.div
-                className="idle-logo"
-                animate={{ 
-                  y: [0, -15, 0],
-                  filter: [
-                    'drop-shadow(0 0 8px var(--tmp-color-primary))', 
-                    'drop-shadow(0 0 20px var(--tmp-color-primary))', 
-                    'drop-shadow(0 0 8px var(--tmp-color-primary))'
-                  ]
-                }}
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              >
-                <TMPLogo size={280} />
-              </motion.div>
-              <p className="join-prompt">Join the adventure</p>
-              <div className="url-display">play.misadventuringparty.com</div>
-            </div>
+            {/* QR Idle Display with theme */}
+            <IdleDisplay 
+              themeKey={theme.id}
+              logo={<TMPLogo size={180} />}
+              url="https://play.themisadventuringparty.com"
+            />
           </motion.div>
         )}
 

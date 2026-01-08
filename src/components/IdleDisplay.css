@@ -1,0 +1,385 @@
+/* =============================================================================
+   IDLE DISPLAY - QR Code & CTA
+   Theme-aware idle state for the display view
+   ============================================================================= */
+
+.idle-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  padding: 3rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.idle-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.idle-logo {
+  margin-bottom: 1.5rem;
+  z-index: 1;
+  animation: idle-float 4s ease-in-out infinite;
+}
+
+.idle-main-text {
+  font-size: 3rem;
+  font-weight: bold;
+  margin-bottom: 2rem;
+  text-align: center;
+  z-index: 1;
+  animation: idle-pulse 3s ease-in-out infinite;
+}
+
+.idle-qr-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  z-index: 1;
+}
+
+.idle-qr {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  margin-bottom: 0.5rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.idle-qr:hover {
+  transform: scale(1.02);
+}
+
+.idle-url-label {
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  opacity: 0.8;
+  z-index: 1;
+}
+
+.idle-sub-text {
+  font-size: 1.4rem;
+  margin-top: 1.5rem;
+  text-align: center;
+  opacity: 0.7;
+  z-index: 1;
+}
+
+.idle-url {
+  font-size: 1.1rem;
+  margin-top: 1rem;
+  font-family: monospace;
+  opacity: 0.6;
+  letter-spacing: 0.05em;
+  z-index: 1;
+}
+
+/* =============================================================================
+   SOGGY BOTTOM PIRATES THEME
+   Weathered parchment, treasure map vibes, rope borders
+   ============================================================================= */
+
+.idle-soggy-bottom-pirates {
+  background: 
+    url("/assets/themes/soggy-bottom-pirates/frames/parchment.png") center/cover no-repeat,
+    linear-gradient(135deg, #d4a574 0%, #c4956a 50%, #a67c52 100%);
+  border: 8px solid #8b5a2b;
+  border-image: url("/assets/themes/soggy-bottom-pirates/frames/rope-border.png") 30 round;
+  box-shadow: 
+    inset 0 0 60px rgba(139, 90, 43, 0.3),
+    0 0 40px rgba(0, 0, 0, 0.5);
+}
+
+.idle-soggy-bottom-pirates .idle-overlay {
+  background: 
+    radial-gradient(ellipse at center, transparent 40%, rgba(139, 90, 43, 0.2) 100%);
+}
+
+.idle-soggy-bottom-pirates .idle-logo {
+  filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.4));
+}
+
+.idle-soggy-bottom-pirates .idle-main-text {
+  font-family: 'Luckiest Guy', 'Titan One', 'Impact', cursive;
+  color: #5d3a1a;
+  text-shadow: 
+    2px 2px 0 #d4a574,
+    4px 4px 0 rgba(0, 0, 0, 0.2),
+    0 0 20px rgba(212, 165, 116, 0.5);
+  letter-spacing: 3px;
+}
+
+.idle-soggy-bottom-pirates .idle-qr {
+  border: 6px solid #8b5a2b;
+  border-radius: 8px;
+  background: #fdf6e3;
+  box-shadow: 
+    inset 0 0 10px rgba(139, 90, 43, 0.2),
+    4px 4px 10px rgba(0, 0, 0, 0.3);
+  transform: rotate(-1deg);
+}
+
+.idle-soggy-bottom-pirates .idle-qr:hover {
+  transform: rotate(0deg) scale(1.02);
+}
+
+.idle-soggy-bottom-pirates .idle-url-label {
+  font-family: 'Patrick Hand', 'Caveat', cursive;
+  color: #5d3a1a;
+  font-size: 1.2rem;
+}
+
+.idle-soggy-bottom-pirates .idle-sub-text {
+  font-family: 'Patrick Hand', 'Caveat', cursive;
+  color: #6b4423;
+  font-style: italic;
+}
+
+.idle-soggy-bottom-pirates .idle-url {
+  color: #8b5a2b;
+  background: rgba(255, 248, 231, 0.6);
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+}
+
+/* =============================================================================
+   NEON NIGHTMARES THEME
+   CRT glow, scanlines, synthwave vibes
+   ============================================================================= */
+
+.idle-neon-nightmares {
+  background: linear-gradient(180deg, #0d0d1a 0%, #1a1a2e 50%, #16213e 100%);
+  position: relative;
+}
+
+.idle-neon-nightmares .idle-overlay {
+  /* CRT Scanlines */
+  background: 
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0px,
+      transparent 2px,
+      rgba(0, 255, 255, 0.03) 2px,
+      rgba(0, 255, 255, 0.03) 4px
+    );
+  animation: scanline-scroll 8s linear infinite;
+}
+
+.idle-neon-nightmares::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 0%,
+    rgba(0, 0, 0, 0.4) 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.idle-neon-nightmares .idle-logo {
+  filter: drop-shadow(0 0 20px rgba(0, 255, 255, 0.6));
+  animation: idle-float 4s ease-in-out infinite, neon-flicker 4s ease-in-out infinite;
+}
+
+.idle-neon-nightmares .idle-main-text {
+  font-family: 'Monoton', 'Audiowide', 'Bungee', sans-serif;
+  color: #00ffff;
+  text-shadow: 
+    0 0 10px #00ffff,
+    0 0 20px #00ffff,
+    0 0 40px #00ffff,
+    0 0 80px rgba(255, 0, 255, 0.5);
+  letter-spacing: 8px;
+  animation: idle-pulse 3s ease-in-out infinite, neon-glow 2s ease-in-out infinite alternate;
+}
+
+.idle-neon-nightmares .idle-qr {
+  border: 4px solid #00ffff;
+  background: #0a0a15;
+  border-radius: 4px;
+  box-shadow: 
+    0 0 20px rgba(0, 255, 255, 0.4),
+    0 0 40px rgba(255, 0, 255, 0.2),
+    inset 0 0 20px rgba(0, 255, 255, 0.1);
+}
+
+.idle-neon-nightmares .idle-qr:hover {
+  box-shadow: 
+    0 0 30px rgba(0, 255, 255, 0.6),
+    0 0 60px rgba(255, 0, 255, 0.3),
+    inset 0 0 30px rgba(0, 255, 255, 0.2);
+}
+
+.idle-neon-nightmares .idle-url-label {
+  font-family: 'VT323', 'Share Tech Mono', monospace;
+  color: #ff00ff;
+  text-shadow: 0 0 10px #ff00ff;
+  font-size: 1.3rem;
+  letter-spacing: 0.3em;
+}
+
+.idle-neon-nightmares .idle-sub-text {
+  font-family: 'VT323', 'Share Tech Mono', monospace;
+  color: #00ffff;
+  text-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
+  opacity: 0.8;
+}
+
+.idle-neon-nightmares .idle-url {
+  color: #ff00ff;
+  text-shadow: 0 0 6px #ff00ff;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 0.5rem 1rem;
+  border: 1px solid rgba(255, 0, 255, 0.3);
+  border-radius: 2px;
+}
+
+/* =============================================================================
+   TMP BASE THEME
+   Clean, branded, professional-fun
+   ============================================================================= */
+
+.idle-tmp-base {
+  background: linear-gradient(135deg, #0a1628 0%, #0f2137 50%, #163354 100%);
+}
+
+.idle-tmp-base .idle-overlay {
+  background: radial-gradient(
+    circle at 50% 30%,
+    rgba(232, 67, 147, 0.1) 0%,
+    transparent 50%
+  );
+}
+
+.idle-tmp-base .idle-logo {
+  filter: drop-shadow(0 0 30px rgba(232, 67, 147, 0.5));
+}
+
+.idle-tmp-base .idle-main-text {
+  font-family: 'Righteous', 'Nunito', sans-serif;
+  color: #e84393;
+  text-shadow: 
+    0 0 20px rgba(232, 67, 147, 0.6),
+    2px 2px 0 rgba(93, 173, 226, 0.3);
+  letter-spacing: 4px;
+}
+
+.idle-tmp-base .idle-qr {
+  border: 4px solid rgba(232, 67, 147, 0.5);
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 
+    0 0 30px rgba(232, 67, 147, 0.3),
+    0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.idle-tmp-base .idle-qr:hover {
+  border-color: #e84393;
+  box-shadow: 
+    0 0 40px rgba(232, 67, 147, 0.5),
+    0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.idle-tmp-base .idle-url-label {
+  font-family: 'Nunito', sans-serif;
+  color: #5dade2;
+  font-weight: 700;
+}
+
+.idle-tmp-base .idle-sub-text {
+  font-family: 'Nunito', sans-serif;
+  color: #a8c5d8;
+}
+
+.idle-tmp-base .idle-url {
+  color: #5dade2;
+  background: rgba(93, 173, 226, 0.1);
+  padding: 0.5rem 1.5rem;
+  border-radius: 8px;
+  border: 1px solid rgba(93, 173, 226, 0.3);
+}
+
+/* =============================================================================
+   ANIMATIONS
+   ============================================================================= */
+
+@keyframes idle-float {
+  0%, 100% { 
+    transform: translateY(0); 
+  }
+  50% { 
+    transform: translateY(-15px); 
+  }
+}
+
+@keyframes idle-pulse {
+  0%, 100% { 
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% { 
+    opacity: 0.95;
+    transform: scale(1.02);
+  }
+}
+
+@keyframes idle-glow {
+  0%, 100% { 
+    filter: drop-shadow(0 0 8px currentColor); 
+  }
+  50% { 
+    filter: drop-shadow(0 0 20px currentColor); 
+  }
+}
+
+/* Neon-specific animations */
+@keyframes neon-glow {
+  from {
+    text-shadow: 
+      0 0 10px #00ffff,
+      0 0 20px #00ffff,
+      0 0 40px #00ffff;
+  }
+  to {
+    text-shadow: 
+      0 0 15px #00ffff,
+      0 0 30px #00ffff,
+      0 0 60px #00ffff,
+      0 0 100px rgba(255, 0, 255, 0.3);
+  }
+}
+
+@keyframes neon-flicker {
+  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+    opacity: 1;
+  }
+  20%, 24%, 55% {
+    opacity: 0.95;
+  }
+}
+
+@keyframes scanline-scroll {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 0 100vh;
+  }
+}
