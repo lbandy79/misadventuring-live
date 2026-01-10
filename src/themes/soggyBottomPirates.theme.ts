@@ -22,9 +22,9 @@ export const soggyBottomPiratesTheme: TMPTheme = {
     tertiary: '#C13584',          // Berry pink
 
     background: {
-      main: '#8b1414ff',            // Aged parchment brown
-      card: '#6b0a0aff',            // Weathered ship wood  
-      elevated: '#9a962aff',        // Warm captain's quarters
+      main: '#8B1414',            // Cap'n Crunch box red
+      card: '#6B0A0A',            // Darker red for cards  
+      elevated: '#9A2A2A',        // Warm burgundy accent
     },
 
     text: {

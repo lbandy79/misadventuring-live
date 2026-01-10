@@ -295,6 +295,15 @@
    SOGGY BOTTOM PIRATES - Treasure Cards
    ============================================ */
 
+/* Soggy Bottom red background for display */
+[data-theme="soggy-bottom-pirates"] .display-container {
+  background: linear-gradient(180deg, 
+    #8B1414 0%, 
+    #6B0A0A 50%,
+    #4A0808 100%
+  );
+}
+
 [data-theme="soggy-bottom-pirates"] .vote-option-card {
   background: linear-gradient(180deg,
     #F5E6C8 0%,
