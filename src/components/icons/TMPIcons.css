@@ -41,11 +41,11 @@
 @keyframes tmp-pulse {
   0%, 100% {
     transform: scale(1);
-    filter: drop-shadow(0 0 5px var(--tmp-icon-primary, #e84393));
+    filter: drop-shadow(0 0 5px var(--tmp-icon-primary, #FF6B6B));
   }
   50% {
     transform: scale(1.1);
-    filter: drop-shadow(0 0 15px var(--tmp-icon-primary, #e84393));
+    filter: drop-shadow(0 0 15px var(--tmp-icon-primary, #FF6B6B));
   }
 }
 
@@ -102,8 +102,8 @@
 
 /* Glow effect for highlighting */
 .tmp-icon-glow {
-  filter: drop-shadow(0 0 10px var(--tmp-icon-primary, #e84393))
-          drop-shadow(0 0 20px var(--tmp-icon-secondary, #5dade2));
+  filter: drop-shadow(0 0 10px var(--tmp-icon-primary, #FF6B6B))
+          drop-shadow(0 0 20px var(--tmp-icon-secondary, #2DD4BF));
 }
 
 /* Scale on hover for interactive icons */
@@ -114,7 +114,7 @@
 
 .tmp-icon-interactive:hover {
   transform: scale(1.15);
-  filter: drop-shadow(0 0 8px var(--tmp-icon-primary, #e84393));
+  filter: drop-shadow(0 0 8px var(--tmp-icon-primary, #FF6B6B));
 }
 
 .tmp-icon-interactive:active {

@@ -1,7 +1,6 @@
 import React from "react";
 import QRCode from "./QRCode";
-import { useTheme } from "../themes/ThemeProvider";
-import { TMPLogo } from "./icons/TMPLogo";
+import { useTheme, ThemeLogo } from "../themes";
 import "./IdleDisplay.css";
 
 interface IdleDisplayProps {
@@ -25,13 +24,13 @@ const themeText: Record<string, ThemeTextConfig> = {
     urlLabel: "SCAN YER CODE",
   },
   "neon-nightmares": {
-    main: "TUNE IN",
-    sub: "Awaiting signal...",
-    urlLabel: "SCAN TO CONNECT",
+    main: "PRESS PLAY",
+    sub: "Be kind, rewind...",
+    urlLabel: "SCAN TO RECORD",
   },
   "tmp-base": {
     main: "SCAN TO JOIN",
-    sub: "Waiting for the next adventure...",
+    sub: "The tavern awaits...",
     urlLabel: "JOIN THE PARTY",
   },
 };
@@ -39,7 +38,7 @@ const themeText: Record<string, ThemeTextConfig> = {
 const IdleDisplay: React.FC<IdleDisplayProps> = ({
   url = "https://play.themisadventuringparty.com",
   themeKey,
-  logo = <TMPLogo size={120} />,
+  logo,
   mainText,
   subText,
 }) => {
@@ -52,8 +51,8 @@ const IdleDisplay: React.FC<IdleDisplayProps> = ({
       {/* Theme decorative overlay */}
       <div className="idle-overlay" />
       
-      {/* Logo section */}
-      <div className="idle-logo">{logo}</div>
+      {/* Logo section - uses themed logo or custom override */}
+      <div className="idle-logo">{logo ?? <ThemeLogo size={140} />}</div>
       
       {/* Main CTA text */}
       <div className="idle-main-text">{mainText || text.main}</div>

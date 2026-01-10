@@ -29,11 +29,11 @@
 @keyframes tmp-pulse {
   0%, 100% {
     transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(232, 67, 147, 0.7);
+    box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.7);
   }
   50% {
     transform: scale(1.02);
-    box-shadow: 0 0 0 10px rgba(232, 67, 147, 0);
+    box-shadow: 0 0 0 10px rgba(255, 107, 107, 0);
   }
 }
 
@@ -54,19 +54,19 @@
 @keyframes tmp-float {
   0%, 100% {
     transform: translateY(0) rotate(-2deg);
-    filter: drop-shadow(0 10px 20px rgba(232, 67, 147, 0.3));
+    filter: drop-shadow(0 10px 20px rgba(255, 107, 107, 0.3));
   }
   25% {
     transform: translateY(-8px) rotate(0deg);
-    filter: drop-shadow(0 18px 25px rgba(232, 67, 147, 0.2));
+    filter: drop-shadow(0 18px 25px rgba(255, 107, 107, 0.2));
   }
   50% {
     transform: translateY(-12px) rotate(2deg);
-    filter: drop-shadow(0 22px 30px rgba(232, 67, 147, 0.15));
+    filter: drop-shadow(0 22px 30px rgba(255, 107, 107, 0.15));
   }
   75% {
     transform: translateY(-8px) rotate(0deg);
-    filter: drop-shadow(0 18px 25px rgba(232, 67, 147, 0.2));
+    filter: drop-shadow(0 18px 25px rgba(255, 107, 107, 0.2));
   }
 }
 
@@ -96,14 +96,14 @@
 @keyframes tmp-glow {
   0%, 100% {
     box-shadow: 
-      0 0 5px rgba(232, 67, 147, 0.5),
-      0 0 10px rgba(232, 67, 147, 0.3);
+      0 0 5px rgba(255, 107, 107, 0.5),
+      0 0 10px rgba(255, 107, 107, 0.3);
   }
   50% {
     box-shadow: 
-      0 0 15px rgba(232, 67, 147, 0.8),
-      0 0 30px rgba(232, 67, 147, 0.5),
-      0 0 45px rgba(93, 173, 226, 0.3);
+      0 0 15px rgba(255, 107, 107, 0.8),
+      0 0 30px rgba(255, 107, 107, 0.5),
+      0 0 45px rgba(45, 212, 191, 0.3);
   }
 }
 
@@ -111,10 +111,10 @@
 @keyframes tmp-neon-flicker {
   0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
     text-shadow:
-      0 0 5px #e84393,
-      0 0 10px #e84393,
-      0 0 20px #e84393,
-      0 0 40px #5dade2;
+      0 0 5px #FF6B6B,
+      0 0 10px #FF6B6B,
+      0 0 20px #FF6B6B,
+      0 0 40px #2DD4BF;
   }
   20%, 24%, 55% {
     text-shadow: none;
@@ -205,6 +205,6 @@
 
 /* Icon color overrides for TMP Base theme */
 [data-theme="tmp-base"] {
-  --tmp-icon-primary: #e84393;
-  --tmp-icon-secondary: #5dade2;
+  --tmp-icon-primary: #FF6B6B;
+  --tmp-icon-secondary: #2DD4BF;
 }

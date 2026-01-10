@@ -440,54 +440,54 @@
 }
 
 /* =============================================================================
-   TMP BASE - Default Theatrical Style
-   Clean but dramatic, good fallback for any theme
+   TMP BASE - Warm Tavern Theatrical Style
+   Coral + Teal, home base vibes
    ============================================================================= */
 
 .winner-banner--tmp-base .winner-banner {
   background: 
-    radial-gradient(ellipse at top, rgba(93, 173, 226, 0.15) 0%, transparent 50%),
-    linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f0f1a 100%);
-  border: 6px solid #e84393;
+    radial-gradient(ellipse at top, rgba(45, 212, 191, 0.15) 0%, transparent 50%),
+    linear-gradient(180deg, #1A1A2E 0%, #242442 50%, #1A1A2E 100%);
+  border: 6px solid #FF6B6B;
   border-radius: 16px;
   box-shadow: 
     8px 8px 0 rgba(0, 0, 0, 0.4),
-    0 0 40px rgba(232, 67, 147, 0.5),
-    0 0 80px rgba(93, 173, 226, 0.3),
-    inset 0 0 40px rgba(232, 67, 147, 0.1);
+    0 0 40px rgba(255, 107, 107, 0.5),
+    0 0 80px rgba(45, 212, 191, 0.3),
+    inset 0 0 40px rgba(255, 107, 107, 0.1);
 }
 
 .winner-banner--tmp-base .winner-banner::after {
   content: '';
   position: absolute;
   inset: 10px;
-  border: 3px solid rgba(93, 173, 226, 0.4);
+  border: 3px solid rgba(45, 212, 191, 0.4);
   border-radius: 10px;
   pointer-events: none;
 }
 
 .winner-banner--tmp-base .winner-banner__message {
   font-family: 'Bangers', cursive;
-  color: #5dade2;
+  color: #2DD4BF;
   font-size: 1.6rem;
   text-shadow: 
     3px 3px 0 rgba(0, 0, 0, 0.6),
-    0 0 20px rgba(93, 173, 226, 0.5);
+    0 0 20px rgba(45, 212, 191, 0.5);
   letter-spacing: 3px;
   text-transform: uppercase;
 }
 
 .winner-banner--tmp-base .winner-banner__name {
   font-family: 'Righteous', cursive;
-  color: #e84393;
+  color: #FF6B6B;
   font-size: 3.5rem;
   text-shadow: 
-    -3px -3px 0 #16213e,
-    3px -3px 0 #16213e,
-    -3px 3px 0 #16213e,
-    3px 3px 0 #16213e,
+    -3px -3px 0 #1A1A2E,
+    3px -3px 0 #1A1A2E,
+    -3px 3px 0 #1A1A2E,
+    3px 3px 0 #1A1A2E,
     5px 5px 0 rgba(0, 0, 0, 0.4),
-    0 0 30px rgba(232, 67, 147, 0.6);
+    0 0 30px rgba(255, 107, 107, 0.6);
   display: block;
   margin: 0.75rem 0;
   line-height: 1.1;
@@ -495,7 +495,7 @@
 
 .winner-banner--tmp-base .winner-banner__percentage {
   font-family: 'Nunito', sans-serif;
-  color: #f39c12;
+  color: #FBBF24;
   font-size: 1.4rem;
   text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.4);
 }
@@ -504,9 +504,9 @@
   height: 6px;
   margin: 1.25rem auto;
   max-width: 220px;
-  background: linear-gradient(90deg, transparent, #e84393, #5dade2, #f39c12, transparent);
+  background: linear-gradient(90deg, transparent, #FF6B6B, #2DD4BF, #FBBF24, transparent);
   border-radius: 3px;
-  box-shadow: 0 0 15px rgba(232, 67, 147, 0.5);
+  box-shadow: 0 0 15px rgba(255, 107, 107, 0.5);
 }
 
 /* =============================================================================

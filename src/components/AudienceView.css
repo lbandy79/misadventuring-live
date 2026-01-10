@@ -13,7 +13,7 @@
 .show-header .header-logo {
   max-width: 100%;
   height: auto;
-  filter: drop-shadow(0 0 10px var(--tmp-color-primary, #e84393));
+  filter: drop-shadow(0 0 10px var(--tmp-color-primary, #FF6B6B));
 }
 
 .show-header h1 {
@@ -122,7 +122,7 @@
 
 .waiting-logo {
   margin-bottom: 1.5rem;
-  filter: drop-shadow(0 0 15px var(--tmp-color-primary, #e84393));
+  filter: drop-shadow(0 0 15px var(--tmp-color-primary, #FF6B6B));
   animation: float 3s ease-in-out infinite;
 }
 

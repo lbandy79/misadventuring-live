@@ -494,14 +494,14 @@
 }
 
 /* =============================================================================
-   TMP BASE - Clean Theatrical Style
+   TMP BASE - Warm Tavern Coral + Teal Style
    ============================================================================= */
 
 .themed-progress--tmp-base {
   border: 3px solid;
-  border-image: linear-gradient(90deg, #e84393, #5dade2) 1;
+  border-image: linear-gradient(90deg, #FF6B6B, #2DD4BF) 1;
   border-radius: 16px;
-  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+  background: linear-gradient(180deg, #1A1A2E 0%, #242442 100%);
   box-shadow: 
     0 4px 12px rgba(0, 0, 0, 0.3),
     inset 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -514,11 +514,11 @@
 }
 
 .themed-progress--tmp-base .themed-progress__fill {
-  background: linear-gradient(90deg, #e84393 0%, #5dade2 50%, #f39c12 100%);
+  background: linear-gradient(90deg, #FF6B6B 0%, #2DD4BF 50%, #FBBF24 100%);
   border-radius: 10px;
   box-shadow: 
     inset 0 2px 4px rgba(255, 255, 255, 0.3),
-    0 0 15px rgba(232, 67, 147, 0.4);
+    0 0 15px rgba(255, 107, 107, 0.4);
 }
 
 .themed-progress--tmp-base .themed-progress__fill::before {

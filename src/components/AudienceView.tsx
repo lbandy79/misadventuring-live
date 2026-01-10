@@ -6,7 +6,7 @@ import Madlibs from './Madlibs';
 import NpcNaming from './NpcNaming';
 import GroupRoll from './GroupRoll';
 import { TMPWarning } from './icons/TMPIcons';
-import { TMPLogo } from './icons/TMPLogo';
+import { ThemeLogo } from '../themes';
 import './AudienceView.css';
 
 interface ActiveInteraction {
@@ -93,7 +93,7 @@ export default function AudienceView() {
 
         {activeInteraction?.type === 'none' && (
           <div className="waiting-state">
-            <TMPLogo size={180} className="waiting-logo" />
+            <ThemeLogo size={180} className="waiting-logo" />
             <h2>The Adventure Continues...</h2>
             <p>Stand by for your moment to influence the story!</p>
           </div>

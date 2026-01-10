@@ -212,6 +212,12 @@ export interface ThemeAssets {
   /** Base path for theme assets */
   basePath: string;
   
+  /** Theme logo image path */
+  logo?: {
+    src: string;
+    alt: string;
+  };
+  
   /** Vote option icons - illustrated SVGs with personality */
   voteIcons: {
     /** Default icons for options A, B, C */

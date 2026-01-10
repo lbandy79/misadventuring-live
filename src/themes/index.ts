@@ -31,6 +31,7 @@ export { ThemeProvider, useTheme } from './ThemeProvider';
 // Asset component exports (ThemeIcon is a React component, not to be confused with ThemeIconConfig type)
 export { 
   ThemeIcon,
+  ThemeLogo,
   CardFrame, 
   ThemedProgressBar,
   usePreloadThemeAssets,

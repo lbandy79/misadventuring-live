@@ -1,5 +1,5 @@
 /**
- * Neon Nightmares Theme
+ * The Betawave Tapes Theme (formerly Neon Nightmares)
  * 
  * 80s VHS Horror Aesthetic
  * - Synth-wave meets Stranger Things
@@ -12,7 +12,7 @@ import type { TMPTheme } from './theme.types';
 
 export const neonNightmaresTheme: TMPTheme = {
   id: 'neon-nightmares',
-  name: 'Neon Nightmares',
+  name: 'The Betawave Tapes',
   description: 'Be Kind, Rewind... if you dare.',
   system: 'kids-on-bikes',
 
@@ -139,6 +139,11 @@ export const neonNightmaresTheme: TMPTheme = {
 
   assets: {
     basePath: '/assets/themes/neon-nightmares',
+    
+    logo: {
+      src: '/assets/themes/neon-nightmares/logo.png',
+      alt: 'The Betawave Tapes',
+    },
     
     voteIcons: {
       optionA: {

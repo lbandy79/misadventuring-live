@@ -2,13 +2,12 @@ import { useState, useEffect, useRef } from 'react';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { db } from '../firebase';
-import { useTheme } from '../themes';
+import { useTheme, ThemeLogo } from '../themes';
 import { ThemeIcon } from '../themes/ThemeAssets';
 import { audioMixer, initAudio } from '../utils/audioMixer';
 import { initConfetti, destroyConfetti } from '../utils/confetti';
 import { useCueListener } from '../hooks';
-import { TMPSoundOn, TMPSoundOff, TMPVotingOpen, TMPVotingClosed } from './icons/TMPIcons';
-import { TMPLogo } from './icons/TMPLogo';
+import { TMPSoundOn, TMPSoundOff, TMPVotingClosed } from './icons/TMPIcons';
 import DiceRollerDisplay from './DiceRollerDisplay';
 import VoteParticlesSimple, { useVoteParticles } from './VoteParticlesSimple';
 import WinnerBanner from './WinnerBanner';
@@ -216,10 +215,10 @@ export default function DisplayView() {
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.5, ease: 'easeOut' }}
           >
-            {/* QR Idle Display with theme */}
+            {/* QR Idle Display with themed logo */}
             <IdleDisplay 
               themeKey={theme.id}
-              logo={<TMPLogo size={180} />}
+              logo={<ThemeLogo size={180} />}
               url="https://play.themisadventuringparty.com"
             />
           </motion.div>

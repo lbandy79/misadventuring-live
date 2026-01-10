@@ -139,6 +139,75 @@ export const ThemeIcon = memo(function ThemeIcon({
 });
 
 // =============================================================================
+// THEME LOGO COMPONENT
+// =============================================================================
+
+interface ThemeLogoProps {
+  /** Size in pixels (applies to max dimension) */
+  size?: number;
+  /** Additional CSS class */
+  className?: string;
+  /** Alt text override */
+  alt?: string;
+}
+
+export const ThemeLogo = memo(function ThemeLogo({
+  size = 120,
+  className = '',
+  alt,
+}: ThemeLogoProps) {
+  const { theme } = useTheme();
+  const [hasError, setHasError] = useState(false);
+  
+  // Build the logo path - use theme assets if available, otherwise construct from theme id
+  const logoSrc = theme.assets?.logo?.src 
+    ?? `/assets/themes/${theme.id}/logo.png`;
+  const logoAlt = alt ?? theme.assets?.logo?.alt ?? `${theme.name} Logo`;
+  
+  // Reset error state when theme changes
+  useEffect(() => {
+    setHasError(false);
+  }, [theme.id]);
+  
+  if (hasError) {
+    // Fallback: show styled text with the theme name
+    return (
+      <div 
+        className={`theme-logo theme-logo--fallback theme-logo--${theme.id} ${className}`}
+        style={{ 
+          fontSize: Math.max(size * 0.2, 16),
+          color: theme.colors.primary,
+          fontFamily: theme.typography.fonts.display,
+          textAlign: 'center',
+          padding: '1rem',
+        }}
+      >
+        {theme.name}
+      </div>
+    );
+  }
+  
+  return (
+    <img
+      src={logoSrc}
+      alt={logoAlt}
+      className={`theme-logo theme-logo--${theme.id} ${className}`}
+      style={{ 
+        maxHeight: size, 
+        maxWidth: size * 2, 
+        objectFit: 'contain',
+        display: 'block',
+      }}
+      loading="eager"
+      onError={() => {
+        console.warn(`[ThemeLogo] Failed to load: ${logoSrc}`);
+        setHasError(true);
+      }}
+    />
+  );
+});
+
+// =============================================================================
 // CARD FRAME COMPONENT
 // =============================================================================
 
@@ -317,4 +386,4 @@ export function usePreloadThemeAssets() {
 // EXPORTS
 // =============================================================================
 
-export type { ThemeIconProps, CardFrameProps, ThemedProgressBarProps };
+export type { ThemeIconProps, ThemeLogoProps, CardFrameProps, ThemedProgressBarProps };

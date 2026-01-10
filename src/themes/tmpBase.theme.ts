@@ -4,8 +4,8 @@
  * The Misadventuring Party - Flagship Brand Theme
  * "Where Failing is Fun"
  * 
- * - Colors: Navy, Hot Pink, Cyan (from the logo)
- * - Vibe: Bold, fun, unapologetically chaotic
+ * - Colors: Coral + Teal (warm, inviting home base)
+ * - Vibe: The tavern before the adventure, warm and welcoming
  * - The D20 showing a "1" is our spirit animal
  */
 
@@ -18,34 +18,34 @@ export const tmpBaseTheme: TMPTheme = {
   system: 'universal',
 
   colors: {
-    primary: '#e84393',           // Hot pink (from logo)
-    secondary: '#5dade2',         // Cyan (from logo)
-    tertiary: '#f39c12',          // Warm gold accent
+    primary: '#FF6B6B',           // Coral (warm, inviting)
+    secondary: '#2DD4BF',         // Teal (fresh, adventurous)
+    tertiary: '#FBBF24',          // Warm amber accent
 
     background: {
-      main: '#0a1628',            // Deep navy (logo background)
-      card: '#0f2137',            // Slightly lighter navy
-      elevated: '#163354',        // Elevated surfaces
+      main: '#1A1A2E',            // Deep purple-navy (tavern at night)
+      card: '#242442',            // Lighter tavern walls
+      elevated: '#2E2E52',        // Elevated surfaces
     },
 
     text: {
-      primary: '#ffffff',         // Pure white
-      secondary: '#a8c5d8',       // Soft cyan-grey
-      onPrimary: '#ffffff',       // White on pink
+      primary: '#FFF8F0',         // Warm white (firelight)
+      secondary: '#B8B8D0',       // Soft lavender-grey
+      onPrimary: '#1A1A2E',       // Dark on coral
     },
 
     voting: {
-      optionA: '#e84393',         // Hot pink
-      optionB: '#5dade2',         // Cyan
-      optionC: '#f39c12',         // Gold
-      progressTrack: '#0a1628',   // Navy
+      optionA: '#FF6B6B',         // Coral
+      optionB: '#2DD4BF',         // Teal
+      optionC: '#FBBF24',         // Amber
+      progressTrack: '#1A1A2E',   // Deep background
     },
 
     status: {
-      success: '#27ae60',         // Emerald green
-      warning: '#f39c12',         // Warm gold
-      error: '#e74c3c',           // Soft red
-      info: '#5dade2',            // Cyan
+      success: '#2DD4BF',         // Teal (matches secondary)
+      warning: '#FBBF24',         // Amber
+      error: '#FF6B6B',           // Coral (matches primary)
+      info: '#60A5FA',            // Soft blue
     },
   },
 
@@ -117,15 +117,62 @@ export const tmpBaseTheme: TMPTheme = {
       small: '0 2px 4px rgba(0, 0, 0, 0.3)',
       medium: '0 4px 12px rgba(0, 0, 0, 0.4)',
       large: '0 8px 24px rgba(0, 0, 0, 0.5)',
-      glow: '0 0 30px rgba(232, 67, 147, 0.5)',
+      glow: '0 0 30px rgba(255, 107, 107, 0.5)',  // Coral glow
     },
     backgroundEffects: {
       main: `
-        radial-gradient(ellipse at 30% 20%, rgba(232, 67, 147, 0.15) 0%, transparent 50%),
-        radial-gradient(ellipse at 70% 80%, rgba(93, 173, 226, 0.1) 0%, transparent 50%),
-        linear-gradient(180deg, #0a1628 0%, #0f2137 100%)
+        radial-gradient(ellipse at 30% 20%, rgba(255, 107, 107, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 80%, rgba(45, 212, 191, 0.08) 0%, transparent 50%),
+        linear-gradient(180deg, #1A1A2E 0%, #242442 100%)
       `,
       overlay: 'none',
+    },
+  },
+
+  assets: {
+    basePath: '/assets/themes/tmp-base',
+    
+    logo: {
+      src: '/assets/themes/tmp-base/logo.png',
+      alt: 'The Misadventuring Party',
+    },
+    
+    voteIcons: {
+      optionA: {
+        src: '/assets/themes/tmp-base/icons/d20-coral.svg',
+        type: 'svg',
+        alt: 'Coral D20',
+        idleAnimation: 'tmp-float',
+        selectAnimation: 'tmp-pop',
+      },
+      optionB: {
+        src: '/assets/themes/tmp-base/icons/d20-teal.svg',
+        type: 'svg',
+        alt: 'Teal D20',
+        idleAnimation: 'tmp-float',
+        selectAnimation: 'tmp-pop',
+      },
+      optionC: {
+        src: '/assets/themes/tmp-base/icons/d20-amber.svg',
+        type: 'svg',
+        alt: 'Amber D20',
+        idleAnimation: 'tmp-float',
+        selectAnimation: 'tmp-pop',
+      },
+    },
+    
+    cardFrame: {
+      border: '/assets/themes/tmp-base/frames/card-frame.svg',
+      effect: 'drop-shadow(0 4px 8px rgba(0,0,0,0.4))',
+    },
+    
+    progressBar: {
+      fillStyle: 'linear-gradient(180deg, #FF8A8A 0%, #FF6B6B 50%, #E85555 100%)',
+    },
+    
+    winnerBanner: {
+      graphic: '/assets/themes/tmp-base/banners/winner-banner.svg',
+      particles: 'confetti',
     },
   },
 };

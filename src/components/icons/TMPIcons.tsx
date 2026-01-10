@@ -2,12 +2,12 @@
  * TMP Custom Icon System
  * 
  * "Where Failing is Fun" - Custom SVG icons based on TMP brand identity.
- * D20 showing a 1, skull with flowers, pink & cyan on navy.
+ * D20 showing a 1, skull with flowers, theme-aware colors.
  * 
  * These icons are theme-aware and replace generic emojis throughout the app.
  * Colors automatically sync with the active theme via CSS variables:
- * - --tmp-icon-primary (defaults to hot pink #e84393)
- * - --tmp-icon-secondary (defaults to cyan #5dade2)
+ * - --tmp-icon-primary (defaults to coral #FF6B6B for Base theme)
+ * - --tmp-icon-secondary (defaults to teal #2DD4BF for Base theme)
  */
 
 import { CSSProperties } from 'react';
@@ -21,8 +21,8 @@ interface IconProps {
 
 // Shared style object that sets up CSS variable inheritance
 const iconStyle = (style?: CSSProperties): CSSProperties => ({
-  '--icon-primary': 'var(--tmp-icon-primary, #e84393)',
-  '--icon-secondary': 'var(--tmp-icon-secondary, #5dade2)',
+  '--icon-primary': 'var(--tmp-icon-primary, #FF6B6B)',
+  '--icon-secondary': 'var(--tmp-icon-secondary, #2DD4BF)',
   ...style
 } as CSSProperties);
 

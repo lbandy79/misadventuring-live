@@ -46,7 +46,7 @@
 
 .idle-d20 {
   margin-bottom: 1rem;
-  filter: drop-shadow(0 0 30px var(--tmp-icon-primary, #e84393));
+  filter: drop-shadow(0 0 30px var(--tmp-icon-primary, #FF6B6B));
 }
 
 .idle-logo {
@@ -56,7 +56,7 @@
 .idle-logo img {
   max-width: 100%;
   height: auto;
-  filter: drop-shadow(0 0 20px var(--tmp-color-primary, #e84393));
+  filter: drop-shadow(0 0 20px var(--tmp-color-primary, #FF6B6B));
 }
 
 .logo-container h1 {
@@ -696,14 +696,14 @@
 /* === DEFAULT / TMP BASE === */
 .voting-status.open {
   background: linear-gradient(180deg, 
-    #FF6B9D 0%,
-    #e84393 40%,
-    #c0357a 100%
+    #FF8A8A 0%,
+    #FF6B6B 40%,
+    #E85555 100%
   );
   color: #fff;
   border: 4px solid rgba(0, 0, 0, 0.7);
   box-shadow: 
-    0 0 30px #e84393,
+    0 0 30px #FF6B6B,
     4px 4px 0 rgba(0, 0, 0, 0.4),
     inset 0 4px 0 rgba(255, 255, 255, 0.3),
     inset 0 -4px 0 rgba(0, 0, 0, 0.2);
