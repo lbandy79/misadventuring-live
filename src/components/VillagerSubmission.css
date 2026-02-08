@@ -166,6 +166,48 @@ select.error {
   opacity: 0.8;
 }
 
+/* Item select with icon */
+.item-select-wrapper,
+.select-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.item-select-wrapper select,
+.select-with-icon select {
+  width: 100%;
+}
+
+.item-select-icon,
+.select-icon {
+  position: absolute;
+  left: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--tmp-color-primary, var(--accent));
+  z-index: 1;
+  pointer-events: none;
+}
+
+.item-select-wrapper select.has-icon,
+.select-with-icon select.has-icon {
+  padding-left: 3rem;
+}
+
+.hoard-item-notice {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  color: var(--accent);
+  font-weight: 600;
+  margin-top: 0.25rem;
+  animation: sparkle 1.5s ease-in-out infinite;
+}
+
 /* Submit button */
 .submit-btn {
   margin-top: 0.5rem;

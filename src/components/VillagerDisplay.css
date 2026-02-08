@@ -143,6 +143,15 @@
 .villager-species-bg {
   font-size: 0.95rem;
   color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.villager-species-bg svg {
+  opacity: 0.8;
+  flex-shrink: 0;
 }
 
 .villager-card.large .villager-species-bg {
@@ -179,12 +188,24 @@
   border: 1px solid rgba(228, 161, 27, 0.4);
 }
 
+.item-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--tmp-color-primary, #D4AF37);
+}
+
+.villager-card-item.hoard .item-icon {
+  color: #FFD700;
+  filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.5));
+}
+
 .item-emoji {
   font-size: 1.5rem;
 }
 
-.villager-card.large .item-emoji {
-  font-size: 2rem;
+.villager-card.large .item-icon {
+  color: var(--tmp-color-primary, #D4AF37);
 }
 
 .item-name {

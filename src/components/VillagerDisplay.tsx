@@ -13,6 +13,7 @@ import { db } from '../firebase';
 import { useTheme } from '../themes/ThemeProvider';
 import { playSound, initAudio } from '../utils/sounds';
 import { TMPStar } from './icons/TMPIcons';
+import { SpeciesIcon, BackgroundIcon } from './icons/GameIcons';
 import type { Villager, VillagerSubmissionState } from '../types/villager.types';
 import { getItemById } from '../types/villager.types';
 import './VillagerDisplay.css';
@@ -250,7 +251,10 @@ function VillagerCard({ villager, index, isFeatured, isLarge }: VillagerCardProp
       
       <div className="villager-card-info">
         <span className="villager-species-bg">
-          {villager.species} {villager.background}
+          <SpeciesIcon species={villager.species} size={18} />
+          {villager.species} 
+          <BackgroundIcon background={villager.background} size={18} />
+          {villager.background}
         </span>
       </div>
       

@@ -1,12 +1,12 @@
 /**
  * Beast of Ridgefall Theme
  * 
- * A fairy tale fantasy theme featuring:
- * - Sky blues (primary)
- * - Stone greys (backgrounds)
- * - Forest and grass greens (secondary/accents)
+ * A whimsical adventure theme featuring:
+ * - Jewel tones (sapphire, emerald, amethyst)
+ * - Rich stone backgrounds
+ * - Topaz gold accents
  * 
- * Evokes classic storybook illustrations and medieval fantasy.
+ * Evokes D&D sourcebooks and fairy tale adventure.
  */
 
 import type { TMPTheme } from './theme.types';
@@ -14,55 +14,57 @@ import type { TMPTheme } from './theme.types';
 export const beastOfRidgefallTheme: TMPTheme = {
   id: 'beast-of-ridgefall',
   name: 'Beast of Ridgefall',
-  description: 'A fairy tale fantasy theme with sky blues, stone greys, and verdant greens',
+  description: 'A whimsical adventure theme with jewel tones and D&D-inspired typography',
   system: 'universal',
 
   colors: {
-    // Primary - Sky Blue (fairy tale sky)
-    primary: '#5B9BD5',
-    // Secondary - Forest Green
-    secondary: '#4A7C59',
-    // Tertiary - Grass Green (bright accent)
-    tertiary: '#7CB342',
+    // Primary - Sapphire (royal, trustworthy)
+    primary: '#2E5BBA',
+    // Secondary - Emerald (forest, nature)
+    secondary: '#2E8B57',
+    // Tertiary - Amethyst (magic, mystery)
+    tertiary: '#9B59B6',
+    // Accent - Topaz Gold (treasure, warmth)
+    accent: '#D4AF37',
     
-    // Backgrounds - Stone Greys
+    // Backgrounds - Rich Stone
     background: {
-      main: '#2C2F33',       // Dark stone
-      card: '#3A3F44',       // Medium stone
-      elevated: '#4A5058',   // Light stone
+      main: '#1A1D21',       // Deep dungeon stone
+      card: '#252A30',       // Weathered stone
+      elevated: '#323940',   // Torch-lit stone
     },
     
     // Text
     text: {
-      primary: '#F5F5F0',    // Warm parchment white
-      secondary: '#B8C4CE',  // Soft grey-blue
-      onPrimary: '#1E2124',  // Dark charcoal
+      primary: '#F5F0E6',    // Aged parchment
+      secondary: '#A8B4C4',  // Moonlit grey
+      onPrimary: '#0D0F12',  // Ink black
     },
     
-    // Voting colors - Fantasy themed
+    // Voting colors - Jewel themed
     voting: {
-      optionA: '#5B9BD5',    // Sky blue
-      optionB: '#7CB342',    // Grass green
-      optionC: '#9C7AB5',    // Mystic purple
-      progressTrack: '#2C2F33', // Dark stone background
+      optionA: '#2E5BBA',    // Sapphire
+      optionB: '#2E8B57',    // Emerald
+      optionC: '#9B59B6',    // Amethyst
+      progressTrack: '#1A1D21', // Deep stone background
     },
     
     // Status colors
     status: {
-      success: '#4CAF50',    // Verdant green
-      error: '#C75050',      // Muted dragon red
-      warning: '#E8A33C',    // Golden amber
-      info: '#5B9BD5',       // Sky blue
+      success: '#2E8B57',    // Emerald
+      error: '#C41E3A',      // Ruby
+      warning: '#D4AF37',    // Topaz gold
+      info: '#2E5BBA',       // Sapphire
     },
   },
 
   typography: {
     fonts: {
-      display: '"Cinzel", "Georgia", serif',           // Medieval/fantasy display font
-      body: '"Lora", "Georgia", serif',                // Readable storybook body
-      accent: '"Uncial Antiqua", cursive',             // Celtic/medieval accent
+      display: '"MedievalSharp", "Georgia", serif',    // D&D-style display font
+      body: '"Spectral", "Georgia", serif',            // Sourcebook-style body
+      accent: '"Pirata One", cursive',                 // Adventure accent for numbers/timers
     },
-    googleFontsUrl: 'https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lora:wght@400;500;600&family=Uncial+Antiqua&display=swap',
+    googleFontsUrl: 'https://fonts.googleapis.com/css2?family=MedievalSharp&family=Spectral:wght@400;500;600;700&family=Pirata+One&display=swap',
     sizes: {
       hero: '4rem',
       h1: '2.5rem',

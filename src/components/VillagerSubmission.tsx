@@ -12,6 +12,7 @@ import { db } from '../firebase';
 import { playSound, initAudio } from '../utils/sounds';
 import { validateContent } from '../utils/contentFilter';
 import { TMPCheck, TMPStar } from './icons/TMPIcons';
+import { SpeciesIcon, BackgroundIcon } from './icons/GameIcons';
 import type { 
   Villager, 
   VillagerSpecies, 
@@ -375,34 +376,48 @@ export default function VillagerSubmission() {
         {/* Species */}
         <div className="form-group">
           <label htmlFor="villager-species">Species</label>
-          <select
-            id="villager-species"
-            value={species}
-            onChange={(e) => setSpecies(e.target.value as VillagerSpecies)}
-            className={errors.species ? 'error' : ''}
-          >
-            <option value="" disabled>Select species...</option>
-            {SPECIES_OPTIONS.map(s => (
-              <option key={s} value={s}>{s}</option>
-            ))}
-          </select>
+          <div className="select-with-icon">
+            {species && (
+              <span className="select-icon">
+                <SpeciesIcon species={species} size={24} />
+              </span>
+            )}
+            <select
+              id="villager-species"
+              value={species}
+              onChange={(e) => setSpecies(e.target.value as VillagerSpecies)}
+              className={`${errors.species ? 'error' : ''} ${species ? 'has-icon' : ''}`}
+            >
+              <option value="" disabled>Select species...</option>
+              {SPECIES_OPTIONS.map(s => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
+          </div>
           {errors.species && <span className="error-text">{errors.species}</span>}
         </div>
 
         {/* Background */}
         <div className="form-group">
           <label htmlFor="villager-background">Occupation</label>
-          <select
-            id="villager-background"
-            value={background}
-            onChange={(e) => setBackground(e.target.value as VillagerBackground)}
-            className={errors.background ? 'error' : ''}
-          >
-            <option value="" disabled>Select occupation...</option>
-            {BACKGROUND_OPTIONS.map(b => (
-              <option key={b} value={b}>{b}</option>
-            ))}
-          </select>
+          <div className="select-with-icon">
+            {background && (
+              <span className="select-icon">
+                <BackgroundIcon background={background} size={24} />
+              </span>
+            )}
+            <select
+              id="villager-background"
+              value={background}
+              onChange={(e) => setBackground(e.target.value as VillagerBackground)}
+              className={`${errors.background ? 'error' : ''} ${background ? 'has-icon' : ''}`}
+            >
+              <option value="" disabled>Select occupation...</option>
+              {BACKGROUND_OPTIONS.map(b => (
+                <option key={b} value={b}>{b}</option>
+              ))}
+            </select>
+          </div>
           {errors.background && <span className="error-text">{errors.background}</span>}
         </div>
 
