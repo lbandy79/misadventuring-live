@@ -125,6 +125,17 @@
   letter-spacing: 0.25rem;
 }
 
+.preview-emojis-container {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.preview-emoji {
+  font-size: 2rem;
+  display: inline-block;
+}
+
 /* Submit button */
 .submit-btn {
   width: 100%;

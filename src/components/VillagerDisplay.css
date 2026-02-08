@@ -73,6 +73,13 @@
   padding: 1rem;
   position: relative;
   transition: all 0.3s ease;
+  perspective: 1000px;
+  transform-style: preserve-3d;
+}
+
+.villager-card:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
 }
 
 .villager-card.large {
@@ -194,12 +201,19 @@
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  background: var(--accent);
-  color: var(--bg-primary);
-  padding: 0.15rem 0.5rem;
+  background: linear-gradient(135deg, #DAA520, #FFD700);
+  color: #1a1a2e;
+  padding: 0.2rem 0.6rem;
   border-radius: 4px;
   font-size: 0.7rem;
   font-weight: 700;
+  text-transform: uppercase;
+  animation: hoard-glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes hoard-glow {
+  from { box-shadow: 0 0 5px rgba(218, 165, 32, 0.3); }
+  to { box-shadow: 0 0 15px rgba(218, 165, 32, 0.6), 0 0 30px rgba(218, 165, 32, 0.2); }
 }
 
 /* Carousel dots */

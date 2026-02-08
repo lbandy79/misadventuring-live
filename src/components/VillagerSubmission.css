@@ -6,11 +6,17 @@
   max-width: 500px;
   margin: 0 auto;
   padding: 1.5rem;
-  background: var(--bg-card);
+  background: linear-gradient(
+    135deg,
+    rgba(91, 143, 185, 0.05) 0%,
+    rgba(76, 175, 80, 0.03) 100%
+  );
   border-radius: 16px;
   color: var(--text-primary);
   font-family: var(--font-body);
   position: relative;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(91, 143, 185, 0.2);
 }
 
 /* Card frame */
@@ -76,7 +82,7 @@
 .form-group select {
   padding: 0.75rem 1rem;
   background: rgba(0, 0, 0, 0.3);
-  border: 2px solid rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(91, 143, 185, 0.15);
   border-radius: 8px;
   color: var(--text-primary);
   font-size: 1rem;
@@ -87,12 +93,13 @@
 .form-group input:focus,
 .form-group select:focus {
   outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 10px rgba(228, 161, 27, 0.2);
+  border-color: var(--tmp-color-primary, var(--accent));
+  box-shadow: 0 0 15px rgba(91, 143, 185, 0.25);
 }
 
 .form-group input::placeholder {
   color: rgba(255, 255, 255, 0.3);
+  font-style: italic;
 }
 
 .form-group select {

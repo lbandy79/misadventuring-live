@@ -281,45 +281,113 @@ export default function MonsterBuilder({ sessionId }: MonsterBuilderProps) {
           <div key={part.category} className="part-section">
             <h3 className="part-label">{part.label}</h3>
             <div className="part-options">
-              {part.options.map(option => (
-                <motion.button
-                  key={option.id}
-                  className={`part-option ${selections[part.category] === option.id ? 'selected' : ''}`}
-                  onClick={() => {
-                    selectPart(part.category, option.id);
-                    spawnFlyAway(option.emoji);
-                  }}
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                >
-                  <span className="option-emoji">{option.emoji}</span>
-                  {selections[part.category] === option.id && (
+              {part.options.map(option => {
+                const isSelected = selections[part.category] === option.id;
+                return (
+                  <motion.button
+                    key={option.id}
+                    className={`part-option ${isSelected ? 'selected' : ''}`}
+                    onClick={() => {
+                      selectPart(part.category, option.id);
+                      spawnFlyAway(option.emoji);
+                    }}
+                    whileHover={{ scale: 1.08 }}
+                    whileTap={{ scale: 0.92 }}
+                    animate={isSelected ? {
+                      boxShadow: '0 0 20px rgba(218, 165, 32, 0.5)',
+                      borderColor: '#DAA520',
+                    } : {
+                      boxShadow: '0 0 0px rgba(0,0,0,0)',
+                      borderColor: 'rgba(255,255,255,0.15)',
+                    }}
+                    transition={{ duration: 0.2 }}
+                  >
                     <motion.span 
-                      className="selected-indicator"
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
+                      className="option-emoji"
+                      animate={isSelected ? { scale: [1, 1.2, 1] } : { scale: 1 }}
+                      transition={{ duration: 0.3 }}
                     >
-                      ✓
+                      {option.emoji}
                     </motion.span>
-                  )}
-                </motion.button>
-              ))}
+                    {isSelected && (
+                      <motion.span 
+                        className="selected-indicator"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ type: 'spring', stiffness: 500, damping: 20 }}
+                      >
+                        ✓
+                      </motion.span>
+                    )}
+                  </motion.button>
+                );
+              })}
             </div>
           </div>
         ))}
       </div>
 
       {/* Creature Preview */}
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {isComplete && (
           <motion.div 
             className="creature-preview"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
+            initial={{ opacity: 0, y: 20, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.9 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
           >
             <span className="preview-label">Your creation:</span>
-            <span className="preview-emojis">{creaturePreview}</span>
+            <motion.div 
+              className="preview-emojis-container"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              {selections.head && (
+                <motion.span 
+                  key={`preview-head-${selections.head}`}
+                  className="preview-emoji"
+                  initial={{ y: -20, opacity: 0, scale: 0.5 }}
+                  animate={{ y: 0, opacity: 1, scale: 1 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 20, delay: 0 }}
+                >
+                  {getPartEmoji('head', selections.head)}
+                </motion.span>
+              )}
+              {selections.torso && (
+                <motion.span 
+                  key={`preview-torso-${selections.torso}`}
+                  className="preview-emoji"
+                  initial={{ y: -20, opacity: 0, scale: 0.5 }}
+                  animate={{ y: 0, opacity: 1, scale: 1 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 20, delay: 0.05 }}
+                >
+                  {getPartEmoji('torso', selections.torso)}
+                </motion.span>
+              )}
+              {selections.arms && (
+                <motion.span 
+                  key={`preview-arms-${selections.arms}`}
+                  className="preview-emoji"
+                  initial={{ y: -20, opacity: 0, scale: 0.5 }}
+                  animate={{ y: 0, opacity: 1, scale: 1 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 20, delay: 0.1 }}
+                >
+                  {getPartEmoji('arms', selections.arms)}
+                </motion.span>
+              )}
+              {selections.legs && (
+                <motion.span 
+                  key={`preview-legs-${selections.legs}`}
+                  className="preview-emoji"
+                  initial={{ y: -20, opacity: 0, scale: 0.5 }}
+                  animate={{ y: 0, opacity: 1, scale: 1 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 20, delay: 0.15 }}
+                >
+                  {getPartEmoji('legs', selections.legs)}
+                </motion.span>
+              )}
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

@@ -15,6 +15,23 @@
   overflow: hidden;
 }
 
+/* Screen flash effect for dramatic transitions */
+.monster-builder-display.flash::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: white;
+  animation: screen-flash 0.3s ease-out forwards;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+@keyframes screen-flash {
+  0% { opacity: 0; }
+  20% { opacity: 0.3; }
+  100% { opacity: 0; }
+}
+
 /* Building Phase */
 .building-phase {
   display: flex;
@@ -51,13 +68,32 @@
   box-shadow: 
     0 0 40px rgba(228, 161, 27, 0.3),
     inset 0 0 30px rgba(228, 161, 27, 0.1);
+  animation: counter-pulse 2s ease-in-out infinite;
+}
+
+@keyframes counter-pulse {
+  0%, 100% {
+    box-shadow: 
+      0 0 40px rgba(228, 161, 27, 0.3),
+      inset 0 0 30px rgba(228, 161, 27, 0.1);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 
+      0 0 60px rgba(228, 161, 27, 0.5),
+      0 0 80px rgba(228, 161, 27, 0.2),
+      inset 0 0 40px rgba(228, 161, 27, 0.15);
+    transform: scale(1.02);
+  }
 }
 
 .counter-number {
   font-size: 5rem;
   font-weight: 900;
   color: #e4a11b;
-  text-shadow: 0 0 20px rgba(228, 161, 27, 0.8);
+  text-shadow: 
+    0 0 20px rgba(228, 161, 27, 0.8),
+    0 0 40px rgba(228, 161, 27, 0.4);
 }
 
 .counter-label {
@@ -75,6 +111,12 @@
 .monster-silhouette {
   font-size: 6rem;
   filter: grayscale(1) opacity(0.3);
+  animation: bone-float 3s ease-in-out infinite;
+}
+
+@keyframes bone-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(5deg); }
 }
 
 /* Closed Phase */
@@ -151,10 +193,36 @@
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.15em;
-  color: #e4a11b;
+  color: #DAA520;
   text-shadow: 
-    0 0 30px rgba(228, 161, 27, 0.8),
-    0 0 60px rgba(228, 161, 27, 0.4);
+    0 0 10px rgba(218, 165, 32, 0.6),
+    0 0 20px rgba(218, 165, 32, 0.4),
+    0 0 40px rgba(218, 165, 32, 0.2),
+    0 0 80px rgba(218, 165, 32, 0.1);
+  animation: golden-glow-pulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes golden-glow-pulse {
+  from { 
+    text-shadow: 
+      0 0 10px rgba(218, 165, 32, 0.6), 
+      0 0 20px rgba(218, 165, 32, 0.4); 
+  }
+  to { 
+    text-shadow: 
+      0 0 20px rgba(218, 165, 32, 0.8), 
+      0 0 40px rgba(218, 165, 32, 0.5), 
+      0 0 60px rgba(218, 165, 32, 0.3); 
+  }
+}
+
+.title-pre {
+  animation: title-drop 0.6s ease-out;
+}
+
+@keyframes title-drop {
+  0% { opacity: 0; transform: translateY(-40px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
 /* Part Reveal */
@@ -177,16 +245,32 @@
 .reveal-emoji {
   font-size: 10rem;
   margin: 1rem 0;
-  filter: drop-shadow(0 0 40px rgba(228, 161, 27, 0.8));
-  animation: emoji-glow 1.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 40px rgba(218, 165, 32, 0.8));
+  animation: emoji-glow 1.5s ease-in-out infinite, emoji-entrance 0.6s ease-out;
 }
 
 @keyframes emoji-glow {
   0%, 100% { 
-    filter: drop-shadow(0 0 40px rgba(228, 161, 27, 0.6));
+    filter: drop-shadow(0 0 40px rgba(218, 165, 32, 0.6));
+    transform: scale(1);
   }
   50% { 
-    filter: drop-shadow(0 0 60px rgba(228, 161, 27, 1));
+    filter: drop-shadow(0 0 60px rgba(218, 165, 32, 1));
+    transform: scale(1.05);
+  }
+}
+
+@keyframes emoji-entrance {
+  0% {
+    transform: scale(0) rotate(-10deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.15) rotate(3deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
   }
 }
 
@@ -196,7 +280,21 @@
   text-transform: uppercase;
   letter-spacing: 0.2em;
   color: #fff;
-  text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+  text-shadow: 
+    0 0 20px rgba(255, 255, 255, 0.5),
+    0 4px 0 rgba(0, 0, 0, 0.3);
+  animation: name-slam 0.3s ease-out;
+}
+
+@keyframes name-slam {
+  0% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 /* Revealed Parts Tracker */
@@ -272,8 +370,13 @@
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.15em;
-  color: #e4a11b;
-  text-shadow: 0 0 20px rgba(228, 161, 27, 0.8);
+  color: #DAA520;
+  text-shadow: 
+    0 0 10px rgba(218, 165, 32, 0.6),
+    0 0 20px rgba(218, 165, 32, 0.4),
+    0 0 40px rgba(218, 165, 32, 0.2),
+    0 0 80px rgba(218, 165, 32, 0.1);
+  animation: golden-glow-pulse 2s ease-in-out infinite alternate;
   margin-bottom: 1rem;
 }
 

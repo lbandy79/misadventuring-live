@@ -278,11 +278,19 @@ export default function MonsterBuilderDisplay({ onComplete }: MonsterBuilderDisp
           <motion.div 
             className="submission-counter"
             key={submissionCount}
-            initial={{ scale: 1.3 }}
+            initial={{ scale: 1.4 }}
             animate={{ scale: 1 }}
             transition={{ type: 'spring', stiffness: 300, damping: 15 }}
           >
-            <span className="counter-number">{submissionCount}</span>
+            <motion.span 
+              className="counter-number"
+              key={`count-${submissionCount}`}
+              initial={{ scale: 1.4, color: '#DAA520' }}
+              animate={{ scale: 1, color: '#e4a11b' }}
+              transition={{ duration: 0.4 }}
+            >
+              {submissionCount}
+            </motion.span>
           </motion.div>
           
           <p className="counter-label">submissions</p>

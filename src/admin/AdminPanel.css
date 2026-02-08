@@ -307,19 +307,37 @@
   color: #0a0a0f;
 }
 
+/* Launch button with ready pulse */
+.btn-primary:not(:disabled) {
+  animation: launch-ready 2s ease-in-out infinite alternate;
+}
+
+@keyframes launch-ready {
+  from { box-shadow: 0 0 5px rgba(218, 165, 32, 0.3); }
+  to { box-shadow: 0 0 20px rgba(218, 165, 32, 0.5); }
+}
+
 .btn-success {
   background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
   color: #fff;
 }
 
 .btn-warning {
-  background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
-  color: #fff;
+  background: #E6A817;
+  color: #1a1a2e;
+  font-weight: 700;
 }
 
 .btn-danger {
-  background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
-  color: #fff;
+  background: transparent;
+  border: 2px solid #E74C3C;
+  color: #E74C3C;
+  font-weight: 600;
+}
+
+.btn-danger:hover {
+  background: rgba(231, 76, 60, 0.15);
+  box-shadow: 0 0 15px rgba(231, 76, 60, 0.3);
 }
 
 .btn-secondary {

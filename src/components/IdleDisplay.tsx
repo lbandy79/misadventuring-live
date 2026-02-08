@@ -33,6 +33,11 @@ const themeText: Record<string, ThemeTextConfig> = {
     sub: "The tavern awaits...",
     urlLabel: "JOIN THE PARTY",
   },
+  "beast-of-ridgefall": {
+    main: "SCAN TO JOIN",
+    sub: "The adventure continues...",
+    urlLabel: "JOIN THE HUNT",
+  },
 };
 
 const IdleDisplay: React.FC<IdleDisplayProps> = ({
@@ -55,7 +60,7 @@ const IdleDisplay: React.FC<IdleDisplayProps> = ({
       <div className="idle-logo">{logo ?? <ThemeLogo size={140} />}</div>
       
       {/* Main CTA text */}
-      <div className="idle-main-text">{mainText || text.main}</div>
+      <div className="idle-main-text shimmer">{mainText || text.main}</div>
       
       {/* QR Code container with theme styling */}
       <div className="idle-qr-container">

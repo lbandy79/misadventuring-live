@@ -112,6 +112,18 @@
   background: var(--bg-card);
   border-radius: 16px;
   border: 1px solid var(--border);
+  animation: waiting-breathe 3s ease-in-out infinite;
+}
+
+@keyframes waiting-breathe {
+  0%, 100% {
+    box-shadow: 0 0 0px rgba(91, 143, 185, 0);
+    border-color: var(--border);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(91, 143, 185, 0.15);
+    border-color: rgba(91, 143, 185, 0.3);
+  }
 }
 
 .waiting-icon {

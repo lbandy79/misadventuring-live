@@ -239,11 +239,6 @@ export default function VillagerSubmission() {
               )}
               <p className="villager-item">
                 {selectedItem?.emoji} {submittedVillager.itemName}
-                {submittedVillager.isHoardItem && (
-                  <span className="hoard-badge">
-                    <TMPStar size={14} /> Special
-                  </span>
-                )}
               </p>
             </div>
           )}
@@ -256,17 +251,33 @@ export default function VillagerSubmission() {
   if (hasSubmitted && submittedVillager && !isEditing) {
     return (
       <div className="villager-container">
-        <div className="villager-submitted">
+        <motion.div 
+          className="villager-submitted"
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+        >
           <motion.div 
             className="success-check"
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            transition={{ type: 'spring', stiffness: 200 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 12, delay: 0.2 }}
           >
             <TMPCheck size={48} />
           </motion.div>
-          <h2>Villager Created!</h2>
-          <div className="your-villager-card">
+          <motion.h2
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.4 }}
+          >
+            Villager Created!
+          </motion.h2>
+          <motion.div 
+            className="your-villager-card"
+            initial={{ y: 30, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.5 }}
+          >
             <p className="villager-name">{submittedVillager.name}</p>
             <p className="villager-pronouns">
               {PRONOUNS_OPTIONS.find(p => p.id === submittedVillager.pronouns)?.label || submittedVillager.pronouns}
@@ -279,24 +290,35 @@ export default function VillagerSubmission() {
             )}
             <p className="villager-item">
               {getItemById(submittedVillager.item)?.emoji} {submittedVillager.itemName}
-              {submittedVillager.isHoardItem && (
-                <span className="hoard-badge">
-                  <TMPStar size={14} /> Hoard Item
-                </span>
-              )}
             </p>
-          </div>
-          <p className="thank-you">Thank you! Watch for your villager in the story.</p>
+          </motion.div>
+          <motion.p 
+            className="thank-you"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.7 }}
+          >
+            Thank you! Watch for your villager in the story.
+          </motion.p>
           
           {/* Change My Mind Button */}
-          <button
-            type="button"
-            className="change-mind-btn"
-            onClick={handleChangeMyMind}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            style={{ display: 'inline-block' }}
           >
-            🔄 Change My Mind
-          </button>
-        </div>
+            <button
+              type="button"
+              className="change-mind-btn"
+              onClick={handleChangeMyMind}
+            >
+              🔄 Change My Mind
+            </button>
+          </motion.div>
+        </motion.div>
       </div>
     );
   }
@@ -406,22 +428,17 @@ export default function VillagerSubmission() {
         <div className="form-group">
           <label htmlFor="villager-item">
             Possession
-            {selectedItem?.isHoardItem && (
-              <span className="hoard-indicator">
-                <TMPStar size={12} /> Hoard Item!
-              </span>
-            )}
           </label>
           <select
             id="villager-item"
             value={itemId}
             onChange={(e) => setItemId(e.target.value)}
-            className={`${selectedItem?.isHoardItem ? 'hoard-item-selected' : ''} ${errors.item ? 'error' : ''}`}
+            className={errors.item ? 'error' : ''}
           >
             <option value="" disabled>Select an item...</option>
             {VILLAGER_ITEMS.map(item => (
               <option key={item.id} value={item.id}>
-                {item.emoji} {item.name} {item.isHoardItem ? '⭐' : ''}
+                {item.emoji} {item.name}
               </option>
             ))}
           </select>

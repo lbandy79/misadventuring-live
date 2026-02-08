@@ -206,11 +206,27 @@ function VillagerCard({ villager, index, isFeatured, isLarge }: VillagerCardProp
   const item = getItemById(villager.item);
   
   return (
-    <div className={`villager-card ${isFeatured ? 'featured' : ''} ${isLarge ? 'large' : ''}`}>
+    <motion.div 
+      className={`villager-card ${isFeatured ? 'featured' : ''} ${isLarge ? 'large' : ''}`}
+      layout
+      initial={{ x: -100, opacity: 0, rotateY: -15 }}
+      animate={{ x: 0, opacity: 1, rotateY: 0 }}
+      transition={{ 
+        type: 'spring', 
+        stiffness: 150, 
+        damping: 20,
+        delay: index * 0.1 
+      }}
+    >
       {isFeatured && (
-        <div className="featured-badge">
+        <motion.div 
+          className="featured-badge"
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: 'spring', delay: 0.3 + index * 0.1 }}
+        >
           <TMPStar size={16} /> Featured
-        </div>
+        </motion.div>
       )}
       
       <div className="villager-card-header">
@@ -228,15 +244,10 @@ function VillagerCard({ villager, index, isFeatured, isLarge }: VillagerCardProp
         <p className="villager-card-quirk">"{villager.quirk}"</p>
       )}
       
-      <div className={`villager-card-item ${villager.isHoardItem ? 'hoard' : ''}`}>
+      <div className="villager-card-item">
         <span className="item-emoji">{item?.emoji || '📦'}</span>
         <span className="item-name">{villager.itemName}</span>
-        {villager.isHoardItem && (
-          <span className="hoard-tag">
-            <TMPStar size={12} /> Hoard
-          </span>
-        )}
       </div>
-    </div>
+    </motion.div>
   );
 }
