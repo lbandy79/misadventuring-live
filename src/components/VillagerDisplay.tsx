@@ -161,17 +161,31 @@ export default function VillagerDisplay({
         </motion.div>
       </AnimatePresence>
 
-      {/* Progress dots */}
-      <div className="carousel-dots">
-        {displayVillagers.map((_, idx) => (
-          <button
-            key={idx}
-            className={`dot ${idx === currentIndex ? 'active' : ''}`}
-            onClick={() => setCurrentIndex(idx)}
-            aria-label={`Go to villager ${idx + 1}`}
-          />
-        ))}
-      </div>
+      {/* Progress indicator - dots for ≤15 villagers, "Page X of Y" for >15 */}
+      {displayVillagers.length <= 15 ? (
+        <div className="carousel-dots">
+          {displayVillagers.map((_, idx) => (
+            <button
+              key={idx}
+              className={`dot ${idx === currentIndex ? 'active' : ''}`}
+              onClick={() => setCurrentIndex(idx)}
+              aria-label={`Go to villager ${idx + 1}`}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="carousel-progress">
+          <span className="progress-text">
+            {currentIndex + 1} of {displayVillagers.length}
+          </span>
+          <div className="progress-bar">
+            <div 
+              className="progress-fill" 
+              style={{ width: `${((currentIndex + 1) / displayVillagers.length) * 100}%` }}
+            />
+          </div>
+        </div>
+      )}
 
       {/* New Arrival Notification */}
       <AnimatePresence>

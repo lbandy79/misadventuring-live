@@ -165,6 +165,13 @@ export default function EncounterVote({ config }: EncounterVoteProps) {
       // Play satisfying vote sound!
       playSound('vote');
 
+      // Trigger vote-counted edge glow on the audience container
+      const container = document.querySelector('.audience-container');
+      if (container) {
+        container.classList.add('vote-counted');
+        setTimeout(() => container.classList.remove('vote-counted'), 600);
+      }
+
       localStorage.setItem(storageKey, optionId);
       setHasVoted(true);
       setSelectedOption(optionId);

@@ -32,7 +32,7 @@ export default function MonsterBuilderDisplay({ onComplete }: MonsterBuilderDisp
   const { theme } = useTheme();
   const containerRef = useRef<HTMLDivElement>(null);
   const [builderData, setBuilderData] = useState<MonsterBuilderState | null>(null);
-  const [revealPhase, setRevealPhase] = useState<'waiting' | 'intro' | 'head' | 'torso' | 'arms' | 'legs' | 'complete'>('waiting');
+  const [revealPhase, setRevealPhase] = useState<'waiting' | 'intro' | 'head' | 'torso' | 'arms' | 'legs' | 'blackout' | 'complete'>('waiting');
   const [currentRevealPart, setCurrentRevealPart] = useState<MonsterBuilderCategory | null>(null);
   const [revealedParts, setRevealedParts] = useState<MonsterBuilderCategory[]>([]);
   const [winners, setWinners] = useState<Record<MonsterBuilderCategory, string>>({
@@ -181,12 +181,18 @@ export default function MonsterBuilderDisplay({ onComplete }: MonsterBuilderDisp
       },
     });
 
-    // Show name
+    // Show name with slam effect
     tl.to(nameRef.current, {
       opacity: 1,
       scale: 1,
       duration: 0.4,
       ease: 'back.out(1.2)',
+      onStart: () => {
+        // Slam shake when name appears
+        document.body.classList.add('shake-light');
+        audioMixer.play('uiClick');
+        setTimeout(() => document.body.classList.remove('shake-light'), 300);
+      },
     }, '-=0.2');
 
     // Hold
@@ -230,39 +236,48 @@ export default function MonsterBuilderDisplay({ onComplete }: MonsterBuilderDisp
 
   // Show final creature compilation
   const showFinalCompilation = () => {
-    setRevealPhase('complete');
+    // Start with dramatic blackout pause
+    setRevealPhase('blackout');
+    
+    // After 1 second blackout, show the final reveal
+    setTimeout(() => {
+      setRevealPhase('complete');
 
-    if (!compilationRef.current) return;
+      if (!compilationRef.current) return;
 
-    const tl = gsap.timeline();
+      const tl = gsap.timeline();
 
-    gsap.set(compilationRef.current, { scale: 0, opacity: 0 });
+      gsap.set(compilationRef.current, { scale: 0, opacity: 0 });
 
-    // Big reveal
-    tl.to(compilationRef.current, {
-      scale: 1,
-      opacity: 1,
-      duration: 1,
-      ease: 'elastic.out(1.2, 0.5)',
-      onStart: () => {
-        audioMixer.play('victory');
-        celebrateWinner({ intensity: 'epic' });
-        document.body.classList.add('shake-heavy');
-        setTimeout(() => document.body.classList.remove('shake-heavy'), 500);
-      },
-    });
+      // Big reveal with earthquake shake
+      document.body.classList.add('shake-earthquake');
+      
+      tl.to(compilationRef.current, {
+        scale: 1,
+        opacity: 1,
+        duration: 1,
+        ease: 'elastic.out(1.2, 0.5)',
+        onStart: () => {
+          audioMixer.play('victory');
+          celebrateWinner({ intensity: 'epic' });
+        },
+        onComplete: () => {
+          document.body.classList.remove('shake-earthquake');
+        },
+      });
 
-    // Glow pulse
-    tl.to(compilationRef.current, {
-      boxShadow: '0 0 80px rgba(228, 161, 27, 0.9), 0 0 150px rgba(228, 161, 27, 0.5)',
-      duration: 0.6,
-      repeat: 3,
-      yoyo: true,
-    });
+      // Glow pulse
+      tl.to(compilationRef.current, {
+        boxShadow: '0 0 80px rgba(228, 161, 27, 0.9), 0 0 150px rgba(228, 161, 27, 0.5)',
+        duration: 0.6,
+        repeat: 3,
+        yoyo: true,
+      });
 
-    tl.call(() => {
-      onComplete?.();
-    });
+      tl.call(() => {
+        onComplete?.();
+      });
+    }, 1000); // 1 second blackout pause
   };
 
   // Get submission count
@@ -388,6 +403,19 @@ export default function MonsterBuilderDisplay({ onComplete }: MonsterBuilderDisp
               );
             })}
           </div>
+
+          {/* Blackout pause before final reveal */}
+          <AnimatePresence>
+            {revealPhase === 'blackout' && (
+              <motion.div 
+                className="blackout-screen"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+              />
+            )}
+          </AnimatePresence>
 
           {/* Final compilation */}
           <AnimatePresence>

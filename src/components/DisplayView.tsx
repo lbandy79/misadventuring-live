@@ -5,7 +5,7 @@ import { db } from '../firebase';
 import { useTheme, ThemeLogo } from '../themes';
 import { ThemeIcon } from '../themes/ThemeAssets';
 import { audioMixer, initAudio } from '../utils/audioMixer';
-import { initConfetti, destroyConfetti } from '../utils/confetti';
+import { initConfetti, destroyConfetti, celebrateWinner } from '../utils/confetti';
 import { useCueListener } from '../hooks';
 import { TMPSoundOn, TMPSoundOff, TMPVotingClosed } from './icons/TMPIcons';
 import DiceRollerDisplay from './DiceRollerDisplay';
@@ -49,6 +49,10 @@ export default function DisplayView() {
   const [isShaking, setIsShaking] = useState(false);
   const [showWinnerReveal, setShowWinnerReveal] = useState(false);
   const [builderData, setBuilderData] = useState<{ status?: string } | null>(null);
+  const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
+  const [isSurging, setIsSurging] = useState(false);
+  const [milestoneReached, setMilestoneReached] = useState<number | null>(null);
+  const [isTie, setIsTie] = useState(false);
   const { theme } = useTheme(); 
   
   // Listen for GM-triggered cues from Firebase (synced effects across all displays)
@@ -61,6 +65,10 @@ export default function DisplayView() {
   // Track previous state for sound triggers
   const prevInteractionRef = useRef<ActiveInteraction>({ type: 'none' });
   const prevVotesRef = useRef<number>(0);
+  
+  // Track vote velocity for "surging" indicator
+  const voteTimestampsRef = useRef<number[]>([]);
+  const milestonesHitRef = useRef<Set<number>>(new Set());
 
   // Initialize confetti on mount
   useEffect(() => {
@@ -102,6 +110,9 @@ export default function DisplayView() {
           if (newInteraction.type !== 'none' && prevInteractionRef.current.type === 'none') {
             audioMixer.play('whoosh');
             setShowWinnerReveal(false); // Reset winner reveal for new interaction
+            setIsTie(false);
+            // Reset milestones for new interaction
+            milestonesHitRef.current.clear();
           }
           
           // 🎉 THE BIG MOMENT: Voting closes - trigger celebration!
@@ -134,7 +145,7 @@ export default function DisplayView() {
     return () => unsubscribe();
   }, []);
 
-  // Listen to votes with sound effects and particle emission
+  // Listen to votes with sound effects, particle emission, velocity tracking, and milestones
   useEffect(() => {
     const unsubscribe = onSnapshot(
       doc(db, 'votes', 'current-vote'),
@@ -142,17 +153,45 @@ export default function DisplayView() {
         if (snapshot.exists()) {
           const newVotes = snapshot.data() as VotesData;
           const newCounts = newVotes.counts || {};
+          const newTotal = newVotes.totalVotes || 0;
           
           console.log('📊 Vote update:', { 
-            total: newVotes.totalVotes, 
+            total: newTotal, 
             prevTotal: prevVotesRef.current,
             counts: newCounts,
             prevCounts: prevVoteCountsRef.current 
           });
           
           // Play subtle tick when total votes increase (new voter)
-          if (newVotes.totalVotes && newVotes.totalVotes > prevVotesRef.current) {
+          if (newTotal > prevVotesRef.current) {
             audioMixer.play('timerTick', { volume: 0.3 });
+            
+            // Track vote timestamps for velocity detection
+            const now = Date.now();
+            voteTimestampsRef.current.push(now);
+            // Keep only last 10 seconds of timestamps
+            voteTimestampsRef.current = voteTimestampsRef.current.filter(t => now - t < 10000);
+            
+            // Check velocity: if more than 8 votes in last 10 seconds, we're surging!
+            const recentVotes = voteTimestampsRef.current.length;
+            if (recentVotes >= 8 && !isSurging) {
+              setIsSurging(true);
+              // Auto-clear surging after 3 seconds of no new surge
+              setTimeout(() => setIsSurging(false), 3000);
+            }
+            
+            // Check milestones (25 and 50 for 50-100 person venue)
+            const milestones = [25, 50];
+            milestones.forEach(milestone => {
+              if (newTotal >= milestone && !milestonesHitRef.current.has(milestone)) {
+                milestonesHitRef.current.add(milestone);
+                setMilestoneReached(milestone);
+                // Trigger confetti for milestone
+                celebrateWinner();
+                // Clear milestone display after 2.5 seconds
+                setTimeout(() => setMilestoneReached(null), 2500);
+              }
+            });
           }
           
           // Emit particles for each option that gained votes
@@ -175,14 +214,33 @@ export default function DisplayView() {
           });
           
           prevVoteCountsRef.current = { ...newCounts };
-          prevVotesRef.current = newVotes.totalVotes || 0;
+          prevVotesRef.current = newTotal;
           setVotes(newVotes);
         }
       }
     );
     return () => unsubscribe();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Don't depend on emitVoteParticle - it reads from window at call time
+  }, [isSurging]); // Include isSurging to properly update state
+
+  // Countdown timer for voting
+  useEffect(() => {
+    const { timer, startedAt, isOpen } = activeInteraction;
+    if (!startedAt || !timer || !isOpen) {
+      setTimeRemaining(null);
+      return;
+    }
+
+    const updateTimer = () => {
+      const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+      const remaining = Math.max(0, timer - elapsed);
+      setTimeRemaining(remaining);
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [activeInteraction]);
 
   // Calculate vote percentages
   const totalVotes = votes.totalVotes || 0;
@@ -191,20 +249,52 @@ export default function DisplayView() {
     return ((votes.counts?.[optionId] || 0) / totalVotes) * 100;
   };
 
-  // Find the winner
+  // Find the winner (returns null if tie)
   const getWinner = (): VoteOption | null => {
     if (!activeInteraction.options || totalVotes === 0) return null;
+    
+    // Find max votes and count how many options have that count
     let maxVotes = 0;
-    let winner: VoteOption | null = null;
     activeInteraction.options.forEach(opt => {
       const count = votes.counts?.[opt.id] || 0;
-      if (count > maxVotes) {
-        maxVotes = count;
-        winner = opt;
-      }
+      if (count > maxVotes) maxVotes = count;
     });
-    return winner;
+    
+    const winners = activeInteraction.options.filter(
+      opt => (votes.counts?.[opt.id] || 0) === maxVotes
+    );
+    
+    // If more than one option has max votes, it's a tie
+    if (winners.length > 1 && maxVotes > 0) {
+      return null; // Tie - no single winner
+    }
+    
+    return winners[0] || null;
   };
+
+  // Check if there's a tie (for tie-breaker display)
+  const checkForTie = (): boolean => {
+    if (!activeInteraction.options || totalVotes === 0) return false;
+    
+    let maxVotes = 0;
+    activeInteraction.options.forEach(opt => {
+      const count = votes.counts?.[opt.id] || 0;
+      if (count > maxVotes) maxVotes = count;
+    });
+    
+    const topOptions = activeInteraction.options.filter(
+      opt => (votes.counts?.[opt.id] || 0) === maxVotes
+    );
+    
+    return topOptions.length > 1 && maxVotes > 0;
+  };
+
+  // Detect tie when voting closes
+  useEffect(() => {
+    if (!activeInteraction.isOpen && activeInteraction.type === 'vote' && totalVotes > 0) {
+      setIsTie(checkForTie());
+    }
+  }, [activeInteraction.isOpen, activeInteraction.type, totalVotes, votes.counts]);
 
   return (
     <div className={`display-container crt-overlay ${isShaking ? 'shake-intense' : ''}`}>
@@ -283,16 +373,65 @@ export default function DisplayView() {
               {activeInteraction.question}
             </motion.h2>
 
-            {/* Vote count */}
+            {/* Large Countdown Timer - visible from 20+ feet */}
+            <AnimatePresence>
+              {timeRemaining !== null && timeRemaining > 0 && activeInteraction.isOpen && (
+                <motion.div 
+                  className={`display-countdown ${timeRemaining <= 10 ? 'urgent' : ''}`}
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ 
+                    scale: timeRemaining <= 10 ? [1, 1.05, 1] : 1, 
+                    opacity: 1 
+                  }}
+                  exit={{ scale: 0.8, opacity: 0 }}
+                  transition={{ 
+                    scale: { repeat: timeRemaining <= 10 ? Infinity : 0, duration: 1 }
+                  }}
+                >
+                  <span className="countdown-number">
+                    {Math.floor(timeRemaining / 60)}:{(timeRemaining % 60).toString().padStart(2, '0')}
+                  </span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Vote count with surging indicator */}
             <motion.div 
-              className="vote-count"
+              className={`vote-count ${isSurging ? 'surging' : ''}`}
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.4, type: 'spring' }}
             >
               <span className="count-number">{totalVotes}</span>
               <span className="count-label">votes cast</span>
+              <AnimatePresence>
+                {isSurging && (
+                  <motion.span 
+                    className="surge-indicator"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                  >
+                    🔥 SURGING!
+                  </motion.span>
+                )}
+              </AnimatePresence>
             </motion.div>
+
+            {/* Milestone celebration overlay */}
+            <AnimatePresence>
+              {milestoneReached && (
+                <motion.div 
+                  className="milestone-celebration"
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.8, opacity: 0 }}
+                  transition={{ type: 'spring', damping: 12 }}
+                >
+                  🎉 {milestoneReached} VOTES! 🎉
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Vote Option Cards - positioned above the bar */}
             <div className="vote-option-cards">
@@ -357,9 +496,31 @@ export default function DisplayView() {
               )}
             </motion.div>
 
-            {/* 🏆 WINNER ANNOUNCEMENT - GSAP Animated Theme Banner! */}
+            {/* � TIE-BREAKER DISPLAY - Dramatic moment before GM decides */}
+            <AnimatePresence>
+              {!activeInteraction.isOpen && isTie && showWinnerReveal && (
+                <motion.div 
+                  className="tie-breaker-display"
+                  initial={{ scale: 0, opacity: 0, rotateX: -90 }}
+                  animate={{ scale: 1, opacity: 1, rotateX: 0 }}
+                  exit={{ scale: 0.8, opacity: 0 }}
+                  transition={{ type: 'spring', damping: 12, stiffness: 100 }}
+                >
+                  <motion.div 
+                    className="tie-text"
+                    animate={{ scale: [1, 1.05, 1] }}
+                    transition={{ repeat: Infinity, duration: 1.5 }}
+                  >
+                    ⚔️ IT'S A TIE! ⚔️
+                  </motion.div>
+                  <div className="tie-subtext">The GM shall decide your fate...</div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* 🏆 WINNER ANNOUNCEMENT - GSAP Animated Theme Banner! (only if NOT a tie) */}
             <WinnerBanner
-              show={!activeInteraction.isOpen && totalVotes > 0 && showWinnerReveal}
+              show={!activeInteraction.isOpen && totalVotes > 0 && showWinnerReveal && !isTie}
               winner={getWinner()?.label || ''}
               winnerId={getWinner()?.id}
               percentage={getWinner() ? getPercent(getWinner()!.id) : 0}
