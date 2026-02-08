@@ -83,21 +83,25 @@ export const VILLAGER_ITEMS: VillagerItem[] = [
   { id: 'brass-bell', name: 'Brass Bell', emoji: '🔔', isHoardItem: false, description: 'Loud enough to wake the dead' },
   { id: 'shepherds-whistle', name: "Shepherd's Whistle", emoji: '📯', isHoardItem: false, description: 'Piercing and shrill' },
   { id: 'thunderstone', name: 'Thunderstone', emoji: '💥', isHoardItem: true, description: 'Creates a deafening boom when thrown' },
+  { id: 'drum', name: 'Drum', emoji: '🥁', isHoardItem: false, description: 'Beats that echo through the hills' },
   
   // Light-based items (counter Owl Head)
   { id: 'lantern', name: 'Lantern', emoji: '🏮', isHoardItem: false },
   { id: 'polished-mirror', name: 'Polished Mirror', emoji: '🪞', isHoardItem: false, description: 'Reflects light brilliantly' },
   { id: 'sunrod', name: 'Sunrod', emoji: '✨', isHoardItem: true, description: 'Glows with magical daylight' },
+  { id: 'spotlight-candle', name: 'Spotlight Candle', emoji: '🕯️', isHoardItem: false, description: 'Burns with focused intensity' },
   
   // Water/Cold items (counter Flame Body, Squid Arms)
   { id: 'bucket-of-water', name: 'Bucket of Water', emoji: '🪣', isHoardItem: false },
   { id: 'frost-potion', name: 'Frost Potion', emoji: '❄️', isHoardItem: true, description: 'Freezes on contact' },
   { id: 'ice-block', name: 'Ice Block', emoji: '🧊', isHoardItem: false, description: 'Stays frozen unnaturally long' },
+  { id: 'cold-iron-horseshoe', name: 'Cold Iron Horseshoe', emoji: '🧲', isHoardItem: false, description: 'Warded against fey and flame' },
   
   // Fire items (counter Crab Arms, Spider Legs)
   { id: 'torch', name: 'Torch', emoji: '🔥', isHoardItem: false },
   { id: 'fire-oil-flask', name: 'Fire Oil Flask', emoji: '🛢️', isHoardItem: false, description: 'Highly flammable' },
   { id: 'heated-blade', name: 'Heated Blade', emoji: '🗡️', isHoardItem: true, description: 'The metal glows red-hot' },
+  { id: 'burning-brand', name: 'Burning Brand', emoji: '🪵', isHoardItem: false, description: 'A smoldering log from the hearth' },
   
   // Traps/Tools (counter Bear Body, Boar Body, Wolf Legs, Stone Body)
   { id: 'leg-trap', name: 'Leg Trap', emoji: '🪤', isHoardItem: false, description: 'Rusty but effective' },
@@ -105,11 +109,13 @@ export const VILLAGER_ITEMS: VillagerItem[] = [
   { id: 'net', name: 'Net', emoji: '🥅', isHoardItem: false },
   { id: 'pickaxe', name: 'Pickaxe', emoji: '⛏️', isHoardItem: false },
   { id: 'spear', name: 'Spear', emoji: '🔱', isHoardItem: false, description: 'Good reach, solid point' },
+  { id: 'club', name: 'Club', emoji: '🔨', isHoardItem: false, description: 'Simple but effective' },
   
   // Psychological (counter Octopus Head, Ram Head, Gorilla Arms)
   { id: 'skull-totem', name: 'Skull Totem', emoji: '💀', isHoardItem: true, description: 'Ward against evil spirits' },
   { id: 'red-cape', name: 'Red Cape', emoji: '🔴', isHoardItem: false, description: 'Bright and attention-grabbing' },
   { id: 'challenge-glove', name: 'Challenge Glove', emoji: '🧤', isHoardItem: false, description: 'Throw it to issue a challenge' },
+  { id: 'decoy-scarecrow', name: 'Decoy Scarecrow', emoji: '🧸', isHoardItem: false, description: 'Distracts and confuses' },
 ];
 
 // Species options for dropdown
