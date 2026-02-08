@@ -1,11 +1,17 @@
 .display-container {
   min-height: 100vh;
-  background: var(--bg-primary);
+  /* Fallback to Beast of Ridgefall deep navy if CSS vars not loaded */
+  background: var(--bg-primary, var(--tmp-bg-main, #0A2654));
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   position: relative;
+}
+
+/* Beast of Ridgefall theme override - ensure deep blue background */
+[data-theme="beast-of-ridgefall"] .display-container {
+  background: #0A2654;
 }
 
 /* Sound toggle */

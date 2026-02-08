@@ -43,7 +43,8 @@ export function celebrateWinner(options?: {
   intensity?: 'normal' | 'epic' | 'legendary';
 }): void {
   const instance = confettiInstance || confetti;
-  const colors = options?.colors || ['#FFD700', '#FFA500', '#FF6B6B', '#4ECDC4', '#45B7D1'];
+  // Logo palette: Royal Blue, Coral Pink, Soft Teal, White
+  const colors = options?.colors || ['#1047AB', '#E8546B', '#9BC4C8', '#FFFFFF', '#6BA3FF'];
   
   const intensitySettings = {
     normal: { particleCount: 100, spread: 70, duration: 1 },
@@ -109,7 +110,7 @@ export function quickCelebration(origin?: { x: number; y: number }): void {
     particleCount: 30,
     spread: 50,
     origin: origin || { y: 0.7, x: 0.5 },
-    colors: ['#FFD700', '#FFA500'],
+    colors: ['#E8546B', '#9BC4C8', '#1047AB'],
     startVelocity: 25,
     gravity: 1.2,
     ticks: 100,
@@ -145,14 +146,14 @@ export function fireworks(duration: number = 3000): void {
       angle: 60,
       spread: 55,
       origin: { x: 0, y: 0.6 },
-      colors,
+      colors: ['#E8546B', '#9BC4C8', '#1047AB', '#FFFFFF', '#6BA3FF'],
     });
     instance({
       particleCount: 3,
       angle: 120,
       spread: 55,
       origin: { x: 1, y: 0.6 },
-      colors,
+      colors: ['#E8546B', '#9BC4C8', '#1047AB', '#FFFFFF', '#6BA3FF'],
     });
 
     if (Date.now() < end) {

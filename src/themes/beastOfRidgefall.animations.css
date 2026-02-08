@@ -295,9 +295,381 @@
 
 @keyframes bor-qr-glow {
   0%, 100% {
-    box-shadow: 0 0 15px rgba(91, 155, 213, 0.3);
+    box-shadow: 0 0 15px rgba(232, 84, 107, 0.3);
   }
   50% {
-    box-shadow: 0 0 25px rgba(91, 155, 213, 0.5);
+    box-shadow: 0 0 25px rgba(232, 84, 107, 0.5);
   }
+}
+
+/* === Fantasy Background Effects === */
+
+/* Floating magical particles */
+@keyframes bor-float-particle {
+  0%, 100% {
+    transform: translateY(0) translateX(0) scale(1);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateY(-100px) translateX(20px) scale(1.2);
+    opacity: 0.6;
+  }
+  90% {
+    opacity: 0.3;
+  }
+  100% {
+    transform: translateY(-200px) translateX(-10px) scale(0.8);
+    opacity: 0;
+  }
+}
+
+@keyframes bor-twinkle {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.3);
+  }
+}
+
+@keyframes bor-drift {
+  0%, 100% {
+    transform: translateX(0) translateY(0);
+  }
+  25% {
+    transform: translateX(10px) translateY(-5px);
+  }
+  50% {
+    transform: translateX(5px) translateY(5px);
+  }
+  75% {
+    transform: translateX(-5px) translateY(-3px);
+  }
+}
+
+/* Fantasy background container */
+.fantasy-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* Vignette overlay for depth */
+.fantasy-vignette {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 0%,
+    transparent 50%,
+    rgba(10, 38, 84, 0.4) 80%,
+    rgba(10, 38, 84, 0.7) 100%
+  );
+  pointer-events: none;
+}
+
+/* Subtle noise texture overlay */
+.fantasy-texture {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+/* Magical floating particles */
+.fantasy-particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: radial-gradient(circle, rgba(232, 84, 107, 0.8) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: bor-float-particle 8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.fantasy-particle:nth-child(1) { left: 10%; bottom: 20%; animation-delay: 0s; }
+.fantasy-particle:nth-child(2) { left: 25%; bottom: 10%; animation-delay: 1.5s; }
+.fantasy-particle:nth-child(3) { left: 45%; bottom: 15%; animation-delay: 3s; }
+.fantasy-particle:nth-child(4) { left: 65%; bottom: 25%; animation-delay: 4.5s; }
+.fantasy-particle:nth-child(5) { left: 80%; bottom: 10%; animation-delay: 6s; }
+.fantasy-particle:nth-child(6) { left: 90%; bottom: 20%; animation-delay: 7s; }
+
+.fantasy-particle.teal {
+  background: radial-gradient(circle, rgba(155, 196, 200, 0.6) 0%, transparent 70%);
+  width: 6px;
+  height: 6px;
+}
+
+.fantasy-particle:nth-child(7) { left: 15%; bottom: 30%; animation-delay: 2s; }
+.fantasy-particle:nth-child(8) { left: 55%; bottom: 5%; animation-delay: 5s; }
+.fantasy-particle:nth-child(9) { left: 75%; bottom: 35%; animation-delay: 1s; }
+
+/* Twinkling stars */
+.fantasy-star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: #fff;
+  border-radius: 50%;
+  animation: bor-twinkle 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.fantasy-star:nth-child(10) { top: 10%; left: 15%; animation-delay: 0s; }
+.fantasy-star:nth-child(11) { top: 25%; left: 70%; animation-delay: 0.5s; }
+.fantasy-star:nth-child(12) { top: 15%; left: 85%; animation-delay: 1s; }
+.fantasy-star:nth-child(13) { top: 35%; left: 25%; animation-delay: 1.5s; }
+.fantasy-star:nth-child(14) { top: 8%; left: 50%; animation-delay: 2s; }
+.fantasy-star:nth-child(15) { top: 20%; left: 40%; animation-delay: 2.5s; }
+
+
+/* ==========================================================================
+   Beast of Ridgefall Color Overrides
+   Black background with MTP gold (#E4A11B) and ocean blue (#1E6091)
+   ========================================================================== */
+
+/* Winner glow - gold */
+[data-theme="beast-of-ridgefall"] .winner-option::before,
+[data-theme="beast-of-ridgefall"] .winner-glow {
+  --winner-glow-color: #E4A11B;
+}
+
+/* Hoard items - gold gradient */
+[data-theme="beast-of-ridgefall"] .hoard-tag {
+  background: linear-gradient(135deg, #E4A11B, #F5C842);
+  color: #000000;
+}
+
+[data-theme="beast-of-ridgefall"] .villager-card-item.hoard .item-icon {
+  color: #E4A11B;
+  filter: drop-shadow(0 0 4px rgba(228, 161, 27, 0.5));
+}
+
+/* Accent colors - gold */
+[data-theme="beast-of-ridgefall"] {
+  --accent: #E4A11B;
+  --accent-hover: #F5C842;
+  --accent-muted: rgba(228, 161, 27, 0.3);
+  --glow: 0 0 20px rgba(228, 161, 27, 0.4);
+  --glow-strong: 0 0 30px rgba(228, 161, 27, 0.6);
+}
+
+/* Featured villager glow */
+[data-theme="beast-of-ridgefall"] .villager-card.featured::before {
+  background: radial-gradient(circle, rgba(228, 161, 27, 0.3), transparent);
+}
+
+/* Timer urgent state - gold pulse */
+[data-theme="beast-of-ridgefall"] .display-countdown.urgent {
+  color: #E4A11B;
+  text-shadow: 0 0 20px rgba(228, 161, 27, 0.8);
+}
+
+/* Vote option highlights */
+[data-theme="beast-of-ridgefall"] .vote-option.winner {
+  border-color: #E4A11B;
+  box-shadow: 0 0 20px rgba(228, 161, 27, 0.5);
+}
+
+/* Star icons - gold */
+[data-theme="beast-of-ridgefall"] .star-icon,
+[data-theme="beast-of-ridgefall"] .featured-star {
+  color: #E4A11B;
+  filter: drop-shadow(0 0 4px rgba(228, 161, 27, 0.5));
+}
+
+/* ==========================================================================
+   Monster Builder Overrides - gold theme on black
+   ========================================================================== */
+
+/* MonsterBuilder.css overrides */
+[data-theme="beast-of-ridgefall"] .builder-title {
+  text-shadow: 0 0 20px rgba(228, 161, 27, 0.5);
+}
+
+[data-theme="beast-of-ridgefall"] .part-label {
+  color: #E4A11B;
+}
+
+[data-theme="beast-of-ridgefall"] .part-option:hover {
+  border-color: rgba(228, 161, 27, 0.5);
+}
+
+[data-theme="beast-of-ridgefall"] .part-option.selected {
+  background: rgba(228, 161, 27, 0.2);
+  border-color: #E4A11B;
+  box-shadow: 0 0 15px rgba(228, 161, 27, 0.4);
+}
+
+[data-theme="beast-of-ridgefall"] .creature-preview {
+  background: rgba(228, 161, 27, 0.15);
+  border-color: rgba(228, 161, 27, 0.3);
+}
+
+[data-theme="beast-of-ridgefall"] .submit-btn.ready {
+  background: linear-gradient(135deg, #E4A11B 0%, #F5C842 100%);
+  color: #000000;
+  box-shadow: 0 4px 20px rgba(228, 161, 27, 0.4);
+}
+
+[data-theme="beast-of-ridgefall"] .submit-btn.ready:hover {
+  box-shadow: 0 6px 30px rgba(228, 161, 27, 0.6);
+}
+
+[data-theme="beast-of-ridgefall"] .builder-closed h2,
+[data-theme="beast-of-ridgefall"] .builder-reveal-waiting h2 {
+  color: #E4A11B;
+}
+
+[data-theme="beast-of-ridgefall"] .creature-emojis {
+  animation: bor-creature-glow 2s ease-in-out infinite;
+}
+
+@keyframes bor-creature-glow {
+  0%, 100% { filter: drop-shadow(0 0 10px rgba(228, 161, 27, 0.5)); }
+  50% { filter: drop-shadow(0 0 25px rgba(228, 161, 27, 0.8)); }
+}
+
+/* MonsterBuilderDisplay.css overrides */
+[data-theme="beast-of-ridgefall"] .building-title {
+  text-shadow: 0 0 30px rgba(228, 161, 27, 0.5);
+}
+
+[data-theme="beast-of-ridgefall"] .submission-counter {
+  background: rgba(228, 161, 27, 0.15);
+  border-color: rgba(228, 161, 27, 0.6);
+  box-shadow: 
+    0 0 40px rgba(228, 161, 27, 0.3),
+    inset 0 0 30px rgba(228, 161, 27, 0.1);
+}
+
+[data-theme="beast-of-ridgefall"] .counter-number {
+  color: #E4A11B;
+  text-shadow: 
+    0 0 20px rgba(228, 161, 27, 0.8),
+    0 0 40px rgba(228, 161, 27, 0.4);
+}
+
+[data-theme="beast-of-ridgefall"] .closed-title {
+  text-shadow: 0 0 40px rgba(228, 161, 27, 0.6);
+}
+
+[data-theme="beast-of-ridgefall"] .title-main {
+  color: #E4A11B;
+  text-shadow: 
+    0 0 10px rgba(228, 161, 27, 0.6),
+    0 0 20px rgba(228, 161, 27, 0.4),
+    0 0 40px rgba(228, 161, 27, 0.2),
+    0 0 80px rgba(228, 161, 27, 0.1);
+}
+
+[data-theme="beast-of-ridgefall"] .reveal-emoji {
+  filter: drop-shadow(0 0 40px rgba(228, 161, 27, 0.8));
+}
+
+/* Final compilation card - "THE BEAST IS BORN!" */
+[data-theme="beast-of-ridgefall"] .final-compilation {
+  background: rgba(228, 161, 27, 0.15);
+  border-color: rgba(228, 161, 27, 0.6);
+  box-shadow: 
+    0 0 60px rgba(228, 161, 27, 0.4),
+    inset 0 0 40px rgba(228, 161, 27, 0.1);
+}
+
+[data-theme="beast-of-ridgefall"] .compilation-title {
+  color: #E4A11B;
+  text-shadow: 
+    0 0 10px rgba(228, 161, 27, 0.6),
+    0 0 20px rgba(228, 161, 27, 0.4),
+    0 0 40px rgba(228, 161, 27, 0.2),
+    0 0 80px rgba(228, 161, 27, 0.1);
+}
+
+[data-theme="beast-of-ridgefall"] .tie-title {
+  color: #E4A11B;
+}
+
+/* ==========================================================================
+   Black Background Overrides
+   ========================================================================== */
+
+[data-theme="beast-of-ridgefall"] .monster-builder-container {
+  background: linear-gradient(135deg, #000000 0%, #0a0a0a 50%, #000000 100%);
+}
+
+[data-theme="beast-of-ridgefall"] .monster-builder-display {
+  background: linear-gradient(135deg, #000000 0%, #0a0a0a 50%, #000000 100%);
+}
+
+[data-theme="beast-of-ridgefall"] .monster-builder-display.revealing {
+  background: radial-gradient(ellipse at center, #0a0a0a 0%, #000000 70%);
+}
+
+[data-theme="beast-of-ridgefall"] .building-title,
+[data-theme="beast-of-ridgefall"] .closed-title {
+  color: #E4A11B;
+  text-shadow: 0 0 30px rgba(228, 161, 27, 0.5);
+}
+
+[data-theme="beast-of-ridgefall"] .counter-label {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+[data-theme="beast-of-ridgefall"] .part-section {
+  background: rgba(228, 161, 27, 0.08);
+  border-color: rgba(228, 161, 27, 0.2);
+}
+
+[data-theme="beast-of-ridgefall"] .part-option {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(228, 161, 27, 0.3);
+}
+
+[data-theme="beast-of-ridgefall"] .part-option:hover {
+  background: rgba(228, 161, 27, 0.15);
+}
+
+[data-theme="beast-of-ridgefall"] .builder-title {
+  color: #E4A11B;
+}
+
+[data-theme="beast-of-ridgefall"] .title-pre {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+[data-theme="beast-of-ridgefall"] .reveal-name {
+  color: #1E6091;
+  text-shadow: 
+    0 0 20px rgba(30, 96, 145, 0.5),
+    0 4px 0 rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="beast-of-ridgefall"] .revealed-part {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(228, 161, 27, 0.2);
+}
+
+[data-theme="beast-of-ridgefall"] .revealed-part .part-label {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+[data-theme="beast-of-ridgefall"] .submission-final {
+  color: rgba(255, 255, 255, 0.7);
 }

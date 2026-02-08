@@ -306,6 +306,28 @@ export default function DisplayView() {
         {debugInfo} | Active: {activeInteraction.type}
       </div>
 
+      {/* Persistent logo watermark - bottom left corner, visible during interactions */}
+      <AnimatePresence>
+        {activeInteraction.type !== 'none' && (
+          <motion.div 
+            className="persistent-logo"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.4 }}
+            style={{
+              position: 'absolute',
+              bottom: '1.5rem',
+              left: '1.5rem',
+              zIndex: 50,
+              opacity: 0.85,
+            }}
+          >
+            <ThemeLogo size={80} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Sound toggle - small, corner */}
       <button 
         className="sound-toggle"

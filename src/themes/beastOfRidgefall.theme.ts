@@ -18,43 +18,43 @@ export const beastOfRidgefallTheme: TMPTheme = {
   system: 'universal',
 
   colors: {
-    // Primary - Vivid Sapphire Blue
-    primary: '#6BA3FF',      // Bright sky blue
-    // Secondary - Vivid Emerald Green
-    secondary: '#5EE89C',    // Bright mint green
-    // Tertiary - Vivid Amethyst Purple
-    tertiary: '#D4A5FF',     // Bright lavender
-    // Accent - Brilliant Gold
-    accent: '#FFE066',       // Bright sunny gold
+    // Primary - Cap'n Crunch Gold (from MTP logo)
+    primary: '#E4A11B',      // Gold
+    // Secondary - Ocean Blue (from logo D20)
+    secondary: '#1E6091',    // Deep ocean blue
+    // Tertiary - Berry Pink
+    tertiary: '#C13584',     // Berry pink
+    // Accent - Gold (main call-to-action)
+    accent: '#E4A11B',       // Gold for buttons/highlights
     
-    // Backgrounds - Higher contrast warm tones
+    // Backgrounds - Pure black
     background: {
-      main: '#1A1612',       // Rich dark brown
-      card: '#2E2720',       // Warmer visible brown
-      elevated: '#403830',   // Light brown (visible)
+      main: '#000000',       // Pure black
+      card: '#0a0a0a',       // Near black for cards
+      elevated: '#141414',   // Slightly elevated
     },
     
-    // Text - Maximum readability
+    // Text - Light text for dark background
     text: {
-      primary: '#FFFFFF',    // Pure white for max contrast
-      secondary: '#E0D4C0',  // Warm cream
-      onPrimary: '#0A0806',  // Near black
+      primary: '#FFFFFF',    // Pure white
+      secondary: '#A8C5D8',  // Sea foam blue
+      onPrimary: '#000000',  // Black on gold buttons
     },
     
-    // Voting colors - Extra bright jewel tones
+    // Voting colors - MTP Logo palette
     voting: {
-      optionA: '#6BA3FF',    // Bright blue
-      optionB: '#5EE89C',    // Bright green
-      optionC: '#D4A5FF',    // Bright purple
-      progressTrack: '#1A1612',
+      optionA: '#E4A11B',    // Gold
+      optionB: '#1E6091',    // Ocean blue
+      optionC: '#C13584',    // Berry pink
+      progressTrack: '#1a1a1a',
     },
     
-    // Status colors - High visibility
+    // Status colors
     status: {
-      success: '#5EE89C',    // Bright green
-      error: '#FF7B7B',      // Bright coral
-      warning: '#FFE066',    // Bright gold
-      info: '#6BA3FF',       // Bright blue
+      success: '#4ADE80',    // Bright green
+      error: '#EF4444',      // Red
+      warning: '#E4A11B',    // Gold
+      info: '#1E6091',       // Ocean blue
     },
   },
 
@@ -131,17 +131,17 @@ export const beastOfRidgefallTheme: TMPTheme = {
       card: '16px',
     },
     shadows: {
-      small: '0 2px 4px rgba(0, 0, 0, 0.3)',
-      medium: '0 4px 12px rgba(0, 0, 0, 0.4)',
-      large: '0 8px 24px rgba(0, 0, 0, 0.5)',
-      glow: '0 0 25px rgba(255, 224, 102, 0.5)',  // Bright gold glow
+      small: '0 2px 4px rgba(0, 0, 0, 0.4)',
+      medium: '0 4px 12px rgba(0, 0, 0, 0.5)',
+      large: '0 8px 24px rgba(0, 0, 0, 0.6)',
+      glow: '0 0 25px rgba(228, 161, 27, 0.5)',  // Gold glow
     },
     backgroundEffects: {
       main: `
-        radial-gradient(ellipse at 20% 10%, rgba(107, 163, 255, 0.18) 0%, transparent 40%),
-        radial-gradient(ellipse at 80% 90%, rgba(94, 232, 156, 0.15) 0%, transparent 40%),
-        radial-gradient(ellipse at 50% 50%, rgba(212, 165, 255, 0.12) 0%, transparent 50%),
-        linear-gradient(160deg, #1A1612 0%, #2E2720 50%, #1A1612 100%)
+        radial-gradient(ellipse at 50% 0%, rgba(228, 161, 27, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 20% 80%, rgba(30, 96, 145, 0.1) 0%, transparent 40%),
+        radial-gradient(ellipse at 80% 60%, rgba(228, 161, 27, 0.06) 0%, transparent 50%),
+        linear-gradient(180deg, #000000 0%, #0a0a0a 40%, #000000 100%)
       `,
       overlay: 'none',
     },
