@@ -5,17 +5,24 @@ import EncounterVote from './EncounterVote';
 import Madlibs from './Madlibs';
 import NpcNaming from './NpcNaming';
 import GroupRoll from './GroupRoll';
+import MonsterVote from './MonsterVote';
+import MonsterBuilder from './MonsterBuilder';
+import VillagerSubmission from './VillagerSubmission';
 import { TMPWarning } from './icons/TMPIcons';
 import { ThemeLogo } from '../themes';
 import './AudienceView.css';
 
 interface ActiveInteraction {
-  type: 'none' | 'vote' | 'madlibs' | 'npc-naming' | 'group-roll';
+  type: 'none' | 'vote' | 'madlibs' | 'npc-naming' | 'group-roll' | 'monster-vote' | 'villager-submit' | 'monster-builder';
   question?: string;
   options?: Array<{ id: string; label: string; emoji: string }>;
   isOpen?: boolean;
   timer?: number;
   startedAt?: number;
+  currentPart?: string;
+  partIndex?: number;
+  sessionId?: string;
+  status?: string;
 }
 
 export default function AudienceView() {
@@ -102,6 +109,25 @@ export default function AudienceView() {
         {activeInteraction?.type === 'madlibs' && <Madlibs />}
         {activeInteraction?.type === 'npc-naming' && <NpcNaming />}
         {activeInteraction?.type === 'group-roll' && <GroupRoll />}
+        
+        {/* Beast of Ridgefall Components - Sequential Voting */}
+        {activeInteraction?.type === 'monster-vote' && activeInteraction.status !== 'revealing' && (
+          <MonsterVote config={activeInteraction as any} />
+        )}
+        {activeInteraction?.type === 'monster-vote' && activeInteraction.status === 'revealing' && (
+          <div className="reveal-waiting">
+            <ThemeLogo size={120} className="reveal-logo" />
+            <h2>🐲 The Beast Awakens...</h2>
+            <p>Watch the main screen!</p>
+          </div>
+        )}
+
+        {/* Monster Builder - All Parts At Once (Lucky Straws) */}
+        {activeInteraction?.type === 'monster-builder' && (
+          <MonsterBuilder sessionId={activeInteraction.sessionId} />
+        )}
+
+        {activeInteraction?.type === 'villager-submit' && <VillagerSubmission />}
       </main>
     </div>
   );

@@ -45,7 +45,7 @@ export interface TMPTheme {
 // THEME IDS - Add new themes here
 // =============================================================================
 
-export type ThemeId = 'tmp-base' | 'soggy-bottom-pirates' | 'neon-nightmares';
+export type ThemeId = 'tmp-base' | 'soggy-bottom-pirates' | 'neon-nightmares' | 'beast-of-ridgefall';
 
 // =============================================================================
 // COLOR DEFINITIONS

@@ -12,6 +12,10 @@ import DiceRollerDisplay from './DiceRollerDisplay';
 import VoteParticlesSimple, { useVoteParticles } from './VoteParticlesSimple';
 import WinnerBanner from './WinnerBanner';
 import IdleDisplay from './IdleDisplay';
+import MonsterReveal from './MonsterReveal';
+import QRCode from './QRCode';
+import MonsterBuilderDisplay from './MonsterBuilderDisplay';
+import VillagerDisplay from './VillagerDisplay';
 import './DisplayView.css';
 
 interface VoteOption {
@@ -21,12 +25,15 @@ interface VoteOption {
 }
 
 interface ActiveInteraction {
-  type: 'none' | 'vote' | 'madlibs' | 'npc-naming' | 'group-roll';
+  type: 'none' | 'vote' | 'madlibs' | 'npc-naming' | 'group-roll' | 'monster-vote' | 'villager-submit' | 'monster-builder';
   question?: string;
   options?: VoteOption[];
   isOpen?: boolean;
   timer?: number;
   startedAt?: number;
+  currentPart?: string;
+  partIndex?: number;
+  status?: string;
 }
 
 interface VotesData {
@@ -41,6 +48,7 @@ export default function DisplayView() {
   const [debugInfo, setDebugInfo] = useState('Connecting...');
   const [isShaking, setIsShaking] = useState(false);
   const [showWinnerReveal, setShowWinnerReveal] = useState(false);
+  const [builderData, setBuilderData] = useState<{ status?: string } | null>(null);
   const { theme } = useTheme(); 
   
   // Listen for GM-triggered cues from Firebase (synced effects across all displays)
@@ -58,6 +66,19 @@ export default function DisplayView() {
   useEffect(() => {
     initConfetti();
     return () => destroyConfetti();
+  }, []);
+
+  // Listen to monster-builder state for QR visibility
+  useEffect(() => {
+    const unsubscribe = onSnapshot(
+      doc(db, 'monster-builder', 'current'),
+      (snapshot) => {
+        if (snapshot.exists()) {
+          setBuilderData({ status: snapshot.data().status });
+        }
+      }
+    );
+    return () => unsubscribe();
   }, []);
 
   // Initialize audio on first click (required by browsers)
@@ -204,6 +225,26 @@ export default function DisplayView() {
         {soundEnabled ? <TMPSoundOn size={28} /> : <TMPSoundOff size={28} />}
       </button>
 
+      {/* Persistent small QR code - visible during voting/submissions, hidden during idle and reveal */}
+      <AnimatePresence>
+        {activeInteraction.type !== 'none' && 
+         !(activeInteraction.type === 'monster-vote' && activeInteraction.status === 'revealing') &&
+         !(activeInteraction.type === 'monster-builder' && (builderData?.status === 'revealing' || builderData?.status === 'complete')) && (
+          <motion.div 
+            className="persistent-qr"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="persistent-qr-container">
+              <QRCode value="https://play.themisadventuringparty.com" size={100} />
+            </div>
+            <span className="persistent-qr-label">SCAN TO JOIN</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <AnimatePresence mode="wait">
         {/* Idle State - QR Code & CTA */}
         {activeInteraction.type === 'none' && (
@@ -339,6 +380,104 @@ export default function DisplayView() {
 
         {activeInteraction.type === 'group-roll' && (
           <DiceRollerDisplay key="roll" />
+        )}
+
+        {/* Monster Assembly - Live voting display */}
+        {activeInteraction.type === 'monster-vote' && activeInteraction.status !== 'revealing' && (
+          <motion.div 
+            className="monster-vote-display"
+            key="monster-vote"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+          >
+            <motion.h2 
+              className="vote-question monster-question"
+              initial={{ y: -50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+            >
+              <span className="part-badge">🐲 Building the Beast: {activeInteraction.currentPart?.toUpperCase()}</span>
+              {activeInteraction.question}
+            </motion.h2>
+
+            <div className="monster-progress-display">
+              <span className="progress-label">
+                Part {(activeInteraction.partIndex || 0) + 1} of 4
+              </span>
+            </div>
+
+            <div className="vote-option-cards monster-options">
+              {activeInteraction.options?.map((option, index) => {
+                const colors = ['option-a', 'option-b', 'option-c', 'option-d'];
+                return (
+                  <motion.div
+                    key={option.id}
+                    className={`vote-option-card ${colors[index]}`}
+                    initial={{ y: 50, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.3 + index * 0.1 }}
+                  >
+                    <span className="option-emoji">{option.emoji}</span>
+                    <span className="option-label">{option.label}</span>
+                  </motion.div>
+                );
+              })}
+            </div>
+
+            <motion.div 
+              className={`voting-status ${activeInteraction.isOpen ? 'open' : 'closed'}`}
+              animate={activeInteraction.isOpen ? { scale: [1, 1.02, 1] } : {}}
+              transition={{ repeat: Infinity, duration: 2 }}
+            >
+              {activeInteraction.isOpen ? (
+                <>
+                  <span className="status-indicator" />
+                  VOTE NOW!
+                </>
+              ) : (
+                <><TMPVotingClosed size={32} /> VOTING CLOSED</>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+
+        {/* Monster Reveal (Sequential Voting) */}
+        {activeInteraction.type === 'monster-vote' && activeInteraction.status === 'revealing' && (
+          <MonsterReveal 
+            key="monster-reveal"
+            show={true}
+            onComplete={() => console.log('Monster reveal complete!')}
+          />
+        )}
+
+        {/* Monster Builder Display (All Parts At Once - Lucky Straws) */}
+        {activeInteraction.type === 'monster-builder' && (
+          <motion.div
+            key="monster-builder-display"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <MonsterBuilderDisplay 
+              onComplete={() => console.log('Monster builder reveal complete!')}
+            />
+          </motion.div>
+        )}
+
+        {/* Villager Display */}
+        {activeInteraction.type === 'villager-submit' && (
+          <motion.div
+            key="villager-display"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <VillagerDisplay 
+              mode={activeInteraction.status === 'displaying' ? 'carousel' : 'grid'}
+              rotationInterval={5}
+            />
+          </motion.div>
         )}
       </AnimatePresence>
     </div>

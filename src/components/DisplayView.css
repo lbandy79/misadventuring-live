@@ -31,6 +31,39 @@
   transform: scale(1.1);
 }
 
+/* Persistent QR Code - Small, corner positioned during active states */
+.persistent-qr {
+  position: absolute;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.persistent-qr-container {
+  background: white;
+  padding: 0.5rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease;
+}
+
+.persistent-qr-container:hover {
+  transform: scale(1.05);
+}
+
+.persistent-qr-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  opacity: 0.7;
+  color: var(--text-primary, #fff);
+  font-weight: 600;
+}
+
 /* Idle State */
 .idle-state {
   text-align: center;
@@ -1005,4 +1038,90 @@
   .vote-display {
     padding: 2rem 5rem;
   }
+}
+
+/* ============ MONSTER ASSEMBLY DISPLAY ============ */
+
+.monster-vote-display {
+  width: 100%;
+  max-width: 1400px;
+  padding: 2rem 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+.monster-question {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.monster-question .part-badge {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  opacity: 0.8;
+}
+
+.monster-progress-display {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 0.75rem 2rem;
+  border-radius: 30px;
+  border: 2px solid var(--accent);
+}
+
+.progress-label {
+  font-size: 1.2rem;
+  color: var(--accent);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+.monster-options {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.vote-option-card.option-d {
+  background: linear-gradient(135deg, rgba(155, 89, 182, 0.2), rgba(155, 89, 182, 0.1));
+  border-color: rgba(155, 89, 182, 0.5);
+}
+
+/* Reveal waiting state (audience view) */
+.reveal-waiting {
+  text-align: center;
+  padding: 3rem;
+}
+
+.reveal-waiting h2 {
+  font-size: 2rem;
+  color: var(--accent);
+  font-family: var(--font-heading);
+  margin: 1rem 0;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.02); }
+}
+
+.reveal-waiting p {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+}
+
+.reveal-logo {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
 }

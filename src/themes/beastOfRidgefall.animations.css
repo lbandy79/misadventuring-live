@@ -1,0 +1,303 @@
+/**
+ * Beast of Ridgefall Theme Animations
+ * 
+ * Fairy tale fantasy animations with gentle, storybook-like movement.
+ * Features soft glows, page-turn effects, and mystical reveals.
+ */
+
+/* === Vote Button Animations === */
+
+@keyframes bor-vote-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 6px 20px rgba(91, 155, 213, 0.3);
+  }
+}
+
+@keyframes bor-vote-cast {
+  0% {
+    transform: scale(1);
+  }
+  20% {
+    transform: scale(0.95);
+  }
+  40% {
+    transform: scale(1.08);
+    box-shadow: 0 0 30px rgba(91, 155, 213, 0.5);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+}
+
+/* === Timer Animations === */
+
+@keyframes bor-timer-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+    text-shadow: 0 0 20px rgba(91, 155, 213, 0.6);
+  }
+}
+
+@keyframes bor-timer-urgent {
+  0%, 100% {
+    color: #C75050;
+    transform: scale(1);
+  }
+  50% {
+    color: #E85555;
+    transform: scale(1.05);
+    text-shadow: 0 0 15px rgba(199, 80, 80, 0.5);
+  }
+}
+
+/* === Card & Panel Animations === */
+
+@keyframes bor-card-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes bor-card-shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+/* === Winner/Reveal Animations === */
+
+@keyframes bor-winner-reveal {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+    filter: blur(10px);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+    filter: blur(0);
+  }
+  100% {
+    transform: scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes bor-winner-glow {
+  0%, 100% {
+    box-shadow: 
+      0 0 20px rgba(91, 155, 213, 0.3),
+      inset 0 0 20px rgba(91, 155, 213, 0.1);
+  }
+  50% {
+    box-shadow: 
+      0 0 40px rgba(91, 155, 213, 0.5),
+      0 0 60px rgba(124, 179, 66, 0.3),
+      inset 0 0 30px rgba(91, 155, 213, 0.2);
+  }
+}
+
+@keyframes bor-crown-float {
+  0%, 100% {
+    transform: translateY(0) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(2deg);
+  }
+}
+
+/* === Particle Effects === */
+
+@keyframes bor-sparkle {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1) rotate(180deg);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0) rotate(360deg);
+  }
+}
+
+@keyframes bor-leaf-fall {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px) rotate(0deg);
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(100px) rotate(720deg);
+  }
+}
+
+@keyframes bor-magic-dust {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(-10px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.5);
+  }
+}
+
+/* === Progress Bar Animations === */
+
+@keyframes bor-progress-fill {
+  0% {
+    background-position: 0% center;
+  }
+  100% {
+    background-position: 100% center;
+  }
+}
+
+@keyframes bor-progress-shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* === Monster Builder Animations === */
+
+@keyframes bor-part-select {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 4px 16px rgba(91, 155, 213, 0.4);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 3px 12px rgba(91, 155, 213, 0.3);
+  }
+}
+
+@keyframes bor-beast-assemble {
+  0% {
+    opacity: 0;
+    transform: translateY(30px) scale(0.8);
+    filter: blur(5px);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-5px) scale(1.02);
+    filter: blur(0);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* === Ambient Background Effects === */
+
+@keyframes bor-clouds-drift {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes bor-subtle-glow {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+/* === Button & UI Hover Effects === */
+
+@keyframes bor-hover-lift {
+  0% {
+    transform: translateY(0);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+  100% {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* === Text Reveal Animation === */
+
+@keyframes bor-text-reveal {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+    filter: blur(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+/* === Storybook Page Turn Effect === */
+
+@keyframes bor-page-turn {
+  0% {
+    transform: perspective(1000px) rotateY(0deg);
+    opacity: 1;
+  }
+  50% {
+    transform: perspective(1000px) rotateY(-90deg);
+    opacity: 0.5;
+  }
+  51% {
+    transform: perspective(1000px) rotateY(90deg);
+    opacity: 0.5;
+  }
+  100% {
+    transform: perspective(1000px) rotateY(0deg);
+    opacity: 1;
+  }
+}
+
+/* === QR Code Pulse === */
+
+@keyframes bor-qr-glow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(91, 155, 213, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(91, 155, 213, 0.5);
+  }
+}

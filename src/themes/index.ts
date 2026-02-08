@@ -24,6 +24,7 @@ export { CSS_VAR_PREFIX } from './theme.types';
 export { tmpBaseTheme } from './tmpBase.theme';
 export { soggyBottomPiratesTheme } from './soggyBottomPirates.theme';
 export { neonNightmaresTheme } from './neonNightmares.theme';
+export { beastOfRidgefallTheme } from './beastOfRidgefall.theme';
 
 // Provider exports
 export { ThemeProvider, useTheme } from './ThemeProvider';
@@ -42,11 +43,13 @@ import type { TMPTheme, ThemeId } from './theme.types';
 import { tmpBaseTheme } from './tmpBase.theme';
 import { soggyBottomPiratesTheme } from './soggyBottomPirates.theme';
 import { neonNightmaresTheme } from './neonNightmares.theme';
+import { beastOfRidgefallTheme } from './beastOfRidgefall.theme';
 
 export const themeRegistry: Record<ThemeId, TMPTheme> = {
   'tmp-base': tmpBaseTheme,
   'soggy-bottom-pirates': soggyBottomPiratesTheme,
   'neon-nightmares': neonNightmaresTheme,
+  'beast-of-ridgefall': beastOfRidgefallTheme,
 };
 
 export const defaultThemeId: ThemeId = 'tmp-base';

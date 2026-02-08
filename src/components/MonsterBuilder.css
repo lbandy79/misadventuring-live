@@ -1,0 +1,292 @@
+/**
+ * MonsterBuilder.css - Styles for audience monster building
+ */
+
+.monster-builder-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  min-height: 100%;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+}
+
+.builder-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #fff;
+  text-shadow: 0 0 20px rgba(228, 161, 27, 0.5);
+  margin-bottom: 1rem;
+}
+
+/* Part sections */
+.builder-parts {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.part-section {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.part-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: #e4a11b;
+  margin-bottom: 0.5rem;
+  padding-left: 0.25rem;
+}
+
+.part-options {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.part-option {
+  flex: 1;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.part-option .option-emoji {
+  font-size: 2rem;
+}
+
+.part-option:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(228, 161, 27, 0.5);
+}
+
+.part-option.selected {
+  background: rgba(228, 161, 27, 0.2);
+  border-color: #e4a11b;
+  box-shadow: 0 0 15px rgba(228, 161, 27, 0.4);
+}
+
+.selected-indicator {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 20px;
+  height: 20px;
+  background: #22c55e;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: white;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Creature preview */
+.creature-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  margin: 1rem 0;
+  padding: 0.75rem 1.5rem;
+  background: rgba(228, 161, 27, 0.15);
+  border-radius: 12px;
+  border: 1px solid rgba(228, 161, 27, 0.3);
+}
+
+.preview-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.preview-emojis {
+  font-size: 2rem;
+  letter-spacing: 0.25rem;
+}
+
+/* Submit button */
+.submit-btn {
+  width: 100%;
+  max-width: 300px;
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 0.5rem;
+}
+
+.submit-btn.ready {
+  background: linear-gradient(135deg, #e4a11b 0%, #f5c842 100%);
+  color: #1a1a2e;
+  box-shadow: 0 4px 20px rgba(228, 161, 27, 0.4);
+}
+
+.submit-btn.ready:hover {
+  box-shadow: 0 6px 30px rgba(228, 161, 27, 0.6);
+}
+
+.submit-btn.disabled {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.3);
+  cursor: not-allowed;
+}
+
+.hint-text {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 0.5rem;
+}
+
+/* Submitted state */
+.builder-submitted {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  min-height: 50vh;
+}
+
+.submitted-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #22c55e;
+  margin-bottom: 1.5rem;
+}
+
+.submitted-header h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  margin: 0;
+}
+
+.creature-display {
+  margin: 1rem 0 2rem;
+}
+
+.creature-emojis {
+  font-size: 3.5rem;
+  letter-spacing: 0.5rem;
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { filter: drop-shadow(0 0 10px rgba(228, 161, 27, 0.5)); }
+  50% { filter: drop-shadow(0 0 25px rgba(228, 161, 27, 0.8)); }
+}
+
+.waiting-message {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
+  margin-bottom: 2rem;
+}
+
+.change-btn {
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.change-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.submission-count {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 1.5rem;
+}
+
+/* Closed and reveal states */
+.builder-closed,
+.builder-reveal-waiting {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  min-height: 60vh;
+}
+
+.builder-closed h2,
+.builder-reveal-waiting h2 {
+  font-size: 1.5rem;
+  color: #e4a11b;
+  margin-bottom: 0.5rem;
+}
+
+.builder-closed p,
+.builder-reveal-waiting p {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.your-creature-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1.5rem 0;
+  padding: 1rem 2rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+}
+
+.your-creature-preview .preview-emojis {
+  font-size: 2.5rem;
+}
+
+/* Flying vote animation (reusing existing) */
+@keyframes vote-fly-away {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -250%) scale(0.5);
+  }
+}
+
+.vote-fly-away {
+  animation: vote-fly-away 0.7s ease-out forwards;
+}

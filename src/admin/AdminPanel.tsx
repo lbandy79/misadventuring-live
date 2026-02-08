@@ -1,9 +1,13 @@
-import { useState, useEffect, type FormEvent } from 'react';
-import { doc, onSnapshot, setDoc } from 'firebase/firestore';
+import { useState, useEffect, useRef, type FormEvent } from 'react';
+import { doc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useTheme, themeRegistry } from '../themes';
 import type { ThemeId } from '../themes';
 import { useAwesomeMix, broadcastCue } from '../hooks';
+import type { Villager, VillagerSubmissionState, VillagerStatus } from '../types/villager.types';
+import { PRONOUNS_OPTIONS, getItemById } from '../types/villager.types';
+import { BUILDER_PART_ORDER, MONSTER_BUILDER_CONFIG, calculateWinner, type MonsterBuilderState } from '../types/monsterBuilder.types';
+import { playSound as playSoundEffect, initAudio } from '../utils/sounds';
 import './AdminPanel.css';
 
 const ADMIN_PASSWORD = 'misadventure2025'; // Change this! Or move to env var later
@@ -25,11 +29,7 @@ interface MadlibsConfig {
   template: string;
 }
 
-interface NpcConfig {
-  description: string;
-  imageUrl?: string;
-  selectionMode: string;
-}
+
 
 interface RollConfig {
   prompt: string;
@@ -39,13 +39,15 @@ interface RollConfig {
 }
 
 interface ActiveInteraction {
-  type: 'none' | 'vote' | 'madlibs' | 'npc-naming' | 'group-roll';
+  type: 'none' | 'vote' | 'madlibs' | 'group-roll' | 'villager-submit' | 'monster-builder';
   question?: string;
   options?: VoteOption[];
   isOpen?: boolean;
   timer?: number;
   startedAt?: number;
   currentBlankIndex?: number;
+  partIndex?: number;
+  status?: string;
 }
 
 export default function AdminPanel() {
@@ -64,10 +66,7 @@ export default function AdminPanel() {
   const [madlibsConfig, setMadlibsConfig] = useState<MadlibsConfig>({
     template: 'The [ADJECTIVE] wizard casts [SPELL] at the [CREATURE]!',
   });
-  const [npcConfig, setNpcConfig] = useState<NpcConfig>({
-    description: 'A mysterious tavern keeper with a scar across their face',
-    selectionMode: 'random'
-  });
+
   const [rollConfig, setRollConfig] = useState<RollConfig>({
     prompt: 'Stealth check to sneak past the guards!',
     diceType: 'd20',
@@ -78,6 +77,13 @@ export default function AdminPanel() {
   const [participantCount, setParticipantCount] = useState(0);
   const [isBattleMusicPlaying, setIsBattleMusicPlaying] = useState(false);
   const { themeId, setThemeId } = useTheme();
+  
+  // ============ BEAST OF RIDGEFALL STATE ============
+  const [monsterBuilderState, setMonsterBuilderState] = useState<MonsterBuilderState | null>(null);
+  const [villagerSubmissions, setVillagerSubmissions] = useState<Villager[]>([]);
+  const [villagerStatus, setVillagerStatus] = useState<VillagerSubmissionState['status']>('collecting');
+  const [showHiddenVillagers, setShowHiddenVillagers] = useState(false);
+  const prevVillagerCountRef = useRef<number>(0);
   
   // Awesome Mix hook for sound/effects (local preview - displays get effects via Firebase)
   const {
@@ -158,6 +164,55 @@ export default function AdminPanel() {
         } else {
           setVoteCounts({});
           setParticipantCount(0);
+        }
+      }
+    );
+
+    return () => unsubscribe();
+  }, [isAuthenticated]);
+
+  // Listen to monster builder state
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const unsubscribe = onSnapshot(
+      doc(db, 'monster-builder', 'current'),
+      (snapshot) => {
+        if (snapshot.exists()) {
+          setMonsterBuilderState(snapshot.data() as MonsterBuilderState);
+        } else {
+          setMonsterBuilderState(null);
+        }
+      }
+    );
+
+    return () => unsubscribe();
+  }, [isAuthenticated]);
+
+  // Listen to villager submissions
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const unsubscribe = onSnapshot(
+      doc(db, 'villagers', 'current'),
+      (snapshot) => {
+        if (snapshot.exists()) {
+          const data = snapshot.data() as VillagerSubmissionState;
+          const newSubmissions = data.submissions || [];
+          
+          // Play sound if new submission arrived
+          if (newSubmissions.length > prevVillagerCountRef.current && prevVillagerCountRef.current > 0) {
+            initAudio();
+            playSoundEffect('vote'); // Reuse vote sound for new submission notification
+          }
+          prevVillagerCountRef.current = newSubmissions.length;
+          
+          setVillagerSubmissions(newSubmissions);
+          setVillagerStatus(data.status);
+        } else {
+          setVillagerSubmissions([]);
+          setVillagerStatus('collecting');
+          prevVillagerCountRef.current = 0;
         }
       }
     );
@@ -288,26 +343,7 @@ export default function AdminPanel() {
     }
   };
 
-  // ============ NPC NAMING FUNCTIONS ============
-  const activateNpcNaming = async () => {
-    try {
-      await setDoc(doc(db, 'config', 'active-interaction'), {
-        type: 'npc-naming'
-      });
-      
-      await setDoc(doc(db, 'npc-naming', 'current'), {
-        description: npcConfig.description,
-        imageUrl: npcConfig.imageUrl || null,
-        submissions: [],
-        winner: null,
-        status: 'collecting',
-        selectionMode: npcConfig.selectionMode
-      });
-    } catch (error) {
-      console.error('Failed to launch NPC naming:', error);
-      alert(`Failed to launch NPC naming: ${(error as Error).message}`);
-    }
-  };
+
 
   // ============ GROUP ROLL FUNCTIONS ============
   const activateGroupRoll = async () => {
@@ -327,6 +363,211 @@ export default function AdminPanel() {
     } catch (error) {
       console.error('Failed to launch group roll:', error);
       alert(`Failed to launch group roll: ${(error as Error).message}`);
+    }
+  };
+
+  // ============ VILLAGER SUBMISSION FUNCTIONS ============
+  const activateVillagerSubmission = async () => {
+    try {
+      const sessionId = `villager-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      
+      await setDoc(doc(db, 'villagers', 'current'), {
+        status: 'collecting',
+        submissions: [],
+        featuredIds: [],
+        sessionId
+      });
+      
+      await setDoc(doc(db, 'config', 'active-interaction'), {
+        type: 'villager-submit',
+        status: 'collecting',
+        sessionId
+      });
+    } catch (error) {
+      console.error('Failed to launch villager submission:', error);
+      alert(`Failed to launch villager submission: ${(error as Error).message}`);
+    }
+  };
+
+  const closeVillagerSubmission = async () => {
+    try {
+      await updateDoc(doc(db, 'villagers', 'current'), {
+        status: 'closed'
+      });
+      
+      await updateDoc(doc(db, 'config', 'active-interaction'), {
+        status: 'closed'
+      });
+    } catch (error) {
+      console.error('Failed to close villager submission:', error);
+    }
+  };
+
+  const displayVillagers = async () => {
+    try {
+      await updateDoc(doc(db, 'villagers', 'current'), {
+        status: 'displaying'
+      });
+      
+      await setDoc(doc(db, 'config', 'active-interaction'), {
+        type: 'villager-submit',
+        status: 'displaying'
+      });
+    } catch (error) {
+      console.error('Failed to display villagers:', error);
+    }
+  };
+
+  // Toggle villager approval status (approved <-> hidden)
+  const toggleVillagerStatus = async (villager: Villager, newStatus: VillagerStatus) => {
+    try {
+      // Find and update the villager in the submissions array
+      const updatedSubmissions = villagerSubmissions.map(v => {
+        if (v.submittedBy === villager.submittedBy && v.submittedAt === villager.submittedAt) {
+          return { ...v, status: newStatus };
+        }
+        return v;
+      });
+      
+      await updateDoc(doc(db, 'villagers', 'current'), {
+        submissions: updatedSubmissions
+      });
+    } catch (error) {
+      console.error('Failed to update villager status:', error);
+    }
+  };
+
+  // ============ MONSTER BUILDER FUNCTIONS (NEW - ALL PARTS AT ONCE) ============
+  const activateMonsterBuilder = async () => {
+    try {
+      const sessionId = `builder-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      
+      // Initialize monster builder state
+      await setDoc(doc(db, 'monster-builder', 'current'), {
+        status: 'building',
+        submissions: {},
+        results: {
+          head: null,
+          torso: null,
+          arms: null,
+          legs: null,
+          counts: {
+            head: {},
+            torso: {},
+            arms: {},
+            legs: {}
+          }
+        },
+        revealStep: 0,
+        sessionId
+      });
+      
+      // Set active interaction
+      await setDoc(doc(db, 'config', 'active-interaction'), {
+        type: 'monster-builder',
+        status: 'building',
+        sessionId
+      });
+    } catch (error) {
+      console.error('Failed to launch monster builder:', error);
+      alert(`Failed to launch monster builder: ${(error as Error).message}`);
+    }
+  };
+
+  const closeMonsterBuilder = async () => {
+    if (!monsterBuilderState) return;
+    
+    try {
+      // Calculate winners for all parts
+      const counts = monsterBuilderState.results.counts;
+      const winners = {
+        head: calculateWinner(counts.head || {}),
+        torso: calculateWinner(counts.torso || {}),
+        arms: calculateWinner(counts.arms || {}),
+        legs: calculateWinner(counts.legs || {}),
+      };
+
+      await updateDoc(doc(db, 'monster-builder', 'current'), {
+        status: 'closed',
+        'results.head': winners.head,
+        'results.torso': winners.torso,
+        'results.arms': winners.arms,
+        'results.legs': winners.legs,
+      });
+      
+      await updateDoc(doc(db, 'config', 'active-interaction'), {
+        status: 'closed'
+      });
+    } catch (error) {
+      console.error('Failed to close monster builder:', error);
+    }
+  };
+
+  const startMonsterBuilderReveal = async () => {
+    try {
+      await updateDoc(doc(db, 'monster-builder', 'current'), {
+        status: 'revealing',
+        revealStep: 1 // Start with head
+      });
+      
+      await updateDoc(doc(db, 'config', 'active-interaction'), {
+        status: 'revealing'
+      });
+    } catch (error) {
+      console.error('Failed to start monster builder reveal:', error);
+    }
+  };
+
+  const advanceBuilderReveal = async () => {
+    if (!monsterBuilderState) return;
+    
+    const nextStep = (monsterBuilderState.revealStep + 1) as 1 | 2 | 3 | 4 | 5;
+    
+    try {
+      await updateDoc(doc(db, 'monster-builder', 'current'), {
+        revealStep: nextStep,
+        status: nextStep === 5 ? 'complete' : 'revealing'
+      });
+      
+      if (nextStep === 5) {
+        await updateDoc(doc(db, 'config', 'active-interaction'), {
+          status: 'complete'
+        });
+      }
+    } catch (error) {
+      console.error('Failed to advance builder reveal:', error);
+    }
+  };
+
+  const resetMonsterBuilder = async () => {
+    if (!confirm('Reset monster builder? This will clear all submissions.')) return;
+    
+    try {
+      await setDoc(doc(db, 'monster-builder', 'current'), {
+        status: 'building',
+        submissions: {},
+        results: {
+          head: null,
+          torso: null,
+          arms: null,
+          legs: null,
+          counts: {
+            head: {},
+            torso: {},
+            arms: {},
+            legs: {}
+          }
+        },
+        revealStep: 0,
+        sessionId: `builder-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+      });
+      
+      await setDoc(doc(db, 'config', 'active-interaction'), {
+        type: 'monster-builder',
+        status: 'building'
+      });
+    } catch (error) {
+      console.error('Failed to reset monster builder:', error);
     }
   };
 
@@ -378,58 +619,317 @@ export default function AdminPanel() {
     <div className="admin-container">
       <header className="admin-header">
         <h1>🎲 GM Control Panel</h1>
+        {/* Compact Status Bar */}
+        <div className="status-bar">
+          <span className={`status-dot ${activeInteraction.type !== 'none' ? 'active' : ''}`} />
+          <span className="status-text">
+            {activeInteraction.type === 'none' && 'Idle'}
+            {activeInteraction.type === 'vote' && `Vote ${activeInteraction.isOpen ? '🟢' : '🔴'}`}
+            {activeInteraction.type === 'monster-builder' && `Builder ${monsterBuilderState?.status || ''}`}
+            {activeInteraction.type === 'villager-submit' && `Villagers: ${villagerSubmissions.length}`}
+          </span>
+          {activeInteraction.type === 'vote' && <span className="status-count">{participantCount} votes</span>}
+        </div>
         <button onClick={handleLogout} className="logout-btn">Logout</button>
       </header>
 
+      {/* Beast Name Banner - shows when we have winning parts */}
+      {monsterBuilderState && (monsterBuilderState.status === 'closed' || monsterBuilderState.status === 'revealing' || monsterBuilderState.status === 'complete') && (
+        <div className="beast-banner">
+          <span className="beast-label">🐲</span>
+          <span className="beast-name">
+            {BUILDER_PART_ORDER.map(part => monsterBuilderState.results[part] || '').join('')}
+          </span>
+          <span className="beast-emojis">
+            {BUILDER_PART_ORDER.map(part => {
+              const winner = monsterBuilderState.results[part];
+              if (!winner) return null;
+              // Get emoji for this part
+              const config = MONSTER_BUILDER_CONFIG.find(c => c.category === part);
+              const emoji = config?.options.find(o => o.id === winner)?.emoji || '❓';
+              return <span key={part} title={`${part}: ${winner}`}>{emoji}</span>;
+            })}
+          </span>
+        </div>
+      )}
+
       <div className="admin-grid">
-        {/* Status Card */}
-        <section className="admin-card status-card">
-          <h2>Current Status</h2>
-          <div className="status-indicator">
-            <span className={`status-dot ${activeInteraction.type !== 'none' ? 'active' : ''}`} />
-            <span>
-              {activeInteraction.type === 'none' && 'No active interaction'}
-              {activeInteraction.type === 'vote' && `Voting: ${activeInteraction.isOpen ? 'OPEN' : 'CLOSED'}`}
-            </span>
-          </div>
-          {activeInteraction.type === 'vote' && (
-            <div className="live-stats">
-              <p><strong>{participantCount}</strong> votes cast</p>
-              <div className="vote-breakdown">
-                {activeInteraction.options?.map(opt => (
-                  <div key={opt.id} className="vote-stat">
-                    <span>{opt.emoji} {opt.label}</span>
-                    <span>{voteCounts[opt.id] || 0}</span>
-                  </div>
+        {/* Quick Actions - only show when interaction active */}
+        {activeInteraction.type !== 'none' && (
+          <section className="admin-card actions-card quick-actions-inline">
+            <div className="action-buttons-inline">
+              {activeInteraction.type === 'vote' && (
+                <>
+                  {activeInteraction.isOpen ? (
+                    <button onClick={closeVoting} className="btn-warning">🛑 Close</button>
+                  ) : (
+                    <button onClick={reopenVoting} className="btn-success">▶️ Reopen</button>
+                  )}
+                  <button onClick={resetVotes} className="btn-danger">🔄 Reset</button>
+                </>
+              )}
+              <button onClick={endInteraction} className="btn-secondary">✖️ End</button>
+            </div>
+            {/* Inline vote counts */}
+            {activeInteraction.type === 'vote' && activeInteraction.options && (
+              <div className="vote-counts-inline">
+                {activeInteraction.options.map(opt => (
+                  <span key={opt.id} className="vote-count-chip">
+                    {opt.emoji} {voteCounts[opt.id] || 0}
+                  </span>
                 ))}
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* ============ BEAST OF RIDGEFALL - PRIMARY CONTROLS ============ */}
+        
+        {/* Monster Builder */}
+        <section className="admin-card config-card monster-builder-card">
+          <h2>🐲 Monster Builder</h2>
+          <p className="card-hint">Audience picks ALL 4 parts at once. Results aggregate. Dramatic reveal!</p>
+          
+          {/* Monster Builder Status */}
+          {monsterBuilderState && (
+            <div className="monster-builder-status">
+              <div className="status-grid">
+                <div className="status-item">
+                  <span className="status-label">Status</span>
+                  <span className={`status-value ${monsterBuilderState.status}`}>
+                    {monsterBuilderState.status.toUpperCase()}
+                  </span>
+                </div>
+                <div className="status-item">
+                  <span className="status-label">Submissions</span>
+                  <span className="status-value">
+                    {Object.keys(monsterBuilderState.submissions || {}).length}
+                  </span>
+                </div>
+                {monsterBuilderState.status === 'revealing' && (
+                  <div className="status-item">
+                    <span className="status-label">Reveal Step</span>
+                    <span className="status-value">
+                      {monsterBuilderState.revealStep}/5
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Vote Counts Preview */}
+              {monsterBuilderState.results.counts && (
+                <div className="builder-counts">
+                  <h4>Current Leaders:</h4>
+                  <div className="counts-grid">
+                    {BUILDER_PART_ORDER.map(part => {
+                      const counts = monsterBuilderState.results.counts[part] || {};
+                      const leader = calculateWinner(counts);
+                      const leaderCount = counts[leader] || 0;
+                      return (
+                        <div key={part} className="count-item">
+                          <span className="count-part">{part}:</span>
+                          <span className="count-leader">
+                            {leader ? `${leader} (${leaderCount})` : '—'}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Winners (after closed) */}
+              {(monsterBuilderState.status === 'closed' || monsterBuilderState.status === 'revealing' || monsterBuilderState.status === 'complete') && (
+                <div className="builder-winners">
+                  <h4>Winning Combo:</h4>
+                  <div className="admin-winner-emojis">
+                    {BUILDER_PART_ORDER.map(part => {
+                      const winner = monsterBuilderState.results[part];
+                      const config = MONSTER_BUILDER_CONFIG.find(c => c.category === part);
+                      const emoji = config?.options.find(o => o.id === winner)?.emoji || '❓';
+                      return (
+                        <span key={part} className="admin-winner-emoji" title={`${part}: ${winner}`}>
+                          {emoji}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Builder Controls */}
+              <div className="builder-controls">
+                {monsterBuilderState.status === 'building' && (
+                  <button onClick={closeMonsterBuilder} className="btn-warning">
+                    🛑 Close Submissions
+                  </button>
+                )}
+                {monsterBuilderState.status === 'closed' && (
+                  <button onClick={startMonsterBuilderReveal} className="btn-epic">
+                    🎭 START REVEAL!
+                  </button>
+                )}
+                {monsterBuilderState.status === 'revealing' && monsterBuilderState.revealStep < 5 && (
+                  <button onClick={advanceBuilderReveal} className="btn-success">
+                    ▶️ Next Part ({BUILDER_PART_ORDER[monsterBuilderState.revealStep] || 'Complete'})
+                  </button>
+                )}
+                {(monsterBuilderState.status === 'revealing' || monsterBuilderState.status === 'complete') && (
+                  <button onClick={endInteraction} className="btn-secondary">
+                    ✖️ End
+                  </button>
+                )}
+                <button onClick={resetMonsterBuilder} className="btn-danger">
+                  🔄 Reset
+                </button>
               </div>
             </div>
           )}
+
+          <button 
+            onClick={activateMonsterBuilder} 
+            className="btn-primary launch-btn"
+            disabled={activeInteraction.type !== 'none'}
+          >
+            🐲 Open Monster Builder
+          </button>
         </section>
 
-        {/* Quick Actions */}
-        {activeInteraction.type !== 'none' && (
-          <section className="admin-card actions-card">
-            <h2>Quick Actions</h2>
-            <div className="action-buttons">
-              {activeInteraction.isOpen ? (
-                <button onClick={closeVoting} className="btn-warning">
-                  🛑 Close Voting
+        {/* Villager Submission Control */}
+        <section className="admin-card config-card villager-card">
+          <h2>🏘️ Villager Submissions</h2>
+          <p className="card-hint">Audience creates NPCs with items. Some items are "hoard items"!</p>
+          
+          {/* Current Status */}
+          {activeInteraction.type === 'villager-submit' && (
+            <div className="villager-status">
+              <div className="status-grid">
+                <div className="status-item">
+                  <span className="status-label">Submissions</span>
+                  <span className="status-value">{villagerSubmissions.length}</span>
+                </div>
+                <div className="status-item">
+                  <span className="status-label">Hoard Items</span>
+                  <span className="status-value hoard">
+                    {villagerSubmissions.filter(v => v.isHoardItem).length}
+                  </span>
+                </div>
+              </div>
+
+              {/* Villager Controls */}
+              <div className="villager-controls">
+                {villagerStatus === 'collecting' && (
+                  <button onClick={closeVillagerSubmission} className="btn-warning">
+                    🛑 Close Submissions
+                  </button>
+                )}
+                {villagerStatus === 'closed' && (
+                  <button onClick={displayVillagers} className="btn-success">
+                    📺 Show on Stream
+                  </button>
+                )}
+                <button onClick={endInteraction} className="btn-secondary">
+                  ✖️ End
                 </button>
-              ) : (
-                <button onClick={reopenVoting} className="btn-success">
-                  ▶️ Reopen Voting
-                </button>
-              )}
-              <button onClick={resetVotes} className="btn-danger">
-                🔄 Reset Votes
-              </button>
-              <button onClick={endInteraction} className="btn-secondary">
-                ✖️ End Interaction
-              </button>
+              </div>
             </div>
-          </section>
-        )}
+          )}
+
+          {/* Submissions List - Enhanced for GM reading */}
+          {villagerSubmissions.length > 0 && (
+            <div className="submissions-list">
+              <h4>Villagers ({villagerSubmissions.filter(v => v.status !== 'hidden').length} approved, {villagerSubmissions.filter(v => v.status === 'hidden').length} hidden)</h4>
+              
+              {/* Approved Villagers */}
+              <div className="submissions-scroll">
+                {villagerSubmissions
+                  .filter(v => v.status !== 'hidden')
+                  .map((v) => {
+                    const item = getItemById(v.item);
+                    const pronounLabel = PRONOUNS_OPTIONS.find(p => p.id === v.pronouns)?.label || v.pronouns;
+                    return (
+                      <div 
+                        key={`${v.submittedBy}-${v.submittedAt}`}
+                        className={`npc-card ${v.isHoardItem ? 'hoard' : ''}`}
+                      >
+                        <div className="npc-card-header">
+                          <span className="npc-name">"{v.name}"</span>
+                          <span className="npc-pronouns">({pronounLabel})</span>
+                          <div className="npc-actions">
+                            <button 
+                              className="btn-icon btn-hide" 
+                              onClick={() => toggleVillagerStatus(v, 'hidden')}
+                              title="Hide this NPC"
+                            >
+                              ✗
+                            </button>
+                          </div>
+                        </div>
+                        <div className="npc-card-details">
+                          <span className="npc-species-bg">{v.species} {v.background}</span>
+                          <span className="npc-item">
+                            {item?.emoji || '📦'} {v.itemName}
+                            {v.isHoardItem && <span className="hoard-badge">⭐ Hoard</span>}
+                          </span>
+                        </div>
+                        {v.quirk && (
+                          <p className="npc-quirk">"{v.quirk}"</p>
+                        )}
+                      </div>
+                    );
+                  })}
+              </div>
+              
+              {/* Hidden Villagers (Collapsed) */}
+              {villagerSubmissions.filter(v => v.status === 'hidden').length > 0 && (
+                <div className="hidden-section">
+                  <button 
+                    className="hidden-toggle"
+                    onClick={() => setShowHiddenVillagers(!showHiddenVillagers)}
+                  >
+                    {showHiddenVillagers ? '▼' : '▶'} Hidden ({villagerSubmissions.filter(v => v.status === 'hidden').length})
+                  </button>
+                  
+                  {showHiddenVillagers && (
+                    <div className="hidden-list">
+                      {villagerSubmissions
+                        .filter(v => v.status === 'hidden')
+                        .map((v) => (
+                          <div 
+                            key={`${v.submittedBy}-${v.submittedAt}`}
+                            className="npc-card hidden"
+                          >
+                            <div className="npc-card-header">
+                              <span className="npc-name">"{v.name}"</span>
+                              <div className="npc-actions">
+                                <button 
+                                  className="btn-icon btn-restore" 
+                                  onClick={() => toggleVillagerStatus(v, 'approved')}
+                                  title="Restore this NPC"
+                                >
+                                  ✓
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          <button 
+            onClick={activateVillagerSubmission} 
+            className="btn-primary launch-btn"
+            disabled={activeInteraction.type !== 'none'}
+          >
+            🏘️ Open Villager Submissions
+          </button>
+        </section>
+
+        {/* ============ UTILITY FEATURES ============ */}
 
         {/* Vote Configuration */}
         <section className="admin-card config-card">
@@ -699,37 +1199,7 @@ export default function AdminPanel() {
           </button>
         </section>
 
-        {/* NPC Naming Config */}
-        <section className="admin-card config-card">
-          <h2>🧙 NPC Naming</h2>
-          <div className="form-group">
-            <label>NPC Description</label>
-            <textarea
-              value={npcConfig.description}
-              onChange={(e) => setNpcConfig({ ...npcConfig, description: e.target.value })}
-              placeholder="A mysterious tavern keeper..."
-              rows={2}
-            />
-          </div>
-          <div className="form-group">
-            <label>Selection Mode</label>
-            <select
-              value={npcConfig.selectionMode}
-              onChange={(e) => setNpcConfig({ ...npcConfig, selectionMode: e.target.value })}
-            >
-              <option value="random">Random Pick</option>
-              <option value="vote">Audience Vote</option>
-              <option value="gm-pick">GM Picks</option>
-            </select>
-          </div>
-          <button 
-            onClick={activateNpcNaming} 
-            className="btn-primary"
-            disabled={activeInteraction.type !== 'none'}
-          >
-            🚀 Launch NPC Naming
-          </button>
-        </section>
+
 
         {/* Group Roll Config */}
         <section className="admin-card config-card">
@@ -787,6 +1257,7 @@ export default function AdminPanel() {
             🚀 Launch Group Roll
           </button>
         </section>
+
       </div>
     </div>
   );
