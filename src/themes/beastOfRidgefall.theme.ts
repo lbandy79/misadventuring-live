@@ -18,43 +18,43 @@ export const beastOfRidgefallTheme: TMPTheme = {
   system: 'universal',
 
   colors: {
-    // Primary - Sapphire (royal, trustworthy)
-    primary: '#2E5BBA',
-    // Secondary - Emerald (forest, nature)
-    secondary: '#2E8B57',
-    // Tertiary - Amethyst (magic, mystery)
-    tertiary: '#9B59B6',
-    // Accent - Topaz Gold (treasure, warmth)
-    accent: '#D4AF37',
+    // Primary - Vivid Sapphire Blue
+    primary: '#6BA3FF',      // Bright sky blue
+    // Secondary - Vivid Emerald Green
+    secondary: '#5EE89C',    // Bright mint green
+    // Tertiary - Vivid Amethyst Purple
+    tertiary: '#D4A5FF',     // Bright lavender
+    // Accent - Brilliant Gold
+    accent: '#FFE066',       // Bright sunny gold
     
-    // Backgrounds - Rich Stone
+    // Backgrounds - Higher contrast warm tones
     background: {
-      main: '#1A1D21',       // Deep dungeon stone
-      card: '#252A30',       // Weathered stone
-      elevated: '#323940',   // Torch-lit stone
+      main: '#1A1612',       // Rich dark brown
+      card: '#2E2720',       // Warmer visible brown
+      elevated: '#403830',   // Light brown (visible)
     },
     
-    // Text
+    // Text - Maximum readability
     text: {
-      primary: '#F5F0E6',    // Aged parchment
-      secondary: '#A8B4C4',  // Moonlit grey
-      onPrimary: '#0D0F12',  // Ink black
+      primary: '#FFFFFF',    // Pure white for max contrast
+      secondary: '#E0D4C0',  // Warm cream
+      onPrimary: '#0A0806',  // Near black
     },
     
-    // Voting colors - Jewel themed
+    // Voting colors - Extra bright jewel tones
     voting: {
-      optionA: '#2E5BBA',    // Sapphire
-      optionB: '#2E8B57',    // Emerald
-      optionC: '#9B59B6',    // Amethyst
-      progressTrack: '#1A1D21', // Deep stone background
+      optionA: '#6BA3FF',    // Bright blue
+      optionB: '#5EE89C',    // Bright green
+      optionC: '#D4A5FF',    // Bright purple
+      progressTrack: '#1A1612',
     },
     
-    // Status colors
+    // Status colors - High visibility
     status: {
-      success: '#2E8B57',    // Emerald
-      error: '#C41E3A',      // Ruby
-      warning: '#D4AF37',    // Topaz gold
-      info: '#2E5BBA',       // Sapphire
+      success: '#5EE89C',    // Bright green
+      error: '#FF7B7B',      // Bright coral
+      warning: '#FFE066',    // Bright gold
+      info: '#6BA3FF',       // Bright blue
     },
   },
 
@@ -111,7 +111,15 @@ export const beastOfRidgefallTheme: TMPTheme = {
     victory: '/sounds/beast-of-ridgefall/victory.mp3',
     uiClick: '/sounds/beast-of-ridgefall/ui-click.mp3',
     error: '/sounds/beast-of-ridgefall/error.mp3',
-    ambient: '/sounds/beast-of-ridgefall/ambient.mp3',
+    ambient: '/sounds/beast-of-ridgefall/ambient-village.mp3',
+    // Extended ambient options
+    ambientTavern: '/sounds/beast-of-ridgefall/ambient-tavern.mp3',
+    ambientForest: '/sounds/beast-of-ridgefall/ambient-forest.mp3',
+    ambientMystery: '/sounds/beast-of-ridgefall/ambient-mystery.mp3',
+    // Battle music
+    battleCombat: '/sounds/beast-of-ridgefall/battle-combat.mp3',
+    battleBoss: '/sounds/beast-of-ridgefall/battle-boss.mp3',
+    battleTension: '/sounds/beast-of-ridgefall/battle-tension.mp3',
   },
 
   effects: {
@@ -126,13 +134,14 @@ export const beastOfRidgefallTheme: TMPTheme = {
       small: '0 2px 4px rgba(0, 0, 0, 0.3)',
       medium: '0 4px 12px rgba(0, 0, 0, 0.4)',
       large: '0 8px 24px rgba(0, 0, 0, 0.5)',
-      glow: '0 0 20px rgba(91, 155, 213, 0.4)',  // Sky blue glow
+      glow: '0 0 25px rgba(255, 224, 102, 0.5)',  // Bright gold glow
     },
     backgroundEffects: {
       main: `
-        radial-gradient(ellipse at 30% 20%, rgba(91, 155, 213, 0.10) 0%, transparent 50%),
-        radial-gradient(ellipse at 70% 80%, rgba(74, 124, 89, 0.08) 0%, transparent 50%),
-        linear-gradient(180deg, #2C2F33 0%, #3A3F44 100%)
+        radial-gradient(ellipse at 20% 10%, rgba(107, 163, 255, 0.18) 0%, transparent 40%),
+        radial-gradient(ellipse at 80% 90%, rgba(94, 232, 156, 0.15) 0%, transparent 40%),
+        radial-gradient(ellipse at 50% 50%, rgba(212, 165, 255, 0.12) 0%, transparent 50%),
+        linear-gradient(160deg, #1A1612 0%, #2E2720 50%, #1A1612 100%)
       `,
       overlay: 'none',
     },

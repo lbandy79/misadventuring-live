@@ -386,6 +386,22 @@ const ThemeAudioPacks: Record<ThemeId, ThemeAudioPack> = {
     ambientUrl: null,   // '/audio/neon-nightmares/synth-drone.webm'
     battleMusicUrl: null, // '/audio/neon-nightmares/chase-synth.webm'
   },
+  'beast-of-ridgefall': {
+    spriteUrl: null, // No sprite yet - uses synth fallback
+    sprites: {
+      votecast: [0, 200],
+      timerTick: [200, 100],
+      timerEnd: [300, 600],
+      victory: [900, 800],
+      error: [1700, 300],
+      uiClick: [2000, 100],
+      whoosh: [2100, 350],
+      diceRoll: [2450, 500],
+      diceImpact: [2950, 200],
+    },
+    ambientUrl: '/sounds/beast-of-ridgefall/ambient-village.mp3',
+    battleMusicUrl: '/sounds/beast-of-ridgefall/battle-combat.mp3',
+  },
 };
 
 // =============================================================================
@@ -641,6 +657,57 @@ class AudioMixer {
         fadeOutMs
       );
     }
+  }
+
+  /**
+   * Switch ambient track to a different URL
+   */
+  switchAmbient(trackUrl: string, fadeMs = 1500): void {
+    // Fade out current ambient if playing
+    if (this.ambientLoop) {
+      this.ambientLoop.fade(this.ambientLoop.volume(), 0, fadeMs);
+      setTimeout(() => {
+        this.ambientLoop?.stop();
+        this.ambientLoop?.unload();
+        this.loadAndPlayAmbient(trackUrl, fadeMs);
+      }, fadeMs);
+    } else {
+      this.loadAndPlayAmbient(trackUrl, fadeMs);
+    }
+  }
+
+  private loadAndPlayAmbient(trackUrl: string, fadeInMs: number): void {
+    this.ambientLoop = new Howl({
+      src: [trackUrl],
+      loop: true,
+      volume: 0,
+      preload: true,
+      onload: () => {
+        this.ambientLoop?.play();
+        this.ambientLoop?.fade(0, this.config.ambientVolume * this.config.masterVolume, fadeInMs);
+      },
+      onloaderror: (_id, err) => {
+        console.warn(`Failed to load ambient track: ${trackUrl}`, err);
+      },
+    });
+  }
+
+  /**
+   * Switch battle music to a different URL
+   */
+  switchBattleMusic(trackUrl: string): void {
+    // Stop current battle music
+    if (this.battleMusic) {
+      this.battleMusic.stop();
+      this.battleMusic.unload();
+    }
+
+    this.battleMusic = new Howl({
+      src: [trackUrl],
+      loop: true,
+      volume: 0,
+      preload: true,
+    });
   }
 
   /**

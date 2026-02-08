@@ -76,6 +76,9 @@ export default function AdminPanel() {
   const [voteCounts, setVoteCounts] = useState<Record<string, number>>({});
   const [participantCount, setParticipantCount] = useState(0);
   const [isBattleMusicPlaying, setIsBattleMusicPlaying] = useState(false);
+  const [isAmbientPlaying, setIsAmbientPlaying] = useState(false);
+  const [selectedAmbient, setSelectedAmbient] = useState('village');
+  const [selectedBattle, setSelectedBattle] = useState('combat');
   const { themeId, setThemeId } = useTheme();
   
   // ============ BEAST OF RIDGEFALL STATE ============
@@ -119,13 +122,31 @@ export default function AdminPanel() {
     broadcastCue(`shake-${intensity}` as 'shake-light' | 'shake-heavy' | 'shake-earthquake');
   };
 
-  const broadcastAmbient = (start: boolean) => {
+  const broadcastAmbient = (start: boolean, track?: string) => {
     if (start) {
-      startAmbient();
+      // Always use the track-specific path, never the default theme ambient
+      const trackName = track || selectedAmbient || 'village';
+      audioMixer.switchAmbient(`/sounds/beast-of-ridgefall/ambient-${trackName}.mp3`);
+      setIsAmbientPlaying(true);
     } else {
       stopAmbient();
+      setIsAmbientPlaying(false);
     }
     broadcastCue(start ? 'ambient-start' : 'ambient-stop');
+  };
+
+  const switchAmbientTrack = (track: string) => {
+    setSelectedAmbient(track);
+    // Always switch track - if playing, crossfade to new track
+    // If not playing, just prepare it for when user clicks play
+    if (isAmbientPlaying) {
+      audioMixer.switchAmbient(`/sounds/beast-of-ridgefall/ambient-${track}.mp3`);
+    }
+  };
+
+  const switchBattleTrack = (track: string) => {
+    setSelectedBattle(track);
+    audioMixer.switchBattleMusic(`/sounds/beast-of-ridgefall/battle-${track}.mp3`);
   };
 
   // Check session storage for existing auth
@@ -1062,6 +1083,17 @@ export default function AdminPanel() {
             {/* Battle Music */}
             <div className="cue-group">
               <h3>⚔️ Battle Mode</h3>
+              <div className="music-track-select">
+                <label>Track:</label>
+                <select 
+                  value={selectedBattle} 
+                  onChange={(e) => switchBattleTrack(e.target.value)}
+                >
+                  <option value="combat">⚔️ Combat</option>
+                  <option value="boss">👹 Boss Fight</option>
+                  <option value="tension">😰 Tension</option>
+                </select>
+              </div>
               <div className="cue-buttons">
                 <button 
                   className={`cue-btn battle ${isBattleMusicPlaying ? 'active' : ''}`}
@@ -1075,25 +1107,33 @@ export default function AdminPanel() {
               </small>
             </div>
 
-            {/* Ambient */}
+            {/* Ambient Music */}
             <div className="cue-group">
-              <h3>🌊 Ambient</h3>
+              <h3>🌊 Ambient Music</h3>
+              <div className="music-track-select">
+                <label>Track:</label>
+                <select 
+                  value={selectedAmbient} 
+                  onChange={(e) => switchAmbientTrack(e.target.value)}
+                >
+                  <option value="village">🏘️ Village</option>
+                  <option value="tavern">🍺 Tavern</option>
+                  <option value="forest">🌲 Forest</option>
+                  <option value="mystery">🔮 Mystery</option>
+                </select>
+              </div>
               <div className="cue-buttons">
                 <button 
-                  className="cue-btn ambient"
-                  onClick={() => broadcastAmbient(true)}
-                  title="Start ambient loop on all displays"
+                  className={`cue-btn ambient ${isAmbientPlaying ? 'active' : ''}`}
+                  onClick={() => broadcastAmbient(!isAmbientPlaying, selectedAmbient)}
+                  title={isAmbientPlaying ? 'Stop ambient' : 'Start ambient loop on all displays'}
                 >
-                  ▶️ Start Ambient
-                </button>
-                <button 
-                  className="cue-btn ambient"
-                  onClick={() => broadcastAmbient(false)}
-                  title="Stop ambient loop on all displays"
-                >
-                  ⏹️ Stop
+                  {isAmbientPlaying ? '⏹️ Stop Ambient' : '▶️ Start Ambient'}
                 </button>
               </div>
+              <small className="cue-hint">
+                {isAmbientPlaying ? `Playing: ${selectedAmbient}` : 'Ambient music syncs to all displays'}
+              </small>
             </div>
 
             {/* Celebrations */}
