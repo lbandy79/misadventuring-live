@@ -21,17 +21,17 @@ export const beastOfRidgefallTheme: TMPTheme = {
     // Primary - Dragon's Lair Amber-Orange (Dirk's armor)
     primary: '#E8872A',      // Amber-orange
     // Secondary - Castle Purple (Dragon's sky)
-    secondary: '#6B2FA0',    // Deep castle purple
+    secondary: '#06010b',    // Deep castle purple
     // Tertiary - Mystical Violet
     tertiary: '#9B30FF',     // Bright violet
     // Accent - Orange (main call-to-action)
     accent: '#E8872A',       // Orange for buttons/highlights
     
-    // Backgrounds - Deep purple-black
+    // Backgrounds - Rich purple
     background: {
-      main: '#0D0618',       // Deep purple-black
-      card: '#120B20',       // Purple-tinted dark
-      elevated: '#1A1230',   // Slightly elevated purple
+      main: '#1A0A3E',       // Rich purple
+      card: '#261548',       // Warm purple card
+      elevated: '#2E1B52',   // Lighter purple elevated
     },
     
     // Text - Light text for dark background
@@ -46,7 +46,7 @@ export const beastOfRidgefallTheme: TMPTheme = {
       optionA: '#E8872A',    // Amber-orange
       optionB: '#6B2FA0',    // Castle purple
       optionC: '#9B30FF',    // Bright violet
-      progressTrack: '#1A1230',
+      progressTrack: '#2E1B52',
     },
     
     // Status colors
@@ -139,9 +139,9 @@ export const beastOfRidgefallTheme: TMPTheme = {
     backgroundEffects: {
       main: `
         radial-gradient(ellipse at 50% 0%, rgba(232, 135, 42, 0.08) 0%, transparent 50%),
-        radial-gradient(ellipse at 20% 80%, rgba(107, 47, 160, 0.1) 0%, transparent 40%),
+        radial-gradient(ellipse at 20% 80%, rgba(107, 47, 160, 0.15) 0%, transparent 40%),
         radial-gradient(ellipse at 80% 60%, rgba(232, 135, 42, 0.06) 0%, transparent 50%),
-        linear-gradient(180deg, #0D0618 0%, #120B20 40%, #0D0618 100%)
+        linear-gradient(180deg, #1A0A3E 0%, #261548 40%, #1A0A3E 100%)
       `,
       overlay: 'none',
     },

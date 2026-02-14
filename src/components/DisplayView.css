@@ -1,7 +1,7 @@
 .display-container {
   min-height: 100vh;
   /* Fallback if CSS vars not loaded */
-  background: var(--bg-primary, var(--tmp-bg-main, #0D0618));
+  background: var(--bg-primary, var(--tmp-bg-main, #1A0A3E));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -9,9 +9,9 @@
   position: relative;
 }
 
-/* Beast of Ridgefall theme override - Dragon's Lair purple-black */
+/* Beast of Ridgefall theme override - Dragon's Lair purple */
 [data-theme="beast-of-ridgefall"] .display-container {
-  background: #0D0618;
+  background: #1A0A3E;
 }
 
 /* Sound toggle */
