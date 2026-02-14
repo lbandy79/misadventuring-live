@@ -44,7 +44,8 @@ interface VotesData {
 export default function DisplayView() {
   const [activeInteraction, setActiveInteraction] = useState<ActiveInteraction>({ type: 'none' });
   const [votes, setVotes] = useState<VotesData>({});
-  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [soundEnabled, setSoundEnabled] = useState(false);  // Audio locked until user gesture
+  const [audioUnlocked, setAudioUnlocked] = useState(false);  // Shows unlock overlay
   const [isShaking, setIsShaking] = useState(false);
   const [showWinnerReveal, setShowWinnerReveal] = useState(false);
   const [builderData, setBuilderData] = useState<{ status?: string } | null>(null);
@@ -93,6 +94,7 @@ export default function DisplayView() {
     initAudio();
     audioMixer.init();
     setSoundEnabled(true);
+    setAudioUnlocked(true);
   };
 
   // Listen to active interaction with sound effects
@@ -294,6 +296,16 @@ export default function DisplayView() {
 
   return (
     <div className={`display-container crt-overlay ${isShaking ? 'shake-intense' : ''}`}>
+      {/* Audio unlock overlay - browsers require user gesture to enable audio */}
+      {!audioUnlocked && (
+        <div className="audio-unlock-overlay" onClick={handleEnableSound}>
+          <div className="audio-unlock-content">
+            <TMPSoundOff size={48} />
+            <span>Click anywhere to enable sound</span>
+          </div>
+        </div>
+      )}
+
       {/* Vote Particles Layer - Simple DOM version */}
       <VoteParticlesSimple enabled={activeInteraction.type === 'vote'} />
 
