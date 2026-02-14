@@ -350,7 +350,7 @@ export function useAwesomeMix() {
       // CRITICAL SUCCESS! 
       tl.call(() => {
         playSound('victory');
-        celebrateWinner({ intensity: 'legendary', colors: ['#FFD700', '#FFFF00', '#FFA500'] });
+        celebrateWinner({ intensity: 'legendary', colors: ['#E8872A', '#9B30FF', '#6B2FA0'] });
       });
 
       tl.to(diceElement, {
@@ -360,7 +360,7 @@ export function useAwesomeMix() {
       });
 
       tl.to(diceElement, {
-        boxShadow: '0 0 50px #FFD700, 0 0 100px #FFA500',
+        boxShadow: '0 0 50px #E8872A, 0 0 100px #9B30FF',
         duration: 0.2,
       }, '<');
     } else if (isNat1) {
@@ -564,6 +564,7 @@ function getThemeConfettiColors(themeId: ThemeId): string[] {
     'tmp-base': ['#FF1493', '#00CED1', '#FFD700', '#FF6B6B', '#4ECDC4'],
     'soggy-bottom-pirates': ['#E4A11B', '#4A90A4', '#5C4033', '#F5E6D3', '#FF6B35'],
     'neon-nightmares': ['#FF00FF', '#00FFFF', '#FF0080', '#80FF00', '#FFFF00'],
+    'beast-of-ridgefall': ['#E8872A', '#9B30FF', '#6B2FA0', '#C4A8E0', '#FFE0B2'],
   };
 
   return themeColors[themeId] || themeColors['tmp-base'];

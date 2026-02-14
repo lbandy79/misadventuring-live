@@ -268,7 +268,7 @@ export default function MonsterBuilderDisplay({ onComplete }: MonsterBuilderDisp
 
       // Glow pulse
       tl.to(compilationRef.current, {
-        boxShadow: '0 0 80px rgba(228, 161, 27, 0.9), 0 0 150px rgba(228, 161, 27, 0.5)',
+        boxShadow: '0 0 80px rgba(232, 135, 42, 0.9), 0 0 150px rgba(232, 135, 42, 0.5)',
         duration: 0.6,
         repeat: 3,
         yoyo: true,
@@ -300,8 +300,8 @@ export default function MonsterBuilderDisplay({ onComplete }: MonsterBuilderDisp
             <motion.span 
               className="counter-number"
               key={`count-${submissionCount}`}
-              initial={{ scale: 1.4, color: '#DAA520' }}
-              animate={{ scale: 1, color: '#e4a11b' }}
+              initial={{ scale: 1.4, color: '#E8872A' }}
+              animate={{ scale: 1, color: '#E8872A' }}
               transition={{ duration: 0.4 }}
             >
               {submissionCount}

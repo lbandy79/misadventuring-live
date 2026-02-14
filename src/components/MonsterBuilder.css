@@ -17,7 +17,7 @@
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: #fff;
-  text-shadow: 0 0 20px rgba(228, 161, 27, 0.5);
+  text-shadow: 0 0 20px rgba(232, 135, 42, 0.5);
   margin-bottom: 1rem;
 }
 
@@ -42,7 +42,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.15em;
-  color: #e4a11b;
+  color: #E8872A;
   margin-bottom: 0.5rem;
   padding-left: 0.25rem;
 }
@@ -74,13 +74,13 @@
 
 .part-option:hover {
   background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(228, 161, 27, 0.5);
+  border-color: rgba(232, 135, 42, 0.5);
 }
 
 .part-option.selected {
-  background: rgba(228, 161, 27, 0.2);
-  border-color: #e4a11b;
-  box-shadow: 0 0 15px rgba(228, 161, 27, 0.4);
+  background: rgba(232, 135, 42, 0.2);
+  border-color: #E8872A;
+  box-shadow: 0 0 15px rgba(232, 135, 42, 0.4);
 }
 
 .selected-indicator {
@@ -108,9 +108,9 @@
   gap: 0.25rem;
   margin: 1rem 0;
   padding: 0.75rem 1.5rem;
-  background: rgba(228, 161, 27, 0.15);
+  background: rgba(232, 135, 42, 0.15);
   border-radius: 12px;
-  border: 1px solid rgba(228, 161, 27, 0.3);
+  border: 1px solid rgba(232, 135, 42, 0.3);
 }
 
 .preview-label {
@@ -153,13 +153,13 @@
 }
 
 .submit-btn.ready {
-  background: linear-gradient(135deg, #e4a11b 0%, #f5c842 100%);
+  background: linear-gradient(135deg, #E8872A 0%, #f0a050 100%);
   color: #1a1a2e;
-  box-shadow: 0 4px 20px rgba(228, 161, 27, 0.4);
+  box-shadow: 0 4px 20px rgba(232, 135, 42, 0.4);
 }
 
 .submit-btn.ready:hover {
-  box-shadow: 0 6px 30px rgba(228, 161, 27, 0.6);
+  box-shadow: 0 6px 30px rgba(232, 135, 42, 0.6);
 }
 
 .submit-btn.disabled {
@@ -211,8 +211,8 @@
 }
 
 @keyframes pulse-glow {
-  0%, 100% { filter: drop-shadow(0 0 10px rgba(228, 161, 27, 0.5)); }
-  50% { filter: drop-shadow(0 0 25px rgba(228, 161, 27, 0.8)); }
+  0%, 100% { filter: drop-shadow(0 0 10px rgba(232, 135, 42, 0.5)); }
+  50% { filter: drop-shadow(0 0 25px rgba(232, 135, 42, 0.8)); }
 }
 
 .waiting-message {
@@ -262,7 +262,7 @@
 .builder-closed h2,
 .builder-reveal-waiting h2 {
   font-size: 1.5rem;
-  color: #e4a11b;
+  color: #E8872A;
   margin-bottom: 0.5rem;
 }
 

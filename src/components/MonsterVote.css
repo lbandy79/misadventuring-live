@@ -158,7 +158,7 @@
 
 .monster-vote-btn.selected {
   border-color: var(--accent);
-  box-shadow: 0 0 20px rgba(228, 161, 27, 0.4);
+  box-shadow: 0 0 20px rgba(232, 135, 42, 0.4);
   transform: scale(1.02);
 }
 

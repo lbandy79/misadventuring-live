@@ -302,8 +302,8 @@ export default function MonsterBuilder({ sessionId }: MonsterBuilderProps) {
                     whileHover={{ scale: 1.08 }}
                     whileTap={{ scale: 0.92 }}
                     animate={isSelected ? {
-                      boxShadow: '0 0 20px rgba(218, 165, 32, 0.5)',
-                      borderColor: '#DAA520',
+                      boxShadow: '0 0 20px rgba(232, 135, 42, 0.5)',
+                      borderColor: '#E8872A',
                     } : {
                       boxShadow: '0 0 0px rgba(0,0,0,0)',
                       borderColor: 'rgba(255,255,255,0.15)',

@@ -90,7 +90,7 @@
 
 .villager-card.featured {
   border-color: var(--accent);
-  box-shadow: 0 0 20px rgba(228, 161, 27, 0.3);
+  box-shadow: 0 0 20px rgba(232, 135, 42, 0.3);
 }
 
 .featured-badge {
@@ -379,5 +379,5 @@
 
 .arrival-text strong {
   font-family: var(--font-heading, 'Cinzel', serif);
-  color: #ffd700;
+  color: var(--tmp-color-primary, #E8872A);
 }

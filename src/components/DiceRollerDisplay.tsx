@@ -220,7 +220,7 @@ export default function DiceRollerDisplay({ testData }: DiceRollerDisplayProps) 
 
       tl.to(dice, {
         scale: 1.5,
-        boxShadow: '0 0 60px #FFD700, 0 0 120px #FFA500, 0 0 180px #FFD700',
+        boxShadow: '0 0 60px #E8872A, 0 0 120px #9B30FF, 0 0 180px #E8872A',
         duration: 0.4,
         ease: 'back.out(2)',
       });

@@ -120,10 +120,11 @@ export function quickCelebration(origin?: { x: number; y: number }): void {
 /**
  * Themed confetti - matches current campaign theme
  */
-export function themedCelebration(theme: 'soggy-bottom-pirates' | 'neon-nightmares'): void {
+export function themedCelebration(theme: 'soggy-bottom-pirates' | 'neon-nightmares' | 'beast-of-ridgefall'): void {
   const themeColors = {
     'soggy-bottom-pirates': ['#E4A11B', '#4A90A4', '#5C4033', '#F5E6D3', '#FF6B35'],
     'neon-nightmares': ['#FF00FF', '#00FFFF', '#FF0080', '#80FF00', '#FFFF00'],
+    'beast-of-ridgefall': ['#E8872A', '#9B30FF', '#6B2FA0', '#C4A8E0', '#FFE0B2'],
   };
   
   celebrateWinner({
@@ -138,7 +139,7 @@ export function themedCelebration(theme: 'soggy-bottom-pirates' | 'neon-nightmar
 export function fireworks(duration: number = 3000): void {
   const instance = confettiInstance || confetti;
   const end = Date.now() + duration;
-  const colors = ['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4'];
+  const colors = ['#E8872A', '#9B30FF', '#6B2FA0', '#C4A8E0', '#FFE0B2'];
 
   const frame = () => {
     instance({

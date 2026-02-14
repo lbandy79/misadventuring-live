@@ -150,7 +150,7 @@ export default function MonsterReveal({ show, onComplete }: MonsterRevealProps) 
       
       // Glow pulse
       tl.to(monsterNameRef.current, {
-        boxShadow: '0 0 60px rgba(228, 161, 27, 0.8), 0 0 100px rgba(228, 161, 27, 0.4)',
+        boxShadow: '0 0 60px rgba(232, 135, 42, 0.8), 0 0 100px rgba(232, 135, 42, 0.4)',
         duration: 0.5,
         repeat: 2,
         yoyo: true,

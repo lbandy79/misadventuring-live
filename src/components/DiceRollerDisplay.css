@@ -586,6 +586,34 @@
 }
 
 /* =============================================================================
+   THEME VARIANTS - BEAST OF RIDGEFALL (Dragon's Lair)
+   ============================================================================= */
+
+[data-theme="beast-of-ridgefall"] .dice-3d.nat-20 .dice-face {
+  background: linear-gradient(
+    135deg,
+    #E8872A 0%,
+    #9B30FF 50%,
+    #E8872A 100%
+  ) !important;
+}
+
+[data-theme="beast-of-ridgefall"] .roll-pip.nat-20 {
+  background: linear-gradient(135deg, #E8872A, #9B30FF);
+  box-shadow: 0 0 15px #E8872A;
+}
+
+[data-theme="beast-of-ridgefall"] .stats-grid .stat.nat-20 {
+  background: linear-gradient(135deg, rgba(232, 135, 42, 0.2), rgba(155, 48, 255, 0.1));
+  border-color: #E8872A;
+}
+
+[data-theme="beast-of-ridgefall"] .stats-grid .stat.nat-20 .value {
+  color: #E8872A;
+  text-shadow: 0 0 15px #E8872A;
+}
+
+/* =============================================================================
    REDUCED MOTION
    ============================================================================= */
 
