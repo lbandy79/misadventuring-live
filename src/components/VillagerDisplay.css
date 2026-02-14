@@ -184,8 +184,8 @@
 }
 
 .villager-card-item.hoard {
-  background: rgba(228, 161, 27, 0.15);
-  border: 1px solid rgba(228, 161, 27, 0.4);
+  background: rgba(232, 135, 42, 0.15);
+  border: 1px solid rgba(232, 135, 42, 0.4);
 }
 
 .item-icon {
@@ -196,8 +196,8 @@
 }
 
 .villager-card-item.hoard .item-icon {
-  color: #FFD700;
-  filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.5));
+  color: #F5A623;
+  filter: drop-shadow(0 0 4px rgba(245, 166, 35, 0.5));
 }
 
 .item-emoji {
@@ -222,7 +222,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  background: linear-gradient(135deg, #DAA520, #FFD700);
+  background: linear-gradient(135deg, #E8872A, #F5A623);
   color: #1a1a2e;
   padding: 0.2rem 0.6rem;
   border-radius: 4px;
@@ -233,8 +233,8 @@
 }
 
 @keyframes hoard-glow {
-  from { box-shadow: 0 0 5px rgba(218, 165, 32, 0.3); }
-  to { box-shadow: 0 0 15px rgba(218, 165, 32, 0.6), 0 0 30px rgba(218, 165, 32, 0.2); }
+  from { box-shadow: 0 0 5px rgba(232, 135, 42, 0.3); }
+  to { box-shadow: 0 0 15px rgba(232, 135, 42, 0.6), 0 0 30px rgba(232, 135, 42, 0.2); }
 }
 
 /* Carousel dots */
@@ -336,12 +336,12 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  background: linear-gradient(135deg, rgba(74, 124, 89, 0.95), rgba(91, 155, 213, 0.95));
+  background: linear-gradient(135deg, rgba(107, 47, 160, 0.95), rgba(155, 80, 220, 0.95));
   padding: 1rem 2rem;
   border-radius: 50px;
   box-shadow: 
     0 8px 32px rgba(0, 0, 0, 0.4),
-    0 0 20px rgba(91, 155, 213, 0.3);
+    0 0 20px rgba(107, 47, 160, 0.3);
   z-index: 1000;
   animation: arrival-glow 1.5s ease-in-out infinite;
 }

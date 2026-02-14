@@ -103,7 +103,7 @@ export default function VillagerDisplay({
     return (
       <div className={`villager-display villager-display--${theme.id}`}>
         <div className="villager-empty">
-          <span className="empty-emoji">🏘️</span>
+          <span className="empty-emoji">⚔️</span>
           <p>Waiting for villagers...</p>
           <span className="submission-count">0 villagers submitted</span>
         </div>
@@ -116,7 +116,7 @@ export default function VillagerDisplay({
     return (
       <div className={`villager-display villager-display--grid villager-display--${theme.id}`}>
         <div className="villager-header">
-          <h2>🏘️ The Villagers of Ridgefall</h2>
+          <h2>⚔️ The Villagers of Ridgefall</h2>
           <span className="villager-count">{displayVillagers.length} souls</span>
         </div>
         <div className="villager-grid">
@@ -139,7 +139,7 @@ export default function VillagerDisplay({
   return (
     <div className={`villager-display villager-display--carousel villager-display--${theme.id}`}>
       <div className="villager-header">
-        <h2>🏘️ Meet the Villagers</h2>
+        <h2>⚔️ Meet the Villagers</h2>
         <span className="villager-count">
           {currentIndex + 1} of {displayVillagers.length}
         </span>
