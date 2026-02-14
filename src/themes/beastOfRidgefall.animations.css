@@ -14,7 +14,7 @@
   }
   50% {
     transform: scale(1.02);
-    box-shadow: 0 6px 20px rgba(91, 155, 213, 0.3);
+    box-shadow: 0 6px 20px rgba(107, 47, 160, 0.3);
   }
 }
 
@@ -27,7 +27,7 @@
   }
   40% {
     transform: scale(1.08);
-    box-shadow: 0 0 30px rgba(91, 155, 213, 0.5);
+    box-shadow: 0 0 30px rgba(107, 47, 160, 0.5);
   }
   100% {
     transform: scale(1);
@@ -43,7 +43,7 @@
   }
   50% {
     opacity: 0.7;
-    text-shadow: 0 0 20px rgba(91, 155, 213, 0.6);
+    text-shadow: 0 0 20px rgba(107, 47, 160, 0.6);
   }
 }
 
@@ -103,14 +103,14 @@
 @keyframes bor-winner-glow {
   0%, 100% {
     box-shadow: 
-      0 0 20px rgba(91, 155, 213, 0.3),
-      inset 0 0 20px rgba(91, 155, 213, 0.1);
+      0 0 20px rgba(107, 47, 160, 0.3),
+      inset 0 0 20px rgba(107, 47, 160, 0.1);
   }
   50% {
     box-shadow: 
-      0 0 40px rgba(91, 155, 213, 0.5),
-      0 0 60px rgba(124, 179, 66, 0.3),
-      inset 0 0 30px rgba(91, 155, 213, 0.2);
+      0 0 40px rgba(107, 47, 160, 0.5),
+      0 0 60px rgba(232, 135, 42, 0.3),
+      inset 0 0 30px rgba(107, 47, 160, 0.2);
   }
 }
 
@@ -198,11 +198,11 @@
   }
   50% {
     transform: scale(1.05);
-    box-shadow: 0 4px 16px rgba(91, 155, 213, 0.4);
+    box-shadow: 0 4px 16px rgba(107, 47, 160, 0.4);
   }
   100% {
     transform: scale(1);
-    box-shadow: 0 3px 12px rgba(91, 155, 213, 0.3);
+    box-shadow: 0 3px 12px rgba(107, 47, 160, 0.3);
   }
 }
 
@@ -295,10 +295,10 @@
 
 @keyframes bor-qr-glow {
   0%, 100% {
-    box-shadow: 0 0 15px rgba(232, 84, 107, 0.3);
+    box-shadow: 0 0 15px rgba(155, 80, 220, 0.3);
   }
   50% {
-    box-shadow: 0 0 25px rgba(232, 84, 107, 0.5);
+    box-shadow: 0 0 25px rgba(155, 80, 220, 0.5);
   }
 }
 
@@ -375,8 +375,8 @@
     ellipse at center,
     transparent 0%,
     transparent 50%,
-    rgba(10, 38, 84, 0.4) 80%,
-    rgba(10, 38, 84, 0.7) 100%
+    rgba(13, 6, 24, 0.4) 80%,
+    rgba(13, 6, 24, 0.7) 100%
   );
   pointer-events: none;
 }
@@ -398,7 +398,7 @@
   position: absolute;
   width: 4px;
   height: 4px;
-  background: radial-gradient(circle, rgba(232, 84, 107, 0.8) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(155, 80, 220, 0.8) 0%, transparent 70%);
   border-radius: 50%;
   animation: bor-float-particle 8s ease-in-out infinite;
   pointer-events: none;
@@ -412,7 +412,7 @@
 .fantasy-particle:nth-child(6) { left: 90%; bottom: 20%; animation-delay: 7s; }
 
 .fantasy-particle.teal {
-  background: radial-gradient(circle, rgba(155, 196, 200, 0.6) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(196, 168, 224, 0.6) 0%, transparent 70%);
   width: 6px;
   height: 6px;
 }
@@ -442,100 +442,100 @@
 
 /* ==========================================================================
    Beast of Ridgefall Color Overrides
-   Black background with MTP gold (#E4A11B) and ocean blue (#1E6091)
+   Black background with MTP gold (#E8872A) and ocean blue (#6B2FA0)
    ========================================================================== */
 
 /* Winner glow - gold */
 [data-theme="beast-of-ridgefall"] .winner-option::before,
 [data-theme="beast-of-ridgefall"] .winner-glow {
-  --winner-glow-color: #E4A11B;
+  --winner-glow-color: #E8872A;
 }
 
 /* Hoard items - gold gradient */
 [data-theme="beast-of-ridgefall"] .hoard-tag {
-  background: linear-gradient(135deg, #E4A11B, #F5C842);
+  background: linear-gradient(135deg, #E8872A, #F5A623);
   color: #000000;
 }
 
 [data-theme="beast-of-ridgefall"] .villager-card-item.hoard .item-icon {
-  color: #E4A11B;
-  filter: drop-shadow(0 0 4px rgba(228, 161, 27, 0.5));
+  color: #E8872A;
+  filter: drop-shadow(0 0 4px rgba(232, 135, 42, 0.5));
 }
 
 /* Accent colors - gold */
 [data-theme="beast-of-ridgefall"] {
-  --accent: #E4A11B;
-  --accent-hover: #F5C842;
-  --accent-muted: rgba(228, 161, 27, 0.3);
-  --glow: 0 0 20px rgba(228, 161, 27, 0.4);
-  --glow-strong: 0 0 30px rgba(228, 161, 27, 0.6);
+  --accent: #E8872A;
+  --accent-hover: #F5A623;
+  --accent-muted: rgba(232, 135, 42, 0.3);
+  --glow: 0 0 20px rgba(232, 135, 42, 0.4);
+  --glow-strong: 0 0 30px rgba(232, 135, 42, 0.6);
 }
 
 /* Featured villager glow */
 [data-theme="beast-of-ridgefall"] .villager-card.featured::before {
-  background: radial-gradient(circle, rgba(228, 161, 27, 0.3), transparent);
+  background: radial-gradient(circle, rgba(232, 135, 42, 0.3), transparent);
 }
 
 /* Timer urgent state - gold pulse */
 [data-theme="beast-of-ridgefall"] .display-countdown.urgent {
-  color: #E4A11B;
-  text-shadow: 0 0 20px rgba(228, 161, 27, 0.8);
+  color: #E8872A;
+  text-shadow: 0 0 20px rgba(232, 135, 42, 0.8);
 }
 
 /* Vote option highlights */
 [data-theme="beast-of-ridgefall"] .vote-option.winner {
-  border-color: #E4A11B;
-  box-shadow: 0 0 20px rgba(228, 161, 27, 0.5);
+  border-color: #E8872A;
+  box-shadow: 0 0 20px rgba(232, 135, 42, 0.5);
 }
 
 /* Star icons - gold */
 [data-theme="beast-of-ridgefall"] .star-icon,
 [data-theme="beast-of-ridgefall"] .featured-star {
-  color: #E4A11B;
-  filter: drop-shadow(0 0 4px rgba(228, 161, 27, 0.5));
+  color: #E8872A;
+  filter: drop-shadow(0 0 4px rgba(232, 135, 42, 0.5));
 }
 
 /* ==========================================================================
-   Monster Builder Overrides - gold theme on black
+   Monster Builder Overrides - Dragon's Lair orange/purple theme
    ========================================================================== */
 
 /* MonsterBuilder.css overrides */
 [data-theme="beast-of-ridgefall"] .builder-title {
-  text-shadow: 0 0 20px rgba(228, 161, 27, 0.5);
+  text-shadow: 0 0 20px rgba(232, 135, 42, 0.5);
 }
 
 [data-theme="beast-of-ridgefall"] .part-label {
-  color: #E4A11B;
+  color: #E8872A;
 }
 
 [data-theme="beast-of-ridgefall"] .part-option:hover {
-  border-color: rgba(228, 161, 27, 0.5);
+  border-color: rgba(232, 135, 42, 0.5);
 }
 
 [data-theme="beast-of-ridgefall"] .part-option.selected {
-  background: rgba(228, 161, 27, 0.2);
-  border-color: #E4A11B;
-  box-shadow: 0 0 15px rgba(228, 161, 27, 0.4);
+  background: rgba(232, 135, 42, 0.2);
+  border-color: #E8872A;
+  box-shadow: 0 0 15px rgba(232, 135, 42, 0.4);
 }
 
 [data-theme="beast-of-ridgefall"] .creature-preview {
-  background: rgba(228, 161, 27, 0.15);
-  border-color: rgba(228, 161, 27, 0.3);
+  background: rgba(232, 135, 42, 0.15);
+  border-color: rgba(232, 135, 42, 0.3);
 }
 
 [data-theme="beast-of-ridgefall"] .submit-btn.ready {
-  background: linear-gradient(135deg, #E4A11B 0%, #F5C842 100%);
+  background: linear-gradient(135deg, #E8872A 0%, #F5A623 100%);
   color: #000000;
-  box-shadow: 0 4px 20px rgba(228, 161, 27, 0.4);
+  box-shadow: 0 4px 20px rgba(232, 135, 42, 0.4);
 }
 
 [data-theme="beast-of-ridgefall"] .submit-btn.ready:hover {
-  box-shadow: 0 6px 30px rgba(228, 161, 27, 0.6);
+  box-shadow: 0 6px 30px rgba(232, 135, 42, 0.6);
 }
 
 [data-theme="beast-of-ridgefall"] .builder-closed h2,
 [data-theme="beast-of-ridgefall"] .builder-reveal-waiting h2 {
-  color: #E4A11B;
+  color: #E8872A;
 }
 
 [data-theme="beast-of-ridgefall"] .creature-emojis {
@@ -543,67 +543,67 @@
 }
 
 @keyframes bor-creature-glow {
-  0%, 100% { filter: drop-shadow(0 0 10px rgba(228, 161, 27, 0.5)); }
-  50% { filter: drop-shadow(0 0 25px rgba(228, 161, 27, 0.8)); }
+  0%, 100% { filter: drop-shadow(0 0 10px rgba(232, 135, 42, 0.5)); }
+  50% { filter: drop-shadow(0 0 25px rgba(232, 135, 42, 0.8)); }
 }
 
 /* MonsterBuilderDisplay.css overrides */
 [data-theme="beast-of-ridgefall"] .building-title {
-  text-shadow: 0 0 30px rgba(228, 161, 27, 0.5);
+  text-shadow: 0 0 30px rgba(232, 135, 42, 0.5);
 }
 
 [data-theme="beast-of-ridgefall"] .submission-counter {
-  background: rgba(228, 161, 27, 0.15);
-  border-color: rgba(228, 161, 27, 0.6);
+  background: rgba(232, 135, 42, 0.15);
+  border-color: rgba(232, 135, 42, 0.6);
   box-shadow: 
-    0 0 40px rgba(228, 161, 27, 0.3),
-    inset 0 0 30px rgba(228, 161, 27, 0.1);
+    0 0 40px rgba(232, 135, 42, 0.3),
+    inset 0 0 30px rgba(232, 135, 42, 0.1);
 }
 
 [data-theme="beast-of-ridgefall"] .counter-number {
-  color: #E4A11B;
+  color: #E8872A;
   text-shadow: 
-    0 0 20px rgba(228, 161, 27, 0.8),
-    0 0 40px rgba(228, 161, 27, 0.4);
+    0 0 20px rgba(232, 135, 42, 0.8),
+    0 0 40px rgba(232, 135, 42, 0.4);
 }
 
 [data-theme="beast-of-ridgefall"] .closed-title {
-  text-shadow: 0 0 40px rgba(228, 161, 27, 0.6);
+  text-shadow: 0 0 40px rgba(232, 135, 42, 0.6);
 }
 
 [data-theme="beast-of-ridgefall"] .title-main {
-  color: #E4A11B;
+  color: #E8872A;
   text-shadow: 
-    0 0 10px rgba(228, 161, 27, 0.6),
-    0 0 20px rgba(228, 161, 27, 0.4),
-    0 0 40px rgba(228, 161, 27, 0.2),
-    0 0 80px rgba(228, 161, 27, 0.1);
+    0 0 10px rgba(232, 135, 42, 0.6),
+    0 0 20px rgba(232, 135, 42, 0.4),
+    0 0 40px rgba(232, 135, 42, 0.2),
+    0 0 80px rgba(232, 135, 42, 0.1);
 }
 
 [data-theme="beast-of-ridgefall"] .reveal-emoji {
-  filter: drop-shadow(0 0 40px rgba(228, 161, 27, 0.8));
+  filter: drop-shadow(0 0 40px rgba(232, 135, 42, 0.8));
 }
 
 /* Final compilation card - "THE BEAST IS BORN!" */
 [data-theme="beast-of-ridgefall"] .final-compilation {
-  background: rgba(228, 161, 27, 0.15);
-  border-color: rgba(228, 161, 27, 0.6);
+  background: rgba(232, 135, 42, 0.15);
+  border-color: rgba(232, 135, 42, 0.6);
   box-shadow: 
-    0 0 60px rgba(228, 161, 27, 0.4),
-    inset 0 0 40px rgba(228, 161, 27, 0.1);
+    0 0 60px rgba(232, 135, 42, 0.4),
+    inset 0 0 40px rgba(232, 135, 42, 0.1);
 }
 
 [data-theme="beast-of-ridgefall"] .compilation-title {
-  color: #E4A11B;
+  color: #E8872A;
   text-shadow: 
-    0 0 10px rgba(228, 161, 27, 0.6),
-    0 0 20px rgba(228, 161, 27, 0.4),
-    0 0 40px rgba(228, 161, 27, 0.2),
-    0 0 80px rgba(228, 161, 27, 0.1);
+    0 0 10px rgba(232, 135, 42, 0.6),
+    0 0 20px rgba(232, 135, 42, 0.4),
+    0 0 40px rgba(232, 135, 42, 0.2),
+    0 0 80px rgba(232, 135, 42, 0.1);
 }
 
 [data-theme="beast-of-ridgefall"] .tie-title {
-  color: #E4A11B;
+  color: #E8872A;
 }
 
 /* ==========================================================================
@@ -624,8 +624,8 @@
 
 [data-theme="beast-of-ridgefall"] .building-title,
 [data-theme="beast-of-ridgefall"] .closed-title {
-  color: #E4A11B;
-  text-shadow: 0 0 30px rgba(228, 161, 27, 0.5);
+  color: #E8872A;
+  text-shadow: 0 0 30px rgba(232, 135, 42, 0.5);
 }
 
 [data-theme="beast-of-ridgefall"] .counter-label {
@@ -633,21 +633,21 @@
 }
 
 [data-theme="beast-of-ridgefall"] .part-section {
-  background: rgba(228, 161, 27, 0.08);
-  border-color: rgba(228, 161, 27, 0.2);
+  background: rgba(232, 135, 42, 0.08);
+  border-color: rgba(232, 135, 42, 0.2);
 }
 
 [data-theme="beast-of-ridgefall"] .part-option {
   background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(228, 161, 27, 0.3);
+  border-color: rgba(232, 135, 42, 0.3);
 }
 
 [data-theme="beast-of-ridgefall"] .part-option:hover {
-  background: rgba(228, 161, 27, 0.15);
+  background: rgba(232, 135, 42, 0.15);
 }
 
 [data-theme="beast-of-ridgefall"] .builder-title {
-  color: #E4A11B;
+  color: #E8872A;
 }
 
 [data-theme="beast-of-ridgefall"] .title-pre {
@@ -655,15 +655,15 @@
 }
 
 [data-theme="beast-of-ridgefall"] .reveal-name {
-  color: #1E6091;
+  color: #6B2FA0;
   text-shadow: 
-    0 0 20px rgba(30, 96, 145, 0.5),
+    0 0 20px rgba(107, 47, 160, 0.5),
     0 4px 0 rgba(0, 0, 0, 0.3);
 }
 
 [data-theme="beast-of-ridgefall"] .revealed-part {
   background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(228, 161, 27, 0.2);
+  border-color: rgba(232, 135, 42, 0.2);
 }
 
 [data-theme="beast-of-ridgefall"] .revealed-part .part-label {

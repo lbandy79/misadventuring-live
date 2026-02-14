@@ -7,7 +7,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { doc, onSnapshot, setDoc, getDoc } from 'firebase/firestore';
+import { doc, onSnapshot, runTransaction } from 'firebase/firestore';
 import { db } from '../firebase';
 import { playSound, initAudio } from '../utils/sounds';
 import { TMPCheck } from './icons/TMPIcons';
@@ -119,43 +119,51 @@ export default function MonsterBuilder({ sessionId }: MonsterBuilderProps) {
         submittedAt: Date.now(),
       };
 
-      // Get current state
+      // Atomic transaction to prevent race conditions with concurrent submissions
       const docRef = doc(db, 'monster-builder', 'current');
-      const docSnap = await getDoc(docRef);
       
-      if (docSnap.exists()) {
-        const currentData = docSnap.data() as MonsterBuilderState;
+      await runTransaction(db, async (transaction) => {
+        const docSnap = await transaction.get(docRef);
         
-        // Update counts - decrement old if resubmitting
-        const oldSub = currentData.submissions?.[userId];
-        const newCounts = { ...currentData.results.counts };
-        
-        if (oldSub) {
-          // Decrement old votes
-          if (newCounts.head[oldSub.head]) newCounts.head[oldSub.head]--;
-          if (newCounts.torso[oldSub.torso]) newCounts.torso[oldSub.torso]--;
-          if (newCounts.arms[oldSub.arms]) newCounts.arms[oldSub.arms]--;
-          if (newCounts.legs[oldSub.legs]) newCounts.legs[oldSub.legs]--;
-        }
-        
-        // Increment new votes
-        newCounts.head[submission.head] = (newCounts.head[submission.head] || 0) + 1;
-        newCounts.torso[submission.torso] = (newCounts.torso[submission.torso] || 0) + 1;
-        newCounts.arms[submission.arms] = (newCounts.arms[submission.arms] || 0) + 1;
-        newCounts.legs[submission.legs] = (newCounts.legs[submission.legs] || 0) + 1;
+        if (docSnap.exists()) {
+          const currentData = docSnap.data() as MonsterBuilderState;
+          
+          // Deep copy counts to avoid mutation
+          const newCounts = {
+            head: { ...currentData.results.counts.head },
+            torso: { ...currentData.results.counts.torso },
+            arms: { ...currentData.results.counts.arms },
+            legs: { ...currentData.results.counts.legs },
+          };
+          
+          // Decrement old votes if resubmitting
+          const oldSub = currentData.submissions?.[userId];
+          if (oldSub) {
+            if (newCounts.head[oldSub.head]) newCounts.head[oldSub.head]--;
+            if (newCounts.torso[oldSub.torso]) newCounts.torso[oldSub.torso]--;
+            if (newCounts.arms[oldSub.arms]) newCounts.arms[oldSub.arms]--;
+            if (newCounts.legs[oldSub.legs]) newCounts.legs[oldSub.legs]--;
+          }
+          
+          // Increment new votes
+          newCounts.head[submission.head] = (newCounts.head[submission.head] || 0) + 1;
+          newCounts.torso[submission.torso] = (newCounts.torso[submission.torso] || 0) + 1;
+          newCounts.arms[submission.arms] = (newCounts.arms[submission.arms] || 0) + 1;
+          newCounts.legs[submission.legs] = (newCounts.legs[submission.legs] || 0) + 1;
 
-        await setDoc(docRef, {
-          ...currentData,
-          submissions: {
-            ...currentData.submissions,
-            [userId]: submission,
-          },
-          results: {
-            ...currentData.results,
-            counts: newCounts,
-          },
-        });
-      }
+          transaction.set(docRef, {
+            ...currentData,
+            submissions: {
+              ...currentData.submissions,
+              [userId]: submission,
+            },
+            results: {
+              ...currentData.results,
+              counts: newCounts,
+            },
+          });
+        }
+      });
 
       // Save to localStorage
       localStorage.setItem(storageKey, JSON.stringify(selections));

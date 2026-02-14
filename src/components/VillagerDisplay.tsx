@@ -198,7 +198,7 @@ export default function VillagerDisplay({
             exit={{ opacity: 0, y: -20, scale: 0.9 }}
             transition={{ duration: 0.4, ease: 'easeOut' }}
           >
-            <span className="arrival-emoji">🏠</span>
+            <span className="arrival-emoji">⚔️</span>
             <span className="arrival-text">
               <strong>{newArrival.name}</strong> has arrived!
             </span>

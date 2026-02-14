@@ -88,65 +88,53 @@ export default function AdminPanel() {
   const [showHiddenVillagers, setShowHiddenVillagers] = useState(false);
   const prevVillagerCountRef = useRef<number>(0);
   
-  // Awesome Mix hook for sound/effects (local preview - displays get effects via Firebase)
+  // Awesome Mix hook - only playSound and audioMixer used locally (for unlock/mute buttons)
+  // All effects (battle, ambient, celebration, shake) are broadcast-only to Display
   const {
     playSound,
-    startAmbient,
-    stopAmbient,
-    shakeScreen,
-    triggerCelebration,
-    enterBattleMode,
-    exitBattleMode,
     audioMixer,
   } = useAwesomeMix();
 
-  // Broadcast helpers - trigger locally AND send to all displays
+  // Broadcast helpers - send cues to Display (no local audio on admin)
   const broadcastBattle = (start: boolean) => {
     if (start) {
-      enterBattleMode();
       setIsBattleMusicPlaying(true);
     } else {
-      exitBattleMode();
       setIsBattleMusicPlaying(false);
     }
     broadcastCue(start ? 'battle-start' : 'battle-end');
   };
 
   const broadcastCelebration = (type: 'quick' | 'winner' | 'fireworks') => {
-    triggerCelebration(type);
     broadcastCue(`celebration-${type}` as 'celebration-quick' | 'celebration-winner' | 'celebration-fireworks');
   };
 
   const broadcastShake = (intensity: 'light' | 'heavy' | 'earthquake') => {
-    shakeScreen({ intensity: intensity === 'light' ? 'subtle' : intensity });
     broadcastCue(`shake-${intensity}` as 'shake-light' | 'shake-heavy' | 'shake-earthquake');
   };
 
   const broadcastAmbient = (start: boolean, track?: string) => {
     if (start) {
-      // Always use the track-specific path, never the default theme ambient
       const trackName = track || selectedAmbient || 'village';
-      audioMixer.switchAmbient(`/sounds/beast-of-ridgefall/ambient-${trackName}.mp3`);
       setIsAmbientPlaying(true);
+      broadcastCue('ambient-start', { soundKey: `/sounds/beast-of-ridgefall/ambient-${trackName}.mp3` });
     } else {
-      stopAmbient();
       setIsAmbientPlaying(false);
+      broadcastCue('ambient-stop');
     }
-    broadcastCue(start ? 'ambient-start' : 'ambient-stop');
   };
 
   const switchAmbientTrack = (track: string) => {
     setSelectedAmbient(track);
-    // Always switch track - if playing, crossfade to new track
-    // If not playing, just prepare it for when user clicks play
+    // If currently playing, broadcast track switch to Display
     if (isAmbientPlaying) {
-      audioMixer.switchAmbient(`/sounds/beast-of-ridgefall/ambient-${track}.mp3`);
+      broadcastCue('ambient-start', { soundKey: `/sounds/beast-of-ridgefall/ambient-${track}.mp3` });
     }
   };
 
   const switchBattleTrack = (track: string) => {
     setSelectedBattle(track);
-    audioMixer.switchBattleMusic(`/sounds/beast-of-ridgefall/battle-${track}.mp3`);
+    broadcastCue('sound-effect', { soundKey: `battle-${track}` });
   };
 
   // Check session storage for existing auth
@@ -1051,28 +1039,28 @@ export default function AdminPanel() {
               <div className="cue-buttons">
                 <button 
                   className="cue-btn sfx"
-                  onClick={() => playSound('victory')}
+                  onClick={() => broadcastCue('sound-effect', { soundKey: 'victory' })}
                   title="Victory fanfare"
                 >
                   🏆 Victory
                 </button>
                 <button 
                   className="cue-btn sfx"
-                  onClick={() => playSound('error')}
+                  onClick={() => broadcastCue('sound-effect', { soundKey: 'error' })}
                   title="Failure sound"
                 >
                   💀 Fail
                 </button>
                 <button 
                   className="cue-btn sfx"
-                  onClick={() => playSound('whoosh')}
+                  onClick={() => broadcastCue('sound-effect', { soundKey: 'whoosh' })}
                   title="Transition swoosh"
                 >
                   💨 Whoosh
                 </button>
                 <button 
                   className="cue-btn sfx"
-                  onClick={() => playSound('diceRoll')}
+                  onClick={() => broadcastCue('sound-effect', { soundKey: 'diceRoll' })}
                   title="Dice rolling sound"
                 >
                   🎲 Dice

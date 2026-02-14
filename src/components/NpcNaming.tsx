@@ -1,7 +1,8 @@
 import { useState, useEffect, type KeyboardEvent } from 'react';
 import { db } from '../firebase';
-import { doc, onSnapshot, updateDoc, arrayUnion } from 'firebase/firestore';
+import { doc, onSnapshot, updateDoc, arrayUnion, runTransaction } from 'firebase/firestore';
 import { motion } from 'framer-motion';
+import { validateContent } from '../utils/contentFilter';
 import './NpcNaming.css';
 
 interface NpcSubmission {
@@ -29,6 +30,7 @@ export default function NpcNaming({ isAdmin: _isAdmin = false }: NpcNamingProps)
   const [submission, setSubmission] = useState('');
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [hasVoted, setHasVoted] = useState(false);
+  const [nameError, setNameError] = useState<string | null>(null);
   const [userId] = useState(() => localStorage.getItem('audience-id') || Math.random().toString(36).substr(2, 9));
 
   useEffect(() => {
@@ -53,6 +55,14 @@ export default function NpcNaming({ isAdmin: _isAdmin = false }: NpcNamingProps)
   const submitName = async () => {
     if (!submission.trim() || !npcData) return;
     
+    // Check for profanity
+    const profanityError = validateContent(submission.trim(), 'name');
+    if (profanityError) {
+      setNameError(profanityError);
+      return;
+    }
+    setNameError(null);
+    
     try {
       await updateDoc(doc(db, 'npc-naming', 'current'), {
         submissions: arrayUnion({
@@ -76,11 +86,17 @@ export default function NpcNaming({ isAdmin: _isAdmin = false }: NpcNamingProps)
     if (hasVoted || !npcData) return;
     
     try {
-      const updatedSubmissions = [...npcData.submissions];
-      updatedSubmissions[submissionIndex].votes += 1;
-      
-      await updateDoc(doc(db, 'npc-naming', 'current'), {
-        submissions: updatedSubmissions
+      const docRef = doc(db, 'npc-naming', 'current');
+      await runTransaction(db, async (transaction) => {
+        const snapshot = await transaction.get(docRef);
+        if (!snapshot.exists()) return;
+        
+        const data = snapshot.data() as NpcData;
+        const updatedSubmissions = data.submissions.map((s, i) => 
+          i === submissionIndex ? { ...s, votes: s.votes + 1 } : s
+        );
+        
+        transaction.update(docRef, { submissions: updatedSubmissions });
       });
       setHasVoted(true);
     } catch (error) {
@@ -120,11 +136,12 @@ export default function NpcNaming({ isAdmin: _isAdmin = false }: NpcNamingProps)
             <input
               type="text"
               value={submission}
-              onChange={(e) => setSubmission(e.target.value)}
+              onChange={(e) => { setSubmission(e.target.value); setNameError(null); }}
               placeholder="Enter a name..."
               maxLength={40}
               onKeyPress={handleKeyPress}
             />
+            {nameError && <p className="name-error" style={{ color: '#EF4444', fontSize: '0.85rem', marginTop: '0.25rem' }}>{nameError}</p>}
             <button onClick={submitName} disabled={!submission.trim()}>
               Submit
             </button>

@@ -12,6 +12,7 @@ import { useEffect, useRef, useCallback } from 'react';
 import { doc, onSnapshot, setDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAwesomeMix } from './useAwesomeMix';
+import { audioMixer as audioMixerInstance } from '../utils/audioMixer';
 
 // =============================================================================
 // TYPES
@@ -200,7 +201,12 @@ export function useCueListener(options: UseCueListenerOptions = {}) {
         break;
 
       case 'ambient-start':
-        startAmbient();
+        if (cue.soundKey) {
+          // Play specific ambient track sent by admin
+          audioMixerInstance.switchAmbient(cue.soundKey);
+        } else {
+          startAmbient();
+        }
         break;
 
       case 'ambient-stop':

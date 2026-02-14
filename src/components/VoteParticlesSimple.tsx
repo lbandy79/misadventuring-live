@@ -79,8 +79,8 @@ export default function VoteParticlesSimple({ enabled = true }: VoteParticlesSim
     const colorIndex = optionId === 'a' ? 0 : optionId === 'b' ? 1 : optionId === 'c' ? 2 : 3;
     const color = particleColors[colorIndex] || particleColors[Math.floor(Math.random() * particleColors.length)];
     
-    // BIG size for visibility
-    const size = 40 + Math.random() * 30;
+    // Production particle size
+    const size = 12 + Math.random() * 12;
     
     particle.style.cssText = `
       left: ${startX}px;
@@ -88,7 +88,7 @@ export default function VoteParticlesSimple({ enabled = true }: VoteParticlesSim
       width: ${size}px;
       height: ${size}px;
       background: ${color};
-      box-shadow: 0 0 ${size}px ${color}, 0 0 ${size * 2}px ${color}, 0 0 ${size * 3}px ${color};
+      box-shadow: 0 0 ${size * 0.8}px ${color}, 0 0 ${size * 1.5}px ${color};
       --target-x: ${targetX - startX}px;
       --target-y: ${targetY - startY}px;
     `;
@@ -107,15 +107,12 @@ export default function VoteParticlesSimple({ enabled = true }: VoteParticlesSim
     
     // Fallback removal
     setTimeout(() => particle.remove(), 2000);
-    
-    console.log(`✨ DOM Particle emitted for ${optionId} from (${startX.toFixed(0)}, ${startY.toFixed(0)}) to (${targetX.toFixed(0)}, ${targetY.toFixed(0)})`);
   }, [enabled, particleColors]);
 
   // Expose emit function globally
   useEffect(() => {
     const windowWithEmit = window as unknown as { emitVoteParticle?: typeof emitParticle };
     windowWithEmit.emitVoteParticle = emitParticle;
-    console.log('🎯 Vote particle emitter registered');
     return () => {
       delete windowWithEmit.emitVoteParticle;
     };
@@ -142,7 +139,6 @@ export function useVoteParticles() {
     const emitFn = (window as unknown as { emitVoteParticle?: (id: string, el?: HTMLElement) => void }).emitVoteParticle;
     if (emitFn) {
       emitFn(optionId);
-      console.log(`🎆 useVoteParticles: emitted for ${optionId}`);
     } else {
       console.warn('Vote particles not ready - window.emitVoteParticle not found');
     }

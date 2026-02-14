@@ -45,7 +45,6 @@ export default function DisplayView() {
   const [activeInteraction, setActiveInteraction] = useState<ActiveInteraction>({ type: 'none' });
   const [votes, setVotes] = useState<VotesData>({});
   const [soundEnabled, setSoundEnabled] = useState(true);
-  const [debugInfo, setDebugInfo] = useState('Connecting...');
   const [isShaking, setIsShaking] = useState(false);
   const [showWinnerReveal, setShowWinnerReveal] = useState(false);
   const [builderData, setBuilderData] = useState<{ status?: string } | null>(null);
@@ -131,15 +130,12 @@ export default function DisplayView() {
           
           prevInteractionRef.current = newInteraction;
           setActiveInteraction(newInteraction);
-          setDebugInfo(`Type: ${snapshot.data().type}`);
         } else {
           setActiveInteraction({ type: 'none' });
-          setDebugInfo('No active interaction doc');
         }
       },
       (error) => {
         console.error('DisplayView: Listener error', error);
-        setDebugInfo(`Error: ${error.message}`);
       }
     );
     return () => unsubscribe();
@@ -300,11 +296,6 @@ export default function DisplayView() {
     <div className={`display-container crt-overlay ${isShaking ? 'shake-intense' : ''}`}>
       {/* Vote Particles Layer - Simple DOM version */}
       <VoteParticlesSimple enabled={activeInteraction.type === 'vote'} />
-
-      {/* Debug info - remove in production */}
-      <div style={{ position: 'absolute', top: '1rem', left: '1rem', color: '#666', fontSize: '0.8rem', zIndex: 100 }}>
-        {debugInfo} | Active: {activeInteraction.type}
-      </div>
 
       {/* Persistent logo watermark - bottom left corner, visible during interactions */}
       <AnimatePresence>

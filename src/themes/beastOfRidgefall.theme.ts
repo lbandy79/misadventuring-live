@@ -1,12 +1,12 @@
 /**
  * Beast of Ridgefall Theme
  * 
- * A whimsical adventure theme featuring:
- * - Jewel tones (sapphire, emerald, amethyst)
- * - Rich stone backgrounds
- * - Topaz gold accents
+ * Dragon's Lair-inspired adventure theme featuring:
+ * - Deep castle purples and warm amber-orange
+ * - Rich dark backgrounds with mystical glow
+ * - Bold fantasy typography
  * 
- * Evokes D&D sourcebooks and fairy tale adventure.
+ * Evokes the classic Dragon's Lair arcade aesthetic.
  */
 
 import type { TMPTheme } from './theme.types';
@@ -14,47 +14,47 @@ import type { TMPTheme } from './theme.types';
 export const beastOfRidgefallTheme: TMPTheme = {
   id: 'beast-of-ridgefall',
   name: 'Beast of Ridgefall',
-  description: 'A whimsical adventure theme with jewel tones and D&D-inspired typography',
+  description: 'A Dragon\'s Lair-inspired adventure theme with castle purples and amber-orange',
   system: 'universal',
 
   colors: {
-    // Primary - Cap'n Crunch Gold (from MTP logo)
-    primary: '#E4A11B',      // Gold
-    // Secondary - Ocean Blue (from logo D20)
-    secondary: '#1E6091',    // Deep ocean blue
-    // Tertiary - Berry Pink
-    tertiary: '#C13584',     // Berry pink
-    // Accent - Gold (main call-to-action)
-    accent: '#E4A11B',       // Gold for buttons/highlights
+    // Primary - Dragon's Lair Amber-Orange (Dirk's armor)
+    primary: '#E8872A',      // Amber-orange
+    // Secondary - Castle Purple (Dragon's sky)
+    secondary: '#6B2FA0',    // Deep castle purple
+    // Tertiary - Mystical Violet
+    tertiary: '#9B30FF',     // Bright violet
+    // Accent - Orange (main call-to-action)
+    accent: '#E8872A',       // Orange for buttons/highlights
     
-    // Backgrounds - Pure black
+    // Backgrounds - Deep purple-black
     background: {
-      main: '#000000',       // Pure black
-      card: '#0a0a0a',       // Near black for cards
-      elevated: '#141414',   // Slightly elevated
+      main: '#0D0618',       // Deep purple-black
+      card: '#120B20',       // Purple-tinted dark
+      elevated: '#1A1230',   // Slightly elevated purple
     },
     
     // Text - Light text for dark background
     text: {
       primary: '#FFFFFF',    // Pure white
-      secondary: '#A8C5D8',  // Sea foam blue
-      onPrimary: '#000000',  // Black on gold buttons
+      secondary: '#C4A8E0',  // Lavender
+      onPrimary: '#000000',  // Black on orange buttons
     },
     
-    // Voting colors - MTP Logo palette
+    // Voting colors - Dragon's Lair palette
     voting: {
-      optionA: '#E4A11B',    // Gold
-      optionB: '#1E6091',    // Ocean blue
-      optionC: '#C13584',    // Berry pink
-      progressTrack: '#1a1a1a',
+      optionA: '#E8872A',    // Amber-orange
+      optionB: '#6B2FA0',    // Castle purple
+      optionC: '#9B30FF',    // Bright violet
+      progressTrack: '#1A1230',
     },
     
     // Status colors
     status: {
       success: '#4ADE80',    // Bright green
       error: '#EF4444',      // Red
-      warning: '#E4A11B',    // Gold
-      info: '#1E6091',       // Ocean blue
+      warning: '#E8872A',    // Orange
+      info: '#6B2FA0',       // Purple
     },
   },
 
@@ -134,14 +134,14 @@ export const beastOfRidgefallTheme: TMPTheme = {
       small: '0 2px 4px rgba(0, 0, 0, 0.4)',
       medium: '0 4px 12px rgba(0, 0, 0, 0.5)',
       large: '0 8px 24px rgba(0, 0, 0, 0.6)',
-      glow: '0 0 25px rgba(228, 161, 27, 0.5)',  // Gold glow
+      glow: '0 0 25px rgba(232, 135, 42, 0.5)',  // Orange glow
     },
     backgroundEffects: {
       main: `
-        radial-gradient(ellipse at 50% 0%, rgba(228, 161, 27, 0.08) 0%, transparent 50%),
-        radial-gradient(ellipse at 20% 80%, rgba(30, 96, 145, 0.1) 0%, transparent 40%),
-        radial-gradient(ellipse at 80% 60%, rgba(228, 161, 27, 0.06) 0%, transparent 50%),
-        linear-gradient(180deg, #000000 0%, #0a0a0a 40%, #000000 100%)
+        radial-gradient(ellipse at 50% 0%, rgba(232, 135, 42, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 20% 80%, rgba(107, 47, 160, 0.1) 0%, transparent 40%),
+        radial-gradient(ellipse at 80% 60%, rgba(232, 135, 42, 0.06) 0%, transparent 50%),
+        linear-gradient(180deg, #0D0618 0%, #120B20 40%, #0D0618 100%)
       `,
       overlay: 'none',
     },
@@ -185,7 +185,7 @@ export const beastOfRidgefallTheme: TMPTheme = {
     },
     
     progressBar: {
-      fillStyle: 'linear-gradient(180deg, #8FC1E8 0%, #5B9BD5 50%, #3A7BB5 100%)',
+      fillStyle: 'linear-gradient(180deg, #C4A8E0 0%, #9B6DC8 50%, #6B2FA0 100%)',
     },
     
     winnerBanner: {
