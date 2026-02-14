@@ -11,7 +11,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #120624 0%, #1A0A3E 50%, #150830 100%);
+  background: linear-gradient(135deg, #1A0A3E 0%, #2A1458 50%, #1A0A3E 100%);
   overflow: hidden;
 }
 
@@ -159,7 +159,7 @@
 
 /* Reveal Phase */
 .revealing {
-  background: radial-gradient(ellipse at center, #1A0A3E 0%, #120624 70%);
+  background: radial-gradient(ellipse at center, #2A1458 0%, #1A0A3E 70%);
 }
 
 .reveal-container {
