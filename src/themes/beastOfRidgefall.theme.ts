@@ -151,7 +151,7 @@ export const beastOfRidgefallTheme: TMPTheme = {
     basePath: '/assets/themes/beast-of-ridgefall',
     
     logo: {
-      src: '/assets/themes/beast-of-ridgefall/logo.png?v=2',
+      src: '/assets/themes/beast-of-ridgefall/logo.png?v=3',
       alt: 'Beast of Ridgefall',
     },
     
