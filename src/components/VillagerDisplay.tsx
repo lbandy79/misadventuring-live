@@ -103,7 +103,7 @@ export default function VillagerDisplay({
     return (
       <div className={`villager-display villager-display--${theme.id}`}>
         <div className="villager-empty">
-          <span className="empty-emoji">⚔️</span>
+          <span className="empty-emoji">📜</span>
           <p>Waiting for villagers...</p>
           <span className="submission-count">0 villagers submitted</span>
         </div>

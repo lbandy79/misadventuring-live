@@ -328,7 +328,7 @@ export default function VillagerSubmission() {
   return (
     <div className="villager-container">
       <h2 className="villager-title">
-        {isEditing ? '✏️ Edit Your Villager' : '🏘️ Create a Villager'}
+        {isEditing ? '✏️ Edit Your Villager' : '🛖 Create a Villager'}
       </h2>
       <p className="villager-subtitle">
         {isEditing 

@@ -611,15 +611,15 @@
    ========================================================================== */
 
 [data-theme="beast-of-ridgefall"] .monster-builder-container {
-  background: linear-gradient(135deg, #000000 0%, #0a0a0a 50%, #000000 100%);
+  background: transparent;
 }
 
 [data-theme="beast-of-ridgefall"] .monster-builder-display {
-  background: linear-gradient(135deg, #000000 0%, #0a0a0a 50%, #000000 100%);
+  background: transparent;
 }
 
 [data-theme="beast-of-ridgefall"] .monster-builder-display.revealing {
-  background: radial-gradient(ellipse at center, #0a0a0a 0%, #000000 70%);
+  background: transparent;
 }
 
 [data-theme="beast-of-ridgefall"] .building-title,
