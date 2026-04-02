@@ -1,0 +1,282 @@
+/**
+ * CharacterSheet.css — Mobile-optimized D&D stat card
+ *
+ * Design: dark card with brass/orange accents matching decoder ring theme.
+ * Optimized for phone screens (portrait, single column).
+ */
+
+.char-sheet {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 1rem;
+  color: #eee;
+  font-family: var(--font-body, system-ui);
+}
+
+.char-sheet.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 40vh;
+  gap: 1rem;
+  color: #888;
+}
+
+.char-sheet.error {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #ff6b6b;
+}
+
+/* ═══ Header ═══ */
+
+.sheet-header {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid rgba(232, 135, 42, 0.3);
+}
+
+.sheet-portrait {
+  width: 90px;
+  height: 110px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 3px solid #E8872A;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  flex-shrink: 0;
+}
+
+.sheet-title {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.sheet-name {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #E8872A;
+  font-family: var(--font-heading, Georgia, serif);
+  margin: 0;
+  line-height: 1.15;
+  text-shadow: 0 0 10px rgba(232, 135, 42, 0.3);
+}
+
+.sheet-source {
+  font-size: 0.85rem;
+  color: #C4A8E0;
+  margin: 0;
+}
+
+.sheet-role-badge {
+  display: inline-block;
+  background: rgba(232, 135, 42, 0.15);
+  border: 1px solid rgba(232, 135, 42, 0.4);
+  border-radius: 6px;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.8rem;
+  color: #E8872A;
+  font-weight: 700;
+  margin-top: 0.2rem;
+  width: fit-content;
+}
+
+/* ═══ Combat Bar ═══ */
+
+.combat-bar {
+  display: flex;
+  justify-content: space-around;
+  background: rgba(0, 0, 0, 0.4);
+  border: 2px solid rgba(232, 135, 42, 0.25);
+  border-radius: 12px;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.combat-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+}
+
+.combat-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: #888;
+  letter-spacing: 0.05em;
+}
+
+.combat-value {
+  font-size: 1.6rem;
+  font-weight: 900;
+  font-family: var(--font-heading, Georgia, serif);
+}
+
+.combat-value.hp { color: #4ade80; }
+.combat-value.ac { color: #60a5fa; }
+.combat-value.speed { color: #fbbf24; font-size: 1rem; }
+
+/* ═══ Ability Scores ═══ */
+
+.ability-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+}
+
+.ability-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 0.35rem 0.15rem;
+}
+
+.ability-name {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  color: #888;
+  letter-spacing: 0.05em;
+}
+
+.ability-score {
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: #fff;
+}
+
+.ability-mod {
+  font-size: 0.75rem;
+  color: #C4A8E0;
+  font-weight: 600;
+}
+
+/* ═══ Sections ═══ */
+
+.sheet-section {
+  margin-bottom: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.section-title {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: #E8872A;
+  letter-spacing: 0.08em;
+  margin: 0 0 0.35rem 0;
+  font-weight: 700;
+}
+
+/* ═══ Attack ═══ */
+
+.attack-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.attack-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.attack-detail {
+  font-size: 0.9rem;
+  color: #fbbf24;
+  font-weight: 600;
+}
+
+.attack-range {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+/* ═══ Skills ═══ */
+
+.skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.skill-chip {
+  background: rgba(196, 168, 224, 0.12);
+  border: 1px solid rgba(196, 168, 224, 0.2);
+  border-radius: 6px;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.8rem;
+  color: #C4A8E0;
+  text-transform: capitalize;
+}
+
+/* ═══ Specials ═══ */
+
+.specials-list {
+  margin: 0;
+  padding-left: 1.2rem;
+  list-style-type: '▸ ';
+}
+
+.specials-list li {
+  font-size: 0.85rem;
+  color: #ddd;
+  line-height: 1.4;
+  margin-bottom: 0.3rem;
+}
+
+/* ═══ Flicker ═══ */
+
+.flicker-section {
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  background: rgba(251, 191, 36, 0.05);
+}
+
+.flicker-section p {
+  font-size: 0.85rem;
+  color: #fbbf24;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* ═══ Personality ═══ */
+
+.personality-section {
+  border-top: 2px solid rgba(232, 135, 42, 0.2);
+}
+
+.personality-text {
+  font-size: 0.9rem;
+  color: #C4A8E0;
+  font-style: italic;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* ═══ Fallback Card ═══ */
+
+.fallback-liner {
+  font-size: 1.1rem;
+  color: #E8872A;
+  font-style: italic;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.fallback-note {
+  text-align: center;
+  font-size: 0.75rem;
+  color: #666;
+  margin-top: 1rem;
+}

@@ -1,0 +1,326 @@
+/**
+ * DecoderRingVote.css — Phone-first voting UI
+ *
+ * Phase 1: Year vote (cereal box thumbnails in a 2x2 grid)
+ * Phase 2: Role vote (ship roles in a vertical stack)
+ * Waiting states between phases
+ *
+ * Uses existing CSS variables from theme system.
+ */
+
+.decoder-vote-container {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  background: var(--bg-card);
+  border-radius: 16px;
+  color: var(--text-primary);
+  text-align: center;
+  position: relative;
+}
+
+/* Card frame — reuse from EncounterVote */
+.decoder-vote-container::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 20px;
+  padding: 4px;
+  background: linear-gradient(135deg, #E8872A, #6B2FA0);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.decoder-title {
+  font-size: 1.4rem;
+  color: #E8872A;
+  font-family: var(--font-heading);
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+  margin-bottom: 0.25rem;
+}
+
+.decoder-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+}
+
+/* ═══════ YEAR VOTE GRID ═══════ */
+
+.year-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.year-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.75rem 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 3px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  position: relative;
+  color: var(--text-primary);
+}
+
+.year-btn:hover {
+  border-color: rgba(232, 135, 42, 0.5);
+  background: rgba(232, 135, 42, 0.1);
+  transform: translateY(-2px);
+}
+
+.year-btn.selected {
+  border-color: #E8872A;
+  background: rgba(232, 135, 42, 0.2);
+  box-shadow: 0 0 20px rgba(232, 135, 42, 0.4);
+}
+
+.year-thumb {
+  width: 80px;
+  height: 100px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.year-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.year-number {
+  font-size: 1.5rem;
+  font-weight: 800;
+  font-family: var(--font-heading);
+  color: #E8872A;
+}
+
+.year-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+/* ═══════ ROLE VOTE STACK ═══════ */
+
+.role-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.role-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 3px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  text-align: left;
+  color: var(--text-primary);
+}
+
+.role-btn:hover {
+  border-color: rgba(232, 135, 42, 0.4);
+  background: rgba(232, 135, 42, 0.08);
+}
+
+.role-btn.selected {
+  border-color: #E8872A;
+  background: rgba(232, 135, 42, 0.15);
+  box-shadow: 0 0 15px rgba(232, 135, 42, 0.3);
+}
+
+.role-btn.recommended {
+  border-color: rgba(107, 47, 160, 0.4);
+}
+
+.role-btn.recommended.selected {
+  border-color: #E8872A;
+}
+
+.role-emoji {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.role-name {
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: var(--font-heading);
+}
+
+.role-desc {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-left: auto;
+}
+
+.best-fit-badge {
+  position: absolute;
+  top: -8px;
+  right: -4px;
+  background: #6B2FA0;
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 0.15rem 0.4rem;
+  border-radius: 8px;
+}
+
+/* ═══════ SHARED UI ═══════ */
+
+.your-vote {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  background: #E8872A;
+  color: #000;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+.change-hint {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-top: 0.5rem;
+}
+
+/* ═══════ WAITING / REVEAL STATES ═══════ */
+
+.decoder-waiting {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  text-align: center;
+  padding: 1.5rem;
+}
+
+.decoder-waiting h2 {
+  font-size: 1.3rem;
+  color: #E8872A;
+  font-family: var(--font-heading);
+  margin-bottom: 0.75rem;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.decoder-waiting p {
+  color: var(--text-secondary);
+}
+
+/* ═══════ CHARACTER REVEAL MINI CARD ═══════ */
+
+.char-reveal-mini {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: rgba(232, 135, 42, 0.1);
+  border: 2px solid rgba(232, 135, 42, 0.3);
+  border-radius: 12px;
+  margin-top: 0.75rem;
+}
+
+.char-thumb {
+  width: 100px;
+  height: 130px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid #E8872A;
+}
+
+.char-reveal-mini h3 {
+  font-size: 1.2rem;
+  color: #E8872A;
+  font-family: var(--font-heading);
+}
+
+.char-liner {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* ═══════ ASSIGNMENT RESULT ═══════ */
+
+.assignment-result {
+  padding: 1rem 1.5rem;
+  background: rgba(46, 204, 113, 0.15);
+  border: 2px solid rgba(46, 204, 113, 0.4);
+  border-radius: 12px;
+  margin-top: 0.75rem;
+}
+
+.assignment-result p {
+  font-size: 1rem;
+  color: #eee;
+  margin: 0.25rem 0;
+}
+
+/* ═══════ MINI CREW ROSTER ═══════ */
+
+.mini-crew {
+  margin-top: 1rem;
+  text-align: left;
+}
+
+.mini-crew h4 {
+  font-size: 0.75rem;
+  color: #888;
+  margin-bottom: 0.35rem;
+}
+
+.crew-chip {
+  display: inline-block;
+  font-size: 0.7rem;
+  background: rgba(232, 135, 42, 0.15);
+  border: 1px solid rgba(232, 135, 42, 0.3);
+  border-radius: 12px;
+  padding: 0.2rem 0.5rem;
+  margin: 0.15rem;
+  color: #eee;
+}
+
+/* ═══════ MOBILE ═══════ */
+
+@media (max-width: 480px) {
+  .decoder-vote-container {
+    padding: 1rem;
+  }
+
+  .year-thumb {
+    width: 60px;
+    height: 75px;
+  }
+
+  .year-number {
+    font-size: 1.2rem;
+  }
+}

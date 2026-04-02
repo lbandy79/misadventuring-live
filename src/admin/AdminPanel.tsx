@@ -8,6 +8,9 @@ import type { Villager, VillagerSubmissionState, VillagerStatus } from '../types
 import { PRONOUNS_OPTIONS, getItemById } from '../types/villager.types';
 import { BUILDER_PART_ORDER, MONSTER_BUILDER_CONFIG, calculateWinner, type MonsterBuilderState } from '../types/monsterBuilder.types';
 import { playSound as playSoundEffect, initAudio } from '../utils/sounds';
+import DecoderRingAdmin from './DecoderRingAdmin';
+import ShipCombatAdmin from './ShipCombatAdmin';
+import NPCReviewPanel from './NPCReviewPanel';
 import './AdminPanel.css';
 
 const ADMIN_PASSWORD = 'misadventure2025'; // Change this! Or move to env var later
@@ -39,7 +42,7 @@ interface RollConfig {
 }
 
 interface ActiveInteraction {
-  type: 'none' | 'vote' | 'madlibs' | 'group-roll' | 'villager-submit' | 'monster-builder';
+  type: 'none' | 'vote' | 'madlibs' | 'group-roll' | 'villager-submit' | 'monster-builder' | 'decoder-ring';
   question?: string;
   options?: VoteOption[];
   isOpen?: boolean;
@@ -626,6 +629,15 @@ export default function AdminPanel() {
 
   return (
     <div className="admin-container">
+      {/* ── Full-screen Ship Combat takeover ── */}
+      {activeInteraction.type === 'ship-combat' && (
+        <div className="ship-combat-fullscreen">
+          <ShipCombatAdmin />
+        </div>
+      )}
+
+      {/* ── Normal admin panel (hidden during ship combat) ── */}
+      {activeInteraction.type !== 'ship-combat' && (<>
       <header className="admin-header">
         <h1>🎲 GM Control Panel</h1>
         {/* Compact Status Bar */}
@@ -804,6 +816,12 @@ export default function AdminPanel() {
           </button>
         </section>
 
+        {/* Decoder Ring — Well of Lines */}
+        <DecoderRingAdmin />
+
+        {/* Ship Combat — Flyer Defense */}
+        <ShipCombatAdmin />
+
         {/* Villager Submission Control */}
         <section className="admin-card config-card villager-card">
           <h2>🏘️ Villager Submissions</h2>
@@ -936,6 +954,12 @@ export default function AdminPanel() {
           >
             🏘️ Open Villager Submissions
           </button>
+        </section>
+
+        {/* ============ BETAWAVE TAPES - NPC REVIEW ============ */}
+        <section className="admin-card config-card">
+          <h2>📋 Betawave NPC Review</h2>
+          <NPCReviewPanel showId="betawave-last-call-2026-04-18" />
         </section>
 
         {/* ============ UTILITY FEATURES ============ */}
@@ -1287,6 +1311,7 @@ export default function AdminPanel() {
         </section>
 
       </div>
+      </>)}
     </div>
   );
 }

@@ -1,0 +1,254 @@
+/* =============================================================================
+   Reservation / Access Code Styles — VHS Atmosphere
+   ============================================================================= */
+
+.reservation-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: 1.5rem;
+  max-width: 400px;
+  width: 100%;
+  margin: 0 auto;
+  text-align: center;
+}
+
+/* --- Title: "play the tape." — in-fiction, CRT monospace --- */
+.reservation-title {
+  font-family: 'VT323', var(--tmp-font-body), monospace;
+  font-size: 1.8rem;
+  color: var(--tmp-text-primary);
+  margin: 0 0 0.5rem;
+  letter-spacing: 0.05em;
+  text-transform: lowercase;
+}
+
+.reservation-subtitle {
+  color: var(--tmp-text-secondary);
+  font-family: 'Share Tech Mono', var(--tmp-font-body), monospace;
+  font-size: var(--tmp-size-small);
+  margin: 0 0 2rem;
+  letter-spacing: 0.04em;
+}
+
+/* --- Six-box code entry --- */
+.code-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  align-items: center;
+}
+
+.code-boxes {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.code-box {
+  width: 3rem;
+  height: 3.5rem;
+  font-family: 'Share Tech Mono', 'VT323', monospace;
+  font-size: 1.6rem;
+  text-align: center;
+  text-transform: uppercase;
+  background: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  color: var(--tmp-text-primary);
+  outline: none;
+  caret-color: transparent;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.code-box:focus {
+  border-color: var(--tmp-color-primary);
+  box-shadow: 0 0 12px rgba(255, 45, 149, 0.25);
+}
+
+.code-box.filled {
+  border-color: var(--tmp-color-primary);
+  background: rgba(255, 45, 149, 0.08);
+  box-shadow: 0 0 10px rgba(255, 45, 149, 0.3);
+  color: var(--tmp-color-primary);
+  text-shadow: 0 0 8px rgba(255, 45, 149, 0.5);
+}
+
+.code-box:not(.filled):not(:focus)::placeholder {
+  color: transparent;
+}
+
+/* Empty box placeholder dash */
+.code-box:not(.filled) {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+/* Mobile: slightly smaller boxes */
+@media (max-width: 380px) {
+  .code-boxes {
+    gap: 0.35rem;
+  }
+  .code-box {
+    width: 2.5rem;
+    height: 3rem;
+    font-size: 1.3rem;
+  }
+}
+
+.code-error {
+  color: var(--tmp-status-error, #ff3366);
+  font-family: 'Share Tech Mono', var(--tmp-font-body), monospace;
+  font-size: var(--tmp-size-small);
+  margin: 0;
+  letter-spacing: 0.03em;
+}
+
+/* --- Buttons --- */
+.code-submit-btn {
+  font-family: 'Share Tech Mono', var(--tmp-font-body), monospace;
+  font-size: 1rem;
+  letter-spacing: 0.15em;
+  padding: 0.75rem 2.5rem;
+  background: var(--tmp-color-primary);
+  color: var(--tmp-text-on-primary);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.2s;
+  min-height: 48px;
+  text-transform: uppercase;
+}
+
+.code-submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px rgba(255, 45, 149, 0.4);
+}
+
+.code-submit-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Divider */
+.reservation-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1.5rem 0;
+  width: 100%;
+  max-width: 260px;
+  color: var(--tmp-text-secondary);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  opacity: 0.6;
+}
+
+.reservation-divider::before,
+.reservation-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.reserve-link-btn {
+  font-family: 'Share Tech Mono', var(--tmp-font-body), monospace;
+  font-size: 0.9rem;
+  letter-spacing: 0.1em;
+  color: var(--tmp-color-secondary);
+  background: transparent;
+  border: 1px solid var(--tmp-color-secondary);
+  border-radius: 4px;
+  padding: 0.6rem 1.5rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  min-height: 44px;
+  text-transform: lowercase;
+}
+
+.reserve-link-btn:hover {
+  background: rgba(0, 229, 238, 0.1);
+  box-shadow: 0 0 15px rgba(0, 229, 238, 0.2);
+}
+
+.back-link-btn {
+  font-family: 'Share Tech Mono', var(--tmp-font-body), monospace;
+  font-size: var(--tmp-size-small);
+  color: var(--tmp-text-secondary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  margin-top: 1rem;
+  padding: 0.5rem;
+  min-height: 44px;
+  letter-spacing: 0.05em;
+}
+
+.back-link-btn:hover {
+  color: var(--tmp-text-primary);
+}
+
+/* --- Reservation form --- */
+.reservation-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  text-align: left;
+}
+
+.form-field label {
+  font-family: 'Share Tech Mono', var(--tmp-font-accent), monospace;
+  font-size: 0.75rem;
+  color: var(--tmp-text-secondary);
+  text-transform: lowercase;
+  letter-spacing: 0.08em;
+}
+
+.form-field input {
+  font-family: 'VT323', var(--tmp-font-body), monospace;
+  font-size: var(--tmp-size-body);
+  padding: 0.7rem 0.8rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+  color: var(--tmp-text-primary);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  min-height: 44px;
+}
+
+.form-field input:focus {
+  border-color: var(--tmp-color-primary);
+  box-shadow: 0 0 8px rgba(255, 45, 149, 0.15);
+}
+
+/* Code reveal after reservation */
+.code-reveal .code-display {
+  font-family: 'Share Tech Mono', var(--tmp-font-accent), monospace;
+  font-size: 2.5rem;
+  letter-spacing: 0.6rem;
+  color: var(--tmp-color-primary);
+  background: rgba(255, 45, 149, 0.05);
+  border: 2px solid var(--tmp-color-primary);
+  border-radius: 4px;
+  padding: 1rem;
+  margin: 1.5rem 0;
+  text-shadow: 0 0 10px currentColor;
+}
+
+.code-hint {
+  color: var(--tmp-text-secondary);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: var(--tmp-size-small);
+  margin: 0;
+  letter-spacing: 0.03em;
+}

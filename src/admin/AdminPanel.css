@@ -1143,6 +1143,27 @@
   font-style: italic;
 }
 
+/* ── Ship Combat Full-screen Takeover ── */
+.ship-combat-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: #0d1117;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 1rem;
+}
+
+.ship-combat-fullscreen button {
+  min-height: 44px;
+  touch-action: manipulation;
+}
+
+.ship-combat-fullscreen .ship-combat-card {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
 .npc-pronouns {
   color: #888;
   font-size: 0.75rem;

@@ -565,6 +565,7 @@ function getThemeConfettiColors(themeId: ThemeId): string[] {
     'soggy-bottom-pirates': ['#E4A11B', '#4A90A4', '#5C4033', '#F5E6D3', '#FF6B35'],
     'neon-nightmares': ['#FF00FF', '#00FFFF', '#FF0080', '#80FF00', '#FFFF00'],
     'beast-of-ridgefall': ['#E8872A', '#9B30FF', '#6B2FA0', '#C4A8E0', '#FFE0B2'],
+    'betawave-tapes': ['#FF00FF', '#00FFFF', '#F59E0B', '#FF0080', '#80FF00'],
   };
 
   return themeColors[themeId] || themeColors['tmp-base'];

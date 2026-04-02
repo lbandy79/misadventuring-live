@@ -1,0 +1,570 @@
+/* ══════════════════════════════════════════════════════════
+   Ship Combat Display v2 – big-screen / OBS overlay styling
+   v2: Crew acts as ONE unit. Vote bars instead of station cards.
+   Optimised for 1080p projector at 20+ feet viewing distance
+   ══════════════════════════════════════════════════════════ */
+
+.scd-container {
+  width: 100vw;
+  height: 100vh;
+  background: #0a0e17;
+  color: #e0d8c8;
+  font-family: 'Pirata One', 'MedievalSharp', serif;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* ── Top Bar ──────────────────────────────────────────────── */
+.scd-top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 1rem 2rem;
+  background: rgba(0, 0, 0, 0.5);
+  gap: 2rem;
+}
+
+/* Ship HP */
+.scd-ship-status {
+  display: flex;
+  gap: 2rem;
+  flex: 1;
+}
+
+.scd-ship {
+  flex: 1;
+}
+
+.scd-ship-label {
+  font-size: 1.2rem;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.3rem;
+}
+.scd-ship-label.scout {
+  color: #ff6b6b;
+}
+
+.scd-hp-bar {
+  height: 24px;
+  background: #1a1a2e;
+  border: 2px solid #333;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.scd-hp-fill {
+  height: 100%;
+  transition: width 0.8s ease-out;
+}
+
+.scd-hp-fill.crackle {
+  background: linear-gradient(90deg, #2ecc71, #27ae60);
+}
+.scd-hp-fill.crackle.damaged {
+  background: linear-gradient(90deg, #f39c12, #e67e22);
+}
+.scd-hp-fill.crackle.critical {
+  background: linear-gradient(90deg, #e74c3c, #c0392b);
+  animation: hp-pulse 1s infinite;
+}
+.scd-hp-fill.scout {
+  background: linear-gradient(90deg, #e74c3c, #c0392b);
+}
+
+.scd-hp-text {
+  font-size: 1rem;
+  margin-top: 0.2rem;
+  text-align: center;
+  font-family: monospace;
+}
+
+@keyframes hp-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* Flyer Tracker */
+.scd-flyer-tracker {
+  min-width: 280px;
+  text-align: center;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 3px solid #555;
+  transition: border-color 0.5s, background 0.5s;
+}
+
+.scd-flyer-tracker.safe { border-color: #2ecc71; background: rgba(46, 204, 113, 0.1); }
+.scd-flyer-tracker.warning { border-color: #f39c12; background: rgba(243, 156, 18, 0.15); }
+.scd-flyer-tracker.danger { border-color: #e74c3c; background: rgba(231, 76, 60, 0.2); animation: tracker-danger 1s infinite; }
+
+@keyframes tracker-danger {
+  0%, 100% { box-shadow: 0 0 10px rgba(231, 76, 60, 0.3); }
+  50% { box-shadow: 0 0 30px rgba(231, 76, 60, 0.7); }
+}
+
+.scd-flyer-label {
+  font-size: 1.4rem;
+  font-weight: bold;
+  letter-spacing: 0.15em;
+  margin-bottom: 0.5rem;
+}
+
+.scd-flyer-slots {
+  display: flex;
+  justify-content: center;
+  gap: 0.8rem;
+}
+
+.scd-flyer-slot {
+  font-size: 2.5rem;
+  transition: transform 0.3s;
+}
+.scd-flyer-slot.escaped {
+  animation: skull-appear 0.5s ease-out;
+}
+
+@keyframes skull-appear {
+  0% { transform: scale(0) rotate(-180deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+.scd-flyer-count {
+  font-size: 1rem;
+  margin-top: 0.3rem;
+  font-family: monospace;
+}
+
+/* ── Main Content (center) ────────────────────────────────── */
+.scd-container > [class^="scd-"]:not(.scd-top-bar):not(.scd-bottom-bar) {
+  /* AnimatePresence children fill remaining space */
+}
+
+/* ── Briefing ─────────────────────────────────────────────── */
+.scd-briefing {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+}
+
+.scd-wave-title {
+  font-size: 5rem;
+  color: #f39c12;
+  text-shadow: 0 0 30px rgba(243, 156, 18, 0.5);
+  letter-spacing: 0.2em;
+}
+
+.scd-wave-subtitle {
+  font-size: 2.8rem;
+  color: #e0d8c8;
+  margin-top: 0.5rem;
+  text-shadow: 0 0 15px rgba(224, 216, 200, 0.3);
+}
+
+.scd-briefing-text {
+  font-size: 1.4rem;
+  max-width: 800px;
+  margin-top: 1.5rem;
+  line-height: 1.6;
+  color: #aaa;
+  font-family: 'Georgia', serif;
+}
+
+.scd-threat-preview {
+  display: flex;
+  gap: 2rem;
+  margin-top: 2rem;
+  font-size: 1.6rem;
+}
+
+.scd-special {
+  color: #e74c3c;
+  animation: special-pulse 1.5s infinite;
+}
+
+@keyframes special-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ── Voting ───────────────────────────────────────────────── */
+.scd-voting {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 2rem;
+  overflow: hidden;
+}
+
+.scd-voting-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.scd-section-title {
+  font-size: 2rem;
+  color: #f39c12;
+  letter-spacing: 0.1em;
+}
+
+.scd-vote-total {
+  font-size: 1.4rem;
+  color: #888;
+  font-family: monospace;
+}
+
+/* Vote Bars (v2: replaces station cards) */
+.scd-vote-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  flex: 1;
+  justify-content: center;
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.scd-vote-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.6rem 1rem;
+  background: rgba(30, 30, 50, 0.6);
+  border-radius: 8px;
+  border: 2px solid #333;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.scd-vote-bar-row.leading {
+  border-color: #2ecc71;
+  box-shadow: 0 0 15px rgba(46, 204, 113, 0.2);
+}
+
+.scd-vote-bar-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 220px;
+}
+
+.scd-vote-bar-icon {
+  font-size: 2rem;
+}
+
+.scd-vote-bar-name {
+  font-size: 1.4rem;
+  color: #e0d8c8;
+}
+
+.scd-vote-bar-track {
+  flex: 1;
+  height: 28px;
+  background: #1a1a2e;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.scd-vote-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #555, #666);
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
+
+.scd-vote-bar-fill.leading {
+  background: linear-gradient(90deg, #2ecc71, #27ae60);
+}
+
+.scd-vote-bar-count {
+  min-width: 100px;
+  text-align: right;
+  font-size: 1.2rem;
+  font-family: monospace;
+  color: #aaa;
+}
+
+/* Boarder Zones */
+.scd-boarders {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  padding: 0.5rem 0;
+  font-size: 1.2rem;
+  color: #e74c3c;
+}
+
+/* ── PC Voting ── */
+.scd-pc-winning-action {
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #2ecc71;
+  margin-bottom: 1rem;
+  padding: 0.5rem 1rem;
+  background: rgba(46, 204, 113, 0.08);
+  border: 1px solid rgba(46, 204, 113, 0.2);
+  border-radius: 8px;
+}
+.scd-vote-bar-bonus {
+  font-size: 0.9rem;
+  color: #3498db;
+  font-weight: 700;
+  margin-left: 0.5rem;
+}
+
+/* Active Flyers */
+.scd-active-flyers {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 0.5rem 0;
+  font-size: 1.3rem;
+}
+
+.scd-flyer-progress {
+  color: #f39c12;
+}
+
+/* ── Resolving / Awaiting Roll ─────────────────────────────── */
+.scd-resolving {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.scd-resolving-icon {
+  font-size: 6rem;
+}
+
+.scd-resolving-text {
+  font-size: 2rem;
+  color: #888;
+  margin-top: 1rem;
+}
+
+.scd-resolving-action {
+  font-size: 1.6rem;
+  color: #f39c12;
+  margin-top: 0.5rem;
+}
+
+/* ── Player Turns ─────────────────────────────────────────── */
+.scd-player-turns {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.scd-phase-icon {
+  font-size: 5rem;
+  margin-bottom: 1rem;
+}
+
+.scd-phase-icon.villain {
+  color: #e74c3c;
+}
+
+.scd-phase-title {
+  font-size: 2.8rem;
+  color: #f39c12;
+  letter-spacing: 0.15em;
+  text-shadow: 0 0 20px rgba(243, 156, 18, 0.4);
+}
+
+.scd-phase-title.villain {
+  color: #e74c3c;
+  text-shadow: 0 0 20px rgba(231, 76, 60, 0.4);
+}
+
+/* Crew Action Result Card */
+.scd-crew-result {
+  margin-top: 1.5rem;
+  padding: 1.2rem 2rem;
+  border-radius: 12px;
+  text-align: center;
+  max-width: 700px;
+  border: 3px solid transparent;
+}
+
+.scd-crew-result.success {
+  border-color: #2ecc71;
+  background: rgba(46, 204, 113, 0.1);
+}
+.scd-crew-result.fail {
+  border-color: #e74c3c;
+  background: rgba(231, 76, 60, 0.1);
+}
+
+.scd-crew-result-label {
+  font-size: 1.8rem;
+  color: #e0d8c8;
+  margin-bottom: 0.5rem;
+}
+
+.scd-crew-result-roll {
+  font-size: 1.4rem;
+  font-family: monospace;
+  margin-bottom: 0.5rem;
+}
+.scd-crew-result-roll.success { color: #2ecc71; }
+.scd-crew-result-roll.fail { color: #e74c3c; }
+
+.scd-crew-result-narrative {
+  font-size: 1.2rem;
+  color: #aaa;
+  font-style: italic;
+  line-height: 1.5;
+  font-family: 'Georgia', serif;
+}
+
+.scd-crew-result-effects {
+  font-size: 1rem;
+  color: #888;
+  margin-top: 0.5rem;
+  font-family: monospace;
+}
+
+/* ── Villain Turn ─────────────────────────────────────────── */
+.scd-villain-turn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: radial-gradient(circle, rgba(231, 76, 60, 0.08) 0%, transparent 70%);
+}
+
+.scd-villain-summary {
+  margin-top: 1.5rem;
+  padding: 1.2rem 2rem;
+  border-radius: 12px;
+  text-align: center;
+  max-width: 700px;
+  border: 3px solid #e74c3c;
+  background: rgba(231, 76, 60, 0.1);
+}
+
+.scd-villain-narrative {
+  font-size: 1.3rem;
+  color: #e0d8c8;
+  font-style: italic;
+  line-height: 1.5;
+  font-family: 'Georgia', serif;
+}
+
+.scd-villain-stats {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  margin-top: 0.8rem;
+  font-size: 1.2rem;
+  color: #e74c3c;
+  font-family: monospace;
+}
+
+/* ── Between Waves ────────────────────────────────────────── */
+.scd-between-waves {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.scd-between-summary {
+  margin-top: 1.5rem;
+  font-size: 1.4rem;
+  color: #aaa;
+  text-align: center;
+  line-height: 2;
+}
+
+/* Captain HP (Wave 3) */
+.scd-captain-status {
+  margin-top: 1rem;
+  font-size: 2rem;
+  color: #f39c12;
+}
+
+/* ── Complete ─────────────────────────────────────────────── */
+.scd-complete {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.scd-complete.victory {
+  background: radial-gradient(circle, rgba(46, 204, 113, 0.15) 0%, transparent 70%);
+}
+.scd-complete.defeat {
+  background: radial-gradient(circle, rgba(231, 76, 60, 0.2) 0%, transparent 70%);
+}
+
+.scd-complete-icon {
+  font-size: 6rem;
+  margin-bottom: 1rem;
+}
+
+.scd-complete-title {
+  font-size: 3.5rem;
+  letter-spacing: 0.15em;
+}
+.scd-complete.victory .scd-complete-title {
+  color: #2ecc71;
+  text-shadow: 0 0 40px rgba(46, 204, 113, 0.5);
+}
+.scd-complete.defeat .scd-complete-title {
+  color: #e74c3c;
+  text-shadow: 0 0 40px rgba(231, 76, 60, 0.5);
+}
+
+.scd-complete-subtitle {
+  font-size: 1.6rem;
+  color: #888;
+  margin-top: 0.5rem;
+}
+
+.scd-complete-crew {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 2rem;
+  font-size: 1.4rem;
+}
+
+.scd-complete-member {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.scd-complete-emoji {
+  font-size: 1.8rem;
+}
+
+/* ── Bottom Bar ───────────────────────────────────────────── */
+.scd-bottom-bar {
+  padding: 0.5rem 2rem;
+  text-align: center;
+  font-size: 1.1rem;
+  color: #888;
+  background: rgba(0, 0, 0, 0.4);
+  letter-spacing: 0.05em;
+}

@@ -6,3 +6,4 @@
 
 export { useAwesomeMix, type WinnerRevealOptions, type DiceRollOptions, type ScreenShakeOptions, type VoteParticleOptions } from './useAwesomeMix';
 export { useCueListener, broadcastCue, type CueType } from './useCueListener';
+export { useSystemConfig, getStatById, getStatName } from './useSystemConfig';

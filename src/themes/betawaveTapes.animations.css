@@ -1,0 +1,114 @@
+/* =============================================================================
+   Betawave Tapes — Theme-Specific Animations
+   
+   1991 VHS horror: tracking errors, bar-light warmth, analog degradation.
+   Extends the neon-nightmares animation DNA with warmer, more analog feel.
+   ============================================================================= */
+
+/* Glitch — translate + hue-rotate rapid pulses */
+@keyframes bw-glitch {
+  0% { transform: translate(0); filter: hue-rotate(0deg); }
+  20% { transform: translate(-3px, 2px); filter: hue-rotate(40deg); }
+  40% { transform: translate(2px, -1px); filter: hue-rotate(-20deg); }
+  60% { transform: translate(-1px, 3px); filter: hue-rotate(60deg); }
+  80% { transform: translate(3px, -2px); filter: hue-rotate(-40deg); }
+  100% { transform: translate(0); filter: hue-rotate(0deg); }
+}
+
+/* Flicker — rapid opacity blinks like a failing fluorescent bar light */
+@keyframes bw-flicker {
+  0%, 100% { opacity: 1; }
+  5% { opacity: 0.85; }
+  10% { opacity: 1; }
+  15% { opacity: 0.7; }
+  20% { opacity: 1; }
+  50% { opacity: 0.95; }
+  55% { opacity: 0.6; }
+  57% { opacity: 1; }
+}
+
+/* VHS tracking distortion — skew + saturate */
+@keyframes bw-tracking {
+  0%, 100% { transform: skewX(0deg); filter: saturate(1); }
+  25% { transform: skewX(-0.5deg); filter: saturate(1.3); }
+  50% { transform: skewX(0.8deg); filter: saturate(0.7); }
+  75% { transform: skewX(-0.3deg); filter: saturate(1.1); }
+}
+
+/* Scan line scrolling down */
+@keyframes bw-scan {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 100%; }
+}
+
+/* Static noise shimmer */
+@keyframes bw-static {
+  0%, 100% { opacity: 0.03; }
+  50% { opacity: 0.06; }
+}
+
+/* Strobe — brief brightness pulse for reveals */
+@keyframes bw-strobe {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.8) saturate(1.5); }
+}
+
+/* Glow pulse — warm amber + magenta dual glow */
+@keyframes bw-glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(255, 45, 149, 0.3), 0 0 16px rgba(245, 158, 11, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(255, 45, 149, 0.5), 0 0 32px rgba(245, 158, 11, 0.25);
+  }
+}
+
+/* RGB chromatic aberration — shifted color channels */
+@keyframes bw-rgb-split {
+  0%, 100% {
+    text-shadow: -1px 0 rgba(255, 45, 149, 0.5), 1px 0 rgba(0, 229, 238, 0.5);
+  }
+  33% {
+    text-shadow: -2px 0 rgba(255, 45, 149, 0.7), 2px 0 rgba(0, 229, 238, 0.3);
+  }
+  66% {
+    text-shadow: -1px 1px rgba(255, 45, 149, 0.3), 1px -1px rgba(245, 158, 11, 0.5);
+  }
+}
+
+/* Bar neon sign buzz — subtle scale oscillation */
+@keyframes bw-neon-buzz {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  25% { transform: scale(1.002); opacity: 0.97; }
+  50% { transform: scale(0.998); opacity: 1; }
+  75% { transform: scale(1.001); opacity: 0.98; }
+}
+
+/* Tape degradation — for "bleed" moments */
+@keyframes bw-degrade {
+  0% { filter: saturate(1) contrast(1); }
+  30% { filter: saturate(1.4) contrast(1.2); }
+  50% { filter: saturate(0.5) contrast(0.8) blur(0.5px); }
+  70% { filter: saturate(1.3) contrast(1.1); }
+  100% { filter: saturate(1) contrast(1); }
+}
+
+/* Utility classes */
+.bw-glitch { animation: bw-glitch 0.3s steps(5) forwards; }
+.bw-flicker { animation: bw-flicker 2s ease-in-out infinite; }
+.bw-tracking { animation: bw-tracking 4s ease-in-out infinite; }
+.bw-rgb-split { animation: bw-rgb-split 3s ease-in-out infinite; }
+.bw-neon-buzz { animation: bw-neon-buzz 2s ease-in-out infinite; }
+.bw-degrade { animation: bw-degrade 3s ease-in-out; }
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .bw-glitch,
+  .bw-flicker,
+  .bw-tracking,
+  .bw-rgb-split,
+  .bw-neon-buzz,
+  .bw-degrade {
+    animation: none !important;
+  }
+}

@@ -9,12 +9,14 @@ import GroupRoll from './GroupRoll';
 import MonsterVote from './MonsterVote';
 import MonsterBuilder from './MonsterBuilder';
 import VillagerSubmission from './VillagerSubmission';
+import DecoderRingVote from './DecoderRingVote';
+import ShipCombatVote from './ShipCombatVote';
 import { TMPWarning, TMPCheck } from './icons/TMPIcons';
 import { ThemeLogo } from '../themes';
 import './AudienceView.css';
 
 interface ActiveInteraction {
-  type: 'none' | 'vote' | 'madlibs' | 'npc-naming' | 'group-roll' | 'monster-vote' | 'villager-submit' | 'monster-builder';
+  type: 'none' | 'vote' | 'madlibs' | 'npc-naming' | 'group-roll' | 'monster-vote' | 'villager-submit' | 'monster-builder' | 'decoder-ring' | 'ship-combat';
   question?: string;
   options?: Array<{ id: string; label: string; emoji: string }>;
   isOpen?: boolean;
@@ -218,6 +220,12 @@ export default function AudienceView() {
         )}
 
         {activeInteraction?.type === 'villager-submit' && <VillagerSubmission />}
+
+        {/* Decoder Ring — Well of Lines */}
+        {activeInteraction?.type === 'decoder-ring' && <DecoderRingVote />}
+
+        {/* Ship Combat */}
+        {activeInteraction?.type === 'ship-combat' && <ShipCombatVote />}
       </main>
     </div>
   );

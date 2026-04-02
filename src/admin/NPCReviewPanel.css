@@ -1,0 +1,343 @@
+/* =============================================================================
+   GM NPC Review Panel — iPad-optimized dashboard section
+   ============================================================================= */
+
+.npc-review-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.npc-review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.npc-review-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--tmp-text-primary, #eaeaea);
+}
+
+.npc-count {
+  font-size: 0.85rem;
+  color: var(--tmp-text-secondary, #a0a0b0);
+  background: var(--tmp-bg-elevated, rgba(255,255,255,0.08));
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+}
+
+/* Filters */
+.npc-review-filters {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.filter-btn {
+  font-size: 0.8rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: transparent;
+  color: var(--tmp-text-secondary, #a0a0b0);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.filter-btn.active {
+  background: var(--tmp-color-primary, #FF2D95);
+  color: var(--tmp-text-on-primary, #0a0a0f);
+  border-color: var(--tmp-color-primary, #FF2D95);
+}
+
+/* NPC list */
+.npc-review-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.npc-empty {
+  text-align: center;
+  color: var(--tmp-text-secondary);
+  padding: 2rem;
+  font-style: italic;
+}
+
+/* NPC card */
+.npc-review-card {
+  background: var(--tmp-bg-card, #12121A);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 0.75rem;
+  transition: border-color 0.2s;
+}
+
+.npc-review-card.flagged {
+  border-color: rgba(255, 215, 0, 0.4);
+  background: rgba(255, 215, 0, 0.05);
+}
+
+.npc-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.4rem;
+}
+
+.npc-card-name {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--tmp-text-primary);
+  display: block;
+}
+
+.npc-card-occupation {
+  font-size: 0.8rem;
+  color: var(--tmp-color-secondary, #00F5FF);
+  text-transform: uppercase;
+  letter-spacing: 0.04rem;
+}
+
+.flag-btn {
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  cursor: pointer;
+  padding: 0.2rem;
+  opacity: 0.6;
+  transition: opacity 0.15s, transform 0.15s;
+}
+
+.flag-btn.active {
+  opacity: 1;
+}
+
+.flag-btn:hover {
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+/* Appearance */
+.npc-card-appearance {
+  font-size: 0.85rem;
+  color: var(--tmp-text-primary);
+  margin: 0 0 0.4rem;
+  line-height: 1.4;
+}
+
+/* Secret */
+.npc-card-secret {
+  font-size: 0.8rem;
+  color: rgba(255, 51, 102, 0.9);
+  background: rgba(255, 51, 102, 0.08);
+  padding: 0.4rem 0.5rem;
+  border-radius: 4px;
+  margin-bottom: 0.4rem;
+  line-height: 1.3;
+}
+
+.secret-label {
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.04rem;
+}
+
+/* Stats */
+.npc-card-stats {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+.stat-badge {
+  font-size: 0.8rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.15s;
+}
+
+.stat-badge.best {
+  background: rgba(57, 255, 20, 0.1);
+  color: #39FF14;
+  border: 1px solid rgba(57, 255, 20, 0.25);
+}
+
+.stat-badge.worst {
+  background: rgba(255, 51, 102, 0.1);
+  color: #FF3366;
+  border: 1px solid rgba(255, 51, 102, 0.25);
+}
+
+.stat-badge-label {
+  font-weight: 600;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+}
+
+.stat-verbs-popup {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  background: var(--tmp-bg-elevated, #1A1A2E);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 4px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.75rem;
+  color: var(--tmp-text-secondary);
+  white-space: nowrap;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+/* Notes */
+.npc-card-notes {
+  margin-top: 0.3rem;
+}
+
+.notes-toggle {
+  font-size: 0.8rem;
+  color: var(--tmp-text-secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.2rem 0;
+  text-align: left;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.notes-toggle:hover {
+  color: var(--tmp-text-primary);
+}
+
+.notes-edit textarea {
+  width: 100%;
+  font-size: 0.8rem;
+  padding: 0.4rem;
+  background: var(--tmp-bg-main, #0a0a0f);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 4px;
+  color: var(--tmp-text-primary);
+  resize: vertical;
+  outline: none;
+  font-family: inherit;
+}
+
+.notes-edit textarea:focus {
+  border-color: var(--tmp-color-primary, #FF2D95);
+}
+
+.notes-actions {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.3rem;
+}
+
+.notes-actions button {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  background: var(--tmp-color-primary, #FF2D95);
+  color: var(--tmp-text-on-primary, #0a0a0f);
+}
+
+.notes-actions .cancel {
+  background: transparent;
+  color: var(--tmp-text-secondary);
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+/* Header actions */
+.npc-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.clear-all-btn {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 51, 102, 0.4);
+  background: rgba(255, 51, 102, 0.1);
+  color: #FF3366;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.clear-all-btn:hover {
+  background: rgba(255, 51, 102, 0.2);
+  border-color: rgba(255, 51, 102, 0.6);
+}
+
+/* Inline confirmation */
+.confirm-inline {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+}
+
+.confirm-text {
+  color: #FF3366;
+  font-weight: 600;
+}
+
+.confirm-yes {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  border: none;
+  background: #FF3366;
+  color: #fff;
+  cursor: pointer;
+}
+
+.confirm-yes:disabled,
+.confirm-no:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.confirm-no {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: transparent;
+  color: var(--tmp-text-secondary);
+  cursor: pointer;
+}
+
+/* Per-NPC delete */
+.npc-card-delete {
+  margin-top: 0.3rem;
+  padding-top: 0.3rem;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.delete-npc-btn {
+  background: none;
+  border: none;
+  font-size: 0.85rem;
+  cursor: pointer;
+  opacity: 0.4;
+  transition: opacity 0.15s;
+  padding: 0.15rem 0.3rem;
+}
+
+.delete-npc-btn:hover {
+  opacity: 1;
+}

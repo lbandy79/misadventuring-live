@@ -16,6 +16,8 @@ import MonsterReveal from './MonsterReveal';
 import QRCode from './QRCode';
 import MonsterBuilderDisplay from './MonsterBuilderDisplay';
 import VillagerDisplay from './VillagerDisplay';
+import DecoderRingDisplay from './DecoderRingDisplay';
+import ShipCombatDisplay from './ShipCombatDisplay';
 import './DisplayView.css';
 
 interface VoteOption {
@@ -25,7 +27,7 @@ interface VoteOption {
 }
 
 interface ActiveInteraction {
-  type: 'none' | 'vote' | 'madlibs' | 'npc-naming' | 'group-roll' | 'monster-vote' | 'villager-submit' | 'monster-builder';
+  type: 'none' | 'vote' | 'madlibs' | 'npc-naming' | 'group-roll' | 'monster-vote' | 'villager-submit' | 'monster-builder' | 'decoder-ring' | 'ship-combat';
   question?: string;
   options?: VoteOption[];
   isOpen?: boolean;
@@ -663,6 +665,30 @@ export default function DisplayView() {
               mode={activeInteraction.status === 'displaying' ? 'carousel' : 'grid'}
               rotationInterval={5}
             />
+          </motion.div>
+        )}
+
+        {/* Decoder Ring — Well of Lines */}
+        {activeInteraction.type === 'decoder-ring' && (
+          <motion.div
+            key="decoder-ring-display"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <DecoderRingDisplay onComplete={() => console.log('Decoder ring complete!')} />
+          </motion.div>
+        )}
+
+        {/* Ship Combat */}
+        {activeInteraction.type === 'ship-combat' && (
+          <motion.div
+            key="ship-combat-display"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <ShipCombatDisplay onComplete={() => console.log('Ship combat complete!')} />
           </motion.div>
         )}
       </AnimatePresence>

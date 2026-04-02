@@ -1,0 +1,184 @@
+/* =============================================================================
+   VHS Character Card — Shareable Post-Submission Render
+   VHS tape label proportions, scan lines, CRT font treatment
+   ============================================================================= */
+
+.character-card {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  aspect-ratio: 6 / 3.5;
+  background: linear-gradient(
+    180deg,
+    #0A0A0F 0%,
+    #12121A 40%,
+    #0E0E16 100%
+  );
+  border: 2px solid rgba(255, 45, 149, 0.5);
+  border-radius: 8px;
+  padding: 1.2rem 1.4rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  box-shadow:
+    0 0 15px rgba(255, 45, 149, 0.3),
+    0 0 30px rgba(0, 245, 255, 0.15),
+    inset 0 0 60px rgba(0, 0, 0, 0.5);
+}
+
+/* Scan lines */
+.vhs-scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 1px,
+    rgba(0, 0, 0, 0.15) 1px,
+    rgba(0, 0, 0, 0.15) 2px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Subtle noise overlay */
+.vhs-noise {
+  position: absolute;
+  inset: 0;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* All content above overlays */
+.card-header,
+.card-identity,
+.card-section,
+.card-stats,
+.card-footer {
+  position: relative;
+  z-index: 2;
+}
+
+/* Header */
+.card-header {
+  display: flex;
+  justify-content: center;
+}
+
+.card-series {
+  font-family: var(--tmp-font-accent, 'Orbitron', monospace);
+  font-size: 0.65rem;
+  letter-spacing: 0.25rem;
+  text-transform: uppercase;
+  color: rgba(255, 45, 149, 0.7);
+  text-shadow: 0 0 8px rgba(255, 45, 149, 0.5);
+}
+
+/* Identity */
+.card-identity {
+  text-align: center;
+}
+
+.card-name {
+  font-family: var(--tmp-font-display, 'Monoton', cursive);
+  font-size: 1.6rem;
+  color: #EAEAEA;
+  margin: 0;
+  text-shadow:
+    0 0 10px rgba(0, 245, 255, 0.5),
+    0 0 20px rgba(0, 245, 255, 0.2);
+  line-height: 1.2;
+}
+
+.card-occupation {
+  font-family: var(--tmp-font-body, 'VT323', monospace);
+  font-size: 1rem;
+  color: var(--tmp-color-secondary, #00F5FF);
+  margin: 0.2rem 0 0;
+  text-transform: uppercase;
+  letter-spacing: 0.1rem;
+}
+
+/* Appearance */
+.card-appearance {
+  font-family: var(--tmp-font-body, 'VT323', monospace);
+  font-size: 0.85rem;
+  color: rgba(234, 234, 234, 0.8);
+  margin: 0;
+  line-height: 1.4;
+  text-align: center;
+  font-style: italic;
+}
+
+/* Stats row */
+.card-stats {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+}
+
+.card-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+}
+
+.card-stat .stat-die {
+  font-family: var(--tmp-font-accent, 'Orbitron', monospace);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.card-stat.best .stat-die {
+  color: #39FF14;
+  text-shadow: 0 0 8px rgba(57, 255, 20, 0.5);
+}
+
+.card-stat.worst .stat-die {
+  color: #FF3366;
+  text-shadow: 0 0 8px rgba(255, 51, 102, 0.5);
+}
+
+.card-stat .stat-label {
+  font-family: var(--tmp-font-body, 'VT323', monospace);
+  font-size: 0.9rem;
+  color: #EAEAEA;
+  text-transform: uppercase;
+  letter-spacing: 0.05rem;
+}
+
+.card-stat .stat-desc {
+  font-family: var(--tmp-font-body, 'VT323', monospace);
+  font-size: 0.65rem;
+  color: var(--tmp-text-secondary, #A0A0B0);
+  max-width: 120px;
+  text-align: center;
+}
+
+/* Footer */
+.card-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+}
+
+.card-tape {
+  font-family: var(--tmp-font-accent, 'Orbitron', monospace);
+  font-size: 0.55rem;
+  letter-spacing: 0.15rem;
+  text-transform: uppercase;
+  color: rgba(255, 45, 149, 0.6);
+}
+
+.card-date {
+  font-family: var(--tmp-font-body, 'VT323', monospace);
+  font-size: 0.6rem;
+  color: var(--tmp-text-secondary, #A0A0B0);
+  letter-spacing: 0.1rem;
+}

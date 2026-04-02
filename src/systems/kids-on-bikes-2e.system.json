@@ -1,0 +1,545 @@
+{
+  "system": {
+    "id": "kids-on-bikes-2e",
+    "name": "Kids on Bikes",
+    "edition": "Second Edition",
+    "publisher": "Hunters Entertainment",
+    "description": "Everyday people encountering strange, scary, and otherworldly forces they can't comprehend, much less overpower."
+  },
+
+  "stats": [
+    {
+      "id": "brains",
+      "name": "Brains",
+      "description": "How book-smart a character is. Determines how well they understand problems and solve intellectual puzzles.",
+      "likelyVerbs": ["calculate", "confuse", "decode", "learn", "remember", "solve", "understand"]
+    },
+    {
+      "id": "brawn",
+      "name": "Brawn",
+      "description": "How much brute strength a character has. Does not determine fighting ability — just lifting, athleticism, and physical intimidation.",
+      "likelyVerbs": ["bend", "climb", "carry", "lift", "hurl", "swim", "throw"]
+    },
+    {
+      "id": "fight",
+      "name": "Fight",
+      "description": "How scary a character is in and out of a fight. Determines intimidation and ability to handle physical confrontation.",
+      "likelyVerbs": ["intimidate", "parry", "punch", "scare", "shoot", "threaten", "wrestle"]
+    },
+    {
+      "id": "flight",
+      "name": "Flight",
+      "description": "How fast and evasive a character is, both physically and verbally. Quick legs and quick mouths.",
+      "likelyVerbs": ["avoid", "dodge", "drive", "escape", "evade", "outrun", "snatch"]
+    },
+    {
+      "id": "charm",
+      "name": "Charm",
+      "description": "How socially adept a character is. Reading emotions, talking out of tough situations, persuasion.",
+      "likelyVerbs": ["convince", "entice", "flatter", "lie", "persuade", "sweet talk", "trick"]
+    },
+    {
+      "id": "grit",
+      "name": "Grit",
+      "description": "How hard it is to unsettle a character emotionally or physically. Keeping cool under pressure. Street smarts.",
+      "likelyVerbs": ["brace", "endure", "refuse", "resist", "see through", "struggle against", "withstand"]
+    }
+  ],
+
+  "dice": {
+    "available": ["d4", "d6", "d8", "d10", "d12", "d20"],
+    "descriptions": {
+      "d20": "Superb — obviously a strength upon first meeting.",
+      "d12": "Impressive — people who know you would say you're pretty good.",
+      "d10": "Above Average — slightly better than most.",
+      "d8": "Below Average — not bad, but not good either.",
+      "d6": "Bad — people who know you would say you're pretty bad.",
+      "d4": "Terrible — obviously a weakness upon first meeting."
+    }
+  },
+
+  "ageGroups": [
+    {
+      "id": "child",
+      "name": "Child",
+      "statBonuses": { "flight": 1, "charm": 1 },
+      "freeStrength": "quick_healing",
+      "restrictedStrengths": ["rebellious"],
+      "description": "Quick and generally likable."
+    },
+    {
+      "id": "teen",
+      "name": "Teen",
+      "statBonuses": { "fight": 1, "brawn": 1 },
+      "freeStrength": "rebellious",
+      "description": "Pugnacious and in their prime."
+    },
+    {
+      "id": "adult",
+      "name": "Adult",
+      "statBonuses": { "brains": 1, "grit": 1 },
+      "freeStrength": "skilled_at",
+      "description": "Seen enough of the world to know what it's about."
+    }
+  ],
+
+  "tropes": [
+    {
+      "id": "adventurous_scout",
+      "name": "Adventurous Scout",
+      "allowedAges": ["child", "teen"],
+      "statAssignment": { "brains": "d20", "brawn": "d12", "grit": "d10", "charm": "d8", "flight": "d6", "fight": "d4" },
+      "suggestedStrengths": ["cool_under_pressure", "intuitive", "lucky", "prepared", "skilled_at", "treasure_hunter"],
+      "suggestedFlaws": ["dogmatic", "gullible", "nosey", "paranoid", "patronizing", "rambunctious", "restless"],
+      "questions": [
+        "Who first got you into Scouting (or the great outdoors)?",
+        "What do you have to give up to spend as much time in nature as you do?"
+      ]
+    },
+    {
+      "id": "brilliant_mathlete",
+      "name": "Brilliant Mathlete",
+      "allowedAges": ["child", "teen"],
+      "statAssignment": { "brains": "d20", "flight": "d12", "grit": "d10", "charm": "d8", "fight": "d6", "brawn": "d4" },
+      "suggestedStrengths": ["gross", "intuitive", "loyal", "prepared", "skilled_at", "wealthy"],
+      "suggestedFlaws": ["absent_minded", "clumsy", "cowardly", "dogmatic", "flippant", "picky", "self_pitying"],
+      "questions": [
+        "Why do you get so much satisfaction from your academic excellence?",
+        "What have you sacrificed to be so good in school?"
+      ]
+    },
+    {
+      "id": "conspiracy_theorist",
+      "name": "Conspiracy Theorist",
+      "allowedAges": ["teen", "adult"],
+      "statAssignment": { "brains": "d20", "fight": "d12", "flight": "d10", "grit": "d8", "brawn": "d6", "charm": "d4" },
+      "suggestedStrengths": ["heroic", "intuitive", "prepared", "skilled_at", "treasure_hunter", "unassuming"],
+      "suggestedFlaws": ["lazy", "paranoid", "patronizing", "reckless", "restless", "superstitious", "weak_willed"],
+      "questions": [
+        "What are you sure is happening in the town that no one else knows about?",
+        "How far will you go to have others believe you?"
+      ]
+    },
+    {
+      "id": "cunning_detective",
+      "name": "Cunning Detective",
+      "allowedAges": ["child", "teen", "adult"],
+      "statAssignment": { "brains": "d20", "charm": "d12", "grit": "d10", "fight": "d8", "brawn": "d6", "flight": "d4" },
+      "suggestedStrengths": ["cool_under_pressure", "heroic", "intuitive", "protective", "skilled_at", "treasure_hunter"],
+      "suggestedFlaws": ["blunt", "callous", "demanding", "nosey", "patronizing", "prejudiced", "vindictive"],
+      "questions": [
+        "What's the most impressive case you cracked?",
+        "What case could you never solve, and why does it still bother you?"
+      ]
+    },
+    {
+      "id": "blue_collar_worker",
+      "name": "Blue-Collar Worker",
+      "allowedAges": ["adult"],
+      "statAssignment": { "brawn": "d20", "fight": "d12", "grit": "d10", "brains": "d8", "charm": "d6", "flight": "d4" },
+      "suggestedStrengths": ["cool_under_pressure", "lucky", "prepared", "quick_healing", "tough", "treasure_hunter"],
+      "suggestedFlaws": ["blunt", "envious", "greedy", "reckless", "resentful", "superstitious", "vindictive"],
+      "questions": [
+        "Though it's tough work, what do you love about what you do?",
+        "What would it mean for you if you lost your job?"
+      ]
+    },
+    {
+      "id": "daring_athlete",
+      "name": "Daring Athlete",
+      "allowedAges": ["teen"],
+      "statAssignment": { "brawn": "d20", "flight": "d12", "grit": "d10", "fight": "d8", "charm": "d6", "brains": "d4" },
+      "suggestedStrengths": ["gross", "heroic", "loyal", "protective", "skilled_at", "tough"],
+      "suggestedFlaws": ["boastful", "gullible", "hot_tempered", "impatient", "messy", "rambunctious", "superstitious"],
+      "questions": [
+        "Why do you get so much satisfaction from being excellent at your sport?",
+        "What have you sacrificed to be so good in this sport?"
+      ]
+    },
+    {
+      "id": "dedicated_farmer",
+      "name": "Dedicated Farmer",
+      "allowedAges": ["child", "teen", "adult"],
+      "statAssignment": { "brawn": "d20", "grit": "d12", "fight": "d10", "flight": "d8", "brains": "d6", "charm": "d4" },
+      "suggestedStrengths": ["cool_under_pressure", "heroic", "prepared", "protective", "tough", "unassuming"],
+      "suggestedFlaws": ["callous", "gluttonous", "ignorant", "insecure", "messy", "petty", "rude"],
+      "questions": [
+        "Why does working the land bring you so much joy?",
+        "What do you miss out on because of the time you have to put in farming?"
+      ]
+    },
+    {
+      "id": "laidback_slacker",
+      "name": "Laidback Slacker",
+      "allowedAges": ["teen", "adult"],
+      "statAssignment": { "brawn": "d20", "charm": "d12", "flight": "d10", "fight": "d8", "grit": "d6", "brains": "d4" },
+      "suggestedStrengths": ["cool_under_pressure", "easygoing", "intuitive", "treasure_hunter", "unassuming", "wealthy"],
+      "suggestedFlaws": ["absent_minded", "capricious", "deceitful", "ignorant", "lazy", "messy", "rude"],
+      "questions": [
+        "What do you think of all the try-hards around you?",
+        "What are you willing to go the extra mile for?"
+      ]
+    },
+    {
+      "id": "funny_sidekick",
+      "name": "Funny Sidekick",
+      "allowedAges": ["child", "teen"],
+      "statAssignment": { "charm": "d20", "brawn": "d12", "flight": "d10", "grit": "d8", "fight": "d6", "brains": "d4" },
+      "suggestedStrengths": ["easygoing", "gross", "heroic", "protective", "skilled_at", "treasure_hunter"],
+      "suggestedFlaws": ["clumsy", "flippant", "gluttonous", "ignorant", "lazy", "messy", "rude"],
+      "questions": [
+        "What do you do that always lightens your friends' moods?",
+        "When does being in the 'sidekick' role frustrate you?"
+      ]
+    },
+    {
+      "id": "overeager_enthusiast",
+      "name": "Overeager Enthusiast",
+      "allowedAges": ["child", "teen", "adult"],
+      "statAssignment": { "charm": "d20", "brains": "d12", "grit": "d10", "brawn": "d8", "fight": "d6", "flight": "d4" },
+      "suggestedStrengths": ["gross", "intuitive", "lucky", "skilled_at", "treasure_hunter", "wealthy"],
+      "suggestedFlaws": ["capricious", "cowardly", "impatient", "insecure", "oversensitive", "paranoid", "self_pitying"],
+      "questions": [
+        "How did you get so passionate about what you're so passionate about?",
+        "What have you ignored to pursue this passion?"
+      ]
+    },
+    {
+      "id": "popular_kid",
+      "name": "Popular Kid",
+      "allowedAges": ["child", "teen"],
+      "statAssignment": { "charm": "d20", "flight": "d12", "brains": "d10", "grit": "d8", "brawn": "d6", "fight": "d4" },
+      "suggestedStrengths": ["cool_under_pressure", "easygoing", "loyal", "lucky", "skilled_at", "wealthy"],
+      "suggestedFlaws": ["boastful", "capricious", "deceitful", "picky", "prejudiced", "spoiled", "weak_willed"],
+      "questions": [
+        "Beyond people wanting to impress you and the social capital that brings, what do you like about being popular?",
+        "How do you treat the unpopular kids?"
+      ]
+    },
+    {
+      "id": "prom_royalty",
+      "name": "Prom Royalty",
+      "allowedAges": ["teen"],
+      "statAssignment": { "charm": "d20", "grit": "d12", "fight": "d10", "flight": "d8", "brains": "d6", "brawn": "d4" },
+      "suggestedStrengths": ["cool_under_pressure", "intuitive", "lucky", "prepared", "skilled_at", "wealthy"],
+      "suggestedFlaws": ["blunt", "hot_tempered", "petty", "self_centered", "spoiled", "vain", "vindictive"],
+      "questions": [
+        "What benefits have you gained from having such a high place in the school's social hierarchy?",
+        "How did it feel the first time you heard someone say that you're 'beautiful but terrible'?"
+      ]
+    },
+    {
+      "id": "animal_lover",
+      "name": "Animal Lover",
+      "allowedAges": ["child", "teen"],
+      "statAssignment": { "fight": "d20", "brawn": "d12", "charm": "d10", "flight": "d8", "brains": "d6", "grit": "d4" },
+      "suggestedStrengths": ["cool_under_pressure", "easygoing", "protective", "skilled_at", "tough", "wealthy"],
+      "suggestedFlaws": ["clumsy", "demanding", "dogmatic", "oversensitive", "picky", "spoiled", "weak_willed"],
+      "questions": [
+        "When did you get the pet that's always by your side?",
+        "Why do you feel like your pet understands you better than most people?"
+      ]
+    },
+    {
+      "id": "mysterious_transfer",
+      "name": "Mysterious Transfer",
+      "allowedAges": ["child", "teen"],
+      "statAssignment": { "fight": "d20", "flight": "d12", "brains": "d10", "grit": "d8", "brawn": "d6", "charm": "d4" },
+      "suggestedStrengths": ["easygoing", "gross", "heroic", "skilled_at", "unassuming", "wealthy"],
+      "suggestedFlaws": ["boastful", "envious", "gullible", "picky", "rambunctious", "reckless", "restless"],
+      "questions": [
+        "Why is being new and mysterious so much fun for you?",
+        "Which rumor about you hurts the most?"
+      ]
+    },
+    {
+      "id": "overprotective_parent",
+      "name": "Overprotective Parent",
+      "allowedAges": ["adult"],
+      "statAssignment": { "fight": "d20", "brains": "d12", "brawn": "d10", "charm": "d8", "flight": "d6", "grit": "d4" },
+      "suggestedStrengths": ["heroic", "loyal", "prepared", "protective", "tough", "wealthy"],
+      "suggestedFlaws": ["demanding", "dogmatic", "nosey", "oversensitive", "paranoid", "prejudiced", "self_pitying"],
+      "questions": [
+        "When do you feel most appreciated by your kid(s)?",
+        "What about your kid(s) do you wish you could change?"
+      ]
+    },
+    {
+      "id": "unlikely_ally",
+      "name": "Unlikely Ally",
+      "allowedAges": ["teen", "adult"],
+      "statAssignment": { "fight": "d20", "grit": "d12", "brawn": "d10", "brains": "d8", "charm": "d6", "flight": "d4" },
+      "suggestedStrengths": ["easygoing", "gross", "heroic", "lucky", "tough", "skilled_at"],
+      "suggestedFlaws": ["flippant", "callous", "hot_tempered", "oversensitive", "prejudiced", "rambunctious", "reckless"],
+      "questions": [
+        "What makes it so surprising that you're working with this group?",
+        "Despite your aloof exterior, what do you genuinely care about?"
+      ]
+    },
+    {
+      "id": "aspiring_wannabe",
+      "name": "Aspiring Wannabe",
+      "allowedAges": ["teen"],
+      "statAssignment": { "flight": "d20", "grit": "d12", "charm": "d10", "fight": "d8", "brains": "d6", "brawn": "d4" },
+      "suggestedStrengths": ["intuitive", "loyal", "prepared", "protective", "skilled_at", "unassuming"],
+      "suggestedFlaws": ["deceitful", "envious", "gullible", "insecure", "resentful", "self_centered", "weak_willed"],
+      "questions": [
+        "What would it mean to be one of the popular kids?",
+        "What would you sacrifice to be one of the cool kids?"
+      ]
+    },
+    {
+      "id": "freakazoid",
+      "name": "Freakazoid",
+      "allowedAges": ["child", "teen"],
+      "statAssignment": { "flight": "d20", "fight": "d12", "brawn": "d10", "charm": "d8", "grit": "d6", "brains": "d4" },
+      "suggestedStrengths": ["gross", "lucky", "tough", "treasure_hunter", "unassuming", "wealthy"],
+      "suggestedFlaws": ["absent_minded", "flippant", "hot_tempered", "ignorant", "lazy", "rambunctious", "restless"],
+      "questions": [
+        "What are the key components of your weirdo facade?",
+        "What are you worried people will find out about you if you drop your facade?"
+      ]
+    },
+    {
+      "id": "goody_goody",
+      "name": "Goody Goody",
+      "allowedAges": ["child", "teen"],
+      "statAssignment": { "flight": "d20", "charm": "d12", "brains": "d10", "brawn": "d8", "grit": "d6", "fight": "d4" },
+      "suggestedStrengths": ["loyal", "lucky", "prepared", "skilled_at", "unassuming", "wealthy"],
+      "suggestedFlaws": ["boastful", "cowardly", "demanding", "impatient", "nosey", "oversensitive", "patronizing"],
+      "questions": [
+        "Why does approval from adults mean so much to you?",
+        "Who did you recently hurt by seeking an adult's approval?"
+      ]
+    },
+    {
+      "id": "silver_spoon",
+      "name": "Silver Spoon",
+      "allowedAges": ["child", "teen"],
+      "statAssignment": { "flight": "d20", "brains": "d12", "fight": "d10", "charm": "d8", "brawn": "d6", "grit": "d4" },
+      "suggestedStrengths": ["intuitive", "lucky", "prepared", "treasure_hunter", "unassuming", "wealthy"],
+      "suggestedFlaws": ["boastful", "greedy", "impatient", "insecure", "rude", "self_centered", "vain"],
+      "questions": [
+        "What advantages has your wealth given you?",
+        "How does your family exploit the town to make its money?"
+      ]
+    },
+    {
+      "id": "reclusive_eccentric",
+      "name": "Reclusive Eccentric",
+      "allowedAges": ["adult"],
+      "statAssignment": { "grit": "d20", "flight": "d12", "brains": "d10", "brawn": "d8", "fight": "d6", "charm": "d4" },
+      "suggestedStrengths": ["intuitive", "prepared", "tough", "treasure_hunter", "unassuming", "wealthy"],
+      "suggestedFlaws": ["absent_minded", "capricious", "clumsy", "cowardly", "gluttonous", "callous", "picky"],
+      "questions": [
+        "What drove you away from the world at large?",
+        "What have you gained from your time away from the world?"
+      ]
+    },
+    {
+      "id": "seasoned_babysitter",
+      "name": "Seasoned Babysitter",
+      "allowedAges": ["teen"],
+      "statAssignment": { "grit": "d20", "charm": "d12", "flight": "d10", "brains": "d8", "fight": "d6", "brawn": "d4" },
+      "suggestedStrengths": ["intuitive", "loyal", "protective", "quick_healing", "tough", "wealthy"],
+      "suggestedFlaws": ["deceitful", "resentful", "self_centered", "spoiled", "superstitious", "vain", "vindictive"],
+      "questions": [
+        "How did you get your start babysitting?",
+        "What's a mistake you made while babysitting that bothers you to this day?"
+      ]
+    },
+    {
+      "id": "stoic_professional",
+      "name": "Stoic Professional",
+      "allowedAges": ["adult"],
+      "statAssignment": { "grit": "d20", "brains": "d12", "charm": "d10", "brawn": "d8", "flight": "d6", "fight": "d4" },
+      "suggestedStrengths": ["cool_under_pressure", "easygoing", "heroic", "loyal", "lucky", "prepared"],
+      "suggestedFlaws": ["gluttonous", "greedy", "callous", "petty", "spoiled", "vain", "vindictive"],
+      "questions": [
+        "To what extent do you enjoy the work you do?",
+        "What would you rather be doing?"
+      ]
+    },
+    {
+      "id": "young_provider",
+      "name": "Young Provider",
+      "allowedAges": ["teen"],
+      "statAssignment": { "grit": "d20", "brawn": "d12", "charm": "d10", "brains": "d8", "fight": "d6", "flight": "d4" },
+      "suggestedStrengths": ["easygoing", "protective", "skilled_at", "tough", "treasure_hunter", "unassuming"],
+      "suggestedFlaws": ["blunt", "envious", "greedy", "petty", "resentful", "restless", "self_pitying"],
+      "questions": [
+        "How has working to support your family improved you as a person?",
+        "What have you had to sacrifice to support your family?"
+      ]
+    }
+  ],
+
+  "strengths": [
+    { "id": "cool_under_pressure", "name": "Cool Under Pressure", "description": "May spend 1 AT to take half die value instead of rolling on a Snap Decision.", "atCost": 1, "alwaysActive": false },
+    { "id": "easygoing", "name": "Easygoing", "description": "Gain 2 Adversity Tokens when you fail, instead of 1.", "atCost": 0, "alwaysActive": true },
+    { "id": "gross", "name": "Gross", "description": "You have a gross bodily trick you can do on command.", "atCost": 0, "alwaysActive": true },
+    { "id": "heroic", "name": "Heroic", "description": "You do not need the GM's permission to spend AT to ignore Fears.", "atCost": 0, "alwaysActive": true },
+    { "id": "intuitive", "name": "Intuitive", "description": "May spend 1 AT to ask the GM about surroundings, an NPC, or the like. GM must answer honestly.", "atCost": 1, "alwaysActive": false },
+    { "id": "loyal", "name": "Loyal", "description": "Each AT you spend to help friends gives +2 instead of +1.", "atCost": 0, "alwaysActive": true },
+    { "id": "lucky", "name": "Lucky", "description": "May spend 2 AT to reroll a stat check.", "atCost": 2, "alwaysActive": false },
+    { "id": "prepared", "name": "Prepared", "description": "May spend 2 AT to just happen to have one commonplace item with you.", "atCost": 2, "alwaysActive": false },
+    { "id": "protective", "name": "Protective", "description": "Add +3 to rolls when defending one of your friends.", "atCost": 0, "alwaysActive": true },
+    { "id": "quick_healing", "name": "Quick Healing", "description": "Recover from injuries more quickly. No lasting effects from most injuries.", "atCost": 0, "alwaysActive": true },
+    { "id": "rebellious", "name": "Rebellious", "description": "Add +3 to rolls to persuade or resist persuasion from Kids. Add +3 to resist persuasion from Adults.", "atCost": 0, "alwaysActive": true, "teenOnly": true },
+    { "id": "skilled_at", "name": "Skilled at...", "description": "Choose a skill. Assumed to succeed at moderately difficult checks. +3 on harder checks.", "atCost": 0, "alwaysActive": true, "requiresInput": true },
+    { "id": "tough", "name": "Tough", "description": "If you lose a combat roll, add +3 to the negative number (still lose but reduce severity).", "atCost": 0, "alwaysActive": true },
+    { "id": "treasure_hunter", "name": "Treasure Hunter", "description": "May spend 1 AT to find a useful item in your surroundings.", "atCost": 1, "alwaysActive": false },
+    { "id": "unassuming", "name": "Unassuming", "description": "May spend 2 AT to not be seen, within reason.", "atCost": 2, "alwaysActive": false },
+    { "id": "wealthy", "name": "Wealthy", "description": "May spend money as though you were in a higher age bracket.", "atCost": 0, "alwaysActive": true }
+  ],
+
+  "flaws": [
+    { "id": "absent_minded", "name": "Absent-minded" },
+    { "id": "blunt", "name": "Blunt" },
+    { "id": "boastful", "name": "Boastful" },
+    { "id": "callous", "name": "Callous" },
+    { "id": "capricious", "name": "Capricious" },
+    { "id": "clumsy", "name": "Clumsy" },
+    { "id": "cowardly", "name": "Cowardly" },
+    { "id": "deceitful", "name": "Deceitful" },
+    { "id": "demanding", "name": "Demanding" },
+    { "id": "dogmatic", "name": "Dogmatic" },
+    { "id": "envious", "name": "Envious" },
+    { "id": "flippant", "name": "Flippant" },
+    { "id": "gluttonous", "name": "Gluttonous" },
+    { "id": "greedy", "name": "Greedy" },
+    { "id": "gullible", "name": "Gullible" },
+    { "id": "hot_tempered", "name": "Hot-tempered" },
+    { "id": "ignorant", "name": "Ignorant" },
+    { "id": "impatient", "name": "Impatient" },
+    { "id": "insecure", "name": "Insecure" },
+    { "id": "lazy", "name": "Lazy" },
+    { "id": "messy", "name": "Messy" },
+    { "id": "nosey", "name": "Nosey" },
+    { "id": "oversensitive", "name": "Oversensitive" },
+    { "id": "paranoid", "name": "Paranoid" },
+    { "id": "patronizing", "name": "Patronizing" },
+    { "id": "petty", "name": "Petty" },
+    { "id": "picky", "name": "Picky" },
+    { "id": "prejudiced", "name": "Prejudiced" },
+    { "id": "rambunctious", "name": "Rambunctious" },
+    { "id": "reckless", "name": "Reckless" },
+    { "id": "resentful", "name": "Resentful" },
+    { "id": "restless", "name": "Restless" },
+    { "id": "rude", "name": "Rude" },
+    { "id": "self_centered", "name": "Self-centered" },
+    { "id": "self_pitying", "name": "Self-pitying" },
+    { "id": "spoiled", "name": "Spoiled" },
+    { "id": "superstitious", "name": "Superstitious" },
+    { "id": "vain", "name": "Vain" },
+    { "id": "vindictive", "name": "Vindictive" },
+    { "id": "weak_willed", "name": "Weak-willed" }
+  ],
+
+  "statChecks": {
+    "difficultyScale": [
+      { "range": [20, 99], "label": "Nearly Impossible", "description": "Only the most incredible could succeed." },
+      { "range": [17, 19], "label": "Incredible", "description": "Success would be incredible and impressive." },
+      { "range": [13, 16], "label": "Extraordinary", "description": "Decidedly possible for the truly skilled." },
+      { "range": [10, 12], "label": "Impressive", "description": "Impressive but unsurprising for the skilled." },
+      { "range": [7, 9], "label": "Moderate", "description": "Almost certain for the very skilled." },
+      { "range": [3, 6], "label": "Easy", "description": "Likely for all but the unskilled." },
+      { "range": [1, 2], "label": "Trivial", "description": "Nearly guaranteed except in extreme cases." }
+    ],
+    "luckyBreak": "Rolling max value on a die triggers a reroll, adding both results together. Can chain.",
+    "adversityTokens": {
+      "startingAmount": 3,
+      "earnedOnFailure": 1,
+      "spendToBoostRoll": "+1 per AT spent (unless Loyal: +2 per AT)",
+      "canHelpAllies": true,
+      "canIgnoreFear": "With GM permission or Heroic strength"
+    }
+  },
+
+  "npcCreator": {
+    "_comment": "Simplified character creation config for audience NPCs at live shows. Not the full character creation flow — just enough for an audience member to build a character in 3-5 minutes on their phone.",
+    "fields": [
+      {
+        "id": "name",
+        "label": "Character Name",
+        "type": "text",
+        "required": true,
+        "placeholder": "What's your character's name?",
+        "helpText": "First name or nickname. Lean into evocative names — there's a big difference between 'Billy' and 'William.'"
+      },
+      {
+        "id": "occupation",
+        "label": "Occupation",
+        "type": "text",
+        "required": true,
+        "placeholder": "Bartender, mechanic, high school teacher, sheriff...",
+        "helpText": "What does your character do? This shapes how they fit into the story."
+      },
+      {
+        "id": "appearance",
+        "label": "Appearance",
+        "type": "textarea",
+        "required": true,
+        "maxLength": 200,
+        "placeholder": "Describe your character in a sentence or two.",
+        "helpText": "What do people notice first about your character?"
+      },
+      {
+        "id": "secret",
+        "label": "One Secret",
+        "type": "textarea",
+        "required": true,
+        "maxLength": 200,
+        "placeholder": "What is your character hiding?",
+        "helpText": "Every good character has something they don't want others to know. This stays between you and the GM."
+      },
+      {
+        "id": "bestStat",
+        "label": "Best Stat",
+        "type": "select",
+        "required": true,
+        "helpText": "Pick the stat your character is best at. This gets a d20.",
+        "optionsFrom": "stats"
+      },
+      {
+        "id": "worstStat",
+        "label": "Worst Stat",
+        "type": "select",
+        "required": true,
+        "helpText": "Pick the stat your character is worst at. This gets a d4.",
+        "optionsFrom": "stats",
+        "validation": "mustDifferFrom:bestStat"
+      }
+    ],
+    "statAssignment": {
+      "_comment": "For audience NPCs, we simplify: best stat = d20, worst stat = d4, GM assigns the middle four during play.",
+      "best": "d20",
+      "worst": "d4",
+      "remaining": "GM assigns d6/d8/d10/d12 during play based on character concept"
+    }
+  },
+
+  "showConfig": {
+    "_comment": "Per-show overrides. This section is specific to The Betawave Tapes: Last Call and would change for each live show (each 'tape').",
+    "showId": "betawave-last-call-2026-04-18",
+    "showName": "The Betawave Tapes: Last Call",
+    "seriesName": "The Betawave Tapes",
+    "tapeNumber": 1,
+    "setting": {
+      "era": "1991",
+      "location": "Small town, USA",
+      "coreLocation": "The local bar (mapped to Lucky Straws)"
+    },
+    "npcCreatorOverrides": {
+      "occupationSuggestions": [
+        "Bartender", "High School Teacher", "Mechanic",
+        "Eddie's Mom", "Eddie's Ex", "Town Sheriff",
+        "Gas Station Attendant", "Waitress at the Diner",
+        "Youth Pastor", "Eddie's College Roommate (visiting)",
+        "Local Reporter", "The Town Drunk", "Vietnam Vet",
+        "Grocery Store Clerk", "Little League Coach", "Town Librarian"
+      ],
+      "secretPrompt": "It's Eddie's going-away party. What are you hiding about your connection to him, or to this town?"
+    }
+  }
+}

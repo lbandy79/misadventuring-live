@@ -25,6 +25,7 @@ export { tmpBaseTheme } from './tmpBase.theme';
 export { soggyBottomPiratesTheme } from './soggyBottomPirates.theme';
 export { neonNightmaresTheme } from './neonNightmares.theme';
 export { beastOfRidgefallTheme } from './beastOfRidgefall.theme';
+export { betawaveTapesTheme } from './betawaveTapes.theme';
 
 // Provider exports
 export { ThemeProvider, useTheme } from './ThemeProvider';
@@ -44,12 +45,14 @@ import { tmpBaseTheme } from './tmpBase.theme';
 import { soggyBottomPiratesTheme } from './soggyBottomPirates.theme';
 import { neonNightmaresTheme } from './neonNightmares.theme';
 import { beastOfRidgefallTheme } from './beastOfRidgefall.theme';
+import { betawaveTapesTheme } from './betawaveTapes.theme';
 
 export const themeRegistry: Record<ThemeId, TMPTheme> = {
   'tmp-base': tmpBaseTheme,
   'soggy-bottom-pirates': soggyBottomPiratesTheme,
   'neon-nightmares': neonNightmaresTheme,
   'beast-of-ridgefall': beastOfRidgefallTheme,
+  'betawave-tapes': betawaveTapesTheme,
 };
 
 export const defaultThemeId: ThemeId = 'tmp-base';

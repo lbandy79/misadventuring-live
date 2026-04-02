@@ -402,6 +402,22 @@ const ThemeAudioPacks: Record<ThemeId, ThemeAudioPack> = {
     ambientUrl: '/sounds/beast-of-ridgefall/ambient-village.mp3',
     battleMusicUrl: '/sounds/beast-of-ridgefall/battle-combat.mp3',
   },
+  'betawave-tapes': {
+    spriteUrl: null,
+    sprites: {
+      votecast: [0, 200],
+      timerTick: [200, 100],
+      timerEnd: [300, 600],
+      victory: [900, 800],
+      error: [1700, 300],
+      uiClick: [2000, 100],
+      whoosh: [2100, 350],
+      diceRoll: [2450, 500],
+      diceImpact: [2950, 200],
+    },
+    ambientUrl: null,
+    battleMusicUrl: null,
+  },
 };
 
 // =============================================================================
