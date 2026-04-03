@@ -22,6 +22,12 @@ import './NPCCreator.css';
 
 type FlowStep = 'code-entry' | 'reservation' | 'npc-creator' | 'complete';
 
+/** Read ?code= URL param (from email link) */
+function getCodeFromUrl(): string | null {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('code');
+}
+
 export default function NPCCreationPage() {
   const { config, loading } = useSystemConfig();
   const [step, setStep] = useState<FlowStep>('code-entry');
@@ -31,16 +37,17 @@ export default function NPCCreationPage() {
   const showId = config?.showConfig?.showId ?? '';
   const showName = config?.showConfig?.showName ?? 'Live Show';
 
-  // Check for existing reservation in localStorage
+  // Check for existing reservation in localStorage, then check URL ?code= param
   useEffect(() => {
     if (!showId) return;
+
+    // 1. Check localStorage first
     const stored = localStorage.getItem(`mtp-reservation-${showId}`);
     if (stored) {
       try {
         const res = JSON.parse(stored) as Reservation;
         setReservation(res);
         if (res.npcCreated) {
-          // They already created their NPC — load it from Firestore and show the card
           setStep('complete');
           const q = query(
             collection(db, 'npcs'),
@@ -55,9 +62,44 @@ export default function NPCCreationPage() {
         } else {
           setStep('npc-creator');
         }
+        return; // localStorage found, skip URL check
       } catch {
-        // Corrupted data — ignore
+        // Corrupted data — fall through to URL check
       }
+    }
+
+    // 2. Check URL ?code= param (from email link)
+    const urlCode = getCodeFromUrl();
+    if (urlCode) {
+      const q = query(
+        collection(db, 'reservations'),
+        where('accessCode', '==', urlCode.toUpperCase()),
+        where('showId', '==', showId)
+      );
+      getDocs(q).then((snap) => {
+        if (!snap.empty) {
+          const res = { id: snap.docs[0].id, ...snap.docs[0].data() } as Reservation;
+          setReservation(res);
+          localStorage.setItem(`mtp-reservation-${showId}`, JSON.stringify(res));
+          setStep(res.npcCreated ? 'complete' : 'npc-creator');
+
+          if (res.npcCreated) {
+            const npcQ = query(
+              collection(db, 'npcs'),
+              where('reservationId', '==', res.id),
+              where('showId', '==', showId)
+            );
+            getDocs(npcQ).then((npcSnap) => {
+              if (!npcSnap.empty) {
+                setCompletedNpc(npcSnap.docs[0].data() as NPC);
+              }
+            });
+          }
+
+          // Clean the URL param so it doesn't persist on refresh
+          window.history.replaceState({}, '', window.location.pathname);
+        }
+      });
     }
   }, [showId]);
 

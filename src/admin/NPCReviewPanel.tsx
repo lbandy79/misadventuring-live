@@ -150,19 +150,40 @@ export default function NPCReviewPanel({ showId }: NPCReviewPanelProps) {
 
         {filteredNpcs.map((npc) => (
           <div key={npc.id} className={`npc-review-card ${npc.gmFlagged ? 'flagged' : ''}`}>
-            {/* Header: name + flag */}
+            {/* Header: name + flag + delete */}
             <div className="npc-card-header">
               <div>
                 <span className="npc-card-name">{npc.name}</span>
                 <span className="npc-card-occupation">{npc.occupation}</span>
               </div>
-              <button
-                className={`flag-btn ${npc.gmFlagged ? 'active' : ''}`}
-                onClick={() => toggleFlag(npc.id, npc.gmFlagged)}
-                title={npc.gmFlagged ? 'Remove flag' : 'Flag for plot'}
-              >
-                {npc.gmFlagged ? '⭐' : '☆'}
-              </button>
+              <div className="npc-card-header-actions">
+                {confirmDeleteId === npc.id ? (
+                  <div className="confirm-inline">
+                    <span className="confirm-text">Delete?</span>
+                    <button className="confirm-yes" onClick={() => deleteNpc(npc.id)} disabled={deleting}>
+                      {deleting ? '...' : 'Yes'}
+                    </button>
+                    <button className="confirm-no" onClick={() => setConfirmDeleteId(null)} disabled={deleting}>
+                      No
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    className="delete-npc-btn"
+                    onClick={() => setConfirmDeleteId(npc.id)}
+                    title="Delete this NPC"
+                  >
+                    🗑 Delete
+                  </button>
+                )}
+                <button
+                  className={`flag-btn ${npc.gmFlagged ? 'active' : ''}`}
+                  onClick={() => toggleFlag(npc.id, npc.gmFlagged)}
+                  title={npc.gmFlagged ? 'Remove flag' : 'Flag for plot'}
+                >
+                  {npc.gmFlagged ? '⭐' : '☆'}
+                </button>
+              </div>
             </div>
 
             {/* Appearance */}
@@ -197,29 +218,6 @@ export default function NPCReviewPanel({ showId }: NPCReviewPanelProps) {
                   </div>
                 )}
               </div>
-            </div>
-
-            {/* Delete */}
-            <div className="npc-card-delete">
-              {confirmDeleteId === npc.id ? (
-                <div className="confirm-inline">
-                  <span className="confirm-text">Delete this NPC?</span>
-                  <button className="confirm-yes" onClick={() => deleteNpc(npc.id)} disabled={deleting}>
-                    {deleting ? '...' : 'Yes'}
-                  </button>
-                  <button className="confirm-no" onClick={() => setConfirmDeleteId(null)} disabled={deleting}>
-                    No
-                  </button>
-                </div>
-              ) : (
-                <button
-                  className="delete-npc-btn"
-                  onClick={() => setConfirmDeleteId(npc.id)}
-                  title="Delete this NPC"
-                >
-                  🗑
-                </button>
-              )}
             </div>
 
             {/* GM Notes */}

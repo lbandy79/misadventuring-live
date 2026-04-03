@@ -15,6 +15,16 @@ import './AdminPanel.css';
 
 const ADMIN_PASSWORD = 'misadventure2025'; // Change this! Or move to env var later
 
+type AdminTab = 'show' | 'npcs' | 'monsters' | 'villagers' | 'decoder';
+
+const ADMIN_TABS: { id: AdminTab; label: string; emoji: string }[] = [
+  { id: 'show', label: 'Show Controls', emoji: '🎲' },
+  { id: 'npcs', label: 'NPC Review', emoji: '📋' },
+  { id: 'monsters', label: 'Monster Builder', emoji: '🐲' },
+  { id: 'villagers', label: 'Villagers', emoji: '🏘️' },
+  { id: 'decoder', label: 'Decoder Ring', emoji: '🔮' },
+];
+
 interface VoteOption {
   id: string;
   label: string;
@@ -83,6 +93,15 @@ export default function AdminPanel() {
   const [selectedAmbient, setSelectedAmbient] = useState('village');
   const [selectedBattle, setSelectedBattle] = useState('combat');
   const { themeId, setThemeId } = useTheme();
+
+  // Tab navigation — persisted in sessionStorage
+  const [activeTab, setActiveTab] = useState<AdminTab>(() => {
+    return (sessionStorage.getItem('mtp-admin-tab') as AdminTab) || 'show';
+  });
+  const handleTabChange = (tab: AdminTab) => {
+    setActiveTab(tab);
+    sessionStorage.setItem('mtp-admin-tab', tab);
+  };
   
   // ============ BEAST OF RIDGEFALL STATE ============
   const [monsterBuilderState, setMonsterBuilderState] = useState<MonsterBuilderState | null>(null);
@@ -674,6 +693,20 @@ export default function AdminPanel() {
         </div>
       )}
 
+      {/* Tab Navigation */}
+      <nav className="admin-tabs">
+        {ADMIN_TABS.map((tab) => (
+          <button
+            key={tab.id}
+            className={`admin-tab ${activeTab === tab.id ? 'active' : ''}`}
+            onClick={() => handleTabChange(tab.id)}
+          >
+            <span className="tab-emoji">{tab.emoji}</span>
+            <span className="tab-label">{tab.label}</span>
+          </button>
+        ))}
+      </nav>
+
       <div className="admin-grid">
         {/* Quick Actions - only show when interaction active */}
         {activeInteraction.type !== 'none' && (
@@ -707,6 +740,7 @@ export default function AdminPanel() {
         {/* ============ BEAST OF RIDGEFALL - PRIMARY CONTROLS ============ */}
         
         {/* Monster Builder */}
+        {activeTab === 'monsters' && (
         <section className="admin-card config-card monster-builder-card">
           <h2>🐲 Monster Builder</h2>
           <p className="card-hint">Audience picks ALL 4 parts at once. Results aggregate. Dramatic reveal!</p>
@@ -815,14 +849,20 @@ export default function AdminPanel() {
             🐲 Open Monster Builder
           </button>
         </section>
+        )}
 
         {/* Decoder Ring — Well of Lines */}
+        {activeTab === 'decoder' && (
         <DecoderRingAdmin />
+        )}
 
         {/* Ship Combat — Flyer Defense */}
+        {activeTab === 'show' && (
         <ShipCombatAdmin />
+        )}
 
         {/* Villager Submission Control */}
+        {activeTab === 'villagers' && (
         <section className="admin-card config-card villager-card">
           <h2>🏘️ Villager Submissions</h2>
           <p className="card-hint">Audience creates NPCs with items. Some items are "hoard items"!</p>
@@ -955,16 +995,20 @@ export default function AdminPanel() {
             🏘️ Open Villager Submissions
           </button>
         </section>
+        )}
 
         {/* ============ BETAWAVE TAPES - NPC REVIEW ============ */}
+        {activeTab === 'npcs' && (
         <section className="admin-card config-card">
           <h2>📋 Betawave NPC Review</h2>
           <NPCReviewPanel showId="betawave-last-call-2026-04-18" />
         </section>
+        )}
 
-        {/* ============ UTILITY FEATURES ============ */}
+        {/* ============ UTILITY FEATURES (Show Controls tab) ============ */}
 
         {/* Vote Configuration */}
+        {activeTab === 'show' && (
         <section className="admin-card config-card">
           <h2>Configure Voting</h2>
           
@@ -1029,8 +1073,10 @@ export default function AdminPanel() {
             <p className="hint">End current interaction first</p>
           )}
         </section>
+        )}
 
         {/* Theme Switcher */}
+        {activeTab === 'show' && (
         <section className="admin-card theme-card">
           <h2>🎨 Show Theme</h2>
           <p className="theme-hint">Changes apply to all connected audiences instantly</p>
@@ -1050,8 +1096,10 @@ export default function AdminPanel() {
             ))}
           </div>
         </section>
+        )}
 
         {/* 🎵 AWESOME MIX CUE SYSTEM */}
+        {activeTab === 'show' && (
         <section className="admin-card cue-card">
           <h2>🎵 Awesome Mix - Live Cues</h2>
           <p className="theme-hint">Manual effect triggers for dramatic moments</p>
@@ -1228,8 +1276,10 @@ export default function AdminPanel() {
             </div>
           </div>
         </section>
+        )}
 
         {/* Madlibs Config */}
+        {activeTab === 'show' && (
         <section className="admin-card config-card">
           <h2>📝 Madlibs D&D</h2>
           <div className="form-group">
@@ -1250,10 +1300,12 @@ export default function AdminPanel() {
             🚀 Launch Madlibs
           </button>
         </section>
+        )}
 
 
 
         {/* Group Roll Config */}
+        {activeTab === 'show' && (
         <section className="admin-card config-card">
           <h2>🎲 Group Roll</h2>
           <div className="form-group">
@@ -1309,6 +1361,7 @@ export default function AdminPanel() {
             🚀 Launch Group Roll
           </button>
         </section>
+        )}
 
       </div>
       </>)}

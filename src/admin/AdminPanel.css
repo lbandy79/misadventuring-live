@@ -158,6 +158,58 @@
   letter-spacing: 1px;
 }
 
+/* Tab Navigation */
+.admin-tabs {
+  display: flex;
+  gap: 0.25rem;
+  max-width: 1400px;
+  margin: 0 auto 0.5rem;
+  padding: 0 0.5rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.admin-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.admin-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #888;
+  cursor: pointer;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.admin-tab:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ccc;
+}
+
+.admin-tab.active {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 170, 0, 0.1));
+  border-color: rgba(255, 215, 0, 0.4);
+  color: #ffd700;
+}
+
+.tab-emoji {
+  font-size: 1rem;
+}
+
+.tab-label {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 .beast-emojis {
   display: flex;
   gap: 0.15rem;

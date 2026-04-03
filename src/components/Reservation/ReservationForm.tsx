@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { collection, addDoc, query, where, getDocs } from 'firebase/firestore';
 import { motion } from 'framer-motion';
 import { db } from '../../firebase';
+import { sendReservationEmail } from '../../utils/email';
 import type { Reservation } from '../../types/reservation.types';
 
 interface ReservationFormProps {
@@ -36,6 +37,19 @@ export default function ReservationForm({ showId, showName, onReservationCreated
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [createdCode, setCreatedCode] = useState('');
+  const [createdReservation, setCreatedReservation] = useState<Reservation | null>(null);
+  const [emailSent, setEmailSent] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyCode = async () => {
+    try {
+      await navigator.clipboard.writeText(createdCode);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Fallback: select text manually
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -86,11 +100,15 @@ export default function ReservationForm({ showId, showName, onReservationCreated
       const reservation: Reservation = { id: docRef.id, ...reservationData };
 
       setCreatedCode(accessCode);
+      setCreatedReservation(reservation);
 
-      // Brief delay so they can see their code before proceeding
-      setTimeout(() => {
-        onReservationCreated(reservation);
-      }, 3000);
+      // Send confirmation email (non-blocking — don't fail the flow if email fails)
+      sendReservationEmail({
+        name: trimmedName,
+        email: trimmedEmail,
+        accessCode,
+        showName,
+      }).then((sent) => setEmailSent(sent));
     } catch (err) {
       console.error('Error creating reservation:', err);
       setError('Something went wrong. Please try again.');
@@ -99,7 +117,7 @@ export default function ReservationForm({ showId, showName, onReservationCreated
     }
   };
 
-  // Show the code after creation
+  // Show the code after creation — persistent, with Copy + Continue
   if (createdCode) {
     return (
       <motion.div
@@ -112,7 +130,29 @@ export default function ReservationForm({ showId, showName, onReservationCreated
           <h2 className="reservation-title">you're in.</h2>
           <p className="reservation-subtitle">your access code:</p>
           <div className="code-display">{createdCode}</div>
-          <p className="code-hint">save this code — you'll need it to create your character.</p>
+
+          {emailSent && (
+            <p className="code-email-sent">✓ we sent this to your email</p>
+          )}
+
+          <div className="code-actions">
+            <button className="code-copy-btn" onClick={handleCopyCode}>
+              {copied ? '✓ copied' : '📋 copy code'}
+            </button>
+          </div>
+
+          <p className="code-hint">save this code — you'll need it to view or update your character.</p>
+
+          <button
+            className="code-submit-btn code-continue-btn"
+            onClick={() => {
+              if (createdReservation) {
+                onReservationCreated(createdReservation);
+              }
+            }}
+          >
+            continue to create your character →
+          </button>
         </div>
       </motion.div>
     );
