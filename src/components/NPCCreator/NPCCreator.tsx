@@ -6,7 +6,7 @@
  * Stores completed NPCs in Firestore `npcs` collection.
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { collection, addDoc, doc, updateDoc } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { db } from '../../firebase';
@@ -20,6 +20,7 @@ import './NPCCreator.css';
 
 interface NPCCreatorProps {
   reservation: Reservation;
+  existingNpc?: NPC | null;
   onComplete: (npc: NPC) => void;
 }
 
@@ -29,13 +30,29 @@ const stepVariants = {
   exit: { opacity: 0, x: -50 },
 };
 
-export default function NPCCreator({ reservation, onComplete }: NPCCreatorProps) {
+export default function NPCCreator({ reservation, existingNpc, onComplete }: NPCCreatorProps) {
   const { config } = useSystemConfig();
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isReview, setIsReview] = useState(false);
+
+  const isEditing = !!existingNpc;
+
+  // Pre-fill form data when editing an existing NPC
+  useEffect(() => {
+    if (existingNpc) {
+      setFormData({
+        name: existingNpc.name ?? '',
+        occupation: existingNpc.occupation ?? '',
+        appearance: existingNpc.appearance ?? '',
+        secret: existingNpc.secret ?? '',
+        bestStat: existingNpc.bestStat ?? '',
+        worstStat: existingNpc.worstStat ?? '',
+      });
+    }
+  }, [existingNpc]);
 
   if (!config) return null;
 
@@ -148,31 +165,44 @@ export default function NPCCreator({ reservation, onComplete }: NPCCreatorProps)
     setIsSubmitting(true);
 
     try {
-      const npcData = {
-        reservationId: reservation.id,
-        showId: showConfig.showId,
-        systemId: config.system.id,
+      const npcFields = {
         name: formData.name ?? '',
         occupation: formData.occupation ?? '',
         appearance: formData.appearance ?? '',
         secret: formData.secret ?? '',
         bestStat: formData.bestStat ?? '',
         worstStat: formData.worstStat ?? '',
-        createdAt: Date.now(),
-        gmNotes: '',
-        gmFlagged: false,
       };
 
-      const docRef = await addDoc(collection(db, 'npcs'), npcData);
-      const npc: NPC = { id: docRef.id, ...npcData };
+      let npc: NPC;
 
-      // Mark reservation as NPC created
-      try {
-        await updateDoc(doc(db, 'reservations', reservation.id), {
-          npcCreated: true,
-        });
-      } catch {
-        // Non-blocking — reservation update is best-effort
+      if (isEditing && existingNpc) {
+        // Update existing NPC document
+        await updateDoc(doc(db, 'npcs', existingNpc.id), npcFields);
+        npc = { ...existingNpc, ...npcFields };
+      } else {
+        // Create new NPC document
+        const npcData = {
+          reservationId: reservation.id,
+          showId: showConfig.showId,
+          systemId: config.system.id,
+          ...npcFields,
+          createdAt: Date.now(),
+          gmNotes: '',
+          gmFlagged: false,
+        };
+
+        const docRef = await addDoc(collection(db, 'npcs'), npcData);
+        npc = { id: docRef.id, ...npcData };
+
+        // Mark reservation as NPC created
+        try {
+          await updateDoc(doc(db, 'reservations', reservation.id), {
+            npcCreated: true,
+          });
+        } catch {
+          // Non-blocking — reservation update is best-effort
+        }
       }
 
       onComplete(npc);
@@ -297,7 +327,7 @@ export default function NPCCreator({ reservation, onComplete }: NPCCreatorProps)
               onClick={handleSubmit}
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Submitting...' : 'Submit Character'}
+              {isSubmitting ? 'Submitting...' : isEditing ? 'Save Changes' : 'Submit Character'}
             </button>
           </div>
         </div>

@@ -4,10 +4,13 @@
  * Orchestrates: Access Code Entry → NPC Creator Wizard → Character Card
  * This is the pre-show experience: audience members create their NPC
  * before arriving at the venue.
+ * 
+ * After NPC creation, users can edit or start over from the completion screen.
+ * State is always verified against Firestore (localStorage is cache-only).
  */
 
 import { useState, useEffect } from 'react';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { db } from '../../firebase';
 import { useSystemConfig } from '../../hooks/useSystemConfig';
@@ -34,79 +37,130 @@ export default function NPCCreationPage() {
   const [reservation, setReservation] = useState<Reservation | null>(null);
   const [completedNpc, setCompletedNpc] = useState<NPC | null>(null);
   const [npcLoading, setNpcLoading] = useState(false);
+  const [confirmStartOver, setConfirmStartOver] = useState(false);
+  const [startOverLoading, setStartOverLoading] = useState(false);
 
   const showId = config?.showConfig?.showId ?? '';
   const showName = config?.showConfig?.showName ?? 'Live Show';
 
-  // Check for existing reservation in localStorage, then check URL ?code= param
+  /** Fetch the NPC linked to a reservation from Firestore */
+  const fetchNpc = async (resId: string): Promise<NPC | null> => {
+    const q = query(
+      collection(db, 'npcs'),
+      where('reservationId', '==', resId),
+      where('showId', '==', showId)
+    );
+    const snap = await getDocs(q);
+    if (!snap.empty) {
+      return { id: snap.docs[0].id, ...snap.docs[0].data() } as NPC;
+    }
+    return null;
+  };
+
+  /** Re-fetch a reservation from Firestore to get canonical state */
+  const refreshReservation = async (resId: string): Promise<Reservation | null> => {
+    const snap = await getDoc(doc(db, 'reservations', resId));
+    if (snap.exists()) {
+      return { id: snap.id, ...snap.data() } as Reservation;
+    }
+    return null;
+  };
+
+  /** Resolve a reservation + NPC and route to the correct step */
+  const resolveAndRoute = async (res: Reservation) => {
+    setReservation(res);
+    localStorage.setItem(`mtp-reservation-${showId}`, JSON.stringify(res));
+
+    if (res.npcCreated) {
+      setNpcLoading(true);
+      const npc = await fetchNpc(res.id);
+      setCompletedNpc(npc);
+      setStep('complete');
+      setNpcLoading(false);
+    } else {
+      setStep('npc-creator');
+    }
+  };
+
+  // On mount: resolve state from URL ?code= param or localStorage, always verify against Firestore
   useEffect(() => {
     if (!showId) return;
 
-    // Helper to fetch NPC for a completed reservation
-    const fetchNpc = (resId: string) => {
-      setNpcLoading(true);
-      const q = query(
-        collection(db, 'npcs'),
-        where('reservationId', '==', resId),
-        where('showId', '==', showId)
-      );
-      getDocs(q).then((snap) => {
-        if (!snap.empty) {
-          setCompletedNpc(snap.docs[0].data() as NPC);
-        }
-      }).finally(() => setNpcLoading(false));
-    };
-
-    // 1. Check URL ?code= param first (from email link) — takes priority
-    const urlCode = getCodeFromUrl();
-    if (urlCode) {
-      setNpcLoading(true);
-      const q = query(
-        collection(db, 'reservations'),
-        where('accessCode', '==', urlCode.toUpperCase()),
-        where('showId', '==', showId)
-      );
-      getDocs(q).then((snap) => {
+    const init = async () => {
+      // 1. Check URL ?code= param first (from email link) — takes priority
+      const urlCode = getCodeFromUrl();
+      if (urlCode) {
+        setNpcLoading(true);
+        const q = query(
+          collection(db, 'reservations'),
+          where('accessCode', '==', urlCode.toUpperCase()),
+          where('showId', '==', showId)
+        );
+        const snap = await getDocs(q);
         if (!snap.empty) {
           const res = { id: snap.docs[0].id, ...snap.docs[0].data() } as Reservation;
-          setReservation(res);
-          localStorage.setItem(`mtp-reservation-${showId}`, JSON.stringify(res));
-
-          if (res.npcCreated) {
-            setStep('complete');
-            fetchNpc(res.id);
-          } else {
-            setStep('npc-creator');
-            setNpcLoading(false);
-          }
-
-          // Clean the URL param so it doesn't persist on refresh
-          window.history.replaceState({}, '', window.location.pathname);
+          await resolveAndRoute(res);
         } else {
           setNpcLoading(false);
         }
-      });
-      return;
-    }
-
-    // 2. Check localStorage
-    const stored = localStorage.getItem(`mtp-reservation-${showId}`);
-    if (stored) {
-      try {
-        const res = JSON.parse(stored) as Reservation;
-        setReservation(res);
-        if (res.npcCreated) {
-          setStep('complete');
-          fetchNpc(res.id);
-        } else {
-          setStep('npc-creator');
-        }
         return;
-      } catch {
-        // Corrupted data — fall through to code entry
       }
-    }
+
+      // 2. Check localStorage — but always verify against Firestore
+      const stored = localStorage.getItem(`mtp-reservation-${showId}`);
+      if (stored) {
+        try {
+          const cached = JSON.parse(stored) as Reservation;
+          // Re-fetch from Firestore for canonical state
+          const fresh = await refreshReservation(cached.id);
+          if (fresh) {
+            await resolveAndRoute(fresh);
+          } else {
+            // Reservation was deleted — clear cache and start over
+            localStorage.removeItem(`mtp-reservation-${showId}`);
+          }
+        } catch {
+          // Corrupted data — fall through to code entry
+          localStorage.removeItem(`mtp-reservation-${showId}`);
+        }
+      }
+    };
+
+    init();
   }, [showId]);
+
+  /** Handle "Edit Character" — go back to the wizard with pre-filled data */
+  const handleEditCharacter = () => {
+    setStep('npc-creator');
+  };
+
+  /** Handle "Start Over" — delete NPC, reset reservation, return to wizard */
+  const handleStartOver = async () => {
+    if (!reservation || !completedNpc) return;
+    setStartOverLoading(true);
+
+    try {
+      // Delete the existing NPC document
+      await deleteDoc(doc(db, 'npcs', completedNpc.id));
+
+      // Reset reservation npcCreated flag
+      await updateDoc(doc(db, 'reservations', reservation.id), {
+        npcCreated: false,
+      });
+
+      // Update local state
+      const updatedRes = { ...reservation, npcCreated: false };
+      setReservation(updatedRes);
+      localStorage.setItem(`mtp-reservation-${showId}`, JSON.stringify(updatedRes));
+      setCompletedNpc(null);
+      setConfirmStartOver(false);
+      setStep('npc-creator');
+    } catch (err) {
+      console.error('Error starting over:', err);
+    } finally {
+      setStartOverLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -139,9 +193,10 @@ export default function NPCCreationPage() {
           <motion.div key="code" exit={{ opacity: 0, x: -30 }}>
             <AccessCodeEntry
               showId={showId}
-              onAuthenticated={(res) => {
-                setReservation(res);
-                setStep(res.npcCreated ? 'complete' : 'npc-creator');
+              onAuthenticated={async (res) => {
+                // Always verify fresh from Firestore when entering via code
+                const fresh = await refreshReservation(res.id);
+                await resolveAndRoute(fresh ?? res);
               }}
               onRequestReservation={() => setStep('reservation')}
             />
@@ -171,13 +226,16 @@ export default function NPCCreationPage() {
           >
             <NPCCreator
               reservation={reservation}
+              existingNpc={completedNpc}
               onComplete={(npc) => {
                 setCompletedNpc(npc);
                 setStep('complete');
                 // Update stored reservation
+                const updatedRes = { ...reservation, npcCreated: true };
+                setReservation(updatedRes);
                 localStorage.setItem(
                   `mtp-reservation-${showId}`,
-                  JSON.stringify({ ...reservation, npcCreated: true })
+                  JSON.stringify(updatedRes)
                 );
               }}
             />
@@ -204,6 +262,43 @@ export default function NPCCreationPage() {
                   screenshot your character card and share it.
                 </p>
                 <CharacterCard npc={completedNpc} />
+
+                <div className="npc-complete-actions">
+                  <button
+                    className="npc-edit-btn"
+                    onClick={handleEditCharacter}
+                  >
+                    ✏️ Edit Character
+                  </button>
+                  {!confirmStartOver ? (
+                    <button
+                      className="npc-startover-btn"
+                      onClick={() => setConfirmStartOver(true)}
+                    >
+                      Start Over
+                    </button>
+                  ) : (
+                    <div className="npc-confirm-startover">
+                      <p>Delete this character and create a new one?</p>
+                      <div className="npc-confirm-actions">
+                        <button
+                          className="npc-confirm-yes"
+                          onClick={handleStartOver}
+                          disabled={startOverLoading}
+                        >
+                          {startOverLoading ? 'Deleting...' : 'Yes, start over'}
+                        </button>
+                        <button
+                          className="npc-confirm-no"
+                          onClick={() => setConfirmStartOver(false)}
+                          disabled={startOverLoading}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </>
             )}
             {!npcLoading && !completedNpc && (
