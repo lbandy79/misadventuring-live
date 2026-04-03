@@ -209,6 +209,12 @@
   padding-right: 2.5rem;
 }
 
+.npc-select option {
+  background: #111118;
+  color: #EAEAEA;
+  padding: 0.5rem;
+}
+
 .npc-char-count {
   font-family: 'Share Tech Mono', var(--tmp-font-accent), monospace;
   font-size: 0.7rem;
@@ -390,6 +396,13 @@
   margin-top: auto;
   padding-top: 2rem;
   text-align: center;
+}
+
+.npc-footer-logo {
+  max-width: 120px;
+  margin: 0 auto 0.5rem;
+  display: block;
+  opacity: 0.6;
 }
 
 .npc-page-footer p {

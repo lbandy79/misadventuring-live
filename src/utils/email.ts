@@ -39,7 +39,7 @@ export async function sendReservationEmail({
   showName,
 }: ReservationEmailParams): Promise<boolean> {
   try {
-    const characterLink = `${APP_BASE_URL}/?code=${encodeURIComponent(accessCode)}`;
+    const characterLink = `${APP_BASE_URL}/create?code=${encodeURIComponent(accessCode)}`;
 
     await emailjs.send(
       EMAILJS_SERVICE_ID,

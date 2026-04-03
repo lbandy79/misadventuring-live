@@ -528,7 +528,7 @@
     "setting": {
       "era": "1991",
       "location": "Small town, USA",
-      "coreLocation": "The local bar (mapped to Lucky Straws)"
+      "coreLocation": "The local bar"
     },
     "npcCreatorOverrides": {
       "occupationSuggestions": [

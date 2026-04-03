@@ -213,6 +213,7 @@ export default function NPCCreationPage() {
       </AnimatePresence>
 
       <footer className="npc-page-footer">
+        <img src="/images/tmp-logo-email.png" alt="The Betawave Tapes" className="npc-footer-logo" />
         <p>{config.showConfig.setting.era} &middot; {config.showConfig.setting.coreLocation}</p>
       </footer>
     </div>
