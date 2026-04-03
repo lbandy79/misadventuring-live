@@ -33,6 +33,7 @@ export default function NPCCreationPage() {
   const [step, setStep] = useState<FlowStep>('code-entry');
   const [reservation, setReservation] = useState<Reservation | null>(null);
   const [completedNpc, setCompletedNpc] = useState<NPC | null>(null);
+  const [npcLoading, setNpcLoading] = useState(false);
 
   const showId = config?.showConfig?.showId ?? '';
   const showName = config?.showConfig?.showName ?? 'Live Show';
@@ -41,36 +42,25 @@ export default function NPCCreationPage() {
   useEffect(() => {
     if (!showId) return;
 
-    // 1. Check localStorage first
-    const stored = localStorage.getItem(`mtp-reservation-${showId}`);
-    if (stored) {
-      try {
-        const res = JSON.parse(stored) as Reservation;
-        setReservation(res);
-        if (res.npcCreated) {
-          setStep('complete');
-          const q = query(
-            collection(db, 'npcs'),
-            where('reservationId', '==', res.id),
-            where('showId', '==', showId)
-          );
-          getDocs(q).then((snap) => {
-            if (!snap.empty) {
-              setCompletedNpc(snap.docs[0].data() as NPC);
-            }
-          });
-        } else {
-          setStep('npc-creator');
+    // Helper to fetch NPC for a completed reservation
+    const fetchNpc = (resId: string) => {
+      setNpcLoading(true);
+      const q = query(
+        collection(db, 'npcs'),
+        where('reservationId', '==', resId),
+        where('showId', '==', showId)
+      );
+      getDocs(q).then((snap) => {
+        if (!snap.empty) {
+          setCompletedNpc(snap.docs[0].data() as NPC);
         }
-        return; // localStorage found, skip URL check
-      } catch {
-        // Corrupted data — fall through to URL check
-      }
-    }
+      }).finally(() => setNpcLoading(false));
+    };
 
-    // 2. Check URL ?code= param (from email link)
+    // 1. Check URL ?code= param first (from email link) — takes priority
     const urlCode = getCodeFromUrl();
     if (urlCode) {
+      setNpcLoading(true);
       const q = query(
         collection(db, 'reservations'),
         where('accessCode', '==', urlCode.toUpperCase()),
@@ -81,25 +71,40 @@ export default function NPCCreationPage() {
           const res = { id: snap.docs[0].id, ...snap.docs[0].data() } as Reservation;
           setReservation(res);
           localStorage.setItem(`mtp-reservation-${showId}`, JSON.stringify(res));
-          setStep(res.npcCreated ? 'complete' : 'npc-creator');
 
           if (res.npcCreated) {
-            const npcQ = query(
-              collection(db, 'npcs'),
-              where('reservationId', '==', res.id),
-              where('showId', '==', showId)
-            );
-            getDocs(npcQ).then((npcSnap) => {
-              if (!npcSnap.empty) {
-                setCompletedNpc(npcSnap.docs[0].data() as NPC);
-              }
-            });
+            setStep('complete');
+            fetchNpc(res.id);
+          } else {
+            setStep('npc-creator');
+            setNpcLoading(false);
           }
 
           // Clean the URL param so it doesn't persist on refresh
           window.history.replaceState({}, '', window.location.pathname);
+        } else {
+          setNpcLoading(false);
         }
       });
+      return;
+    }
+
+    // 2. Check localStorage
+    const stored = localStorage.getItem(`mtp-reservation-${showId}`);
+    if (stored) {
+      try {
+        const res = JSON.parse(stored) as Reservation;
+        setReservation(res);
+        if (res.npcCreated) {
+          setStep('complete');
+          fetchNpc(res.id);
+        } else {
+          setStep('npc-creator');
+        }
+        return;
+      } catch {
+        // Corrupted data — fall through to code entry
+      }
     }
   }, [showId]);
 
@@ -179,7 +184,7 @@ export default function NPCCreationPage() {
           </motion.div>
         )}
 
-        {step === 'complete' && completedNpc && (
+        {step === 'complete' && (
           <motion.div
             key="complete"
             initial={{ opacity: 0, scale: 0.95 }}
@@ -187,26 +192,27 @@ export default function NPCCreationPage() {
             className="npc-complete"
           >
             <h2 className="npc-complete-title">tape recorded.</h2>
-            <p className="npc-complete-text">
-              screenshot your character card and share it.
-            </p>
-            <CharacterCard npc={completedNpc} />
+            {npcLoading && (
+              <div className="loading-state">
+                <div className="loading-spinner" />
+                <p>Loading your character...</p>
+              </div>
+            )}
+            {!npcLoading && completedNpc && (
+              <>
+                <p className="npc-complete-text">
+                  screenshot your character card and share it.
+                </p>
+                <CharacterCard npc={completedNpc} />
+              </>
+            )}
+            {!npcLoading && !completedNpc && (
+              <p className="npc-complete-text">
+                your character has been submitted. see you at the show.
+              </p>
+            )}
             <p className="npc-complete-hint">
               see you at {config.showConfig.setting.coreLocation}.
-            </p>
-          </motion.div>
-        )}
-
-        {step === 'complete' && !completedNpc && (
-          <motion.div
-            key="already-done"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="npc-complete"
-          >
-            <h2 className="npc-complete-title">tape recorded.</h2>
-            <p className="npc-complete-text">
-              your character has been submitted. see you at the show.
             </p>
           </motion.div>
         )}
