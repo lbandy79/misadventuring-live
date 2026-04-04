@@ -37,6 +37,7 @@ export default function NPCCreationPage() {
   const [reservation, setReservation] = useState<Reservation | null>(null);
   const [completedNpc, setCompletedNpc] = useState<NPC | null>(null);
   const [npcLoading, setNpcLoading] = useState(false);
+  const [initializing, setInitializing] = useState(true);
   const [confirmStartOver, setConfirmStartOver] = useState(false);
   const [startOverLoading, setStartOverLoading] = useState(false);
 
@@ -135,6 +136,8 @@ export default function NPCCreationPage() {
           localStorage.removeItem(`mtp-reservation-${showId}`);
         }
       }
+
+      setInitializing(false);
     };
 
     init();
@@ -173,7 +176,7 @@ export default function NPCCreationPage() {
     }
   };
 
-  if (loading) {
+  if (loading || initializing) {
     return (
       <div className="npc-page">
         <div className="loading-state">
