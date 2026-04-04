@@ -115,7 +115,6 @@ export default function AccessCodeEntry({ showId, onAuthenticated, onRequestRese
       const reservationDoc = snapshot.docs[0];
       const reservation = { id: reservationDoc.id, ...reservationDoc.data() } as Reservation;
       
-      localStorage.setItem(`mtp-reservation-${showId}`, JSON.stringify(reservation));
       onAuthenticated(reservation);
     } catch (err) {
       console.error('Error checking access code:', err);

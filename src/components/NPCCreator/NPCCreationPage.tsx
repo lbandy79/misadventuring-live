@@ -6,11 +6,11 @@
  * before arriving at the venue.
  * 
  * After NPC creation, users can edit or start over from the completion screen.
- * State is always verified against Firestore (localStorage is cache-only).
+ * No localStorage caching — users authenticate via access code or email link each time.
  */
 
 import { useState, useEffect } from 'react';
-import { collection, query, where, getDocs, doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { db } from '../../firebase';
 import { useSystemConfig } from '../../hooks/useSystemConfig';
@@ -37,7 +37,7 @@ export default function NPCCreationPage() {
   const [reservation, setReservation] = useState<Reservation | null>(null);
   const [completedNpc, setCompletedNpc] = useState<NPC | null>(null);
   const [npcLoading, setNpcLoading] = useState(false);
-  const [initializing, setInitializing] = useState(true);
+  const [initializing, setInitializing] = useState(false);
   const [confirmStartOver, setConfirmStartOver] = useState(false);
   const [startOverLoading, setStartOverLoading] = useState(false);
 
@@ -58,19 +58,9 @@ export default function NPCCreationPage() {
     return null;
   };
 
-  /** Re-fetch a reservation from Firestore to get canonical state */
-  const refreshReservation = async (resId: string): Promise<Reservation | null> => {
-    const snap = await getDoc(doc(db, 'reservations', resId));
-    if (snap.exists()) {
-      return { id: snap.id, ...snap.data() } as Reservation;
-    }
-    return null;
-  };
-
   /** Resolve a reservation + NPC and route to the correct step */
   const resolveAndRoute = async (res: Reservation) => {
     setReservation(res);
-    localStorage.setItem(`mtp-reservation-${showId}`, JSON.stringify(res));
 
     if (res.npcCreated) {
       setNpcLoading(true);
@@ -83,9 +73,7 @@ export default function NPCCreationPage() {
         try {
           await updateDoc(doc(db, 'reservations', res.id), { npcCreated: false });
         } catch { /* best-effort */ }
-        const updatedRes = { ...res, npcCreated: false };
-        setReservation(updatedRes);
-        localStorage.setItem(`mtp-reservation-${showId}`, JSON.stringify(updatedRes));
+        setReservation({ ...res, npcCreated: false });
         setStep('npc-creator');
       }
       setNpcLoading(false);
@@ -94,49 +82,25 @@ export default function NPCCreationPage() {
     }
   };
 
-  // On mount: resolve state from URL ?code= param or localStorage, always verify against Firestore
+  // On mount: check URL ?code= param (from email link) — only way to auto-authenticate
   useEffect(() => {
     if (!showId) return;
 
+    const urlCode = getCodeFromUrl();
+    if (!urlCode) return;
+
+    setInitializing(true);
     const init = async () => {
-      // 1. Check URL ?code= param first (from email link) — takes priority
-      const urlCode = getCodeFromUrl();
-      if (urlCode) {
-        setNpcLoading(true);
-        const q = query(
-          collection(db, 'reservations'),
-          where('accessCode', '==', urlCode.toUpperCase()),
-          where('showId', '==', showId)
-        );
-        const snap = await getDocs(q);
-        if (!snap.empty) {
-          const res = { id: snap.docs[0].id, ...snap.docs[0].data() } as Reservation;
-          await resolveAndRoute(res);
-        } else {
-          setNpcLoading(false);
-        }
-        return;
+      const q = query(
+        collection(db, 'reservations'),
+        where('accessCode', '==', urlCode.toUpperCase()),
+        where('showId', '==', showId)
+      );
+      const snap = await getDocs(q);
+      if (!snap.empty) {
+        const res = { id: snap.docs[0].id, ...snap.docs[0].data() } as Reservation;
+        await resolveAndRoute(res);
       }
-
-      // 2. Check localStorage — but always verify against Firestore
-      const stored = localStorage.getItem(`mtp-reservation-${showId}`);
-      if (stored) {
-        try {
-          const cached = JSON.parse(stored) as Reservation;
-          // Re-fetch from Firestore for canonical state
-          const fresh = await refreshReservation(cached.id);
-          if (fresh) {
-            await resolveAndRoute(fresh);
-          } else {
-            // Reservation was deleted — clear cache and start over
-            localStorage.removeItem(`mtp-reservation-${showId}`);
-          }
-        } catch {
-          // Corrupted data — fall through to code entry
-          localStorage.removeItem(`mtp-reservation-${showId}`);
-        }
-      }
-
       setInitializing(false);
     };
 
@@ -163,9 +127,7 @@ export default function NPCCreationPage() {
       });
 
       // Update local state
-      const updatedRes = { ...reservation, npcCreated: false };
-      setReservation(updatedRes);
-      localStorage.setItem(`mtp-reservation-${showId}`, JSON.stringify(updatedRes));
+      setReservation({ ...reservation, npcCreated: false });
       setCompletedNpc(null);
       setConfirmStartOver(false);
       setStep('npc-creator');
@@ -208,9 +170,7 @@ export default function NPCCreationPage() {
             <AccessCodeEntry
               showId={showId}
               onAuthenticated={async (res) => {
-                // Always verify fresh from Firestore when entering via code
-                const fresh = await refreshReservation(res.id);
-                await resolveAndRoute(fresh ?? res);
+                await resolveAndRoute(res);
               }}
               onRequestReservation={() => setStep('reservation')}
             />
@@ -244,13 +204,7 @@ export default function NPCCreationPage() {
               onComplete={(npc) => {
                 setCompletedNpc(npc);
                 setStep('complete');
-                // Update stored reservation
-                const updatedRes = { ...reservation, npcCreated: true };
-                setReservation(updatedRes);
-                localStorage.setItem(
-                  `mtp-reservation-${showId}`,
-                  JSON.stringify(updatedRes)
-                );
+                setReservation({ ...reservation, npcCreated: true });
               }}
             />
           </motion.div>
