@@ -74,8 +74,19 @@ export default function NPCCreationPage() {
     if (res.npcCreated) {
       setNpcLoading(true);
       const npc = await fetchNpc(res.id);
-      setCompletedNpc(npc);
-      setStep('complete');
+      if (npc) {
+        setCompletedNpc(npc);
+        setStep('complete');
+      } else {
+        // NPC was deleted (e.g. by GM) — reset reservation and let them create again
+        try {
+          await updateDoc(doc(db, 'reservations', res.id), { npcCreated: false });
+        } catch { /* best-effort */ }
+        const updatedRes = { ...res, npcCreated: false };
+        setReservation(updatedRes);
+        localStorage.setItem(`mtp-reservation-${showId}`, JSON.stringify(updatedRes));
+        setStep('npc-creator');
+      }
       setNpcLoading(false);
     } else {
       setStep('npc-creator');
