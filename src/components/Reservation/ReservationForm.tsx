@@ -78,8 +78,10 @@ export default function ReservationForm({ showId, showName, onReservationCreated
       );
       const existingSnap = await getDocs(existing);
       if (!existingSnap.empty) {
-        const existingRes = existingSnap.docs[0].data() as Reservation;
+        const existingDoc = existingSnap.docs[0];
+        const existingRes = { id: existingDoc.id, ...existingDoc.data() } as Reservation;
         setCreatedCode(existingRes.accessCode);
+        setCreatedReservation(existingRes);
         setError('You already have a reservation! Your code is shown below.');
         setIsSubmitting(false);
         return;
