@@ -182,9 +182,8 @@ export default function NPCCreationPage() {
             <ReservationForm
               showId={showId}
               showName={showName}
-              onReservationCreated={(res) => {
-                setReservation(res);
-                setStep('npc-creator');
+              onReservationCreated={async (res) => {
+                await resolveAndRoute(res);
               }}
               onBack={() => setStep('code-entry')}
             />
