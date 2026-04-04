@@ -121,6 +121,25 @@
   transform: scale(1.2);
 }
 
+/* Creator info */
+.npc-card-creator {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  font-size: 0.75rem;
+  color: var(--tmp-text-secondary);
+  opacity: 0.7;
+  margin: 0 0 0.4rem;
+  font-family: 'Share Tech Mono', var(--tmp-font-body), monospace;
+}
+.creator-name {
+  color: var(--tmp-text-primary);
+  font-weight: 600;
+}
+.creator-email {
+  opacity: 0.6;
+}
+
 /* Appearance */
 .npc-card-appearance {
   font-size: 0.85rem;
