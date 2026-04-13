@@ -5,6 +5,7 @@ import AdminPanel from './admin/AdminPanel';
 import DisplayView from './components/DisplayView';
 import PlayerView from './components/PlayerView';
 import NPCCreationPage from './components/NPCCreator/NPCCreationPage';
+import QRDisplay from './components/QRDisplay';
 import FantasyBackground from './components/FantasyBackground';
 import './index.css';
 
@@ -63,6 +64,7 @@ function App() {
           <Route path="/player/:playerId" element={<PlayerView />} />
           <Route path="/admin" element={<AdminPanel />} />
           <Route path="/display" element={<DisplayView />} />
+          <Route path="/qr" element={<QRDisplay />} />
         </Routes>
       </div>
     </ErrorBoundary>
