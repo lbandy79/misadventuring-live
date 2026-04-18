@@ -52,7 +52,7 @@ interface RollConfig {
 }
 
 interface ActiveInteraction {
-  type: 'none' | 'vote' | 'madlibs' | 'group-roll' | 'villager-submit' | 'monster-builder' | 'decoder-ring';
+  type: 'none' | 'vote' | 'madlibs' | 'group-roll' | 'villager-submit' | 'monster-builder' | 'decoder-ring' | 'monster-vote' | 'npc-naming' | 'ship-combat' | 'npc-spotlight';
   question?: string;
   options?: VoteOption[];
   isOpen?: boolean;

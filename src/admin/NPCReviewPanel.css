@@ -85,6 +85,7 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  gap: 0.6rem;
   margin-bottom: 0.4rem;
 }
 
@@ -363,4 +364,22 @@
   background: rgba(255, 51, 102, 0.2);
   border-color: rgba(255, 51, 102, 0.6);
   box-shadow: 0 0 8px rgba(255, 51, 102, 0.3);
+}
+
+/* Spotlight button */
+.spotlight-btn {
+  background: rgba(0, 229, 255, 0.1);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  font-size: 0.75rem;
+  cursor: pointer;
+  color: #00e5ff;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.spotlight-btn:hover {
+  background: rgba(0, 229, 255, 0.2);
+  border-color: rgba(0, 229, 255, 0.6);
+  box-shadow: 0 0 8px rgba(0, 229, 255, 0.3);
 }
