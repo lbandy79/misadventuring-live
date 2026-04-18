@@ -127,7 +127,7 @@ export default function NPCReviewPanel({ showId }: NPCReviewPanelProps) {
     ? npcOrder.map(id => filteredNpcs.find(n => n.id === id)).filter(Boolean) as NPC[]
     : filteredNpcs;
   // Append any NPCs not yet in custom order (newly submitted)
-  const orderedIds = new Set(npcOrder);
+  const orderedIds = new Set(orderedNpcs.map(n => n.id));
   const unordered = filteredNpcs.filter(n => !orderedIds.has(n.id));
   const displayNpcs = [...orderedNpcs, ...unordered];
 
@@ -146,6 +146,14 @@ export default function NPCReviewPanel({ showId }: NPCReviewPanelProps) {
 
   // Toggle spotlight for a single NPC (add/remove from the set)
   const toggleSpotlight = async (npc: NPC) => {
+    // Optimistic UI update — toggle immediately
+    setSpotlightIds(prev => {
+      const next = new Set(prev);
+      if (next.has(npc.id)) next.delete(npc.id);
+      else next.add(npc.id);
+      return next;
+    });
+
     const interactionRef = doc(db, 'config', 'active-interaction');
     const snap = await getDoc(interactionRef);
     let current: SpotlightNpc[] = [];
@@ -238,6 +246,21 @@ export default function NPCReviewPanel({ showId }: NPCReviewPanelProps) {
         </div>
       </div>
 
+      {/* On-Display preview strip */}
+      {spotlightIds.size > 0 && (
+        <div className="on-display-strip">
+          <span className="on-display-label">📺 ON DISPLAY</span>
+          <div className="on-display-npcs">
+            {displayNpcs.filter(n => spotlightIds.has(n.id)).map(n => (
+              <div key={n.id} className="on-display-chip">
+                <NpcAvatar name={n.name} size={24} />
+                <span>{n.name}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="npc-review-filters">
         <button
           className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
@@ -300,6 +323,14 @@ export default function NPCReviewPanel({ showId }: NPCReviewPanelProps) {
                   {npc.gmFlagged ? '⭐' : '☆'}
                 </button>
               </div>
+
+              {/* Inline snippets — always visible */}
+              <p className="npc-card-snippet">{npc.appearance}</p>
+              {npc.secret && (
+                <p className="npc-card-snippet npc-card-snippet--secret">
+                  <span className="secret-label">🤫</span> {npc.secret}
+                </p>
+              )}
 
               {/* Expanded detail section */}
               {isExpanded && (

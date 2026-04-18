@@ -309,6 +309,15 @@ export default function DisplayView() {
     }
   }, [activeInteraction.isOpen, activeInteraction.type, totalVotes, votes.counts]);
 
+  // Pre-compute spotlight NPCs for display (avoids IIFE in JSX)
+  const spotlightNpcsToShow: SpotlightNpc[] = activeInteraction.type === 'npc-spotlight'
+    ? (activeInteraction.spotlightNpcs?.length
+        ? activeInteraction.spotlightNpcs
+        : activeInteraction.npcName
+          ? [{ id: activeInteraction.npcId || 'legacy', name: activeInteraction.npcName, occupation: activeInteraction.npcOccupation || '', appearance: activeInteraction.npcAppearance || '' }]
+          : [])
+    : [];
+
   return (
     <div className={`display-container crt-overlay ${isShaking ? 'shake-intense' : ''}`}>
       {/* Audio unlock overlay - browsers require user gesture to enable audio */}
@@ -717,15 +726,9 @@ export default function DisplayView() {
         )}
 
         {/* NPC Spotlight (multi-NPC) */}
-        {activeInteraction.type === 'npc-spotlight' && (() => {
-          // Build NPC array from new spotlightNpcs field, with legacy single-NPC fallback
-          const npcs: SpotlightNpc[] = activeInteraction.spotlightNpcs?.length
-            ? activeInteraction.spotlightNpcs
-            : activeInteraction.npcName
-              ? [{ id: activeInteraction.npcId || 'legacy', name: activeInteraction.npcName, occupation: activeInteraction.npcOccupation || '', appearance: activeInteraction.npcAppearance || '' }]
-              : [];
-          return npcs.length > 0 ? <NpcSpotlight key="npc-spotlight" npcs={npcs} /> : null;
-        })()}
+        {activeInteraction.type === 'npc-spotlight' && spotlightNpcsToShow.length > 0 && (
+          <NpcSpotlight key="npc-spotlight" npcs={spotlightNpcsToShow} />
+        )}
        </DisplayErrorBoundary>
       </AnimatePresence>
     </div>
