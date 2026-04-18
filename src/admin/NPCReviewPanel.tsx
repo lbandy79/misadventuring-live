@@ -147,6 +147,7 @@ export default function NPCReviewPanel({ showId }: NPCReviewPanelProps) {
   // Toggle spotlight for a single NPC (add/remove from the set)
   const toggleSpotlight = async (npc: NPC) => {
     // Optimistic UI update — toggle immediately
+    const wasSpotlit = spotlightIds.has(npc.id);
     setSpotlightIds(prev => {
       const next = new Set(prev);
       if (next.has(npc.id)) next.delete(npc.id);
@@ -154,35 +155,45 @@ export default function NPCReviewPanel({ showId }: NPCReviewPanelProps) {
       return next;
     });
 
-    const interactionRef = doc(db, 'config', 'active-interaction');
-    const snap = await getDoc(interactionRef);
-    let current: SpotlightNpc[] = [];
+    try {
+      const interactionRef = doc(db, 'config', 'active-interaction');
+      const snap = await getDoc(interactionRef);
+      let current: SpotlightNpc[] = [];
 
-    if (snap.exists() && snap.data().type === 'npc-spotlight') {
-      current = snap.data().spotlightNpcs || [];
-    }
+      if (snap.exists() && snap.data().type === 'npc-spotlight') {
+        current = snap.data().spotlightNpcs || [];
+      }
 
-    const exists = current.some(s => s.id === npc.id);
-    let updated: SpotlightNpc[];
+      const exists = current.some(s => s.id === npc.id);
+      let updated: SpotlightNpc[];
 
-    if (exists) {
-      updated = current.filter(s => s.id !== npc.id);
-    } else {
-      updated = [...current, {
-        id: npc.id,
-        name: npc.name,
-        occupation: npc.occupation,
-        appearance: npc.appearance,
-      }];
-    }
+      if (exists) {
+        updated = current.filter(s => s.id !== npc.id);
+      } else {
+        updated = [...current, {
+          id: npc.id,
+          name: npc.name,
+          occupation: npc.occupation,
+          appearance: npc.appearance,
+        }];
+      }
 
-    if (updated.length === 0) {
-      // No more spotlighted NPCs — go to idle
-      await setDoc(interactionRef, { type: 'none' });
-    } else {
-      await setDoc(interactionRef, {
-        type: 'npc-spotlight',
-        spotlightNpcs: updated,
+      if (updated.length === 0) {
+        await setDoc(interactionRef, { type: 'none' });
+      } else {
+        await setDoc(interactionRef, {
+          type: 'npc-spotlight',
+          spotlightNpcs: updated,
+        });
+      }
+    } catch (err) {
+      console.error('Spotlight toggle failed:', err);
+      // Revert optimistic update
+      setSpotlightIds(prev => {
+        const reverted = new Set(prev);
+        if (wasSpotlit) reverted.add(npc.id);
+        else reverted.delete(npc.id);
+        return reverted;
       });
     }
   };
@@ -351,9 +362,11 @@ export default function NPCReviewPanel({ showId }: NPCReviewPanelProps) {
 
                 <p className="npc-card-appearance">{npc.appearance}</p>
 
-                <div className="npc-card-secret">
-                  <span className="secret-label">Secret:</span> {npc.secret}
-                </div>
+                {npc.secret && (
+                  <div className="npc-card-secret">
+                    <span className="secret-label">Secret:</span> {npc.secret}
+                  </div>
+                )}
 
                 <div className="npc-card-stats">
                   <div className="stat-badge best">

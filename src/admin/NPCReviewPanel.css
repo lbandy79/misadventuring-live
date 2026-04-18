@@ -82,13 +82,15 @@
   pointer-events: none;
 }
 
-/* Show on card hover (with small delay to avoid flicker) */
+/* Show on card hover and keep visible while hovering popover */
 .npc-grid-card {
   position: relative;
 }
 
-.npc-grid-card:hover > .npc-hover-detail {
+.npc-grid-card:hover > .npc-hover-detail,
+.npc-grid-card > .npc-hover-detail:hover {
   display: block;
+  pointer-events: auto;
   animation: hover-fade-in 0.15s ease-out;
 }
 

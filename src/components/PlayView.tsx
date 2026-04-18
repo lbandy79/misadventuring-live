@@ -6,7 +6,7 @@
  * When their NPC is spotlighted by the GM, the card glows.
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -49,47 +49,64 @@ export default function PlayView() {
   const [activeInteraction, setActiveInteraction] = useState<ActiveInteraction>({ type: 'none' });
   const [isSpotlit, setIsSpotlit] = useState(false);
   const [showSpotlitBanner, setShowSpotlitBanner] = useState(false);
+  const prevSpotlitRef = useRef(false);
+  const bannerTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Fetch NPC data
   useEffect(() => {
     if (!npcId) { setNotFound(true); setLoading(false); return; }
 
     const fetchNpc = async () => {
-      const snap = await getDoc(doc(db, 'npcs', npcId));
-      if (snap.exists()) {
-        setNpc({ id: snap.id, ...snap.data() } as NPC);
-      } else {
+      try {
+        const snap = await getDoc(doc(db, 'npcs', npcId));
+        if (snap.exists()) {
+          setNpc({ id: snap.id, ...snap.data() } as NPC);
+        } else {
+          setNotFound(true);
+        }
+      } catch {
         setNotFound(true);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     fetchNpc();
   }, [npcId]);
 
   // Subscribe to active interaction
   useEffect(() => {
+    if (!npcId) return;
+
     const unsubscribe = onSnapshot(doc(db, 'config', 'active-interaction'), (snap) => {
       if (snap.exists()) {
         const data = snap.data() as ActiveInteraction;
         setActiveInteraction(data);
 
-        // Check if this NPC is spotlighted
-        const spotlit = data.type === 'npc-spotlight' &&
-          data.spotlightNpcs?.some(s => s.id === npcId);
+        // Check if this NPC is spotlighted (new array format + legacy single-NPC fallback)
+        const spotlit = data.type === 'npc-spotlight' && (
+          data.spotlightNpcs?.some(s => s.id === npcId) ||
+          (data as any).npcId === npcId
+        );
         setIsSpotlit(!!spotlit);
 
         // Show banner briefly when first spotlit
-        if (spotlit && !isSpotlit) {
+        if (spotlit && !prevSpotlitRef.current) {
           setShowSpotlitBanner(true);
-          setTimeout(() => setShowSpotlitBanner(false), 4000);
+          if (bannerTimeoutRef.current) clearTimeout(bannerTimeoutRef.current);
+          bannerTimeoutRef.current = setTimeout(() => setShowSpotlitBanner(false), 4000);
         }
+        prevSpotlitRef.current = !!spotlit;
       } else {
         setActiveInteraction({ type: 'none' });
         setIsSpotlit(false);
+        prevSpotlitRef.current = false;
       }
     });
-    return () => unsubscribe();
-  }, [npcId, isSpotlit]);
+    return () => {
+      unsubscribe();
+      if (bannerTimeoutRef.current) clearTimeout(bannerTimeoutRef.current);
+    };
+  }, [npcId]);
 
   if (loading) {
     return (
