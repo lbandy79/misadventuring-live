@@ -1,10 +1,11 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate, useSearchParams } from 'react-router-dom';
 import { Component, type ReactNode } from 'react';
 import AudienceView from './components/AudienceView';
 import AdminPanel from './admin/AdminPanel';
 import DisplayView from './components/DisplayView';
 import PlayerView from './components/PlayerView';
 import NPCCreationPage from './components/NPCCreator/NPCCreationPage';
+import QRDisplay from './components/QRDisplay';
 import FantasyBackground from './components/FantasyBackground';
 import './index.css';
 
@@ -20,6 +21,16 @@ import './styles/effects.css';
 
 // Import TMP icon styles
 import './components/icons/TMPIcons.css';
+
+/** Safety-net redirect: if someone lands on /?code=XXXX, send them to /create?code=XXXX */
+function CodeRedirect() {
+  const [params] = useSearchParams();
+  const code = params.get('code');
+  if (code) {
+    return <Navigate to={`/create?code=${encodeURIComponent(code)}`} replace />;
+  }
+  return <AudienceView />;
+}
 
 class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
   state = { error: null as Error | null };
@@ -48,11 +59,12 @@ function App() {
       <div className="app-container">
         <FantasyBackground />
         <Routes>
-          <Route path="/" element={<AudienceView />} />
+          <Route path="/" element={<CodeRedirect />} />
           <Route path="/create" element={<NPCCreationPage />} />
           <Route path="/player/:playerId" element={<PlayerView />} />
           <Route path="/admin" element={<AdminPanel />} />
           <Route path="/display" element={<DisplayView />} />
+          <Route path="/qr" element={<QRDisplay />} />
         </Routes>
       </div>
     </ErrorBoundary>

@@ -1,0 +1,55 @@
+/* NPC Arrival Toast — bottom-right corner notification */
+
+.npc-arrival-container {
+  position: fixed;
+  bottom: 5rem;
+  right: 1.5rem;
+  z-index: 80;
+  pointer-events: none;
+}
+
+.npc-arrival-toast {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(13, 13, 20, 0.92);
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  box-shadow:
+    0 0 20px rgba(0, 229, 255, 0.2),
+    0 4px 20px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  min-width: 280px;
+  max-width: 360px;
+}
+
+.arrival-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.arrival-label {
+  font-family: var(--tmp-font-body, 'VT323', monospace);
+  font-size: 0.7rem;
+  color: rgba(0, 229, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.08rem;
+}
+
+.arrival-name {
+  font-family: var(--tmp-font-display, 'Monoton', cursive);
+  font-size: 1.1rem;
+  color: #eaeaea;
+  text-shadow: 0 0 6px rgba(0, 229, 255, 0.3);
+  line-height: 1.2;
+}
+
+.arrival-occupation {
+  font-family: var(--tmp-font-body, 'VT323', monospace);
+  font-size: 0.85rem;
+  color: var(--tmp-color-secondary, #00F5FF);
+  text-transform: uppercase;
+  letter-spacing: 0.06rem;
+}

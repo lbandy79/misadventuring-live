@@ -9,6 +9,7 @@
 import { motion } from 'framer-motion';
 import { useSystemConfig, getStatById } from '../../hooks/useSystemConfig';
 import type { NPC } from '../../types/npc.types';
+import NpcAvatar from '../npc/NpcAvatar';
 import './CharacterCard.css';
 
 interface CharacterCardProps {
@@ -45,6 +46,7 @@ export default function CharacterCard({ npc }: CharacterCardProps) {
 
       {/* Character identity */}
       <div className="card-identity">
+        <NpcAvatar name={npc.name} size={72} className="card-avatar" />
         <h2 className="card-name">{npc.name}</h2>
         <p className="card-occupation">{npc.occupation}</p>
       </div>

@@ -1,0 +1,91 @@
+/* NPC Spotlight — full-screen projector display */
+
+.npc-spotlight {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100vw;
+  gap: 0.5rem;
+  padding: 2rem;
+  text-align: center;
+  overflow: hidden;
+}
+
+.spotlight-scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 2px,
+    rgba(0, 0, 0, 0.08) 2px,
+    rgba(0, 0, 0, 0.08) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+  animation: spotlight-flicker 4s infinite;
+}
+
+@keyframes spotlight-flicker {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 0.4; }
+  92% { opacity: 0.6; }
+  93% { opacity: 0.2; }
+  94% { opacity: 0.7; }
+}
+
+.spotlight-avatar {
+  position: relative;
+  z-index: 2;
+}
+
+.spotlight-avatar .npc-avatar {
+  width: 200px;
+  height: 200px;
+  border-width: 3px;
+  box-shadow:
+    0 0 30px rgba(0, 229, 255, 0.4),
+    0 0 60px rgba(255, 45, 123, 0.2),
+    0 0 100px rgba(0, 229, 255, 0.1);
+}
+
+.spotlight-name {
+  position: relative;
+  z-index: 2;
+  font-family: var(--tmp-font-display, 'Monoton', cursive);
+  font-size: 3.5rem;
+  color: #eaeaea;
+  margin: 0.3rem 0 0;
+  text-shadow:
+    0 0 20px rgba(0, 229, 255, 0.6),
+    0 0 40px rgba(0, 229, 255, 0.3),
+    0 0 80px rgba(255, 45, 123, 0.2);
+  line-height: 1.1;
+}
+
+.spotlight-occupation {
+  position: relative;
+  z-index: 2;
+  font-family: var(--tmp-font-accent, 'Orbitron', monospace);
+  font-size: 1.3rem;
+  color: var(--tmp-color-secondary, #00F5FF);
+  text-transform: uppercase;
+  letter-spacing: 0.2rem;
+  margin: 0;
+  text-shadow: 0 0 10px rgba(0, 229, 255, 0.4);
+}
+
+.spotlight-appearance {
+  position: relative;
+  z-index: 2;
+  font-family: var(--tmp-font-body, 'VT323', monospace);
+  font-size: 1.4rem;
+  color: rgba(234, 234, 234, 0.85);
+  margin: 0.5rem 0 0;
+  max-width: 700px;
+  line-height: 1.5;
+  font-style: italic;
+}

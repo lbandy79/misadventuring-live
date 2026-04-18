@@ -18,6 +18,11 @@ import MonsterBuilderDisplay from './MonsterBuilderDisplay';
 import VillagerDisplay from './VillagerDisplay';
 import DecoderRingDisplay from './DecoderRingDisplay';
 import ShipCombatDisplay from './ShipCombatDisplay';
+import Madlibs from './Madlibs';
+import NpcNaming from './NpcNaming';
+import DisplayErrorBoundary from './display/DisplayErrorBoundary';
+import NpcArrivalToast from './display/NpcArrivalToast';
+import NpcSpotlight from './display/NpcSpotlight';
 import './DisplayView.css';
 
 interface VoteOption {
@@ -27,7 +32,7 @@ interface VoteOption {
 }
 
 interface ActiveInteraction {
-  type: 'none' | 'vote' | 'madlibs' | 'npc-naming' | 'group-roll' | 'monster-vote' | 'villager-submit' | 'monster-builder' | 'decoder-ring' | 'ship-combat';
+  type: 'none' | 'vote' | 'madlibs' | 'npc-naming' | 'group-roll' | 'monster-vote' | 'villager-submit' | 'monster-builder' | 'decoder-ring' | 'ship-combat' | 'npc-spotlight';
   question?: string;
   options?: VoteOption[];
   isOpen?: boolean;
@@ -36,6 +41,11 @@ interface ActiveInteraction {
   currentPart?: string;
   partIndex?: number;
   status?: string;
+  // NPC Spotlight fields
+  npcId?: string;
+  npcName?: string;
+  npcOccupation?: string;
+  npcAppearance?: string;
 }
 
 interface VotesData {
@@ -44,6 +54,7 @@ interface VotesData {
 }
 
 export default function DisplayView() {
+  const hideBar = new URLSearchParams(window.location.search).get('hideBar') === 'true';
   const [activeInteraction, setActiveInteraction] = useState<ActiveInteraction>({ type: 'none' });
   const [votes, setVotes] = useState<VotesData>({});
   const [soundEnabled, setSoundEnabled] = useState(false);  // Audio locked until user gesture
@@ -313,7 +324,7 @@ export default function DisplayView() {
 
       {/* Persistent logo watermark - bottom left corner, visible during interactions */}
       <AnimatePresence>
-        {activeInteraction.type !== 'none' && (
+        {!hideBar && activeInteraction.type !== 'none' && (
           <motion.div 
             className="persistent-logo"
             initial={{ opacity: 0, scale: 0.8 }}
@@ -344,7 +355,7 @@ export default function DisplayView() {
 
       {/* Persistent small QR code - visible during voting/submissions, hidden during idle and reveal */}
       <AnimatePresence>
-        {activeInteraction.type !== 'none' && 
+        {!hideBar && activeInteraction.type !== 'none' && 
          !(activeInteraction.type === 'monster-vote' && activeInteraction.status === 'revealing') &&
          !(activeInteraction.type === 'monster-builder' && (builderData?.status === 'revealing' || builderData?.status === 'complete')) && (
           <motion.div 
@@ -362,7 +373,11 @@ export default function DisplayView() {
         )}
       </AnimatePresence>
 
+      {/* NPC Arrival Toasts — always listening, bottom-right corner */}
+      <NpcArrivalToast />
+
       <AnimatePresence mode="wait">
+       <DisplayErrorBoundary key={activeInteraction.type}>
         {/* Idle State - QR Code & CTA */}
         {activeInteraction.type === 'none' && (
           <motion.div 
@@ -559,10 +574,17 @@ export default function DisplayView() {
           </motion.div>
         )}
 
-        {/* Placeholder for other interaction types */}
+        {/* Madlibs Display */}
         {activeInteraction.type === 'madlibs' && (
-          <motion.div className="coming-soon-display" key="madlibs">
-            <h2>📜 Madlibs Reveal Coming Soon</h2>
+          <motion.div key="madlibs" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <Madlibs />
+          </motion.div>
+        )}
+
+        {/* NPC Naming Display */}
+        {activeInteraction.type === 'npc-naming' && (
+          <motion.div key="npc-naming" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <NpcNaming />
           </motion.div>
         )}
 
@@ -691,6 +713,17 @@ export default function DisplayView() {
             <ShipCombatDisplay onComplete={() => console.log('Ship combat complete!')} />
           </motion.div>
         )}
+
+        {/* NPC Spotlight */}
+        {activeInteraction.type === 'npc-spotlight' && activeInteraction.npcName && (
+          <NpcSpotlight
+            key="npc-spotlight"
+            name={activeInteraction.npcName}
+            occupation={activeInteraction.npcOccupation || ''}
+            appearance={activeInteraction.npcAppearance || ''}
+          />
+        )}
+       </DisplayErrorBoundary>
       </AnimatePresence>
     </div>
   );

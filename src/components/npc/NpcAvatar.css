@@ -1,0 +1,22 @@
+/* NPC Avatar — neon glow, VHS aesthetic */
+
+.npc-avatar {
+  border-radius: 50%;
+  border: 2px solid rgba(0, 229, 255, 0.5);
+  box-shadow:
+    0 0 8px rgba(0, 229, 255, 0.3),
+    0 0 16px rgba(255, 45, 123, 0.15);
+  flex-shrink: 0;
+  object-fit: cover;
+  background: #0a0a0f;
+}
+
+.npc-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--tmp-font-accent, 'Orbitron', monospace);
+  font-weight: 700;
+  text-transform: uppercase;
+  user-select: none;
+}

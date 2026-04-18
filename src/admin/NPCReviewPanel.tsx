@@ -10,10 +10,12 @@
  */
 
 import { useState, useEffect } from 'react';
-import { collection, query, where, onSnapshot, doc, updateDoc, deleteDoc, getDocs } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, doc, updateDoc, deleteDoc, getDocs, setDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useSystemConfig, getStatById } from '../hooks/useSystemConfig';
 import type { NPC } from '../types/npc.types';
+import type { Reservation } from '../types/reservation.types';
+import NpcAvatar from '../components/npc/NpcAvatar';
 import './NPCReviewPanel.css';
 
 interface NPCReviewPanelProps {
@@ -30,6 +32,7 @@ export default function NPCReviewPanel({ showId }: NPCReviewPanelProps) {
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [confirmClearAll, setConfirmClearAll] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [reservations, setReservations] = useState<Record<string, Reservation>>({});
 
   // Subscribe to NPCs for this show
   useEffect(() => {
@@ -46,6 +49,30 @@ export default function NPCReviewPanel({ showId }: NPCReviewPanelProps) {
         return b.createdAt - a.createdAt;
       });
       setNpcs(npcList);
+
+      // Fetch reservations for any new NPCs we haven't looked up yet
+      const newResIds = npcList
+        .map(n => n.reservationId)
+        .filter(id => id && !reservations[id]);
+      if (newResIds.length > 0) {
+        const uniqueIds = [...new Set(newResIds)];
+        Promise.all(
+          uniqueIds.map(async (resId) => {
+            const snap = await getDocs(query(
+              collection(db, 'reservations'),
+              where('__name__', '==', resId)
+            ));
+            if (!snap.empty) {
+              return { id: snap.docs[0].id, ...snap.docs[0].data() } as Reservation;
+            }
+            return null;
+          })
+        ).then((results) => {
+          const newMap: Record<string, Reservation> = {};
+          results.forEach(r => { if (r) newMap[r.id] = r; });
+          setReservations(prev => ({ ...prev, ...newMap }));
+        });
+      }
     });
 
     return () => unsubscribe();
@@ -84,6 +111,16 @@ export default function NPCReviewPanel({ showId }: NPCReviewPanelProps) {
   };
 
   const filteredNpcs = filter === 'flagged' ? npcs.filter(n => n.gmFlagged) : npcs;
+
+  const spotlightNpc = async (npc: NPC) => {
+    await setDoc(doc(db, 'config', 'active-interaction'), {
+      type: 'npc-spotlight',
+      npcId: npc.id,
+      npcName: npc.name,
+      npcOccupation: npc.occupation,
+      npcAppearance: npc.appearance,
+    });
+  };
 
   const getStatDisplay = (statId: string) => {
     if (!config) return statId;
@@ -150,13 +187,21 @@ export default function NPCReviewPanel({ showId }: NPCReviewPanelProps) {
 
         {filteredNpcs.map((npc) => (
           <div key={npc.id} className={`npc-review-card ${npc.gmFlagged ? 'flagged' : ''}`}>
-            {/* Header: name + flag + delete */}
+            {/* Header: avatar + name + flag + delete */}
             <div className="npc-card-header">
+              <NpcAvatar name={npc.name} size={52} />
               <div>
                 <span className="npc-card-name">{npc.name}</span>
                 <span className="npc-card-occupation">{npc.occupation}</span>
               </div>
               <div className="npc-card-header-actions">
+                <button
+                  className="spotlight-btn"
+                  onClick={() => spotlightNpc(npc)}
+                  title="Show on projector"
+                >
+                  📺 Spotlight
+                </button>
                 {confirmDeleteId === npc.id ? (
                   <div className="confirm-inline">
                     <span className="confirm-text">Delete?</span>
@@ -185,6 +230,14 @@ export default function NPCReviewPanel({ showId }: NPCReviewPanelProps) {
                 </button>
               </div>
             </div>
+
+            {/* Creator info */}
+            {reservations[npc.reservationId] && (
+              <div className="npc-card-creator">
+                <span className="creator-name">{reservations[npc.reservationId].name}</span>
+                <span className="creator-email">{reservations[npc.reservationId].email}</span>
+              </div>
+            )}
 
             {/* Appearance */}
             <p className="npc-card-appearance">{npc.appearance}</p>
