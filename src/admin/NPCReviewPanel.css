@@ -8,6 +8,146 @@
   gap: 0.75rem;
 }
 
+/* On-Display preview strip */
+.on-display-strip {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.4rem 0.75rem;
+  background: rgba(0, 229, 255, 0.08);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  border-radius: 8px;
+  animation: spotlight-pulse 2s ease-in-out infinite;
+}
+
+.on-display-label {
+  font-family: var(--tmp-font-accent, 'Orbitron', monospace);
+  font-size: 0.7rem;
+  color: #00e5ff;
+  letter-spacing: 0.1rem;
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+.on-display-npcs {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.on-display-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: rgba(0, 229, 255, 0.12);
+  padding: 0.15rem 0.5rem 0.15rem 0.2rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  color: var(--tmp-text-primary, #eaeaea);
+}
+
+/* NPC card inline snippets */
+.npc-card-snippet {
+  font-size: 0.75rem;
+  color: rgba(234, 234, 234, 0.7);
+  margin: 0.3rem 0 0;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.npc-card-snippet--secret {
+  color: rgba(255, 51, 102, 0.8);
+  -webkit-line-clamp: 1;
+  font-size: 0.7rem;
+}
+
+/* ===== Hover Detail Popover ===== */
+.npc-hover-detail {
+  display: none;
+  position: absolute;
+  z-index: 100;
+  top: 0;
+  left: calc(100% + 8px);
+  width: 320px;
+  max-height: 420px;
+  overflow-y: auto;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border: 1px solid rgba(0, 229, 255, 0.35);
+  border-radius: 10px;
+  padding: 0.75rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 15px rgba(0, 229, 255, 0.15);
+  pointer-events: none;
+}
+
+/* Show on card hover and keep visible while hovering popover */
+.npc-grid-card {
+  position: relative;
+}
+
+.npc-grid-card:hover > .npc-hover-detail,
+.npc-grid-card > .npc-hover-detail:hover {
+  display: block;
+  pointer-events: auto;
+  animation: hover-fade-in 0.15s ease-out;
+}
+
+@keyframes hover-fade-in {
+  from { opacity: 0; transform: translateX(-4px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* Flip to left side if card is near right edge */
+.npc-grid-card:nth-child(6n) > .npc-hover-detail,
+.npc-grid-card:nth-child(6n-1) > .npc-hover-detail,
+.npc-grid-card:last-child > .npc-hover-detail {
+  left: auto;
+  right: calc(100% + 8px);
+}
+
+.npc-hover-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.npc-hover-header .npc-card-name {
+  display: block;
+  font-size: 1.1rem;
+}
+
+.npc-hover-header .npc-card-occupation {
+  display: block;
+}
+
+.npc-hover-detail .npc-card-appearance {
+  font-size: 0.85rem;
+  margin: 0 0 0.5rem;
+}
+
+.npc-hover-detail .npc-card-secret {
+  font-size: 0.8rem;
+  margin-bottom: 0.5rem;
+}
+
+.npc-hover-detail .npc-card-stats {
+  margin-bottom: 0.5rem;
+}
+
+.npc-hover-notes {
+  font-size: 0.8rem;
+  color: var(--tmp-text-secondary, #a0a0b0);
+  font-style: italic;
+  margin: 0;
+  padding-top: 0.4rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
 .npc-review-header {
   display: flex;
   justify-content: space-between;

@@ -12,6 +12,7 @@
 import { useState, useEffect } from 'react';
 import { collection, query, where, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { db } from '../../firebase';
 import { useSystemConfig } from '../../hooks/useSystemConfig';
 import AccessCodeEntry from '../Reservation/AccessCodeEntry';
@@ -33,6 +34,7 @@ function getCodeFromUrl(): string | null {
 
 export default function NPCCreationPage() {
   const { config, loading } = useSystemConfig();
+  const navigate = useNavigate();
   const [step, setStep] = useState<FlowStep>('code-entry');
   const [reservation, setReservation] = useState<Reservation | null>(null);
   const [completedNpc, setCompletedNpc] = useState<NPC | null>(null);
@@ -231,6 +233,12 @@ export default function NPCCreationPage() {
                 <CharacterCard npc={completedNpc} />
 
                 <div className="npc-complete-actions">
+                  <button
+                    className="npc-join-btn"
+                    onClick={() => navigate(`/play/${completedNpc.id}`)}
+                  >
+                    🎭 Join the Show
+                  </button>
                   <button
                     className="npc-edit-btn"
                     onClick={handleEditCharacter}

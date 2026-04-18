@@ -127,7 +127,7 @@ export default function NPCReviewPanel({ showId }: NPCReviewPanelProps) {
     ? npcOrder.map(id => filteredNpcs.find(n => n.id === id)).filter(Boolean) as NPC[]
     : filteredNpcs;
   // Append any NPCs not yet in custom order (newly submitted)
-  const orderedIds = new Set(npcOrder);
+  const orderedIds = new Set(orderedNpcs.map(n => n.id));
   const unordered = filteredNpcs.filter(n => !orderedIds.has(n.id));
   const displayNpcs = [...orderedNpcs, ...unordered];
 
@@ -146,35 +146,54 @@ export default function NPCReviewPanel({ showId }: NPCReviewPanelProps) {
 
   // Toggle spotlight for a single NPC (add/remove from the set)
   const toggleSpotlight = async (npc: NPC) => {
-    const interactionRef = doc(db, 'config', 'active-interaction');
-    const snap = await getDoc(interactionRef);
-    let current: SpotlightNpc[] = [];
+    // Optimistic UI update — toggle immediately
+    const wasSpotlit = spotlightIds.has(npc.id);
+    setSpotlightIds(prev => {
+      const next = new Set(prev);
+      if (next.has(npc.id)) next.delete(npc.id);
+      else next.add(npc.id);
+      return next;
+    });
 
-    if (snap.exists() && snap.data().type === 'npc-spotlight') {
-      current = snap.data().spotlightNpcs || [];
-    }
+    try {
+      const interactionRef = doc(db, 'config', 'active-interaction');
+      const snap = await getDoc(interactionRef);
+      let current: SpotlightNpc[] = [];
 
-    const exists = current.some(s => s.id === npc.id);
-    let updated: SpotlightNpc[];
+      if (snap.exists() && snap.data().type === 'npc-spotlight') {
+        current = snap.data().spotlightNpcs || [];
+      }
 
-    if (exists) {
-      updated = current.filter(s => s.id !== npc.id);
-    } else {
-      updated = [...current, {
-        id: npc.id,
-        name: npc.name,
-        occupation: npc.occupation,
-        appearance: npc.appearance,
-      }];
-    }
+      const exists = current.some(s => s.id === npc.id);
+      let updated: SpotlightNpc[];
 
-    if (updated.length === 0) {
-      // No more spotlighted NPCs — go to idle
-      await setDoc(interactionRef, { type: 'none' });
-    } else {
-      await setDoc(interactionRef, {
-        type: 'npc-spotlight',
-        spotlightNpcs: updated,
+      if (exists) {
+        updated = current.filter(s => s.id !== npc.id);
+      } else {
+        updated = [...current, {
+          id: npc.id,
+          name: npc.name,
+          occupation: npc.occupation,
+          appearance: npc.appearance,
+        }];
+      }
+
+      if (updated.length === 0) {
+        await setDoc(interactionRef, { type: 'none' });
+      } else {
+        await setDoc(interactionRef, {
+          type: 'npc-spotlight',
+          spotlightNpcs: updated,
+        });
+      }
+    } catch (err) {
+      console.error('Spotlight toggle failed:', err);
+      // Revert optimistic update
+      setSpotlightIds(prev => {
+        const reverted = new Set(prev);
+        if (wasSpotlit) reverted.add(npc.id);
+        else reverted.delete(npc.id);
+        return reverted;
       });
     }
   };
@@ -237,6 +256,21 @@ export default function NPCReviewPanel({ showId }: NPCReviewPanelProps) {
           )}
         </div>
       </div>
+
+      {/* On-Display preview strip */}
+      {spotlightIds.size > 0 && (
+        <div className="on-display-strip">
+          <span className="on-display-label">📺 ON DISPLAY</span>
+          <div className="on-display-npcs">
+            {displayNpcs.filter(n => spotlightIds.has(n.id)).map(n => (
+              <div key={n.id} className="on-display-chip">
+                <NpcAvatar name={n.name} size={24} />
+                <span>{n.name}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="npc-review-filters">
         <button
@@ -301,32 +335,56 @@ export default function NPCReviewPanel({ showId }: NPCReviewPanelProps) {
                 </button>
               </div>
 
-              {/* Expanded detail section */}
-              {isExpanded && (
-                <div className="npc-grid-detail">
-                  {/* Creator info */}
-                  {reservations[npc.reservationId] && (
-                    <div className="npc-card-creator">
-                      <span className="creator-name">{reservations[npc.reservationId].name}</span>
-                      <span className="creator-email">{reservations[npc.reservationId].email}</span>
-                    </div>
-                  )}
+              {/* Inline snippets — always visible */}
+              <p className="npc-card-snippet">{npc.appearance}</p>
+              {npc.secret && (
+                <p className="npc-card-snippet npc-card-snippet--secret">
+                  <span className="secret-label">🤫</span> {npc.secret}
+                </p>
+              )}
 
-                  <p className="npc-card-appearance">{npc.appearance}</p>
+              {/* Hover detail popover — all NPC data at a glance */}
+              <div className="npc-hover-detail">
+                <div className="npc-hover-header">
+                  <NpcAvatar name={npc.name} size={64} />
+                  <div>
+                    <strong className="npc-card-name">{npc.name}</strong>
+                    <span className="npc-card-occupation">{npc.occupation}</span>
+                  </div>
+                </div>
 
+                {reservations[npc.reservationId] && (
+                  <div className="npc-card-creator">
+                    <span className="creator-name">{reservations[npc.reservationId].name}</span>
+                    <span className="creator-email">{reservations[npc.reservationId].email}</span>
+                  </div>
+                )}
+
+                <p className="npc-card-appearance">{npc.appearance}</p>
+
+                {npc.secret && (
                   <div className="npc-card-secret">
                     <span className="secret-label">Secret:</span> {npc.secret}
                   </div>
+                )}
 
-                  <div className="npc-card-stats">
-                    <div className="stat-badge best">
-                      <span className="stat-badge-label">Best:</span> {getStatDisplay(npc.bestStat)}
-                    </div>
-                    <div className="stat-badge worst">
-                      <span className="stat-badge-label">Worst:</span> {getStatDisplay(npc.worstStat)}
-                    </div>
+                <div className="npc-card-stats">
+                  <div className="stat-badge best">
+                    <span className="stat-badge-label">Best:</span> {getStatDisplay(npc.bestStat)}
                   </div>
+                  <div className="stat-badge worst">
+                    <span className="stat-badge-label">Worst:</span> {getStatDisplay(npc.worstStat)}
+                  </div>
+                </div>
 
+                {npc.gmNotes && (
+                  <p className="npc-hover-notes">📝 {npc.gmNotes}</p>
+                )}
+              </div>
+
+              {/* Click-expand for interactive: notes editor + delete */}
+              {isExpanded && (
+                <div className="npc-grid-detail">
                   {/* GM Notes */}
                   <div className="npc-card-notes">
                     {editingNotes === npc.id ? (
