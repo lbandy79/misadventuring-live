@@ -400,10 +400,11 @@ export default function DisplayView() {
             transition={{ duration: 0.5, ease: 'easeOut' }}
           >
             {/* QR Idle Display with themed logo */}
+            {/* Changed QR URL to /create so audience lands on NPC creation — 2026-04-18 Betawave show */}
             <IdleDisplay 
               themeKey={theme.id}
               logo={<ThemeLogo size={180} />}
-              url="https://play.themisadventuringparty.com"
+              url="https://play.themisadventuringparty.com/create"
             />
           </motion.div>
         )}
