@@ -22,7 +22,7 @@ import Madlibs from './Madlibs';
 import NpcNaming from './NpcNaming';
 import DisplayErrorBoundary from './display/DisplayErrorBoundary';
 import NpcArrivalToast from './display/NpcArrivalToast';
-import NpcSpotlight from './display/NpcSpotlight';
+import NpcSpotlight, { SpotlightNpc } from './display/NpcSpotlight';
 import './DisplayView.css';
 
 interface VoteOption {
@@ -41,7 +41,9 @@ interface ActiveInteraction {
   currentPart?: string;
   partIndex?: number;
   status?: string;
-  // NPC Spotlight fields
+  // NPC Spotlight fields (multi-NPC)
+  spotlightNpcs?: SpotlightNpc[];
+  // Legacy single-NPC fields (backwards compat)
   npcId?: string;
   npcName?: string;
   npcOccupation?: string;
@@ -714,15 +716,16 @@ export default function DisplayView() {
           </motion.div>
         )}
 
-        {/* NPC Spotlight */}
-        {activeInteraction.type === 'npc-spotlight' && activeInteraction.npcName && (
-          <NpcSpotlight
-            key="npc-spotlight"
-            name={activeInteraction.npcName}
-            occupation={activeInteraction.npcOccupation || ''}
-            appearance={activeInteraction.npcAppearance || ''}
-          />
-        )}
+        {/* NPC Spotlight (multi-NPC) */}
+        {activeInteraction.type === 'npc-spotlight' && (() => {
+          // Build NPC array from new spotlightNpcs field, with legacy single-NPC fallback
+          const npcs: SpotlightNpc[] = activeInteraction.spotlightNpcs?.length
+            ? activeInteraction.spotlightNpcs
+            : activeInteraction.npcName
+              ? [{ id: activeInteraction.npcId || 'legacy', name: activeInteraction.npcName, occupation: activeInteraction.npcOccupation || '', appearance: activeInteraction.npcAppearance || '' }]
+              : [];
+          return npcs.length > 0 ? <NpcSpotlight key="npc-spotlight" npcs={npcs} /> : null;
+        })()}
        </DisplayErrorBoundary>
       </AnimatePresence>
     </div>
