@@ -4,6 +4,7 @@ import AudienceView from './components/AudienceView';
 import AdminPanel from './admin/AdminPanel';
 import DisplayView from './components/DisplayView';
 import PlayerView from './components/PlayerView';
+import PlayView from './components/PlayView';
 import NPCCreationPage from './components/NPCCreator/NPCCreationPage';
 import QRDisplay from './components/QRDisplay';
 import FantasyBackground from './components/FantasyBackground';
@@ -61,6 +62,7 @@ function App() {
         <Routes>
           <Route path="/" element={<CodeRedirect />} />
           <Route path="/create" element={<NPCCreationPage />} />
+          <Route path="/play/:npcId" element={<PlayView />} />
           <Route path="/player/:playerId" element={<PlayerView />} />
           <Route path="/admin" element={<AdminPanel />} />
           <Route path="/display" element={<DisplayView />} />

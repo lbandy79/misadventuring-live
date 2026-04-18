@@ -999,7 +999,7 @@ export default function AdminPanel() {
 
         {/* ============ BETAWAVE TAPES - NPC REVIEW ============ */}
         {activeTab === 'npcs' && (
-        <section className="admin-card config-card">
+        <section className="admin-card config-card admin-card--full">
           <h2>📋 Betawave NPC Review</h2>
           <NPCReviewPanel showId="betawave-last-call-2026-04-18" />
         </section>

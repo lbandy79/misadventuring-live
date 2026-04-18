@@ -377,7 +377,7 @@ export default function DisplayView() {
             transition={{ duration: 0.3 }}
           >
             <div className="persistent-qr-container">
-              <QRCode value="https://play.themisadventuringparty.com" size={100} />
+              <QRCode value="https://play.themisadventuringparty.com/create" size={100} />
             </div>
             <span className="persistent-qr-label">SCAN TO JOIN</span>
           </motion.div>

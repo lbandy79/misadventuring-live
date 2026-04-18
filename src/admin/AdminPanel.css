@@ -274,6 +274,11 @@
   border: 1px solid #2a2a4a;
 }
 
+/* Full-width card (spans entire grid) */
+.admin-card--full {
+  grid-column: 1 / -1;
+}
+
 .admin-card h2 {
   color: #ffd700;
   font-size: 0.95rem;

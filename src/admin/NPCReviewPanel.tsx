@@ -332,32 +332,46 @@ export default function NPCReviewPanel({ showId }: NPCReviewPanelProps) {
                 </p>
               )}
 
-              {/* Expanded detail section */}
+              {/* Hover detail popover — all NPC data at a glance */}
+              <div className="npc-hover-detail">
+                <div className="npc-hover-header">
+                  <NpcAvatar name={npc.name} size={64} />
+                  <div>
+                    <strong className="npc-card-name">{npc.name}</strong>
+                    <span className="npc-card-occupation">{npc.occupation}</span>
+                  </div>
+                </div>
+
+                {reservations[npc.reservationId] && (
+                  <div className="npc-card-creator">
+                    <span className="creator-name">{reservations[npc.reservationId].name}</span>
+                    <span className="creator-email">{reservations[npc.reservationId].email}</span>
+                  </div>
+                )}
+
+                <p className="npc-card-appearance">{npc.appearance}</p>
+
+                <div className="npc-card-secret">
+                  <span className="secret-label">Secret:</span> {npc.secret}
+                </div>
+
+                <div className="npc-card-stats">
+                  <div className="stat-badge best">
+                    <span className="stat-badge-label">Best:</span> {getStatDisplay(npc.bestStat)}
+                  </div>
+                  <div className="stat-badge worst">
+                    <span className="stat-badge-label">Worst:</span> {getStatDisplay(npc.worstStat)}
+                  </div>
+                </div>
+
+                {npc.gmNotes && (
+                  <p className="npc-hover-notes">📝 {npc.gmNotes}</p>
+                )}
+              </div>
+
+              {/* Click-expand for interactive: notes editor + delete */}
               {isExpanded && (
                 <div className="npc-grid-detail">
-                  {/* Creator info */}
-                  {reservations[npc.reservationId] && (
-                    <div className="npc-card-creator">
-                      <span className="creator-name">{reservations[npc.reservationId].name}</span>
-                      <span className="creator-email">{reservations[npc.reservationId].email}</span>
-                    </div>
-                  )}
-
-                  <p className="npc-card-appearance">{npc.appearance}</p>
-
-                  <div className="npc-card-secret">
-                    <span className="secret-label">Secret:</span> {npc.secret}
-                  </div>
-
-                  <div className="npc-card-stats">
-                    <div className="stat-badge best">
-                      <span className="stat-badge-label">Best:</span> {getStatDisplay(npc.bestStat)}
-                    </div>
-                    <div className="stat-badge worst">
-                      <span className="stat-badge-label">Worst:</span> {getStatDisplay(npc.worstStat)}
-                    </div>
-                  </div>
-
                   {/* GM Notes */}
                   <div className="npc-card-notes">
                     {editingNotes === npc.id ? (
