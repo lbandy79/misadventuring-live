@@ -1,0 +1,584 @@
+{
+  "system": {
+    "id": "blade-runner-rpg",
+    "name": "Blade Runner RPG",
+    "edition": "Core Rules",
+    "publisher": "Free League Publishing",
+    "engine": "Year Zero Engine",
+    "description": "Criminal investigators in 2037 Los Angeles pursuing Replicants and uncovering conspiracies in a neon-drenched future noir world. You roll two polyhedral dice (attribute + skill), looking for 6+ as successes."
+  },
+
+  "attributes": [
+    {
+      "id": "strength",
+      "name": "Strength",
+      "description": "Muscle power, toughness, and physical endurance.",
+      "linkedSkills": ["force", "hand_to_hand_combat", "stamina"],
+      "healthContributor": true
+    },
+    {
+      "id": "agility",
+      "name": "Agility",
+      "description": "Body control, speed, and fine motor skills.",
+      "linkedSkills": ["firearms", "mobility", "stealth"],
+      "healthContributor": true
+    },
+    {
+      "id": "intelligence",
+      "name": "Intelligence",
+      "description": "Perception, intellect, and mental stability.",
+      "linkedSkills": ["medical_aid", "observation", "tech"],
+      "resolveContributor": true
+    },
+    {
+      "id": "empathy",
+      "name": "Empathy",
+      "description": "Social intelligence, charisma, and emotional stability.",
+      "linkedSkills": ["connections", "manipulation", "insight"],
+      "resolveContributor": true
+    }
+  ],
+
+  "attributeLevels": [
+    { "level": "A", "dieType": "D12", "dieSize": 12, "description": "Extraordinary" },
+    { "level": "B", "dieType": "D10", "dieSize": 10, "description": "Capable" },
+    { "level": "C", "dieType": "D8", "dieSize": 8, "description": "Average" },
+    { "level": "D", "dieType": "D6", "dieSize": 6, "description": "Feeble" }
+  ],
+
+  "skills": [
+    { "id": "force", "name": "Force", "attribute": "strength", "description": "Lifting, pushing, breaking obstacles. Any feat of brute strength." },
+    { "id": "hand_to_hand_combat", "name": "Hand-to-Hand Combat", "attribute": "strength", "description": "Melee attacks and defense using body or melee weapons. Opposed rolls in close combat." },
+    { "id": "stamina", "name": "Stamina", "attribute": "strength", "description": "Physical endurance, resisting poison, surviving underwater, death saves." },
+    { "id": "firearms", "name": "Firearms", "attribute": "agility", "description": "All ranged weapon attacks. Straight skill roll (not opposed)." },
+    { "id": "mobility", "name": "Mobility", "attribute": "agility", "description": "Climbing, jumping, sprinting, chases, risky movement." },
+    { "id": "stealth", "name": "Stealth", "attribute": "agility", "description": "Sneaking, hiding, pickpocketing. Opposed vs. Observation when detected." },
+    { "id": "medical_aid", "name": "Medical Aid", "attribute": "intelligence", "description": "First aid on Broken characters, stabilizing critical injuries, healing." },
+    { "id": "observation", "name": "Observation", "attribute": "intelligence", "description": "Spotting clues, detecting ambushes, examining crime scenes." },
+    { "id": "tech", "name": "Tech", "attribute": "intelligence", "description": "Hacking, repairs, decryption, programming, Esper photo enhancement." },
+    { "id": "connections", "name": "Connections", "attribute": "empathy", "description": "Street contacts, finding people, requisitioning LAPD gear, black market deals." },
+    { "id": "manipulation", "name": "Manipulation", "attribute": "empathy", "description": "Persuasion, intimidation, interrogation. Opposed vs. Insight when resisted." },
+    { "id": "insight", "name": "Insight", "attribute": "empathy", "description": "Reading emotions, detecting lies, resisting manipulation, Baseline Tests (Replicants)." },
+    { "id": "driving", "name": "Driving", "attribute": "maneuverability", "description": "Vehicle maneuvers. Uses vehicle's Maneuverability stat instead of a character attribute." }
+  ],
+
+  "dice": {
+    "type": "polyhedral",
+    "available": ["D6", "D8", "D10", "D12"],
+    "mechanic": "Roll 2 Base Dice (1 attribute die + 1 skill die). Results of 6+ are successes. 10+ on a single die counts as 2 successes.",
+    "successThreshold": 6,
+    "criticalSuccess": "2+ total successes on a roll",
+    "pushing": {
+      "description": "Re-roll any dice not showing a 1. Each 1 on pushed roll inflicts damage (STR/AGL) or stress (INT/EMP).",
+      "humanLimit": 1,
+      "replicantLimit": 2,
+      "replicantNote": "Replicants always suffer stress (never damage) from pushing, even on STR/AGL rolls."
+    },
+    "advantage": "Add a third Base Die (same type as your lower die). Roll 3 dice total.",
+    "disadvantage": "Remove your lower Base Die. Roll only 1 die."
+  },
+
+  "nature": {
+    "options": [
+      {
+        "id": "human",
+        "name": "Human",
+        "rollRange": [1, 3],
+        "rollDie": "D6",
+        "bonusAttributeIncreases": 0,
+        "healthModifier": 0,
+        "resolveModifier": 0,
+        "promotionModifier": 0,
+        "chinyenModifier": 0,
+        "pushLimit": 1,
+        "pushDamageType": "damage_or_stress",
+        "notes": "Can be any archetype except Doxie."
+      },
+      {
+        "id": "replicant",
+        "name": "Replicant",
+        "rollRange": [4, 6],
+        "rollDie": "D6",
+        "bonusAttributeIncreases": 1,
+        "bonusAttributeRestriction": "Must be spent on Strength or Agility.",
+        "healthModifier": 2,
+        "resolveModifier": -2,
+        "promotionModifier": -1,
+        "chinyenModifier": -1,
+        "pushLimit": 2,
+        "pushDamageType": "always_stress",
+        "yearsOnForce": "Always Rookie (only 1 year since N-9 models approved on Earth).",
+        "notes": "Can be any archetype except Cityspeaker and Skimmer. May not know they are a Replicant (GM rolls secretly on D6: 1 = unaware)."
+      }
+    ]
+  },
+
+  "archetypes": [
+    {
+      "id": "analyst",
+      "name": "Analyst",
+      "allowedNatures": ["human", "replicant"],
+      "keyAttribute": "intelligence",
+      "keySkills": ["observation", "medical_aid", "tech"],
+      "chinyenDie": "D8",
+      "description": "Forensics specialist. Master of the crime lab. Chemistry, pathology, ballistics, criminology. You wring truth from evidence.",
+      "specialties": ["insider", "musician", "scientist"],
+      "suggestedNames": ["Fisher Vaas", "Piper Dallos", "Quinn Kosonan"],
+      "suggestedAppearances": [
+        "A pristinely kept tragedy taped off from the public.",
+        "OCD and a god complex wrapped in an emotionally guarded scarf.",
+        "Your mom says you're a catch."
+      ]
+    },
+    {
+      "id": "cityspeaker",
+      "name": "Cityspeaker",
+      "allowedNatures": ["human"],
+      "keyAttribute": "empathy",
+      "keySkills": ["mobility", "connections", "insight"],
+      "chinyenDie": "D8",
+      "description": "Deep undercover operative. You know every syndicate, scumbag, and slumlord on a first-name basis. The city speaks to you.",
+      "specialties": ["gutter_rat", "hardened", "origami"],
+      "suggestedNames": ["Chiyo", "Sammon", "Corso"],
+      "suggestedAppearances": [
+        "You look like street trash, because you are street trash.",
+        "The ugliest side of humanity on the outside. Its greatest hope on the inside.",
+        "A Dickensian acid trip."
+      ]
+    },
+    {
+      "id": "doxie",
+      "name": "Doxie",
+      "allowedNatures": ["replicant"],
+      "keyAttribute": "agility",
+      "keySkills": ["hand_to_hand_combat", "mobility", "manipulation"],
+      "chinyenDie": "D8",
+      "description": "Hyper-aware infiltrator built for seduction and assassination. Body language, vocal tones, pulse rate. You detect and project anything the case demands.",
+      "specialties": ["fast_reflexes", "interrogator", "merciful"],
+      "suggestedNames": ["Fenna", "Cadence", "Remedy"],
+      "suggestedAppearances": [
+        "You are a thing of beauty. Quite literally.",
+        "All they see are those sad, soulful eyes.",
+        "You don't mind that people don't look you in the eyes. They'd otherwise notice how closely you're studying them."
+      ]
+    },
+    {
+      "id": "enforcer",
+      "name": "Enforcer",
+      "allowedNatures": ["human", "replicant"],
+      "keyAttribute": "strength",
+      "keySkills": ["hand_to_hand_combat", "stamina", "firearms"],
+      "chinyenDie": "D6",
+      "description": "Tactical operator. CDP veteran. When real bad-asses take the stage, it's your job to give 'em a show. Beer or battering ram, your choice.",
+      "specialties": ["fast_reflexes", "killer", "tough"],
+      "suggestedNames": ["Oelson Baaker", "Basher Kerrigan", "Dutch Szalay"],
+      "suggestedAppearances": [
+        "Ass-kicking boots. The rest is whatever wasn't dirty or bloody from the day before.",
+        "You're human C4. A drab, mushy square that's sexiest when it's armed.",
+        "You only have two outfits: gym clothes and riot gear."
+      ]
+    },
+    {
+      "id": "fixer",
+      "name": "Fixer",
+      "allowedNatures": ["human", "replicant"],
+      "keyAttribute": "empathy",
+      "keySkills": ["connections", "manipulation", "insight"],
+      "chinyenDie": "D10",
+      "description": "Political operator. Master of manipulation. You tear through red tape, leap through loopholes, and quell every controversy. The only case you're working is your own.",
+      "specialties": ["cashflow", "insider", "protected"],
+      "suggestedNames": ["Visser Janssen", "Mieko Saneda", "Elon Amancio"],
+      "suggestedAppearances": [
+        "Everything you wear is a statement. And they all say either Screw You or You Wish.",
+        "You dress for whatever you want today. And you've got a walk-in closet.",
+        "You walk, talk, and dress like somebody who is going to fire everybody you know one day."
+      ]
+    },
+    {
+      "id": "inspector",
+      "name": "Inspector",
+      "allowedNatures": ["human", "replicant"],
+      "keyAttribute": "agility",
+      "keySkills": ["firearms", "observation", "connections"],
+      "chinyenDie": "D6",
+      "description": "Classic noir detective. Trench coat. Hip flask. Pushing buttons and picking wrong fights. A walking Voight-Kampff machine.",
+      "specialties": ["hardened", "married_to_the_job", "smokes"],
+      "suggestedNames": ["Willem Novak", "Foster Worth", "Chaya Hoff"],
+      "suggestedAppearances": [
+        "That old trenchcoat reflects you. There's a desire or regret behind every scuff, stain, and tear.",
+        "A smirk that cuts glass. A stare that stretches for miles.",
+        "You can't stop fidgeting with the dent in your finger where your wedding ring used to be."
+      ]
+    },
+    {
+      "id": "skimmer",
+      "name": "Skimmer",
+      "allowedNatures": ["human"],
+      "keyAttribute": "empathy",
+      "keySkills": ["firearms", "connections", "manipulation"],
+      "chinyenDie": "D12",
+      "description": "Dirty cop. You owe half the city and the other half owes you. Side hustles, planted evidence, special interests. You're not clean, but you get the job done.",
+      "specialties": ["cashflow", "kickbacks", "sycophant"],
+      "suggestedNames": ["Tanner Rigo", "Mirren Smythe", "Dino Esposito"],
+      "suggestedAppearances": [
+        "I got mustard on my face or somethin'?",
+        "People can tell what you're getting up into by what you smell like.",
+        "You look like you live off shitty coffee, shitty takeout, and shitty people. And you're in your prime."
+      ]
+    }
+  ],
+
+  "yearsOnForce": [
+    {
+      "id": "rookie",
+      "name": "Rookie",
+      "rollRange": [1, 2],
+      "rollDie": "D12",
+      "yearsRange": "0-1",
+      "attributeIncreases": 4,
+      "skillIncreases": 8,
+      "specialties": 0,
+      "promotionDie": "D3",
+      "chinyenModifier": -1,
+      "description": "Fresh on the force. High physical potential, fewer tricks up your sleeve."
+    },
+    {
+      "id": "seasoned",
+      "name": "Seasoned",
+      "rollRange": [3, 6],
+      "rollDie": "D12",
+      "yearsRange": "2-7",
+      "attributeIncreases": 3,
+      "skillIncreases": 10,
+      "specialties": 1,
+      "promotionDie": "D6",
+      "chinyenModifier": 0,
+      "description": "A few years in. You've seen things."
+    },
+    {
+      "id": "veteran",
+      "name": "Veteran",
+      "rollRange": [7, 10],
+      "rollDie": "D12",
+      "yearsRange": "8-15",
+      "attributeIncreases": 2,
+      "skillIncreases": 12,
+      "specialties": 2,
+      "promotionDie": "D8",
+      "chinyenModifier": 1,
+      "description": "Hardened by years on the streets."
+    },
+    {
+      "id": "old_timer",
+      "name": "Old-Timer",
+      "rollRange": [11, 12],
+      "rollDie": "D12",
+      "yearsRange": "16+",
+      "attributeIncreases": 1,
+      "skillIncreases": 14,
+      "specialties": 3,
+      "promotionDie": "D10",
+      "chinyenModifier": 2,
+      "description": "You've seen it all. Fewer physical gifts, but deep skill and experience."
+    }
+  ],
+
+  "derivedStats": {
+    "health": {
+      "formula": "ceil((STR_dieSize + AGL_dieSize) / 4)",
+      "replicantBonus": 2,
+      "example": "STR B (10) + AGL C (8) = 18/4 = 4.5, rounded up = 5. Replicant adds +2 = 7."
+    },
+    "resolve": {
+      "formula": "ceil((INT_dieSize + EMP_dieSize) / 4)",
+      "replicantPenalty": -2,
+      "example": "INT B (10) + EMP D (6) = 16/4 = 4. Replicant subtracts 2 = 2."
+    }
+  },
+
+  "specialties": [
+    { "id": "bodyguard", "name": "Bodyguard", "description": "If someone within SHORT range is hit, roll MOBILITY to dive in and take the hit for them." },
+    { "id": "cashflow", "name": "Cashflow", "description": "Off-the-books income. Gain a Chinyen Point at the start of every Case File." },
+    { "id": "controlled", "name": "Controlled", "description": "When rolling for a critical stress effect, you may re-roll the result once." },
+    { "id": "counselor", "name": "Counselor", "description": "Once per Shift, heal 1 stress from another character by talking to them. Cannot self-target." },
+    { "id": "fast_reflexes", "name": "Fast Reflexes", "description": "Draw an additional initiative card at the start of combat. Choose which to use." },
+    { "id": "gutter_rat", "name": "Gutter Rat", "description": "Move to a new location in LA on foot without rolling CONNECTIONS." },
+    { "id": "hardened", "name": "Hardened", "description": "Maximum Resolve +1. Can take this specialty up to three times.", "stackable": 3 },
+    { "id": "hip_flask", "name": "Hip Flask", "description": "Once per Shift, take a swig to heal 1 stress." },
+    { "id": "insider", "name": "Insider", "description": "Advantage on all CONNECTIONS rolls to acquire gear or resources from the LAPD." },
+    { "id": "interrogator", "name": "Interrogator", "description": "Advantage on all MANIPULATION rolls to extract info from a prisoner or court witness." },
+    { "id": "kickbacks", "name": "Kickbacks", "description": "Advantage on all CONNECTIONS rolls to buy or sell on the black market." },
+    { "id": "killer", "name": "Killer", "description": "Roll an extra Crit Die when inflicting a critical hit, choose preferred result." },
+    { "id": "married_to_the_job", "name": "Married to the Job", "description": "Go 4 Shifts without Downtime before suffering stress (instead of normal 3)." },
+    { "id": "martial_arts", "name": "Martial Arts", "description": "Advantage on all HAND-TO-HAND COMBAT rolls when fighting unarmed." },
+    { "id": "merciful", "name": "Merciful", "description": "When inflicting a critical injury, you can voluntarily reduce the Crit Die to make it less lethal." },
+    { "id": "musician", "name": "Musician", "description": "Advantage on MANIPULATION rolls where singing or playing an instrument is helpful." },
+    { "id": "origami", "name": "Origami", "description": "Fold an origami figure (few minutes) to heal 1 stress. Once per Shift." },
+    { "id": "people_person", "name": "People Person", "description": "Gain a second key relationship with the same rules effects as your first." },
+    { "id": "protected", "name": "Protected", "description": "When you lose a Promotion Point, roll CONNECTIONS. Each success reduces points lost by 1 (min 0)." },
+    { "id": "scientist", "name": "Scientist", "description": "Advantage on TECH or MEDICAL AID rolls when making scientific assessments." },
+    { "id": "smokes", "name": "Smokes", "description": "Once per Shift, light up to heal 1 stress." },
+    { "id": "sniper", "name": "Sniper", "description": "Advantage on FIREARMS rolls when firing a single shot at LONG range or more, from a hidden position." },
+    { "id": "sycophant", "name": "Sycophant", "description": "Gain an additional Promotion Point at the end of each session by ingratiating yourself with superiors." },
+    { "id": "tough", "name": "Tough", "description": "Maximum Health +1. Can take this specialty up to three times.", "stackable": 3 }
+  ],
+
+  "keyMemory": {
+    "description": "A defining memory from the past. May be real, someone else's, or a designed implant (Replicants). Once per session, use it for advantage on a skill roll. Interacting with it earns a Humanity Point.",
+    "tables": {
+      "when": {
+        "rollDie": "D6",
+        "options": [
+          { "roll": 1, "text": "When you were a small child. The memory is now a fleeting vision." },
+          { "roll": 2, "text": "During childhood. You remember it like it was yesterday." },
+          { "roll": 3, "text": "When you were a young teen. The event defined your view of the adult world." },
+          { "roll": 4, "text": "When you were an older teenager, turning into a young adult." },
+          { "roll": 5, "text": "Some years back." },
+          { "roll": 6, "text": "Just a few weeks ago." }
+        ]
+      },
+      "where": {
+        "rollDie": "D12",
+        "options": [
+          { "roll": 1, "text": "Standing in the rain on a city street corner in downtown LA." },
+          { "roll": 2, "text": "In a lavish penthouse suite overlooking the Fashion District." },
+          { "roll": 3, "text": "While ogling the synthetic fish tanks on Animoid Row." },
+          { "roll": 4, "text": "Lost in a seething crowd in a loud, dimly lit nightclub." },
+          { "roll": 5, "text": "In a serene, exclusive corporate headquarters." },
+          { "roll": 6, "text": "In the derelict housing projects of Los Angeles Hills." },
+          { "roll": 7, "text": "Off the grid in the Kipple wastelands." },
+          { "roll": 8, "text": "On a protein farm deep within the Energy Empire." },
+          { "roll": 9, "text": "On a distant farmstead, in the stillness of the rural countryside." },
+          { "roll": 10, "text": "In a wintry landscape, covered by snow." },
+          { "roll": 11, "text": "In a foreign land, surrounded by crowds speaking a language you didn't understand." },
+          { "roll": 12, "text": "Somewhere in the off-world colonies." }
+        ]
+      },
+      "who": {
+        "rollDie": "D12",
+        "options": [
+          { "roll": 1, "text": "Your parent(s)" },
+          { "roll": 2, "text": "Your sibling" },
+          { "roll": 3, "text": "A superior or authority figure" },
+          { "roll": 4, "text": "Your romantic partner" },
+          { "roll": 5, "text": "A trusted friend" },
+          { "roll": 6, "text": "An LAPD cop" },
+          { "roll": 7, "text": "A Blade Runner" },
+          { "roll": 8, "text": "A throng of faceless people" },
+          { "roll": 9, "text": "Masked killers" },
+          { "roll": 10, "text": "A perfect stranger" },
+          { "roll": 11, "text": "A hunted Replicant" },
+          { "roll": 12, "text": "No one but you" }
+        ]
+      },
+      "what": {
+        "rollDie": "D12",
+        "options": [
+          { "roll": 1, "text": "You saw something extraordinary that you cannot explain." },
+          { "roll": 2, "text": "You took part in a violent crime, or witnessed one." },
+          { "roll": 3, "text": "You witnessed a natural phenomenon." },
+          { "roll": 4, "text": "You took part in a battle or a massacre." },
+          { "roll": 5, "text": "You were physically attacked or abused." },
+          { "roll": 6, "text": "You were psychologically abused." },
+          { "roll": 7, "text": "You suffered a breach of trust or betrayal." },
+          { "roll": 8, "text": "You made an unforgivable compromise." },
+          { "roll": 9, "text": "You suffered or witnessed a horrible accident." },
+          { "roll": 10, "text": "You made or witnessed a selfless sacrifice." },
+          { "roll": 11, "text": "You suffered a moment of weakness." },
+          { "roll": 12, "text": "You witnessed a miracle." }
+        ]
+      },
+      "feeling": {
+        "rollDie": "D12",
+        "options": [
+          { "roll": 1, "text": "Hopeful" },
+          { "roll": 2, "text": "Lost" },
+          { "roll": 3, "text": "Vulnerable" },
+          { "roll": 4, "text": "Jaded" },
+          { "roll": 5, "text": "Haunted" },
+          { "roll": 6, "text": "Blessed" },
+          { "roll": 7, "text": "Loved" },
+          { "roll": 8, "text": "Bold" },
+          { "roll": 9, "text": "Disgusted" },
+          { "roll": 10, "text": "Shameful" },
+          { "roll": 11, "text": "Terrified" },
+          { "roll": 12, "text": "Tempted" }
+        ]
+      }
+    }
+  },
+
+  "keyRelationship": {
+    "description": "An NPC who plays a big role in your life. Can be living, dead, artificial, or fictitious (memory implant). Used by GM to create events. Interacting with them earns Humanity Points.",
+    "tables": {
+      "who": {
+        "rollDie": "D12",
+        "options": [
+          { "roll": 1, "text": "Parent" },
+          { "roll": 2, "text": "Sibling" },
+          { "roll": 3, "text": "Child" },
+          { "roll": 4, "text": "Spouse" },
+          { "roll": 5, "text": "Romantic partner" },
+          { "roll": 6, "text": "Old friend" },
+          { "roll": 7, "text": "Colleague" },
+          { "roll": 8, "text": "Superior" },
+          { "roll": 9, "text": "Suspect" },
+          { "roll": 10, "text": "Neighbor" },
+          { "roll": 11, "text": "Doxie" },
+          { "roll": 12, "text": "DiJi" }
+        ]
+      },
+      "quality": {
+        "rollDie": "D12",
+        "options": [
+          { "roll": 1, "text": "Friendly" },
+          { "roll": 2, "text": "Loving" },
+          { "roll": 3, "text": "Passionate" },
+          { "roll": 4, "text": "Trusting" },
+          { "roll": 5, "text": "Protective" },
+          { "roll": 6, "text": "Estranged" },
+          { "roll": 7, "text": "Violent" },
+          { "roll": 8, "text": "Deceitful" },
+          { "roll": 9, "text": "One-sided" },
+          { "roll": 10, "text": "Hateful" },
+          { "roll": 11, "text": "Distant" },
+          { "roll": 12, "text": "Only in your head" }
+        ]
+      },
+      "situation": {
+        "rollDie": "D12",
+        "options": [
+          { "roll": 1, "text": "You're in a fight about something." },
+          { "roll": 2, "text": "They have gone missing." },
+          { "roll": 3, "text": "They want something from you." },
+          { "roll": 4, "text": "They want you to quit your job." },
+          { "roll": 5, "text": "You think they are hiding something." },
+          { "roll": 6, "text": "They constantly disappoint you." },
+          { "roll": 7, "text": "You constantly disappoint them." },
+          { "roll": 8, "text": "They need help with something." },
+          { "roll": 9, "text": "Their life is in danger." },
+          { "roll": 10, "text": "They are suspected of a crime." },
+          { "roll": 11, "text": "They know your deepest secret." },
+          { "roll": 12, "text": "They threaten you with something." }
+        ]
+      }
+    }
+  },
+
+  "signatureItem": {
+    "description": "A small sentimental item connected to your key memory or relationship. Interact with it to recover 1 stress per game session.",
+    "rollDie": "D12",
+    "options": [
+      { "roll": 1, "text": "A photograph" },
+      { "roll": 2, "text": "A book" },
+      { "roll": 3, "text": "A ring" },
+      { "roll": 4, "text": "A necklace" },
+      { "roll": 5, "text": "A musical instrument" },
+      { "roll": 6, "text": "An old coat" },
+      { "roll": 7, "text": "A dog tag" },
+      { "roll": 8, "text": "An origami bird" },
+      { "roll": 9, "text": "A cheap souvenir" },
+      { "roll": 10, "text": "A second-hand animoid pet" },
+      { "roll": 11, "text": "An open stool at your favorite bar" },
+      { "roll": 12, "text": "A tombstone" }
+    ]
+  },
+
+  "standardGear": [
+    { "id": "badge", "name": "Badge", "description": "Your LAPD authority." },
+    { "id": "blaster", "name": "PK-D Blaster or .357 Subcompact", "description": "Your sidearm. Don't count ammo." },
+    { "id": "kia", "name": "Knowledge Integration Assistant (KIA)", "description": "Handheld computer. Share clues, access LAPD Mainframe, communicate with partner." },
+    { "id": "spinner", "name": "Detective Special Spinner", "description": "Your flying car. Reaches anywhere in LA in minutes." }
+  ],
+
+  "homes": {
+    "rollDie": "D12",
+    "options": [
+      { "roll": [1, 4], "text": "A sparsely furnished LAPD housing apartment in Sector 5, small and claustrophobic." },
+      { "roll": 5, "text": "A condo filled with old mementos and a balcony overlooking the neon-lit streets of Little Tokyo." },
+      { "roll": 6, "text": "A cheap run-down hotel room by Hawker's Circle, with flickering lights and dripping water pipes." },
+      { "roll": 7, "text": "A huge but dilapidated old apartment in an abandoned building on Retirement Row, with leaking ceilings and full of debris." },
+      { "roll": 8, "text": "In a dingy flat on top of a seedy bar off Nightclub Row." },
+      { "roll": 9, "text": "In a cluttered warehouse off Animoid Row, hidden from prying eyes." },
+      { "roll": 10, "text": "In a serene luxury penthouse hotel suite in the Financial District." },
+      { "roll": 11, "text": "You don't have a home, drifting around and spending every night in a different place." },
+      { "roll": 12, "text": "With your Key Relationship. Re-roll to see where they live." }
+    ]
+  },
+
+  "characterCreation": {
+    "steps": [
+      { "step": 1, "action": "Choose or roll: Human or Replicant", "details": "D6: 1-3 Human, 4-6 Replicant" },
+      { "step": 2, "action": "Choose or roll Archetype", "details": "D12 on archetype table. Determines key attribute, key skills, and chinyen die." },
+      { "step": 3, "action": "Choose or roll Years on the Force", "details": "D12. Replicants are always Rookies. Determines attribute/skill increase budgets." },
+      { "step": 4, "action": "Set Attributes", "details": "Start all four at C. Spend increases (from Years). Key attribute must reach B or higher. Replicants get +1 increase for STR or AGL. Can drop one from C to D for an extra increase." },
+      { "step": 5, "action": "Calculate Health and Resolve", "details": "Health = ceil((STR_dieSize + AGL_dieSize)/4). Resolve = ceil((INT_dieSize + EMP_dieSize)/4). Replicants: Health +2, Resolve -2." },
+      { "step": 6, "action": "Set Skills", "details": "All start at D. Spend skill increases (from Years). Key skills from archetype should be prioritized. Max level A." },
+      { "step": 7, "action": "Choose or roll Specialties", "details": "Number from Years on Force table. Pick from archetype suggestions or full list." },
+      { "step": 8, "action": "Create Key Memory", "details": "Roll on 5 memory tables (when, where, who, what, feeling) or design freely." },
+      { "step": 9, "action": "Create Key Relationship", "details": "Roll on 3 relationship tables (who, quality, situation) or design freely. Give them a name." },
+      { "step": 10, "action": "Get Standard Issue Gear", "details": "Badge, Blaster or .357, KIA, Spinner." },
+      { "step": 11, "action": "Choose or roll Signature Item", "details": "D12 on signature item table." },
+      { "step": 12, "action": "Appearance, Name, Home", "details": "Describe in a sentence or two. Use archetype suggestions or create your own." },
+      { "step": 13, "action": "Roll starting Promotion and Chinyen Points", "details": "Promotion: roll die from Years table. Chinyen: roll die from Archetype. Apply Replicant modifiers (-1 each)." }
+    ],
+    "attributeRules": {
+      "baseline": "C",
+      "maxLevel": "A",
+      "keyAttributeMinimum": "B",
+      "extraIncrease": "Can drop one attribute from C to D to gain one additional increase.",
+      "replicantBonus": "+1 increase, must go to Strength or Agility."
+    },
+    "skillRules": {
+      "baseline": "D",
+      "maxLevel": "A",
+      "increaseStep": "One level per increase (D to C, C to B, B to A)."
+    }
+  },
+
+  "quickPlayReference": {
+    "_comment": "Minimal rules reference for a player handout or in-app cheat sheet.",
+    "howToRoll": [
+      "Grab 2 dice: your Attribute die + your Skill die (each rated D6 to D12).",
+      "Roll both. Any result of 6 or higher is a SUCCESS.",
+      "A 10+ on a single die counts as TWO successes.",
+      "2+ total successes = Critical Success (bonus effect or extra damage).",
+      "Zero successes = Failure. You can PUSH the roll."
+    ],
+    "pushing": [
+      "Re-roll any dice NOT showing a 1.",
+      "Each 1 on the pushed roll hurts you: damage (physical skills) or stress (mental skills).",
+      "Humans push once. Replicants push twice (but always take stress, even on physical rolls)."
+    ],
+    "combat": [
+      "Draw initiative cards (1-10). Act lowest to highest.",
+      "Your turn: 1 Action + 1 Move (one zone).",
+      "Close combat: opposed roll. Winner hits loser.",
+      "Ranged combat: straight FIREARMS roll. Cover gives shooter disadvantage.",
+      "2+ more successes than opponent = Critical Hit. Roll Crit Die.",
+      "Don't count ammo."
+    ],
+    "damageAndStress": [
+      "Damage reduces Health. Stress reduces Resolve.",
+      "Hit zero in either = Broken (out of action, can only crawl/mumble).",
+      "Downtime heals both. Humans: 1/Shift. Replicants: 2/Shift.",
+      "Signature item: recover 1 stress once per session."
+    ],
+    "investigation": [
+      "4 Shifts per day: Morning, Day, Evening, Night.",
+      "Each Shift you can visit ONE location.",
+      "Splitting the party is ENCOURAGED. More ground = more clues.",
+      "The Countdown ticks regardless. Don't waste Shifts.",
+      "Every 3 Shifts of work, you need 1 Shift of Downtime or suffer stress."
+    ],
+    "promotionVsHumanity": [
+      "Promotion Points: earned by being a good cop (solving cases, following orders).",
+      "Humanity Points: earned by being a good person (compassion, key memory, relationships).",
+      "These two often conflict. That tension IS the game."
+    ]
+  },
+
+  "showConfig": {
+    "_comment": "Per-show overrides for TMP live shows using the Blade Runner RPG system. This section would be customized for each Betawave Tape that uses Blade Runner."
+  }
+}
