@@ -1,9 +1,10 @@
-import { useState, useEffect, useRef, type FormEvent } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { doc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useTheme, themeRegistry } from '../themes';
 import type { ThemeId } from '../themes';
 import { useShow, setCurrentShow } from '../lib/shows';
+import { useAuth } from '../lib/auth';
 import { launchVote, resetVoteCounts } from '../lib/interactions';
 import { useAwesomeMix, broadcastCue } from '../hooks';
 import type { Villager, VillagerSubmissionState, VillagerStatus } from '../types/villager.types';
@@ -15,9 +16,9 @@ import ShipCombatAdmin from './ShipCombatAdmin';
 import NPCReviewPanel from './NPCReviewPanel';
 import './AdminPanel.css';
 
-// Loaded from VITE_ADMIN_PASSWORD env var (.env.local). Falls back to dev default.
-// TODO(Phase 8): replace with Firebase Auth + admin role claim.
-const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'misadventure2025';
+// Auth gate: Firebase Auth + admin allowlist (config/admins.emails).
+// Replaces the legacy VITE_ADMIN_PASSWORD shared password (Phase 9A).
+// Sign in lives in `useAuth().signIn()` and is wired up below.
 
 type AdminTab = 'show' | 'npcs' | 'monsters' | 'villagers' | 'decoder';
 
@@ -68,8 +69,10 @@ interface ActiveInteraction {
 }
 
 export default function AdminPanel() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [password, setPassword] = useState('');
+  const { user, isAdmin, isLoading: authLoading, isAdminLoading, signIn, signOut } = useAuth();
+  // Convenience flag used by all the existing data-subscription effects so we
+  // don't subscribe to Firestore until the user has cleared the admin gate.
+  const isAuthenticated = !!user && isAdmin;
   const [activeInteraction, setActiveInteraction] = useState<ActiveInteraction>({ type: 'none' });
   const [voteConfig, setVoteConfig] = useState<VoteConfig>({
     question: 'What should the party do?',
@@ -164,12 +167,6 @@ export default function AdminPanel() {
     broadcastCue('sound-effect', { soundKey: `battle-${track}` });
   };
 
-  // Check session storage for existing auth
-  useEffect(() => {
-    const auth = sessionStorage.getItem('mtp-admin-auth');
-    if (auth === 'true') setIsAuthenticated(true);
-  }, []);
-
   // Listen to active interaction
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -256,19 +253,15 @@ export default function AdminPanel() {
     return () => unsubscribe();
   }, [isAuthenticated]);
 
-  const handleLogin = (e: FormEvent) => {
-    e.preventDefault();
-    if (password === ADMIN_PASSWORD) {
-      setIsAuthenticated(true);
-      sessionStorage.setItem('mtp-admin-auth', 'true');
-    } else {
-      alert('Wrong password, adventurer!');
-    }
+  const handleLogin = () => {
+    signIn().catch((err) => {
+      console.error('Sign-in failed:', err);
+      alert('Sign-in failed. See console for details.');
+    });
   };
 
   const handleLogout = () => {
-    setIsAuthenticated(false);
-    sessionStorage.removeItem('mtp-admin-auth');
+    signOut().catch((err) => console.error('Sign-out failed:', err));
   };
 
   // Activate voting
@@ -603,21 +596,35 @@ export default function AdminPanel() {
   };
 
   if (!isAuthenticated) {
+    const checking = authLoading || (user && isAdminLoading);
     return (
       <div className="admin-container">
         <div className="login-card">
           <h1>🎲 GM Portal</h1>
-          <p>Enter the secret phrase to continue</p>
-          <form onSubmit={handleLogin}>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password"
-              autoFocus
-            />
-            <button type="submit">Enter the Tavern</button>
-          </form>
+          {checking ? (
+            <p>Checking your credentials…</p>
+          ) : !user ? (
+            <>
+              <p>Sign in with your GM Google account to continue.</p>
+              <button type="button" onClick={handleLogin}>
+                Sign in with Google
+              </button>
+            </>
+          ) : (
+            <>
+              <p>
+                Signed in as <strong>{user.email}</strong>, but this email
+                isn't on the admin allowlist.
+              </p>
+              <p style={{ fontSize: '0.85rem', opacity: 0.75 }}>
+                Add it to <code>config/admins.emails</code> in Firestore, or
+                sign in with a different account.
+              </p>
+              <button type="button" onClick={handleLogout}>
+                Sign out
+              </button>
+            </>
+          )}
         </div>
       </div>
     );
