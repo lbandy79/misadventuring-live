@@ -9,6 +9,7 @@ import LandingPage from './pages/LandingPage';
 import ReservePage from './pages/ReservePage';
 import ShowsIndexPage from './pages/ShowsIndexPage';
 import ShowPage from './pages/ShowPage';
+import AudiencePage from './pages/AudiencePage';
 import CompanionPage from './pages/CompanionPage';
 import NotFoundPage from './pages/NotFoundPage';
 
@@ -29,6 +30,7 @@ export default function App() {
           <Route path="/reserve" element={<ReservePage />} />
           <Route path="/shows" element={<ShowsIndexPage />} />
           <Route path="/shows/:showId" element={<ShowPage />} />
+          <Route path="/shows/:showId/audience" element={<AudiencePage />} />
           <Route path="/companion" element={<CompanionPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

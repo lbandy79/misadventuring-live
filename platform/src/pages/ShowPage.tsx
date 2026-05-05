@@ -1,17 +1,24 @@
 /**
- * Single-show detail page. Phase 4: shows the registered Show metadata
- * so the route renders. Phase 6 will fold in the live audience
- * experience (existing AudienceView lives in the legacy app).
+ * ShowPage — Phase 6.
+ *
+ * Per-show landing/detail page. Pulls Show metadata from the registry,
+ * indicates "live now" when this show is the platform's current active
+ * show, and routes audience/reserve flows.
  */
 
 import { useParams, Link } from 'react-router-dom';
-import { getShow } from '@mtp/lib';
+import { getShow, useShow } from '@mtp/lib';
 
 export default function ShowPage() {
   const { showId } = useParams<{ showId: string }>();
   const show = showId ? getShow(showId) : undefined;
 
-  if (!show) {
+  // useShow() reads the platform-wide current show (Firestore config/platform).
+  // We compare to the URL show to render a "Live now" badge.
+  const platform = useShow();
+  const isLiveNow = !!show && platform.showId === show.id && show.status === 'live';
+
+  if (!show || !showId) {
     return (
       <section className="page-card">
         <h1>Show not found</h1>
@@ -24,42 +31,67 @@ export default function ShowPage() {
   }
 
   return (
-    <section className="page-card">
-      <h1>
-        {show.name}
-        {show.status && (
-          <span
-            className={`status ${show.status === 'draft' ? 'draft' : ''}`}
-            style={{ fontSize: '0.55em', verticalAlign: 'middle', marginLeft: '0.75rem' }}
-          >
-            {show.status}
-          </span>
-        )}
-      </h1>
-      {show.description && <p>{show.description}</p>}
-      <h2>Details</h2>
-      <ul>
-        <li>
-          <strong>Theme:</strong> {show.themeId}
-        </li>
-        <li>
-          <strong>System:</strong> {show.systemId}
-        </li>
-        {show.seriesName && (
-          <li>
-            <strong>Series:</strong> {show.seriesName}
-          </li>
-        )}
-        <li>
-          <strong>Audience interactions:</strong>{' '}
-          {show.enabledInteractions.join(', ')}
-        </li>
-      </ul>
-      <div className="placeholder-banner">
-        Phase 6 will mount the live audience view here when this show is
-        currently running.
+    <section className="page-card show-detail-card">
+      <div className="show-detail-head">
+        <div>
+          <h1 className="show-detail-title">{show.name}</h1>
+          {show.seriesName && (
+            <p className="show-detail-series">part of {show.seriesName}</p>
+          )}
+        </div>
+        <div className="show-detail-badges">
+          {isLiveNow && <span className="live-badge">● Live now</span>}
+          {!isLiveNow && show.status && (
+            <span className={`upcoming-badge ${show.status}`}>{show.status}</span>
+          )}
+        </div>
       </div>
-      <p style={{ marginTop: '1.5rem' }}>
+
+      {show.description && <p className="show-detail-desc">{show.description}</p>}
+
+      <div className="show-detail-grid">
+        <div>
+          <h3>Theme</h3>
+          <p>{show.themeId}</p>
+        </div>
+        <div>
+          <h3>System</h3>
+          <p>{show.systemId}</p>
+        </div>
+        <div>
+          <h3>Audience interactions</h3>
+          <p>{show.enabledInteractions.length} enabled</p>
+        </div>
+      </div>
+
+      <details className="show-detail-interactions">
+        <summary>What you can do as the audience</summary>
+        <ul>
+          {show.enabledInteractions.map((i) => (
+            <li key={i}>{i.replace(/-/g, ' ')}</li>
+          ))}
+        </ul>
+      </details>
+
+      <div className="show-detail-cta-row">
+        {isLiveNow ? (
+          <Link to={`/shows/${show.id}/audience`} className="btn-primary btn-lg">
+            Enter the live show →
+          </Link>
+        ) : (
+          <Link
+            to={`/reserve?show=${encodeURIComponent(show.id)}`}
+            className="btn-primary btn-lg"
+          >
+            Reserve a seat
+          </Link>
+        )}
+        <Link to={`/shows/${show.id}/audience`} className="btn-secondary btn-lg">
+          I have an access code
+        </Link>
+      </div>
+
+      <p style={{ marginTop: '2rem' }}>
         <Link to="/shows">← Back to all shows</Link>
       </p>
     </section>
