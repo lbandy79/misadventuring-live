@@ -14,12 +14,13 @@
 import emailjs from '@emailjs/browser';
 
 // ─── EmailJS Configuration ──────────────────────────────────────────────────
-// Replace these with your real EmailJS IDs after setting up your account.
-const EMAILJS_SERVICE_ID = 'service_7dhm0kk';
-const EMAILJS_TEMPLATE_ID = 'template_jlyros5';
-const EMAILJS_PUBLIC_KEY = 'hmo1h14eOymJRvgjw';
+// Loaded from VITE_EMAILJS_* env vars (.env.local). See .env.example.
+const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
-const APP_BASE_URL = 'https://play.themisadventuringparty.com';
+const APP_BASE_URL =
+  import.meta.env.VITE_APP_BASE_URL || 'https://play.themisadventuringparty.com';
 
 interface ReservationEmailParams {
   name: string;
@@ -39,6 +40,12 @@ export async function sendReservationEmail({
   showName,
 }: ReservationEmailParams): Promise<boolean> {
   try {
+    if (!EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID || !EMAILJS_PUBLIC_KEY) {
+      console.warn(
+        'EmailJS env vars missing — skipping reservation email. Set VITE_EMAILJS_* in .env.local.'
+      );
+      return false;
+    }
     const characterLink = `${APP_BASE_URL}/create?code=${encodeURIComponent(accessCode)}`;
 
     await emailjs.send(

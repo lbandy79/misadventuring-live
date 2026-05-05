@@ -13,7 +13,9 @@ import ShipCombatAdmin from './ShipCombatAdmin';
 import NPCReviewPanel from './NPCReviewPanel';
 import './AdminPanel.css';
 
-const ADMIN_PASSWORD = 'misadventure2025'; // Change this! Or move to env var later
+// Loaded from VITE_ADMIN_PASSWORD env var (.env.local). Falls back to dev default.
+// TODO(Phase 8): replace with Firebase Auth + admin role claim.
+const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'misadventure2025';
 
 type AdminTab = 'show' | 'npcs' | 'monsters' | 'villagers' | 'decoder';
 

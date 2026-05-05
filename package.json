@@ -12,9 +12,6 @@
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
-    "@rive-app/react-canvas": "^4.25.1",
-    "@tsparticles/react": "^3.0.0",
-    "@tsparticles/slim": "^3.9.1",
     "bad-words": "^4.0.0",
     "canvas-confetti": "^1.9.4",
     "firebase": "^10.7.1",
