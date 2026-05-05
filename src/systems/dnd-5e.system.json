@@ -1,0 +1,30 @@
+{
+  "_TODO": [
+    "PLACEHOLDER: Phase 4 stub. The Beast of Ridgefall and Soggy Bottom Pirates",
+    "shows currently run on D&D 5e off-app (paper sheets / external tools).",
+    "This file exists only so platform marketing pages and SystemConfigProvider",
+    "do not 404 when they encounter systemId='dnd-5e' in the registry.",
+    "",
+    "Before Phase 6 (live-show shell) attempts to actually drive a D&D session",
+    "through the unified app, this file must be filled out with real ability",
+    "scores, skill list, dice scheme (d20 + modifier), NPC creator fields,",
+    "and show-config slots, mirroring kids-on-bikes-2e.system.json.",
+    "",
+    "Until then, anything reading from this file should treat the data as",
+    "non-functional and surface a 'system not yet ported' message."
+  ],
+
+  "system": {
+    "id": "dnd-5e",
+    "name": "Dungeons & Dragons",
+    "edition": "5th Edition",
+    "publisher": "Wizards of the Coast",
+    "description": "PLACEHOLDER — D&D 5e has not yet been authored as a system JSON. The Beast of Ridgefall and Soggy Bottom Pirates currently run on D&D 5e off-app.",
+    "status": "placeholder"
+  },
+
+  "stats": [],
+  "dice": null,
+  "npcCreator": null,
+  "showConfig": null
+}

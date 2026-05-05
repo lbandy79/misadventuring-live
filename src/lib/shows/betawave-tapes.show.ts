@@ -1,8 +1,11 @@
 /**
  * The Betawave Tapes — Show definition.
  *
- * Neon-noir series running on Blade Runner RPG. Each session uses the
+ * Neon-noir series running on Kids on Bikes 2e. Each session uses the
  * decoder-ring interaction for cipher-style audience puzzles.
+ *
+ * (Earlier prototypes used Blade Runner RPG to evaluate the system; the
+ * series itself runs on Kids on Bikes 2e.)
  */
 import type { Show } from '../types/show.types';
 
@@ -11,7 +14,7 @@ export const betawaveTapesShow: Show = {
   name: 'The Betawave Tapes',
   seriesName: 'The Betawave Tapes',
   themeId: 'betawave-tapes',
-  systemId: 'blade-runner-rpg',
+  systemId: 'kids-on-bikes-2e',
   enabledInteractions: ['vote', 'group-roll', 'decoder-ring'],
   description:
     'Replicants, signal ghosts, and a ciphered transmission only the audience can crack.',

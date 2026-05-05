@@ -14,13 +14,11 @@ import type { Show } from '../types/show.types';
 import { beastOfRidgefallShow } from './beast-of-ridgefall.show';
 import { betawaveTapesShow } from './betawave-tapes.show';
 import { soggyBottomPiratesShow } from './soggy-bottom-pirates.show';
-import { neonNightmaresShow } from './neon-nightmares.show';
 
 export const shows: Show[] = [
   beastOfRidgefallShow,
   betawaveTapesShow,
   soggyBottomPiratesShow,
-  neonNightmaresShow,
 ];
 
 export const showRegistry: Record<string, Show> = Object.fromEntries(

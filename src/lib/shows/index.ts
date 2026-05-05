@@ -18,4 +18,3 @@ export {
 export { beastOfRidgefallShow } from './beast-of-ridgefall.show';
 export { betawaveTapesShow } from './betawave-tapes.show';
 export { soggyBottomPiratesShow } from './soggy-bottom-pirates.show';
-export { neonNightmaresShow } from './neon-nightmares.show';
