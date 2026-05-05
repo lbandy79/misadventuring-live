@@ -11,7 +11,9 @@ import ShowsIndexPage from './pages/ShowsIndexPage';
 import ShowPage from './pages/ShowPage';
 import AudiencePage from './pages/AudiencePage';
 import CompanionPage from './pages/CompanionPage';
+import AdminPage from './pages/AdminPage';
 import NotFoundPage from './pages/NotFoundPage';
+import AuthMenu from './components/AuthMenu';
 
 export default function App() {
   return (
@@ -22,6 +24,7 @@ export default function App() {
           <Link to="/shows">Shows</Link>
           <Link to="/reserve">Reserve</Link>
           <Link to="/companion">Companion</Link>
+          <AuthMenu />
         </nav>
       </header>
       <main className="platform-main">
@@ -32,6 +35,7 @@ export default function App() {
           <Route path="/shows/:showId" element={<ShowPage />} />
           <Route path="/shows/:showId/audience" element={<AudiencePage />} />
           <Route path="/companion" element={<CompanionPage />} />
+          <Route path="/admin" element={<AdminPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>

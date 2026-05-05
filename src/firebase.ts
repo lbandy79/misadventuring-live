@@ -1,5 +1,6 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getFirestore, doc, setDoc } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 
 // Extend Window interface for our test flag
 declare global {
@@ -29,6 +30,7 @@ if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
 // Prevent duplicate initialization (Vite HMR fix)
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 export const db = getFirestore(app);
+export const auth = getAuth(app);
 
 console.log('🔥 Firebase ready - project:', firebaseConfig.projectId);
 

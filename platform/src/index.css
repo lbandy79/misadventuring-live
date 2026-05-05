@@ -485,3 +485,85 @@ a:hover { color: #ffd700; }
   margin: 0 0 0.5rem; font-size: 0.9rem;
   color: rgba(255, 255, 255, 0.6); font-style: italic;
 }
+/* -- Auth menu -- */
+.auth-signin {
+  padding: 0.45rem 0.95rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
+  color: #f4f4f8;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 120ms ease, color 120ms ease;
+}
+.auth-signin:hover { border-color: rgba(255, 215, 0, 0.6); color: #ffd700; }
+
+.auth-menu { position: relative; }
+.auth-menu-loading {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+}
+.auth-trigger {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  padding: 2px; border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px; background: transparent; cursor: pointer;
+}
+.auth-trigger:hover { border-color: rgba(255, 215, 0, 0.6); }
+.auth-avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  display: grid; place-items: center;
+}
+.auth-avatar-fallback {
+  background: rgba(255, 215, 0, 0.18);
+  color: #ffd700;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+.auth-admin-pip {
+  font-size: 0.7rem; color: #ffd700;
+  margin-right: 0.35rem;
+}
+.auth-popover {
+  position: absolute; right: 0; top: calc(100% + 0.5rem);
+  min-width: 220px;
+  background: #14141d;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+  padding: 0.5rem;
+  z-index: 100;
+}
+.auth-popover-head {
+  display: flex; flex-direction: column; gap: 0.15rem;
+  padding: 0.5rem 0.6rem 0.6rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  margin-bottom: 0.4rem;
+}
+.auth-popover-email { font-size: 0.78rem; color: rgba(255, 255, 255, 0.6); }
+.auth-admin-badge {
+  align-self: flex-start;
+  margin-top: 0.3rem;
+  padding: 0.1rem 0.45rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  border-radius: 4px;
+  background: rgba(255, 215, 0, 0.18);
+  color: #ffd700;
+}
+.auth-popover-item {
+  display: block; width: 100%; text-align: left;
+  padding: 0.5rem 0.6rem;
+  background: transparent; border: none;
+  color: #f4f4f8;
+  font-family: inherit; font-size: 0.9rem;
+  border-radius: 6px;
+  cursor: pointer;
+  text-decoration: none;
+}
+.auth-popover-item:hover { background: rgba(255, 255, 255, 0.06); color: inherit; }
+.auth-popover-signout { color: #ff9b9b; }
+.auth-popover-signout:hover { background: rgba(231, 76, 60, 0.12); color: #ffb3b3; }

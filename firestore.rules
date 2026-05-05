@@ -1,25 +1,42 @@
 rules_version = '2';
 
-// Firestore security rules — Phase 1 stopgap.
+// Firestore security rules — Phase 8 honest middle ground.
 //
-// NOTE: These rules are intentionally permissive because the current app
-// has no Firebase Auth (admin uses a client-side password). Phase 8 will
-// replace this with role-based rules backed by Firebase Auth custom claims:
-//   request.auth.token.role in ['admin', 'gm', 'player', 'audience']
+// Auth model: there is NO Cloud Functions backend, so we can't mint
+// custom claims. Instead, an "admin" is any signed-in Firebase Auth
+// user whose email appears in the `emails` array of the public-readable
+// `config/admins` doc. Both the client (lib/auth/AuthProvider) and
+// these rules read the same allowlist, so the client can't spoof admin.
 //
-// The goals of THIS file are limited:
-//   1. Validate reservation/NPC document shape on create.
-//   2. Prevent clients from arbitrarily mutating reservation flags
-//      after npcCreated flips to true.
-//   3. Lock the test/connection-test doc so it can't be abused.
-//   4. Leave live-show interaction collections (votes, monster-builder,
-//      ship-combat, etc.) open for read/write — admin panel and audience
-//      both need write access until Phase 8 introduces auth.
+// What changed in Phase 8 vs Phase 1:
+//   - `config/platform` (the currently-running show pointer) is now
+//     admin-write-only. Audience & legacy app still read it.
+//   - `config/admins` is admin-write-only.
+//   - `npcs` delete and `gmFlagged` flips are now admin-only.
+//
+// What deliberately stayed open (legacy app needs it, and no real
+// damage is possible without admin reaching the admin panel anyway):
+//   - All other live-show interaction collections (votes, group-roll,
+//     monster-builder, decoder-ring, ship-combat, villagers, players)
+//     and the rest of `config/*`. A follow-up phase will migrate the
+//     legacy admin panel to Firebase Auth, then we can lock these too.
 
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ─── Reservations ───────────────────────────────────────────────
+    // ── Helpers ────────────────────────────────────────────────────
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function isAdmin() {
+      return isSignedIn()
+        && request.auth.token.email != null
+        && exists(/databases/$(database)/documents/config/admins)
+        && (request.auth.token.email.lower()
+            in get(/databases/$(database)/documents/config/admins).data.emails);
+    }
+
+    // ── Reservations ───────────────────────────────────────────────
     match /reservations/{reservationId} {
       allow read: if true;
 
@@ -35,7 +52,8 @@ service cloud.firestore {
         && request.resource.data.showId is string
         && request.resource.data.npcCreated == false;
 
-      // Updates: only allow flipping npcCreated false→true. Identity fields immutable.
+      // Audience flips npcCreated false→true after building character.
+      // Identity fields immutable.
       allow update: if
         resource.data.npcCreated == false
         && request.resource.data.npcCreated == true
@@ -44,10 +62,11 @@ service cloud.firestore {
         && request.resource.data.accessCode == resource.data.accessCode
         && request.resource.data.showId == resource.data.showId;
 
-      allow delete: if false;
+      // Admins can clean up no-shows / dupes.
+      allow delete: if isAdmin();
     }
 
-    // ─── NPCs (player-created characters) ───────────────────────────
+    // ── NPCs (player-created characters) ───────────────────────────
     match /npcs/{npcId} {
       allow read: if true;
 
@@ -60,25 +79,49 @@ service cloud.firestore {
         && request.resource.data.showId is string
         && request.resource.data.gmFlagged == false;
 
-      // GM-only fields (gmNotes, gmFlagged) — Phase 8 will gate by role claim.
-      // For now, allow updates of those fields without identity changes.
+      // Player-side updates: never touch identity, never flip gmFlagged.
+      // GM-side updates (gmNotes / gmFlagged) require admin auth.
       allow update: if
         request.resource.data.reservationId == resource.data.reservationId
         && request.resource.data.showId == resource.data.showId
-        && request.resource.data.name == resource.data.name;
+        && request.resource.data.name == resource.data.name
+        && (
+          // Player update — gmFlagged stays put.
+          request.resource.data.gmFlagged == resource.data.gmFlagged
+          // OR an admin is touching gmNotes / gmFlagged.
+          || isAdmin()
+        );
 
-      allow delete: if false; // Phase 8: allow if request.auth.token.role == 'admin'
+      allow delete: if isAdmin();
     }
 
-    // ─── Connection test doc (used by firebase.ts on boot) ──────────
+    // ── Connection test doc ────────────────────────────────────────
     match /test/{docId} {
       allow read, write: if docId == 'connection-test';
     }
 
-    // ─── Live show interaction state (open until Phase 8 auth) ──────
-    // Collections: config, votes, group-roll, monster-builder,
-    // decoder-ring, ship-combat, villagers, players.
-    match /config/{docId} { allow read, write: if true; }
+    // ── Admin allowlist (read public, write admin-only) ────────────
+    // Bootstrap: if the doc doesn't exist yet, the FIRST signed-in
+    // user can create it (so a fresh project can install its first
+    // admin). After it exists, only existing admins can modify it.
+    match /config/admins {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin();
+    }
+
+    // ── Platform config (currently-running show pointer) ───────────
+    match /config/platform {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ── Live show interaction state (legacy admin panel still
+    //    password-gated; tightening this requires migrating the
+    //    legacy panel to Firebase Auth — own follow-up phase). ─────
+    match /config/{docId} {
+      allow read, write: if docId != 'admins' && docId != 'platform';
+    }
     match /votes/{docId} { allow read, write: if true; }
     match /group-roll/{docId} { allow read, write: if true; }
     match /monster-builder/{docId} { allow read, write: if true; }

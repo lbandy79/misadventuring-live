@@ -11,16 +11,18 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import { ShowProvider } from '@mtp/lib';
+import { AuthProvider, ShowProvider } from '@mtp/lib';
 import App from './App';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BrowserRouter>
-      <ShowProvider>
-        <App />
-      </ShowProvider>
+      <AuthProvider>
+        <ShowProvider>
+          <App />
+        </ShowProvider>
+      </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>
 );
