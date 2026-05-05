@@ -15,3 +15,4 @@
 export * from './types';
 export * from './realtime';
 export * from './audio-fx';
+export * from './shows';
