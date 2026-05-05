@@ -3,6 +3,7 @@ import { doc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useTheme, themeRegistry } from '../themes';
 import type { ThemeId } from '../themes';
+import { useShow, setCurrentShow } from '../lib/shows';
 import { useAwesomeMix, broadcastCue } from '../hooks';
 import type { Villager, VillagerSubmissionState, VillagerStatus } from '../types/villager.types';
 import { PRONOUNS_OPTIONS, getItemById } from '../types/villager.types';
@@ -95,6 +96,7 @@ export default function AdminPanel() {
   const [selectedAmbient, setSelectedAmbient] = useState('village');
   const [selectedBattle, setSelectedBattle] = useState('combat');
   const { themeId, setThemeId } = useTheme();
+  const { showId: activeShowId, allShows } = useShow();
 
   // Tab navigation — persisted in sessionStorage
   const [activeTab, setActiveTab] = useState<AdminTab>(() => {
@@ -1074,6 +1076,43 @@ export default function AdminPanel() {
           {activeInteraction.type !== 'none' && (
             <p className="hint">End current interaction first</p>
           )}
+        </section>
+        )}
+
+        {/* Show Selector — Phase 3b: writes config/platform.currentShowId.
+            ShowProvider reads this and exposes it via useShow() everywhere.
+            Phase 3c will start stamping showId onto vote/group-roll writes. */}
+        {activeTab === 'show' && (
+        <section className="admin-card theme-card">
+          <h2>🎬 Active Show</h2>
+          <p className="theme-hint">
+            Selects which show this platform is currently running. Affects which
+            interactions and theme are shown to the audience.
+          </p>
+          <div className="theme-options">
+            {allShows.map((s) => (
+              <button
+                key={s.id}
+                className={`theme-btn ${activeShowId === s.id ? 'active' : ''}`}
+                onClick={async () => {
+                  try {
+                    await setCurrentShow(s.id);
+                  } catch (err) {
+                    console.error('setCurrentShow failed:', err);
+                  }
+                }}
+                disabled={s.status === 'archived'}
+              >
+                <span className="theme-name">
+                  {s.name}
+                  {s.status === 'draft' ? ' (draft)' : ''}
+                </span>
+                <span className="theme-desc">
+                  {s.description ?? `${s.themeId} · ${s.systemId}`}
+                </span>
+              </button>
+            ))}
+          </div>
         </section>
         )}
 

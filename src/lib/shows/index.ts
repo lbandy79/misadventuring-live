@@ -7,7 +7,14 @@
  */
 
 export * from './registry';
-export { ShowProvider, useShow, useShowOptional, type ShowContextValue } from './ShowProvider';
+export {
+  ShowProvider,
+  useShow,
+  useShowOptional,
+  setCurrentShow,
+  type ShowContextValue,
+  type PlatformConfig,
+} from './ShowProvider';
 export { beastOfRidgefallShow } from './beast-of-ridgefall.show';
 export { betawaveTapesShow } from './betawave-tapes.show';
 export { soggyBottomPiratesShow } from './soggy-bottom-pirates.show';

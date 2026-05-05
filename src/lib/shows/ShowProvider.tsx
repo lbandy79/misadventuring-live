@@ -16,10 +16,19 @@
  */
 
 import { createContext, useContext, useMemo, type ReactNode } from 'react';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '../../firebase';
 import type { Show } from '../types/show.types';
 import type { ActiveInteraction } from '../types/interaction.types';
 import { useFirebaseDoc } from '../realtime/useFirebaseDoc';
 import { defaultShowId, getShow, shows } from './registry';
+
+/** Shape of `config/platform` — platform-level state independent of any
+ *  single live interaction. Survives admin "End interaction" resets. */
+export interface PlatformConfig {
+  currentShowId?: string;
+  updatedAt?: unknown;
+}
 
 export interface ShowContextValue {
   /** Resolved show, or null while loading / if id is unknown. */
@@ -46,22 +55,39 @@ interface ShowProviderProps {
 }
 
 export function ShowProvider({ children, forceShowId }: ShowProviderProps) {
-  const { data, isLoading } = useFirebaseDoc<ActiveInteraction>(
+  // Primary source of truth (Phase 3b): config/platform.currentShowId.
+  const platform = useFirebaseDoc<PlatformConfig>('config', 'platform');
+  // Fallback while config/platform is still un-seeded: read showId off the
+  // active-interaction doc. Lets existing shows keep working before an admin
+  // touches the new selector.
+  const interaction = useFirebaseDoc<ActiveInteraction>(
     'config',
     'active-interaction'
   );
 
   const value = useMemo<ShowContextValue>(() => {
-    const resolvedId = forceShowId ?? data?.showId ?? defaultShowId;
+    const resolvedId =
+      forceShowId ??
+      platform.data?.currentShowId ??
+      interaction.data?.showId ??
+      defaultShowId;
     const show = getShow(resolvedId) ?? null;
     return {
       show,
       showId: resolvedId,
-      isLoading: forceShowId ? false : isLoading,
+      isLoading: forceShowId
+        ? false
+        : platform.isLoading || interaction.isLoading,
       isUnknown: !!resolvedId && !show,
       allShows: shows,
     };
-  }, [data?.showId, forceShowId, isLoading]);
+  }, [
+    platform.data?.currentShowId,
+    interaction.data?.showId,
+    platform.isLoading,
+    interaction.isLoading,
+    forceShowId,
+  ]);
 
   return <ShowContext.Provider value={value}>{children}</ShowContext.Provider>;
 }
@@ -90,4 +116,22 @@ export function useShowOptional(): ShowContextValue {
     isUnknown: false,
     allShows: shows,
   };
+}
+
+/**
+ * Write the platform's current showId. Validates against the registry to
+ * prevent typos from putting the platform in an unresolvable state.
+ */
+export async function setCurrentShow(showId: string): Promise<void> {
+  if (!getShow(showId)) {
+    throw new Error(
+      `setCurrentShow: "${showId}" is not registered. ` +
+        `Add it to lib/shows/registry.ts first.`
+    );
+  }
+  await setDoc(
+    doc(db, 'config', 'platform'),
+    { currentShowId: showId, updatedAt: serverTimestamp() },
+    { merge: true }
+  );
 }
