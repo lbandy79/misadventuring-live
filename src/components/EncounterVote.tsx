@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { doc, onSnapshot, updateDoc, increment } from 'firebase/firestore';
+import { doc, updateDoc, increment } from 'firebase/firestore';
 import { db } from '../firebase';
+import { useVoteTracking } from '../lib/realtime';
 import { playSound, initAudio } from '../utils/sounds';
 import { TMPCheck } from './icons/TMPIcons';
 import './EncounterVote.css';
@@ -28,10 +29,10 @@ interface EncounterVoteProps {
 }
 
 export default function EncounterVote({ config }: EncounterVoteProps) {
-  const [votes, setVotes] = useState<Record<string, number>>({});
+  // Live vote counts via shared realtime hook (Phase 2b).
+  const { counts: votes, totalVotes, percentOf, isLoading } = useVoteTracking();
   const [hasVoted, setHasVoted] = useState(false);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -66,26 +67,6 @@ export default function EncounterVote({ config }: EncounterVoteProps) {
     // Remove after animation completes
     setTimeout(() => particle.remove(), 700);
   };
-
-  // Listen for real-time vote updates
-  useEffect(() => {
-    const unsubscribe = onSnapshot(
-      doc(db, 'votes', VOTE_DOC_ID),
-      (snapshot) => {
-        if (snapshot.exists()) {
-          const data = snapshot.data();
-          setVotes(data.counts || {});
-        }
-        setIsLoading(false);
-      },
-      (error) => {
-        console.error('Vote listener error:', error);
-        setIsLoading(false);
-      }
-    );
-
-    return () => unsubscribe();
-  }, []);
 
   // Check if user already voted THIS session (reset when session changes)
   useEffect(() => {
@@ -182,11 +163,11 @@ export default function EncounterVote({ config }: EncounterVoteProps) {
     }
   }, [hasVoted, isOpen, selectedOption, storageKey]);
 
-  // Calculate percentages
-  const totalVotes = Object.values(votes).reduce((sum, count) => sum + count, 0);
+  // Percentage helper — falls back to even split before any votes are cast,
+  // matching the previous visual behavior of the empty results bar.
   const getPercent = (optionId: string): number => {
     if (totalVotes === 0) return 100 / (options?.length || 2);
-    return ((votes[optionId] || 0) / totalVotes) * 100;
+    return percentOf(optionId);
   };
 
   // Color assignments for options
