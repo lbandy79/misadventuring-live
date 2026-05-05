@@ -4,6 +4,7 @@ import { db } from '../firebase';
 import { useTheme, themeRegistry } from '../themes';
 import type { ThemeId } from '../themes';
 import { useShow, setCurrentShow } from '../lib/shows';
+import { launchVote, resetVoteCounts } from '../lib/interactions';
 import { useAwesomeMix, broadcastCue } from '../hooks';
 import type { Villager, VillagerSubmissionState, VillagerStatus } from '../types/villager.types';
 import { PRONOUNS_OPTIONS, getItemById } from '../types/villager.types';
@@ -274,29 +275,13 @@ export default function AdminPanel() {
   const activateVoting = async () => {
     try {
       console.log('Attempting to launch voting...');
-      const sessionId = `vote-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      
-      await setDoc(doc(db, 'config', 'active-interaction'), {
-        type: 'vote',
+      const { sessionId } = await launchVote({
+        showId: activeShowId,
         question: voteConfig.question,
         options: voteConfig.options,
-        isOpen: true,
         timer: voteConfig.timer,
-        startedAt: Date.now(),
-        sessionId // Unique ID for this voting round
       });
-      console.log('active-interaction written successfully');
-
-      // Initialize vote counts
-      const initialCounts: Record<string, number> = {};
-      voteConfig.options.forEach(opt => {
-        initialCounts[opt.id] = 0;
-      });
-      await setDoc(doc(db, 'votes', 'current-vote'), {
-        counts: initialCounts,
-        totalVotes: 0
-      });
-      console.log('votes/current-vote written successfully');
+      console.log('voting launched, sessionId=', sessionId);
     } catch (error) {
       console.error('Failed to launch voting:', error);
       alert(`Failed to launch voting: ${(error as Error).message}`);
@@ -330,24 +315,12 @@ export default function AdminPanel() {
   // Reset all votes - generates new sessionId so previous votes don't carry over
   const resetVotes = async () => {
     if (!confirm('Reset all votes? This cannot be undone.')) return;
-    
-    const newSessionId = `vote-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    
-    const initialCounts: Record<string, number> = {};
-    activeInteraction.options?.forEach(opt => {
-      initialCounts[opt.id] = 0;
-    });
-    
-    // Update both the session ID (to invalidate previous votes) and reset counts
-    await setDoc(doc(db, 'config', 'active-interaction'), {
-      ...activeInteraction,
-      sessionId: newSessionId,
-      startedAt: Date.now() // Also reset timer
-    });
-    
-    await setDoc(doc(db, 'votes', 'current-vote'), {
-      counts: initialCounts,
-      totalVotes: 0
+    if (!activeInteraction.options) return;
+
+    await resetVoteCounts({
+      showId: activeShowId,
+      options: activeInteraction.options,
+      activeInteraction: activeInteraction as unknown as Record<string, unknown>,
     });
   };
 
