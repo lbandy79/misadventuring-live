@@ -1,0 +1,14 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@mtp/lib": ["../src/lib"],
+      "@mtp/lib/*": ["../src/lib/*"],
+      "@mtp/firebase": ["../src/firebase"],
+      "@mtp/themes": ["../src/themes"],
+      "@mtp/themes/*": ["../src/themes/*"]
+    }
+  },
+  "include": ["src", "vite.config.ts"]
+}

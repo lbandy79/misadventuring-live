@@ -7,6 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "dev:platform": "vite --config platform/vite.config.ts",
+    "build:platform": "vite build --config platform/vite.config.ts",
+    "preview:platform": "vite preview --config platform/vite.config.ts",
     "test": "vitest run",
     "test:watch": "vitest"
   },
