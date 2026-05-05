@@ -9,7 +9,9 @@ export { generateAccessCode, normalizeAccessCode, ACCESS_CODE_LENGTH } from './a
 export {
   createReservation,
   findReservationByCode,
+  findReservationsByEmail,
   type CreateReservationInput,
   type CreateReservationResult,
 } from './reservationsApi';
+export { findNpcByReservationId, findNpcsByReservationIds } from './npcsApi';
 export { sendReservationEmail } from './email';

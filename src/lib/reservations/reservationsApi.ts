@@ -107,3 +107,21 @@ export async function findReservationByCode(
   const docRef = snap.docs[0];
   return { id: docRef.id, ...(docRef.data() as Omit<Reservation, 'id'>) };
 }
+
+/**
+ * Look up every reservation made by a given email address. Used by the
+ * companion to show a single audience member all their past + upcoming
+ * shows after they authenticate with one access code.
+ */
+export async function findReservationsByEmail(
+  email: string,
+): Promise<Reservation[]> {
+  const normalized = email.trim().toLowerCase();
+  if (!normalized) return [];
+  const snap = await getDocs(
+    query(collection(db, 'reservations'), where('email', '==', normalized)),
+  );
+  return snap.docs.map(
+    (d) => ({ id: d.id, ...(d.data() as Omit<Reservation, 'id'>) }),
+  );
+}
