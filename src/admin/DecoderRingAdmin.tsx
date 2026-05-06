@@ -29,6 +29,8 @@
 import { useState, useEffect } from 'react';
 import { doc, onSnapshot, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
+import { useShow } from '../lib/shows';
+import { archiveSingleton } from '../lib/archive';
 import {
   DECODER_RING_CHARACTERS,
   getCharacterByYear,
@@ -54,6 +56,7 @@ const YEAR_PRESETS: Record<string, number[]> = {
 };
 
 export default function DecoderRingAdmin() {
+  const { showId: activeShowId } = useShow();
   const [state, setState] = useState<DecoderRingState | null>(null);
   const [selectedYears, setSelectedYears] = useState<number[]>([]);
   const [playerAssignments, setPlayerAssignments] = useState<PlayersDoc>({ ben: null, libbe: null, patrick: null, josh: null });
@@ -80,6 +83,9 @@ export default function DecoderRingAdmin() {
 
   // ─── Launch decoder ring session ───────────────────────────────────
   const launchDecoderRing = async () => {
+    // Snapshot the previous decoder-ring state before we overwrite it.
+    await archiveSingleton('decoder-ring', 'current', activeShowId);
+
     const sessionId = `decoder-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const initial = createInitialDecoderRingState(sessionId);
 
@@ -245,6 +251,8 @@ export default function DecoderRingAdmin() {
   // ─── Full reset — nuke everything ──────────────────────────────────
   const resetEverything = async () => {
     if (!confirm('Reset decoder ring completely? This wipes all crew, votes, and session data.')) return;
+    // Snapshot first so the wipe is recoverable.
+    await archiveSingleton('decoder-ring', 'current', activeShowId);
     await deleteDoc(doc(db, 'decoder-ring', 'current'));
     await setDoc(doc(db, 'config', 'active-interaction'), { type: 'none' });
     setState(null);

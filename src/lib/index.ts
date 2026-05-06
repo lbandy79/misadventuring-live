@@ -18,5 +18,6 @@ export * from './audio-fx';
 export * from './shows';
 export * from './reservations';
 export * from './auth';
+export * from './archive';
 export * from './interactions';
 export * from './components';

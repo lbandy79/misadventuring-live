@@ -5,6 +5,7 @@ import { useTheme, themeRegistry } from '../themes';
 import type { ThemeId } from '../themes';
 import { useShow, setCurrentShow } from '../lib/shows';
 import { useAuth } from '../lib/auth';
+import { archiveSingleton } from '../lib/archive';
 import { launchVote, resetVoteCounts } from '../lib/interactions';
 import { useAwesomeMix, broadcastCue } from '../hooks';
 import type { Villager, VillagerSubmissionState, VillagerStatus } from '../types/villager.types';
@@ -349,6 +350,9 @@ export default function AdminPanel() {
   // ============ GROUP ROLL FUNCTIONS ============
   const activateGroupRoll = async () => {
     try {
+      // Snapshot the previous group-roll state before we overwrite it.
+      await archiveSingleton('group-roll', 'current', activeShowId);
+
       await setDoc(doc(db, 'config', 'active-interaction'), {
         type: 'group-roll'
       });
@@ -370,6 +374,10 @@ export default function AdminPanel() {
   // ============ VILLAGER SUBMISSION FUNCTIONS ============
   const activateVillagerSubmission = async () => {
     try {
+      // Snapshot the prior villager submissions BEFORE we wipe them.
+      // This is the most-lost surface from past shows; preserve it.
+      await archiveSingleton('villagers', 'current', activeShowId);
+
       const sessionId = `villager-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
       
       await setDoc(doc(db, 'villagers', 'current'), {
@@ -441,6 +449,9 @@ export default function AdminPanel() {
   // ============ MONSTER BUILDER FUNCTIONS (NEW - ALL PARTS AT ONCE) ============
   const activateMonsterBuilder = async () => {
     try {
+      // Snapshot the previous monster (parts, counts, results) before reset.
+      await archiveSingleton('monster-builder', 'current', activeShowId);
+
       const sessionId = `builder-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
       
       // Initialize monster builder state
@@ -544,6 +555,9 @@ export default function AdminPanel() {
     if (!confirm('Reset monster builder? This will clear all submissions.')) return;
     
     try {
+      // Snapshot the current monster before we blow it away.
+      await archiveSingleton('monster-builder', 'current', activeShowId);
+
       await setDoc(doc(db, 'monster-builder', 'current'), {
         status: 'building',
         submissions: {},

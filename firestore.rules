@@ -130,6 +130,29 @@ service cloud.firestore {
     match /villagers/{docId} { allow read, write: if true; }
     match /players/{docId} { allow read, write: if true; }
 
+    // ── Blade Runner personal campaign roster ──────────────────────
+    // Separate collection from live-show NPCs. Players edit their own
+    // sheets directly from /blade-runner/play/:id with no auth, so this
+    // stays open for now. A follow-up phase can move the BR sheet to
+    // signed-in (anonymous or Google) and gate writes by ownership.
+    match /blade-runner-characters/{id} {
+      allow read, write: if true;
+    }
+
+    // ── Defensive archives ─────────────────────────────────────────
+    // `<collection>-archive` docs are write-on-soft-delete copies of
+    // npcs (and any future collection that opts into softDeleteDoc).
+    // `archives/<showId>/...` is the per-show snapshot folder used by
+    // archiveSingleton to capture villagers/monster/decoder/etc. state
+    // before each reset. Both are write-once-then-mostly-read; keeping
+    // them open mirrors the surrounding live-show collections.
+    match /npcs-archive/{id} {
+      allow read, write: if true;
+    }
+    match /archives/{showId}/{document=**} {
+      allow read, write: if true;
+    }
+
     // Default deny — anything not matched above is locked.
     match /{document=**} {
       allow read, write: if false;
