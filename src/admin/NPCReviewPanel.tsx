@@ -12,6 +12,7 @@
 import { useState, useEffect } from 'react';
 import { collection, query, where, onSnapshot, doc, updateDoc, deleteDoc, getDocs, setDoc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
+import { softDeleteDoc } from '../lib/archive';
 import { useSystemConfig, getStatById } from '../hooks/useSystemConfig';
 import type { NPC } from '../types/npc.types';
 import type { Reservation } from '../types/reservation.types';
@@ -100,7 +101,9 @@ export default function NPCReviewPanel({ showId }: NPCReviewPanelProps) {
   const deleteNpc = async (npcId: string) => {
     setDeleting(true);
     try {
-      await deleteDoc(doc(db, 'npcs', npcId));
+      // Soft-delete: copies to npcs-archive/<id>__<ts> first.
+      // Recovery: open Firestore console -> npcs-archive -> copy fields back.
+      await softDeleteDoc('npcs', npcId);
     } finally {
       setDeleting(false);
       setConfirmDeleteId(null);
@@ -112,8 +115,8 @@ export default function NPCReviewPanel({ showId }: NPCReviewPanelProps) {
     try {
       const q = query(collection(db, 'npcs'), where('showId', '==', showId));
       const snapshot = await getDocs(q);
-      const deletes = snapshot.docs.map(d => deleteDoc(doc(db, 'npcs', d.id)));
-      await Promise.all(deletes);
+      // Soft-delete each so this whole-show clear is reversible.
+      await Promise.all(snapshot.docs.map(d => softDeleteDoc('npcs', d.id)));
     } finally {
       setDeleting(false);
       setConfirmClearAll(false);

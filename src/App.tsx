@@ -6,6 +6,9 @@ import DisplayView from './components/DisplayView';
 import PlayerView from './components/PlayerView';
 import PlayView from './components/PlayView';
 import NPCCreationPage from './components/NPCCreator/NPCCreationPage';
+import BladeRunnerCreationPage from './components/BladeRunnerCreator/BladeRunnerCreationPage';
+import BladeRunnerSheetPage from './components/BladeRunnerSheet/BladeRunnerSheetPage';
+import BladeRunnerRoster from './components/BladeRunnerSheet/BladeRunnerRoster';
 import QRDisplay from './components/QRDisplay';
 import FantasyBackground from './components/FantasyBackground';
 import './index.css';
@@ -62,6 +65,9 @@ function App() {
         <Routes>
           <Route path="/" element={<CodeRedirect />} />
           <Route path="/create" element={<NPCCreationPage />} />
+          <Route path="/blade-runner/create" element={<BladeRunnerCreationPage />} />
+          <Route path="/blade-runner/roster" element={<BladeRunnerRoster />} />
+          <Route path="/blade-runner/play/:id" element={<BladeRunnerSheetPage />} />
           <Route path="/play/:npcId" element={<PlayView />} />
           <Route path="/player/:playerId" element={<PlayerView />} />
           <Route path="/admin" element={<AdminPanel />} />

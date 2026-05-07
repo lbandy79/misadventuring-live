@@ -1,0 +1,161 @@
+rules_version = '2';
+
+// Firestore security rules — Phase 8 honest middle ground.
+//
+// Auth model: there is NO Cloud Functions backend, so we can't mint
+// custom claims. Instead, an "admin" is any signed-in Firebase Auth
+// user whose email appears in the `emails` array of the public-readable
+// `config/admins` doc. Both the client (lib/auth/AuthProvider) and
+// these rules read the same allowlist, so the client can't spoof admin.
+//
+// What changed in Phase 8 vs Phase 1:
+//   - `config/platform` (the currently-running show pointer) is now
+//     admin-write-only. Audience & legacy app still read it.
+//   - `config/admins` is admin-write-only.
+//   - `npcs` delete and `gmFlagged` flips are now admin-only.
+//
+// What deliberately stayed open (legacy app needs it, and no real
+// damage is possible without admin reaching the admin panel anyway):
+//   - All other live-show interaction collections (votes, group-roll,
+//     monster-builder, decoder-ring, ship-combat, villagers, players)
+//     and the rest of `config/*`. A follow-up phase will migrate the
+//     legacy admin panel to Firebase Auth, then we can lock these too.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helpers ────────────────────────────────────────────────────
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function isAdmin() {
+      return isSignedIn()
+        && request.auth.token.email != null
+        && exists(/databases/$(database)/documents/config/admins)
+        && (request.auth.token.email.lower()
+            in get(/databases/$(database)/documents/config/admins).data.emails);
+    }
+
+    // ── Reservations ───────────────────────────────────────────────
+    match /reservations/{reservationId} {
+      allow read: if true;
+
+      allow create: if
+        request.resource.data.keys().hasAll(['name','email','accessCode','showId','createdAt','npcCreated'])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() >= 1
+        && request.resource.data.name.size() <= 80
+        && request.resource.data.email is string
+        && request.resource.data.email.matches('^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$')
+        && request.resource.data.accessCode is string
+        && request.resource.data.accessCode.size() == 6
+        && request.resource.data.showId is string
+        && request.resource.data.npcCreated == false;
+
+      // Audience flips npcCreated false→true after building character.
+      // Identity fields immutable.
+      allow update: if
+        resource.data.npcCreated == false
+        && request.resource.data.npcCreated == true
+        && request.resource.data.name == resource.data.name
+        && request.resource.data.email == resource.data.email
+        && request.resource.data.accessCode == resource.data.accessCode
+        && request.resource.data.showId == resource.data.showId;
+
+      // Admins can clean up no-shows / dupes.
+      allow delete: if isAdmin();
+    }
+
+    // ── NPCs (player-created characters) ───────────────────────────
+    match /npcs/{npcId} {
+      allow read: if true;
+
+      allow create: if
+        request.resource.data.keys().hasAll(['reservationId','showId','systemId','name','createdAt'])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() >= 1
+        && request.resource.data.name.size() <= 60
+        && request.resource.data.reservationId is string
+        && request.resource.data.showId is string
+        && request.resource.data.gmFlagged == false;
+
+      // Player-side updates: never touch identity, never flip gmFlagged.
+      // GM-side updates (gmNotes / gmFlagged) require admin auth.
+      allow update: if
+        request.resource.data.reservationId == resource.data.reservationId
+        && request.resource.data.showId == resource.data.showId
+        && request.resource.data.name == resource.data.name
+        && (
+          // Player update — gmFlagged stays put.
+          request.resource.data.gmFlagged == resource.data.gmFlagged
+          // OR an admin is touching gmNotes / gmFlagged.
+          || isAdmin()
+        );
+
+      allow delete: if isAdmin();
+    }
+
+    // ── Connection test doc ────────────────────────────────────────
+    match /test/{docId} {
+      allow read, write: if docId == 'connection-test';
+    }
+
+    // ── Admin allowlist (read public, write admin-only) ────────────
+    // Bootstrap: if the doc doesn't exist yet, the FIRST signed-in
+    // user can create it (so a fresh project can install its first
+    // admin). After it exists, only existing admins can modify it.
+    match /config/admins {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin();
+    }
+
+    // ── Platform config (currently-running show pointer) ───────────
+    match /config/platform {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ── Live show interaction state (legacy admin panel still
+    //    password-gated; tightening this requires migrating the
+    //    legacy panel to Firebase Auth — own follow-up phase). ─────
+    match /config/{docId} {
+      allow read, write: if docId != 'admins' && docId != 'platform';
+    }
+    match /votes/{docId} { allow read, write: if true; }
+    match /group-roll/{docId} { allow read, write: if true; }
+    match /monster-builder/{docId} { allow read, write: if true; }
+    match /decoder-ring/{docId} { allow read, write: if true; }
+    match /ship-combat/{docId} { allow read, write: if true; }
+    match /villagers/{docId} { allow read, write: if true; }
+    match /players/{docId} { allow read, write: if true; }
+
+    // ── Blade Runner personal campaign roster ──────────────────────
+    // Separate collection from live-show NPCs. Players edit their own
+    // sheets directly from /blade-runner/play/:id with no auth, so this
+    // stays open for now. A follow-up phase can move the BR sheet to
+    // signed-in (anonymous or Google) and gate writes by ownership.
+    match /blade-runner-characters/{id} {
+      allow read, write: if true;
+    }
+
+    // ── Defensive archives ─────────────────────────────────────────
+    // `<collection>-archive` docs are write-on-soft-delete copies of
+    // npcs (and any future collection that opts into softDeleteDoc).
+    // `archives/<showId>/...` is the per-show snapshot folder used by
+    // archiveSingleton to capture villagers/monster/decoder/etc. state
+    // before each reset. Both are write-once-then-mostly-read; keeping
+    // them open mirrors the surrounding live-show collections.
+    match /npcs-archive/{id} {
+      allow read, write: if true;
+    }
+    match /archives/{showId}/{document=**} {
+      allow read, write: if true;
+    }
+
+    // Default deny — anything not matched above is locked.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

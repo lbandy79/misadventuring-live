@@ -23,3 +23,7 @@ Thumbs.db
 npm-debug.log*
 .vercel
 .env*.local
+dist-platform
+
+# One-shot script outputs (audit dumps, etc.) — never commit
+tmp/

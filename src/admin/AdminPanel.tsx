@@ -1,8 +1,12 @@
-import { useState, useEffect, useRef, type FormEvent } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { doc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useTheme, themeRegistry } from '../themes';
 import type { ThemeId } from '../themes';
+import { useShow, setCurrentShow } from '../lib/shows';
+import { useAuth } from '../lib/auth';
+import { archiveSingleton } from '../lib/archive';
+import { launchVote, resetVoteCounts } from '../lib/interactions';
 import { useAwesomeMix, broadcastCue } from '../hooks';
 import type { Villager, VillagerSubmissionState, VillagerStatus } from '../types/villager.types';
 import { PRONOUNS_OPTIONS, getItemById } from '../types/villager.types';
@@ -13,7 +17,9 @@ import ShipCombatAdmin from './ShipCombatAdmin';
 import NPCReviewPanel from './NPCReviewPanel';
 import './AdminPanel.css';
 
-const ADMIN_PASSWORD = 'misadventure2025'; // Change this! Or move to env var later
+// Auth gate: Firebase Auth + admin allowlist (config/admins.emails).
+// Replaces the legacy VITE_ADMIN_PASSWORD shared password (Phase 9A).
+// Sign in lives in `useAuth().signIn()` and is wired up below.
 
 type AdminTab = 'show' | 'npcs' | 'monsters' | 'villagers' | 'decoder';
 
@@ -64,8 +70,10 @@ interface ActiveInteraction {
 }
 
 export default function AdminPanel() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [password, setPassword] = useState('');
+  const { user, isAdmin, isLoading: authLoading, isAdminLoading, signIn, signOut } = useAuth();
+  // Convenience flag used by all the existing data-subscription effects so we
+  // don't subscribe to Firestore until the user has cleared the admin gate.
+  const isAuthenticated = !!user && isAdmin;
   const [activeInteraction, setActiveInteraction] = useState<ActiveInteraction>({ type: 'none' });
   const [voteConfig, setVoteConfig] = useState<VoteConfig>({
     question: 'What should the party do?',
@@ -93,6 +101,7 @@ export default function AdminPanel() {
   const [selectedAmbient, setSelectedAmbient] = useState('village');
   const [selectedBattle, setSelectedBattle] = useState('combat');
   const { themeId, setThemeId } = useTheme();
+  const { showId: activeShowId, allShows } = useShow();
 
   // Tab navigation — persisted in sessionStorage
   const [activeTab, setActiveTab] = useState<AdminTab>(() => {
@@ -158,12 +167,6 @@ export default function AdminPanel() {
     setSelectedBattle(track);
     broadcastCue('sound-effect', { soundKey: `battle-${track}` });
   };
-
-  // Check session storage for existing auth
-  useEffect(() => {
-    const auth = sessionStorage.getItem('mtp-admin-auth');
-    if (auth === 'true') setIsAuthenticated(true);
-  }, []);
 
   // Listen to active interaction
   useEffect(() => {
@@ -251,48 +254,28 @@ export default function AdminPanel() {
     return () => unsubscribe();
   }, [isAuthenticated]);
 
-  const handleLogin = (e: FormEvent) => {
-    e.preventDefault();
-    if (password === ADMIN_PASSWORD) {
-      setIsAuthenticated(true);
-      sessionStorage.setItem('mtp-admin-auth', 'true');
-    } else {
-      alert('Wrong password, adventurer!');
-    }
+  const handleLogin = () => {
+    signIn().catch((err) => {
+      console.error('Sign-in failed:', err);
+      alert('Sign-in failed. See console for details.');
+    });
   };
 
   const handleLogout = () => {
-    setIsAuthenticated(false);
-    sessionStorage.removeItem('mtp-admin-auth');
+    signOut().catch((err) => console.error('Sign-out failed:', err));
   };
 
   // Activate voting
   const activateVoting = async () => {
     try {
       console.log('Attempting to launch voting...');
-      const sessionId = `vote-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      
-      await setDoc(doc(db, 'config', 'active-interaction'), {
-        type: 'vote',
+      const { sessionId } = await launchVote({
+        showId: activeShowId,
         question: voteConfig.question,
         options: voteConfig.options,
-        isOpen: true,
         timer: voteConfig.timer,
-        startedAt: Date.now(),
-        sessionId // Unique ID for this voting round
       });
-      console.log('active-interaction written successfully');
-
-      // Initialize vote counts
-      const initialCounts: Record<string, number> = {};
-      voteConfig.options.forEach(opt => {
-        initialCounts[opt.id] = 0;
-      });
-      await setDoc(doc(db, 'votes', 'current-vote'), {
-        counts: initialCounts,
-        totalVotes: 0
-      });
-      console.log('votes/current-vote written successfully');
+      console.log('voting launched, sessionId=', sessionId);
     } catch (error) {
       console.error('Failed to launch voting:', error);
       alert(`Failed to launch voting: ${(error as Error).message}`);
@@ -326,24 +309,12 @@ export default function AdminPanel() {
   // Reset all votes - generates new sessionId so previous votes don't carry over
   const resetVotes = async () => {
     if (!confirm('Reset all votes? This cannot be undone.')) return;
-    
-    const newSessionId = `vote-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    
-    const initialCounts: Record<string, number> = {};
-    activeInteraction.options?.forEach(opt => {
-      initialCounts[opt.id] = 0;
-    });
-    
-    // Update both the session ID (to invalidate previous votes) and reset counts
-    await setDoc(doc(db, 'config', 'active-interaction'), {
-      ...activeInteraction,
-      sessionId: newSessionId,
-      startedAt: Date.now() // Also reset timer
-    });
-    
-    await setDoc(doc(db, 'votes', 'current-vote'), {
-      counts: initialCounts,
-      totalVotes: 0
+    if (!activeInteraction.options) return;
+
+    await resetVoteCounts({
+      showId: activeShowId,
+      options: activeInteraction.options,
+      activeInteraction: activeInteraction as unknown as Record<string, unknown>,
     });
   };
 
@@ -379,6 +350,9 @@ export default function AdminPanel() {
   // ============ GROUP ROLL FUNCTIONS ============
   const activateGroupRoll = async () => {
     try {
+      // Snapshot the previous group-roll state before we overwrite it.
+      await archiveSingleton('group-roll', 'current', activeShowId);
+
       await setDoc(doc(db, 'config', 'active-interaction'), {
         type: 'group-roll'
       });
@@ -400,6 +374,10 @@ export default function AdminPanel() {
   // ============ VILLAGER SUBMISSION FUNCTIONS ============
   const activateVillagerSubmission = async () => {
     try {
+      // Snapshot the prior villager submissions BEFORE we wipe them.
+      // This is the most-lost surface from past shows; preserve it.
+      await archiveSingleton('villagers', 'current', activeShowId);
+
       const sessionId = `villager-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
       
       await setDoc(doc(db, 'villagers', 'current'), {
@@ -471,6 +449,9 @@ export default function AdminPanel() {
   // ============ MONSTER BUILDER FUNCTIONS (NEW - ALL PARTS AT ONCE) ============
   const activateMonsterBuilder = async () => {
     try {
+      // Snapshot the previous monster (parts, counts, results) before reset.
+      await archiveSingleton('monster-builder', 'current', activeShowId);
+
       const sessionId = `builder-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
       
       // Initialize monster builder state
@@ -574,6 +555,9 @@ export default function AdminPanel() {
     if (!confirm('Reset monster builder? This will clear all submissions.')) return;
     
     try {
+      // Snapshot the current monster before we blow it away.
+      await archiveSingleton('monster-builder', 'current', activeShowId);
+
       await setDoc(doc(db, 'monster-builder', 'current'), {
         status: 'building',
         submissions: {},
@@ -626,21 +610,35 @@ export default function AdminPanel() {
   };
 
   if (!isAuthenticated) {
+    const checking = authLoading || (user && isAdminLoading);
     return (
       <div className="admin-container">
         <div className="login-card">
           <h1>🎲 GM Portal</h1>
-          <p>Enter the secret phrase to continue</p>
-          <form onSubmit={handleLogin}>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password"
-              autoFocus
-            />
-            <button type="submit">Enter the Tavern</button>
-          </form>
+          {checking ? (
+            <p>Checking your credentials…</p>
+          ) : !user ? (
+            <>
+              <p>Sign in with your GM Google account to continue.</p>
+              <button type="button" onClick={handleLogin}>
+                Sign in with Google
+              </button>
+            </>
+          ) : (
+            <>
+              <p>
+                Signed in as <strong>{user.email}</strong>, but this email
+                isn't on the admin allowlist.
+              </p>
+              <p style={{ fontSize: '0.85rem', opacity: 0.75 }}>
+                Add it to <code>config/admins.emails</code> in Firestore, or
+                sign in with a different account.
+              </p>
+              <button type="button" onClick={handleLogout}>
+                Sign out
+              </button>
+            </>
+          )}
         </div>
       </div>
     );
@@ -1072,6 +1070,43 @@ export default function AdminPanel() {
           {activeInteraction.type !== 'none' && (
             <p className="hint">End current interaction first</p>
           )}
+        </section>
+        )}
+
+        {/* Show Selector — Phase 3b: writes config/platform.currentShowId.
+            ShowProvider reads this and exposes it via useShow() everywhere.
+            Phase 3c will start stamping showId onto vote/group-roll writes. */}
+        {activeTab === 'show' && (
+        <section className="admin-card theme-card">
+          <h2>🎬 Active Show</h2>
+          <p className="theme-hint">
+            Selects which show this platform is currently running. Affects which
+            interactions and theme are shown to the audience.
+          </p>
+          <div className="theme-options">
+            {allShows.map((s) => (
+              <button
+                key={s.id}
+                className={`theme-btn ${activeShowId === s.id ? 'active' : ''}`}
+                onClick={async () => {
+                  try {
+                    await setCurrentShow(s.id);
+                  } catch (err) {
+                    console.error('setCurrentShow failed:', err);
+                  }
+                }}
+                disabled={s.status === 'archived'}
+              >
+                <span className="theme-name">
+                  {s.name}
+                  {s.status === 'draft' ? ' (draft)' : ''}
+                </span>
+                <span className="theme-desc">
+                  {s.description ?? `${s.themeId} · ${s.systemId}`}
+                </span>
+              </button>
+            ))}
+          </div>
         </section>
         )}
 

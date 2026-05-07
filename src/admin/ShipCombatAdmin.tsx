@@ -24,6 +24,8 @@
 import { useState, useEffect } from 'react';
 import { doc, onSnapshot, setDoc, updateDoc, deleteDoc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
+import { useShow } from '../lib/shows';
+import { archiveSingleton } from '../lib/archive';
 import type { RecruitedCrewMember } from '../types/decoderRing.types';
 import { getStatBlockById, getRoundDefinition, getWaveDefinition, SCOUT_CAPTAIN_STATS } from '../data/shipCombatData';
 import {
@@ -51,6 +53,7 @@ function mapToCombatRole(role: string): CombatRole | null {
 }
 
 export default function ShipCombatAdmin() {
+  const { showId: activeShowId } = useShow();
   const [state, setState] = useState<ShipCombatState | null>(null);
   const [rollEntry, setRollEntry] = useState('');
   const [enemyRefOpen, setEnemyRefOpen] = useState<string | null>(null);
@@ -115,6 +118,8 @@ export default function ShipCombatAdmin() {
     const initial = createInitialShipCombatState(sessionId);
     initial.crew = crewMembers;
 
+    // Snapshot any prior state before we replace it.
+    await archiveSingleton('ship-combat', 'current', activeShowId);
     await setDoc(doc(db, 'ship-combat', 'current'), initial);
   };
 
@@ -152,6 +157,8 @@ export default function ShipCombatAdmin() {
     const sessionId = `ship-combat-${Date.now()}`;
     const initial = createInitialShipCombatState(sessionId);
     initial.crew = crewMembers;
+    // Snapshot any prior state before we replace it.
+    await archiveSingleton('ship-combat', 'current', activeShowId);
     await setDoc(doc(db, 'ship-combat', 'current'), initial);
   };
 
@@ -634,6 +641,8 @@ export default function ShipCombatAdmin() {
 
   const resetEverything = async () => {
     if (!confirm('Reset ship combat completely? This wipes all combat state.')) return;
+    // Snapshot first so the wipe is recoverable.
+    await archiveSingleton('ship-combat', 'current', activeShowId);
     await deleteDoc(doc(db, 'ship-combat', 'current'));
     await setDoc(doc(db, 'config', 'active-interaction'), { type: 'none' });
     setState(null);
@@ -693,7 +702,7 @@ export default function ShipCombatAdmin() {
           <button onClick={beginCombat} className="btn-epic launch-btn" disabled={state.crew.length === 0}>
             ⚔️ Begin Ship Combat
           </button>
-          <button onClick={async () => { await deleteDoc(doc(db, 'ship-combat', 'current')); }} className="btn-secondary" style={{ marginLeft: '0.5rem', fontSize: '0.7rem' }}>
+          <button onClick={async () => { await archiveSingleton('ship-combat', 'current', activeShowId); await deleteDoc(doc(db, 'ship-combat', 'current')); }} className="btn-secondary" style={{ marginLeft: '0.5rem', fontSize: '0.7rem' }}>
             🔄 Reset Combat
           </button>
         </div>
