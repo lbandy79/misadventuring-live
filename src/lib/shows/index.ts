@@ -17,4 +17,6 @@ export {
 } from './ShowProvider';
 export { beastOfRidgefallShow } from './beast-of-ridgefall.show';
 export { betawaveTapesShow } from './betawave-tapes.show';
+export { madLibsHoneyHeistShow } from './mad-libs-honey-heist.show';
+export { mysteryOfIpIsleShow } from './mystery-of-ip-isle.show';
 export { soggyBottomPiratesShow } from './soggy-bottom-pirates.show';

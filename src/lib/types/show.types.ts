@@ -39,4 +39,29 @@ export interface Show {
   description?: string;
   heroImage?: string;
   status?: 'draft' | 'live' | 'archived';
+
+  /**
+   * Public lifecycle stage for marketing surfaces. Independent of `status`:
+   *   - 'live'     — currently airing / playable.
+   *   - 'upcoming' — scheduled future show; takes reservations.
+   *   - 'past'     — has aired; surfaces as "Watch the recap".
+   *   - 'shelved'  — on hiatus / not currently public; hidden from listings.
+   * When omitted, callers fall back to `status` (back-compat for older entries).
+   */
+  era?: 'live' | 'upcoming' | 'past' | 'shelved';
+
+  /** ISO date (YYYY-MM-DD) for upcoming/past shows. Used in marketing copy. */
+  nextDate?: string;
+
+  /**
+   * Public recap target. Presence implies the show has aired and the audience
+   * can revisit it. `firestore` points at an episode doc keyed in
+   * `recapConfigs`; `external` points at e.g. a YouTube link.
+   */
+  recap?:
+    | { kind: 'firestore'; recapId: string }
+    | { kind: 'external'; url: string; label?: string };
+
+  /** Optional secondary YouTube link shown alongside a Firestore recap. */
+  youtubeUrl?: string;
 }

@@ -15,6 +15,7 @@ import { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   useShow,
+  getShowEra,
   createReservation,
   sendReservationEmail,
   type Reservation,
@@ -28,7 +29,13 @@ export default function ReservePage() {
   const preselectedShowId = searchParams.get('show');
 
   const reservableShows = useMemo(
-    () => allShows.filter((s) => s.status !== 'archived'),
+    () =>
+      allShows.filter((s) => {
+        const era = getShowEra(s);
+        // Only upcoming/live shows accept reservations. Past + shelved are
+        // intentionally excluded so visitors can't sign up for an aired show.
+        return era === 'upcoming' || era === 'live';
+      }),
     [allShows],
   );
 

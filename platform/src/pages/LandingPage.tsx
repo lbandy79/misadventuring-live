@@ -1,19 +1,35 @@
 /**
  * LandingPage — Phase 5.
  *
- * Real marketing copy: hero pitch, what-it-is explainer, featured upcoming
- * shows pulled from the platform Show registry, and a clear reservation
- * CTA. No press quotes / social proof yet — those wait until we have real
- * material to quote.
+ * Real marketing copy: "now / next" hero (last show recap + next show
+ * reservation), what-it-is explainer, featured shows pulled from the
+ * platform Show registry, and a clear reservation CTA. Hero "now / next"
+ * pointers are hardcoded constants — update them when the show calendar
+ * advances.
  */
 
 import { Link } from 'react-router-dom';
-import { useShow } from '@mtp/lib';
+import { useShow, getShowEra } from '@mtp/lib';
+
+// Hero "now / next" pointers. Hardcoded by design — flipping these is a
+// 30-second edit when the next show is locked in.
+const LATEST_RECAP = {
+  showName: 'Betawave: Last Call',
+  href: '/recap/betawave-last-call-2026-04-18',
+};
+const NEXT_SHOW = {
+  showName: 'Mad Libs Honey Heist',
+  dateLabel: 'May 23',
+  reserveShowId: 'mad-libs-honey-heist',
+};
 
 export default function LandingPage() {
   const { allShows } = useShow();
   const featured = allShows
-    .filter((s) => s.status !== 'archived')
+    .filter((s) => {
+      const era = getShowEra(s);
+      return era !== 'shelved';
+    })
     .slice(0, 3);
 
   return (
@@ -25,14 +41,36 @@ export default function LandingPage() {
           <br />
           We just roll the dice.
         </h1>
-        <p className="hero-lede">
+
+        <div className="hero-now-next" style={{ marginTop: '2rem' }}>
+          <p className="hero-now-next-line" style={{ margin: '0 0 0.75rem 0' }}>
+            <strong>Last show:</strong> {LATEST_RECAP.showName}.{' '}
+            <Link to={LATEST_RECAP.href} className="hero-inline-cta">
+              Watch the recap →
+            </Link>
+          </p>
+          <p className="hero-now-next-line" style={{ margin: 0 }}>
+            <strong>Coming {NEXT_SHOW.dateLabel}:</strong> {NEXT_SHOW.showName}.{' '}
+            <Link
+              to={`/reserve?show=${encodeURIComponent(NEXT_SHOW.reserveShowId)}`}
+              className="hero-inline-cta"
+            >
+              Reserve your seat →
+            </Link>
+          </p>
+        </div>
+
+        <p className="hero-lede" style={{ marginTop: '2rem' }}>
           The Misadventuring Party runs interactive RPG performances where the
           audience names the villagers, builds the monster, and votes on every
           poor decision. You don't have to know the rules — you just have to
           show up and yell.
         </p>
         <div className="hero-cta-row">
-          <Link to="/reserve" className="btn-primary btn-lg">
+          <Link
+            to={`/reserve?show=${encodeURIComponent(NEXT_SHOW.reserveShowId)}`}
+            className="btn-primary btn-lg"
+          >
             Reserve a seat
           </Link>
           <Link to="/shows" className="btn-secondary btn-lg">
@@ -74,23 +112,26 @@ export default function LandingPage() {
           <p className="section-empty">New shows announced soon.</p>
         ) : (
           <div className="show-grid">
-            {featured.map((s) => (
-              <Link key={s.id} to={`/shows/${s.id}`} className="show-card">
-                <div className="show-card-head">
-                  <span className="name">{s.name}</span>
-                  {s.status && (
-                    <span className={`status ${s.status === 'draft' ? 'draft' : ''}`}>
-                      {s.status}
+            {featured.map((s) => {
+              const era = getShowEra(s);
+              return (
+                <Link key={s.id} to={`/shows/${s.id}`} className="show-card">
+                  <div className="show-card-head">
+                    <span className="name">{s.name}</span>
+                    <span className={`status ${era === 'past' ? '' : 'draft'}`}>
+                      {era}
                     </span>
-                  )}
-                </div>
-                <div className="meta">
-                  {s.themeId} · {s.systemId}
-                </div>
-                {s.description && <p className="desc">{s.description}</p>}
-                <span className="show-card-cta">View show →</span>
-              </Link>
-            ))}
+                  </div>
+                  <div className="meta">
+                    {s.themeId} · {s.systemId}
+                  </div>
+                  {s.description && <p className="desc">{s.description}</p>}
+                  <span className="show-card-cta">
+                    {era === 'past' ? 'Watch the recap →' : 'View show →'}
+                  </span>
+                </Link>
+              );
+            })}
           </div>
         )}
       </section>

@@ -19,4 +19,7 @@ export const betawaveTapesShow: Show = {
   description:
     'Replicants, signal ghosts, and a ciphered transmission only the audience can crack.',
   status: 'live',
+  era: 'past',
+  recap: { kind: 'firestore', recapId: 'betawave-last-call-2026-04-18' },
+  youtubeUrl: 'https://www.youtube.com/watch?v=G0Hbj8YJrr8&t=3559s',
 };

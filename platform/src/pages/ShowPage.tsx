@@ -1,13 +1,18 @@
 /**
  * ShowPage — Phase 6.
  *
- * Per-show landing/detail page. Pulls Show metadata from the registry,
- * indicates "live now" when this show is the platform's current active
- * show, and routes audience/reserve flows.
+ * Per-show detail page. Branches CTA on the show's lifecycle `era`:
+ *   - 'live'     → enter the live show
+ *   - 'upcoming' → reserve a seat
+ *   - 'past'     → watch the recap (Firestore in-app or external YouTube)
+ *   - 'shelved'  → render a 404-equivalent so the entry is invisible
+ *
+ * Reservation forms are hidden on past/shelved shows so visitors can never
+ * accidentally try to register for something that has already aired.
  */
 
 import { useParams, Link } from 'react-router-dom';
-import { getShow, useShow } from '@mtp/lib';
+import { getShow, getShowEra, useShow } from '@mtp/lib';
 
 export default function ShowPage() {
   const { showId } = useParams<{ showId: string }>();
@@ -16,9 +21,11 @@ export default function ShowPage() {
   // useShow() reads the platform-wide current show (Firestore config/platform).
   // We compare to the URL show to render a "Live now" badge.
   const platform = useShow();
-  const isLiveNow = !!show && platform.showId === show.id && show.status === 'live';
+  const era = show ? getShowEra(show) : undefined;
+  const isLiveNow =
+    !!show && platform.showId === show.id && show.status === 'live' && era === 'live';
 
-  if (!show || !showId) {
+  if (!show || !showId || era === 'shelved') {
     return (
       <section className="page-card">
         <h1>Show not found</h1>
@@ -29,6 +36,18 @@ export default function ShowPage() {
       </section>
     );
   }
+
+  const recapHref =
+    show.recap?.kind === 'firestore'
+      ? `/recap/${show.recap.recapId}`
+      : show.recap?.kind === 'external'
+        ? show.recap.url
+        : undefined;
+  const recapIsExternal = show.recap?.kind === 'external';
+  const recapLabel =
+    show.recap?.kind === 'external'
+      ? (show.recap.label ?? 'Watch the recap')
+      : 'Watch the recap';
 
   return (
     <section className="page-card show-detail-card">
@@ -41,11 +60,17 @@ export default function ShowPage() {
         </div>
         <div className="show-detail-badges">
           {isLiveNow && <span className="live-badge">● Live now</span>}
-          {!isLiveNow && show.status && (
-            <span className={`upcoming-badge ${show.status}`}>{show.status}</span>
+          {!isLiveNow && era && (
+            <span className={`upcoming-badge ${era}`}>{era}</span>
           )}
         </div>
       </div>
+
+      {era === 'past' && (
+        <p className="show-detail-wrapped" style={{ fontStyle: 'italic', opacity: 0.85 }}>
+          This show has wrapped. Catch the recap below.
+        </p>
+      )}
 
       {show.description && <p className="show-detail-desc">{show.description}</p>}
 
@@ -64,17 +89,34 @@ export default function ShowPage() {
         </div>
       </div>
 
-      <details className="show-detail-interactions">
-        <summary>What you can do as the audience</summary>
-        <ul>
-          {show.enabledInteractions.map((i) => (
-            <li key={i}>{i.replace(/-/g, ' ')}</li>
-          ))}
-        </ul>
-      </details>
+      {era !== 'past' && (
+        <details className="show-detail-interactions">
+          <summary>What you can do as the audience</summary>
+          <ul>
+            {show.enabledInteractions.map((i) => (
+              <li key={i}>{i.replace(/-/g, ' ')}</li>
+            ))}
+          </ul>
+        </details>
+      )}
 
       <div className="show-detail-cta-row">
-        {isLiveNow ? (
+        {era === 'past' && recapHref ? (
+          recapIsExternal ? (
+            <a
+              href={recapHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-primary btn-lg"
+            >
+              {recapLabel} ↗
+            </a>
+          ) : (
+            <Link to={recapHref} className="btn-primary btn-lg">
+              {recapLabel} →
+            </Link>
+          )
+        ) : isLiveNow ? (
           <Link to={`/shows/${show.id}/audience`} className="btn-primary btn-lg">
             Enter the live show →
           </Link>
@@ -86,9 +128,24 @@ export default function ShowPage() {
             Reserve a seat
           </Link>
         )}
-        <Link to={`/shows/${show.id}/audience`} className="btn-secondary btn-lg">
-          I have an access code
-        </Link>
+
+        {/* Secondary YouTube link when a Firestore recap is the primary CTA. */}
+        {era === 'past' && show.recap?.kind === 'firestore' && show.youtubeUrl && (
+          <a
+            href={show.youtubeUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-secondary btn-lg"
+          >
+            Watch on YouTube ↗
+          </a>
+        )}
+
+        {era !== 'past' && (
+          <Link to={`/shows/${show.id}/audience`} className="btn-secondary btn-lg">
+            I have an access code
+          </Link>
+        )}
       </div>
 
       <p style={{ marginTop: '2rem' }}>
