@@ -20,5 +20,11 @@ export const beastOfRidgefallShow: Show = {
   ],
   description:
     'A medieval village hunts the beast that took its children. Audience builds the monster and names the villagers.',
-  status: 'live',
+  status: 'archived',
+  era: 'past',
+  recap: {
+    kind: 'external',
+    url: 'https://www.youtube.com/watch?v=Cm5MqQQ5_1U&t=2792s',
+    label: 'Watch on YouTube',
+  },
 };
