@@ -30,7 +30,12 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: path.resolve(__dirname, '../dist-platform'),
+    // Default to platform/dist so Vercel (with Root Directory = platform/)
+    // finds the output without escaping the root. Override via VITE_PLATFORM_OUT_DIR
+    // if you need the legacy ../dist-platform path locally.
+    outDir: process.env.VITE_PLATFORM_OUT_DIR
+      ? path.resolve(process.cwd(), process.env.VITE_PLATFORM_OUT_DIR)
+      : path.resolve(__dirname, 'dist'),
     emptyOutDir: true,
   },
   // Inherit env from the parent project (.env.local at repo root).
