@@ -13,6 +13,7 @@ import AudiencePage from './pages/AudiencePage';
 import CompanionPage from './pages/CompanionPage';
 import AdminPage from './pages/AdminPage';
 import NotFoundPage from './pages/NotFoundPage';
+import RecapPage from './pages/RecapPage';
 import AuthMenu from './components/AuthMenu';
 
 export default function App() {
@@ -35,6 +36,7 @@ export default function App() {
           <Route path="/shows/:showId" element={<ShowPage />} />
           <Route path="/shows/:showId/audience" element={<AudiencePage />} />
           <Route path="/companion" element={<CompanionPage />} />
+          <Route path="/recap/:showId" element={<RecapPage />} />
           <Route path="/admin" element={<AdminPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

@@ -1,0 +1,564 @@
+/* ─────────────────────────────────────────────────────────────────
+ * Recap page styles — pen-and-paper umbrella with Betawave VHS costume.
+ *
+ * Tokens
+ *   --ink-blue   blue ballpoint
+ *   --ink-black  black sharpie
+ *   --ink-red    red correction pen
+ *   --paper-*    notebook paper backdrop colors
+ *   --brand-*    purple + amber pulled forward from the existing logo
+ *
+ * Typefaces (Google Fonts loaded in platform/index.html)
+ *   Bowlby One       hero sharpie titles
+ *   Permanent Marker section sharpie headings
+ *   Kalam            handwritten body
+ *   Caveat           informal handwriting (about / footer)
+ *   Special Elite    typewriter labels
+ * ───────────────────────────────────────────────────────────────── */
+
+.recap-page {
+  --ink-blue: #1a3a7a;
+  --ink-black: #1c1c1c;
+  --ink-red: #d9352b;
+  --paper: #f5f1e6;
+  --paper-line: rgba(26, 58, 122, 0.18);
+  --paper-margin: rgba(217, 53, 43, 0.5);
+  --paper-fold: rgba(0, 0, 0, 0.05);
+  --brand-purple: #5b3aa0;
+  --brand-amber: #ffb627;
+
+  color: var(--ink-black);
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 0 1rem 4rem;
+  font-family: 'Kalam', 'Caveat', system-ui, sans-serif;
+  font-size: 1.05rem;
+  line-height: 1.55;
+}
+
+/* Lined notebook paper. Repeating gradient = ruled lines, plus a single
+ * red margin line on the left (visible on wider viewports). */
+.recap-paper-bg {
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--paper-line) 1px, transparent 1px),
+    linear-gradient(90deg, transparent 0, transparent calc(2.25rem - 1px),
+      var(--paper-margin) calc(2.25rem - 1px),
+      var(--paper-margin) 2.25rem,
+      transparent 2.25rem);
+  background-size: 100% 1.75rem, 100% 100%;
+  background-position: 0 1rem, 0 0;
+  min-height: 100vh;
+}
+
+/* Loading + empty / error states. */
+.recap-loading {
+  text-align: center;
+  font-family: 'Special Elite', monospace;
+  color: var(--ink-blue);
+  padding: 5rem 1rem;
+  font-size: 1.1rem;
+  letter-spacing: 0.02em;
+}
+.recap-empty {
+  max-width: 560px;
+  margin: 4rem auto;
+  padding: 2rem;
+  background: var(--paper);
+  border: 1px dashed rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  font-family: 'Kalam', sans-serif;
+  text-align: center;
+}
+.recap-empty h1 {
+  font-family: 'Permanent Marker', cursive;
+  color: var(--ink-red);
+  font-size: 1.6rem;
+  margin: 0 0 0.75rem;
+}
+.recap-empty a { color: var(--brand-purple); text-decoration: underline; }
+
+/* ─── Hero ───────────────────────────────────────────────────────── */
+
+.recap-hero {
+  position: relative;
+  margin: 1.5rem auto 2.5rem;
+  padding: 2.5rem clamp(1.25rem, 4vw, 3rem);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  background: rgba(255, 252, 240, 0.65);
+  box-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.05),
+    0 12px 32px -18px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+.recap-hero-paper { position: relative; z-index: 2; }
+.recap-hero-eyebrow {
+  font-family: 'Special Elite', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--brand-purple);
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+}
+.recap-hero-title {
+  font-family: 'Bowlby One', 'Permanent Marker', cursive;
+  font-size: clamp(2.5rem, 7vw, 4.5rem);
+  line-height: 1;
+  letter-spacing: 0.005em;
+  color: var(--ink-black);
+  margin: 0 0 0.5rem;
+}
+.recap-hero-chapter {
+  font-family: 'Caveat', cursive;
+  color: var(--ink-blue);
+  font-size: 1.5rem;
+  margin: 0 0 1.5rem;
+  transform: rotate(-1.5deg);
+  display: inline-block;
+}
+.recap-hero-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem 1.5rem;
+  margin: 0;
+  padding-top: 1rem;
+  border-top: 1px dashed rgba(0, 0, 0, 0.18);
+}
+.recap-hero-facts > div { display: flex; flex-direction: column; gap: 0.15rem; }
+.recap-hero-facts dt {
+  font-family: 'Special Elite', monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--ink-red);
+}
+.recap-hero-facts dd {
+  margin: 0;
+  font-family: 'Kalam', sans-serif;
+  color: var(--ink-blue);
+  font-size: 1.05rem;
+}
+.recap-hero-badge {
+  display: inline-block;
+  padding: 0.2rem 0.7rem;
+  border: 1px solid var(--ink-black);
+  border-radius: 3px;
+  font-family: 'Special Elite', monospace;
+  font-size: 0.85rem;
+  background: rgba(255, 182, 39, 0.4);
+  color: var(--ink-black);
+  letter-spacing: 0.04em;
+  transform: rotate(-1deg);
+}
+
+/* Betawave VHS costume — costume sits on TOP of the paper substrate. */
+.recap-hero-betawave {
+  background:
+    radial-gradient(ellipse at center, rgba(20, 0, 40, 0.05), transparent 70%),
+    rgba(245, 241, 230, 0.85);
+  border-color: rgba(91, 58, 160, 0.45);
+  box-shadow:
+    inset 0 0 0 1px rgba(91, 58, 160, 0.15),
+    0 0 0 2px rgba(0, 0, 0, 0.04),
+    0 18px 42px -18px rgba(91, 58, 160, 0.55);
+}
+.recap-hero-betawave .recap-hero-eyebrow { color: var(--ink-red); }
+.recap-hero-betawave .recap-hero-title {
+  text-shadow:
+    1.5px 0 0 rgba(255, 45, 123, 0.35),
+    -1.5px 0 0 rgba(0, 229, 255, 0.35);
+}
+
+/* Scanlines: fixed CSS overlay, no animation cost. */
+.recap-hero-scanlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.06) 0,
+    rgba(0, 0, 0, 0.06) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  mix-blend-mode: multiply;
+  opacity: 0.6;
+}
+
+/* Slow vertical "tracking" sweep — the head-cleaner-needs-cleaning effect. */
+.recap-hero-sweep {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 30%;
+  pointer-events: none;
+  z-index: 3;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(255, 255, 255, 0.18) 45%,
+    rgba(91, 58, 160, 0.16) 50%,
+    rgba(255, 255, 255, 0.18) 55%,
+    transparent 100%
+  );
+  filter: blur(0.5px);
+  mix-blend-mode: screen;
+  animation: recap-hero-sweep 8.5s linear infinite;
+}
+@keyframes recap-hero-sweep {
+  0%   { transform: translateY(-100%); }
+  85%  { transform: translateY(120%); }
+  100% { transform: translateY(120%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .recap-hero-sweep,
+  .recap-hero-rec,
+  .recap-onair-pip { animation: none; }
+}
+
+.recap-hero-corner {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.2rem;
+  z-index: 4;
+  font-family: 'Special Elite', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+}
+.recap-hero-rec {
+  color: var(--ink-red);
+  animation: recap-rec-blink 1.4s steps(2, end) infinite;
+}
+.recap-hero-tracking {
+  color: var(--ink-blue);
+  opacity: 0.75;
+}
+@keyframes recap-rec-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0.25; }
+}
+
+/* ─── Section scaffolding ────────────────────────────────────────── */
+
+.recap-section { margin: 2.5rem 0; }
+.recap-section-heading {
+  font-family: 'Permanent Marker', cursive;
+  font-size: clamp(1.6rem, 3.5vw, 2.25rem);
+  color: var(--ink-black);
+  margin: 0 0 0.75rem;
+  letter-spacing: 0.01em;
+  transform: rotate(-0.5deg);
+}
+.recap-funnel {
+  font-family: 'Kalam', sans-serif;
+  color: var(--ink-blue);
+  font-size: 1.1rem;
+  margin: 0 0 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.18);
+}
+.recap-funnel strong {
+  font-family: 'Bowlby One', cursive;
+  color: var(--ink-red);
+  font-size: 1.4rem;
+  letter-spacing: 0.02em;
+  margin: 0 0.05rem;
+}
+
+/* ─── Featured character ─────────────────────────────────────────── */
+
+.recap-featured {
+  position: relative;
+  margin: 1.5rem 0 2.5rem;
+}
+.recap-featured-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0 0 0.5rem;
+  padding: 0.2rem 0.7rem;
+  background: var(--ink-red);
+  color: #fff;
+  font-family: 'Special Elite', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  border-radius: 2px;
+  transform: rotate(-2deg);
+}
+.recap-onair-pip {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #fff;
+  animation: recap-onair-pulse 1.4s ease-in-out infinite;
+  box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+}
+@keyframes recap-onair-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.85); }
+  60%      { box-shadow: 0 0 0 8px rgba(255, 255, 255, 0); }
+}
+
+.recap-featured-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1.5rem;
+  padding: 1.75rem;
+  background: rgba(255, 252, 240, 0.92);
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  box-shadow:
+    0 2px 0 rgba(0, 0, 0, 0.04),
+    0 22px 38px -22px rgba(91, 58, 160, 0.35);
+  transform: rotate(-0.6deg);
+}
+.recap-featured-portrait { display: flex; align-items: flex-start; }
+.recap-featured-body { min-width: 0; }
+.recap-featured-name {
+  font-family: 'Bowlby One', cursive;
+  color: var(--ink-black);
+  font-size: clamp(1.6rem, 3.5vw, 2.25rem);
+  margin: 0 0 0.25rem;
+  line-height: 1.05;
+  word-break: break-word;
+}
+.recap-featured-role {
+  font-family: 'Special Elite', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.85rem;
+  color: var(--ink-red);
+  margin: 0 0 1rem;
+}
+.recap-featured-line {
+  margin: 0.6rem 0 0;
+  font-family: 'Kalam', sans-serif;
+  color: var(--ink-blue);
+  white-space: pre-wrap;
+}
+.recap-featured-line.recap-card-secret { color: var(--ink-red); }
+@media (max-width: 560px) {
+  .recap-featured-card { grid-template-columns: 1fr; transform: none; }
+  .recap-featured-portrait { justify-content: center; }
+}
+
+/* ─── Avatars ────────────────────────────────────────────────────── */
+
+.recap-avatar {
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--ink-black);
+  box-shadow:
+    0 0 0 4px var(--paper),
+    0 0 0 5px rgba(0, 0, 0, 0.12),
+    0 6px 14px -8px rgba(0, 0, 0, 0.45);
+  flex-shrink: 0;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+.recap-avatar-fallback {
+  display: grid;
+  place-items: center;
+  font-family: 'Permanent Marker', cursive;
+  text-transform: uppercase;
+}
+
+/* ─── Character grid ─────────────────────────────────────────────── */
+
+.recap-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+.recap-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1.25rem 1.25rem 1.4rem;
+  background: rgba(255, 252, 240, 0.94);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
+  box-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.04),
+    0 14px 24px -16px rgba(0, 0, 0, 0.35);
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+.recap-card::before {
+  /* Top-edge tape strip — adds the "scrap-booked" feel. */
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -10px;
+  width: 64px;
+  height: 18px;
+  transform: translateX(-50%) rotate(-3deg);
+  background: rgba(255, 220, 130, 0.55);
+  border: 1px solid rgba(180, 140, 40, 0.25);
+  border-radius: 1px;
+  pointer-events: none;
+}
+.recap-card:hover {
+  transform: translateY(-3px) rotate(0deg) !important;
+  box-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.04),
+    0 22px 32px -18px rgba(91, 58, 160, 0.45);
+}
+.recap-card-head {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.85rem;
+  align-items: center;
+}
+.recap-card-id { min-width: 0; }
+.recap-card-name {
+  font-family: 'Permanent Marker', cursive;
+  font-size: 1.15rem;
+  color: var(--ink-black);
+  margin: 0;
+  word-break: break-word;
+  line-height: 1.15;
+}
+.recap-card-role {
+  font-family: 'Special Elite', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.7rem;
+  color: var(--ink-red);
+  margin: 0.2rem 0 0;
+}
+.recap-card-line {
+  margin: 0;
+  font-family: 'Kalam', sans-serif;
+  color: var(--ink-blue);
+  font-size: 0.95rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.recap-card-line.recap-card-secret { color: var(--ink-red); }
+.recap-card-label {
+  display: block;
+  font-family: 'Special Elite', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.55);
+  margin-bottom: 0.2rem;
+}
+
+/* ─── Sticky notes (monster + coming next) ───────────────────────── */
+
+.recap-sticky {
+  position: relative;
+  max-width: 460px;
+  margin: 2rem auto;
+  padding: 1.75rem 1.5rem 1.5rem;
+  font-family: 'Kalam', sans-serif;
+  color: var(--ink-black);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.05),
+    0 18px 28px -18px rgba(0, 0, 0, 0.45);
+  transform: rotate(-1.5deg);
+}
+.recap-sticky-clip {
+  position: absolute;
+  top: -18px;
+  left: 28px;
+  width: 28px;
+  height: 56px;
+  border: 4px solid #c8c8d2;
+  border-radius: 14px 14px 6px 6px;
+  background: transparent;
+  transform: rotate(-12deg);
+  pointer-events: none;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.35) inset;
+}
+.recap-sticky-clip-right { left: auto; right: 28px; transform: rotate(12deg); }
+.recap-sticky-eyebrow {
+  font-family: 'Special Elite', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.75rem;
+  color: var(--ink-red);
+  margin: 0 0 0.25rem;
+}
+.recap-sticky-heading {
+  font-family: 'Permanent Marker', cursive;
+  font-size: 1.5rem;
+  margin: 0 0 0.6rem;
+  line-height: 1.1;
+  color: var(--ink-black);
+}
+.recap-sticky-body {
+  margin: 0.5rem 0 0;
+  font-size: 1.05rem;
+  color: var(--ink-blue);
+}
+.recap-sticky-meta {
+  margin: 0.15rem 0;
+  font-family: 'Kalam', sans-serif;
+  color: var(--ink-blue);
+  font-size: 0.95rem;
+}
+.recap-sticky-cta {
+  display: inline-block;
+  margin-top: 1rem;
+  font-family: 'Permanent Marker', cursive;
+  font-size: 1.05rem;
+  color: var(--brand-purple);
+  text-decoration: underline;
+  text-decoration-style: wavy;
+  text-decoration-color: var(--brand-amber);
+  text-underline-offset: 4px;
+}
+.recap-sticky-cta:hover { color: var(--ink-red); }
+
+.recap-sticky-monster {
+  background: #fffae3;
+}
+.recap-sticky-monster .recap-sticky-body { color: var(--ink-red); font-style: italic; }
+
+.recap-sticky-next {
+  background: #e6f4ff;
+  border-color: rgba(26, 58, 122, 0.2);
+}
+
+.recap-tape-label {
+  display: inline-block;
+  font-family: 'Special Elite', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.55);
+  margin-right: 0.25rem;
+}
+.recap-tape-value {
+  font-family: 'Kalam', sans-serif;
+  color: var(--ink-blue);
+}
+
+/* ─── About footer ───────────────────────────────────────────────── */
+
+.recap-about {
+  max-width: 560px;
+  margin: 3rem auto 1rem;
+  text-align: center;
+  font-family: 'Caveat', cursive;
+  color: rgba(0, 0, 0, 0.55);
+  font-size: 1.15rem;
+  line-height: 1.4;
+}
+.recap-about p { margin: 0.25rem 0; }
+.recap-about-mark {
+  font-family: 'Permanent Marker', cursive;
+  color: var(--brand-purple);
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
+}
