@@ -7,6 +7,7 @@ export {
   buildReservationVoterId,
   castVote,
   clearVoterIdentity,
+  deleteAllMadLibVotes,
   fetchOwnVotes,
   getOrCreateAnonVoterId,
   loadVoterIdentity,

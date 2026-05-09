@@ -847,3 +847,24 @@ a:hover { color: #ffd700; }
 .admin-madlibs-empty {
   margin: 0.4rem 0 0; font-size: 0.85rem; opacity: 0.6;
 }
+
+.admin-madlibs-actions {
+  display: flex; flex-wrap: wrap; gap: 0.75rem;
+  align-items: center; margin-bottom: 1rem;
+}
+.admin-madlibs-danger {
+  background: rgba(231, 76, 60, 0.12);
+  border: 1px solid rgba(231, 76, 60, 0.5);
+  color: #ff9b9b;
+  font: inherit; padding: 0.4rem 0.85rem;
+  border-radius: 6px; cursor: pointer;
+}
+.admin-madlibs-danger:hover:not(:disabled) {
+  background: rgba(231, 76, 60, 0.22);
+  color: #ffb3b3;
+}
+.admin-madlibs-danger:disabled {
+  opacity: 0.5; cursor: not-allowed;
+}
+.admin-madlibs-status { font-size: 0.85rem; opacity: 0.8; }
+.admin-madlibs-status-error { color: tomato; opacity: 1; }

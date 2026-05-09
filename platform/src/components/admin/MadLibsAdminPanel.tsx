@@ -8,6 +8,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import {
+  deleteAllMadLibVotes,
   subscribeToMadLibVotes,
   tallyVotes,
   type FieldTally,
@@ -47,13 +48,19 @@ export default function MadLibsAdminPanel({ showId, systemId, showName }: Props)
   const [configError, setConfigError] = useState<string | null>(null);
   const [selectedMadLibId, setSelectedMadLibId] = useState<string>('');
   const [votes, setVotes] = useState<MadLibVote[]>([]);
+  const [clearStatus, setClearStatus] = useState<
+    | { kind: 'idle' }
+    | { kind: 'clearing' }
+    | { kind: 'done'; count: number }
+    | { kind: 'error'; message: string }
+  >({ kind: 'idle' });
 
   // Load system config (shares the same path the vote page uses).
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const mod = await import(`../../../src/systems/${systemId}.system.json`);
+        const mod = await import(`../../../../src/systems/${systemId}.system.json`);
         if (cancelled) return;
         const cfg = (mod.default ?? mod) as SystemConfig;
         setConfig(cfg);
@@ -96,6 +103,31 @@ export default function MadLibsAdminPanel({ showId, systemId, showName }: Props)
     return ids.size;
   }, [votes]);
 
+  async function handleClearVotes() {
+    if (!current) return;
+    const confirmed = window.confirm(
+      `Delete every vote for "${current.title}"? This cannot be undone.`,
+    );
+    if (!confirmed) return;
+    setClearStatus({ kind: 'clearing' });
+    try {
+      const count = await deleteAllMadLibVotes({
+        showId,
+        madLibId: current.id,
+      });
+      setClearStatus({ kind: 'done', count });
+      window.setTimeout(() => {
+        setClearStatus((s) => (s.kind === 'done' ? { kind: 'idle' } : s));
+      }, 4000);
+    } catch (err) {
+      console.error('Failed to clear votes:', err);
+      setClearStatus({
+        kind: 'error',
+        message: err instanceof Error ? err.message : 'Unknown error',
+      });
+    }
+  }
+
   if (configError) {
     return (
       <section className="admin-madlibs">
@@ -132,6 +164,32 @@ export default function MadLibsAdminPanel({ showId, systemId, showName }: Props)
           {uniqueVoters} {uniqueVoters === 1 ? 'voter' : 'voters'}
         </p>
       </header>
+
+      <div className="admin-madlibs-actions">
+        <button
+          type="button"
+          className="admin-madlibs-danger"
+          onClick={handleClearVotes}
+          disabled={
+            clearStatus.kind === 'clearing' || votes.length === 0 || !current
+          }
+        >
+          {clearStatus.kind === 'clearing'
+            ? 'Clearing…'
+            : `Clear all votes for "${current?.title ?? '—'}"`}
+        </button>
+        {clearStatus.kind === 'done' && (
+          <span className="admin-madlibs-status">
+            Cleared {clearStatus.count}{' '}
+            {clearStatus.count === 1 ? 'vote' : 'votes'}.
+          </span>
+        )}
+        {clearStatus.kind === 'error' && (
+          <span className="admin-madlibs-status admin-madlibs-status-error">
+            {clearStatus.message}
+          </span>
+        )}
+      </div>
 
       {madLibs.length > 1 && (
         <div className="admin-madlibs-tabs" role="tablist">

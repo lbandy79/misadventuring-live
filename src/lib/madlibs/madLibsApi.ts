@@ -19,13 +19,16 @@
 
 import {
   collection,
+  deleteDoc,
   doc,
   getDoc,
+  getDocs,
   onSnapshot,
   query,
   serverTimestamp,
   setDoc,
   where,
+  writeBatch,
   type Timestamp,
 } from 'firebase/firestore';
 import { db } from '../../firebase';
@@ -273,6 +276,40 @@ export function subscribeToMadLibVotes(
       else console.warn('mad-lib-votes subscription failed:', err);
     },
   );
+}
+
+/**
+ * Delete every vote in a (showId, madLibId). Admin-only utility for
+ * testing/resetting between rehearsals. Uses batched deletes (≤500 per
+ * batch) and short-circuits when there is nothing to delete.
+ *
+ * Returns the number of vote documents removed.
+ */
+export async function deleteAllMadLibVotes(input: {
+  showId: string;
+  madLibId: string;
+}): Promise<number> {
+  const q = query(
+    collection(db, MAD_LIB_VOTES_COLLECTION),
+    where('showId', '==', input.showId),
+    where('madLibId', '==', input.madLibId),
+  );
+  const snap = await getDocs(q);
+  if (snap.empty) return 0;
+
+  const docs = snap.docs;
+  const BATCH_SIZE = 400;
+  for (let i = 0; i < docs.length; i += BATCH_SIZE) {
+    const slice = docs.slice(i, i + BATCH_SIZE);
+    if (slice.length === 1) {
+      await deleteDoc(slice[0].ref);
+    } else {
+      const batch = writeBatch(db);
+      for (const d of slice) batch.delete(d.ref);
+      await batch.commit();
+    }
+  }
+  return docs.length;
 }
 
 /**
