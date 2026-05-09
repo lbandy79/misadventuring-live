@@ -1,0 +1,287 @@
+{
+  "system": {
+    "id": "honey-heist",
+    "name": "Honey Heist",
+    "edition": "2017",
+    "publisher": "Grant Howitt",
+    "description": "You have a complex plan that requires precise timing. You are also a goddamn bear.",
+    "credits": "A game by Grant Howitt (2017). With thanks to All Out of Bubblegum, 3:16, and (weirdly) Polaris."
+  },
+
+  "stats": [
+    {
+      "id": "bear",
+      "name": "Bear",
+      "starting": 3,
+      "max": 6,
+      "description": "Use to maul stuff, run and climb, shrug off damage, scare people, and generally do bear stuff."
+    },
+    {
+      "id": "criminal",
+      "name": "Criminal",
+      "starting": 3,
+      "max": 6,
+      "description": "Use to do anything not directly related to being a bear."
+    }
+  ],
+
+  "dice": {
+    "available": ["d6"],
+    "mechanic": {
+      "default": "When you act and the outcome is in doubt, roll a d6. Equal to or under the relevant stat = success. Over = failure.",
+      "advantage": "If you are using your bear special skill or doing something related to your role, roll 2d6 and pick the lowest."
+    }
+  },
+
+  "states": {
+    "frustration": {
+      "trigger": "The plan fails and you run into difficulty.",
+      "effect": "Move one point from Criminal into Bear."
+    },
+    "creed": {
+      "trigger": "The plan goes off without a hitch.",
+      "effect": "Move one point from Bear into Criminal."
+    },
+    "voluntaryShifts": [
+      {
+        "direction": "bear-to-criminal",
+        "method": "Flashback scene where the bears plan the heist over coffee and cigarettes in the back room of a seedy bar."
+      },
+      {
+        "direction": "criminal-to-bear",
+        "method": "Eat a load of honey."
+      }
+    ],
+    "endStates": {
+      "criminalMaxed": {
+        "stat": "criminal",
+        "atValue": 6,
+        "result": "Lured into a life of crime. You betray the party."
+      },
+      "bearMaxed": {
+        "stat": "bear",
+        "atValue": 6,
+        "result": "You flip out bear-style and lose it. Animal control picks you up in about half an hour."
+      }
+    }
+  },
+
+  "characterCreation": {
+    "_comment": "Roll 3D6 to determine descriptor, role, and bear type. Audience does not build characters in the Mad Libs format; cast plays pre-built bears.",
+    "tables": {
+      "descriptor": [
+        "Rookie", "Washed-Up", "Retired", "Unhinged", "Slick", "Incompetent"
+      ],
+      "role": [
+        "Muscle", "Brains", "Driver", "Hacker", "Thief", "Face"
+      ],
+      "bearType": [
+        { "id": "grizzly", "name": "Grizzly", "skill": "Terrify" },
+        { "id": "polar", "name": "Polar", "skill": "Swim" },
+        { "id": "panda", "name": "Panda", "skill": "Eat anything that looks like bamboo" },
+        { "id": "black", "name": "Black", "skill": "Climb" },
+        { "id": "sun", "name": "Sun", "skill": "Sense Honey" },
+        { "id": "honey-badger", "name": "Honey Badger", "skill": "Carnage" }
+      ],
+      "bonusHat": {
+        "_comment": "Roll 1d8 if your bear wants a hat.",
+        "options": [
+          "Trilby", "Top", "Bowler", "Flat-Cap", "Cowboy", "Fez", "Crown", "Roll Twice"
+        ]
+      }
+    }
+  },
+
+  "gmTables": {
+    "_comment": "Original Howitt setup tables, kept full as a GM fallback. The Mad Libs in showConfig override these with TMP-themed paths.",
+    "conventionOrganizer": [
+      "Cunning and sly",
+      "Greedy and wicked",
+      "Clueless and exploitable",
+      "Maybe too obsessed with honey",
+      "A spoilt trust-fund kid",
+      "Ruthless and corrupt"
+    ],
+    "honeyConLocation": {
+      "adjective": ["Creepy", "Busy", "Run-Down", "Beautiful", "Dangerous", "Lavish"],
+      "place": ["Lakeside Camp", "Fishing Village", "Metropolitan City", "Convention Centre", "Truck Convoy", "Wilderness Retreat"]
+    },
+    "thePrize": [
+      "Ultradense megahoney from especially posh bees",
+      "A briefcase of pure manuka extract worth $5m",
+      "The Queen of All Bees, once exiled, now returned",
+      "Black Orchid Honey, which turns anyone who eats it into a goth",
+      "Abraham Lincoln's beehive, thought to be haunted by his ghost",
+      "Miss Universe 2017, an especially attractive Bee"
+    ],
+    "twist": [
+      "This place is rigged to blow",
+      "The cops are en route",
+      "There's a rival team of bears",
+      "They've been set up",
+      "The prize is a fake",
+      "The bees are angry"
+    ],
+    "securityFeatures": {
+      "_comment": "Roll twice on this table.",
+      "options": [
+        "Armed Guards",
+        "Electronically locked doors",
+        "Laser tripwire grids",
+        "CCTV network",
+        "\"Impenetrable\" Vault",
+        "Poison Gas"
+      ]
+    }
+  },
+
+  "showConfig": {
+    "_comment": "Mad Libs Honey Heist at Lucky Straws, May 23 2026. Four themed worlds: Theme Park, Outer Space, Time Travel, Movie Monster. Every Mad Lib has 4 options in that same order, so option index = theme. Audience can mix worlds freely; the cast plays whatever combo lands.",
+    "showId": "honey-heist-madlibs-2026-05-23",
+    "showName": "Mad Libs Honey Heist",
+    "seriesName": "TMP One-Shots",
+    "venue": "Lucky Straws",
+    "date": "2026-05-23",
+    "format": "mad-libs",
+    "themes": [
+      { "id": "theme-park", "name": "Theme Park", "order": 0 },
+      { "id": "outer-space", "name": "Outer Space", "order": 1 },
+      { "id": "time-travel", "name": "Time Travel", "order": 2 },
+      { "id": "movie-monster", "name": "Movie Monster", "order": 3 }
+    ],
+    "interactionMode": {
+      "preShow": "Audience reservations include a 5-question Setup Mad Lib that locks at showtime. Most-voted option wins per field.",
+      "live": "Three smaller Mad Libs pushed in real time at narrative cues. Open 60 seconds each."
+    },
+    "madLibs": [
+      {
+        "id": "the-setup",
+        "title": "The Setup",
+        "phase": "pre-show",
+        "openAt": "reservation-confirmed",
+        "closesAt": "showtime",
+        "prompt": "Help us set the heist up before the bears even know what they're stealing. Pick the world. Pick the chaos. The cast plays whatever you choose.",
+        "fields": [
+          {
+            "id": "setting",
+            "label": "HoneyCon 2026 is being held at...",
+            "type": "select",
+            "options": [
+              "BeeWorld, a struggling theme park that just bet everything on a honey-themed rebrand",
+              "The Apiary, an orbital station whose artificial gravity is held together with rubber bands",
+              "A traveling festival that exists in 1976, 2014, and next Tuesday simultaneously",
+              "An abandoned soundstage where a cursed honey commercial was filmed in 1987"
+            ]
+          },
+          {
+            "id": "organizer",
+            "label": "The convention organizer is...",
+            "type": "select",
+            "options": [
+              "A relentlessly upbeat CEO who insists everyone call him Uncle Buzzy",
+              "A space-station admin who is three months past her psych eval",
+              "A historian from 2387 who claims she's already won this heist",
+              "A reclusive horror director who hasn't been seen in thirty years"
+            ]
+          },
+          {
+            "id": "prize",
+            "label": "Aside from loads of honey, the real prize is...",
+            "type": "select",
+            "options": [
+              "The original animatronic Bee mascot, said to still hum",
+              "A jar of honey from the asteroid belt that pours sideways",
+              "A teaspoon of prehistoric honey, scooped from the very first hive",
+              "The final unreleased reel of Sting II: The Reckoning"
+            ]
+          },
+          {
+            "id": "twist",
+            "label": "But little do the bears know...",
+            "type": "select",
+            "options": [
+              "The park mascots are real, sentient, and unionizing tonight",
+              "The station is gradually de-orbiting and nobody told the guests",
+              "They've already done this heist three times. They lost every time.",
+              "The thing they thought was a prop isn't a prop"
+            ]
+          },
+          {
+            "id": "wildcard",
+            "label": "Also, somehow, also at HoneyCon...",
+            "type": "select",
+            "options": [
+              "A high school marching band that booked the same venue",
+              "A diplomatic delegation of sentient bees that just docked",
+              "The bears' own younger selves, who do not recognize them",
+              "A live YouTube ghost-hunting crew, filming everything"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "the-disguise",
+        "title": "The Disguise",
+        "phase": "live-interactive",
+        "triggerCue": "When the bears need to bluff past the front desk.",
+        "openSeconds": 60,
+        "prompt": "What's the worst (best?) disguise these bears could possibly wear?",
+        "fields": [
+          {
+            "id": "disguise",
+            "label": "The bears walk in dressed as...",
+            "type": "select",
+            "options": [
+              "The cast of the live mascot show, Ursine Spectacular!",
+              "Ambassadors from the Honeyjamm Cluster",
+              "Time-traveling beekeeping inspectors from a very specific year",
+              "The documentary crew that's been filming the whole convention"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "the-complication",
+        "title": "The Complication",
+        "phase": "live-interactive",
+        "triggerCue": "Halfway through the heist, when something has to go wrong.",
+        "openSeconds": 60,
+        "prompt": "Time for chaos. Pick the complication.",
+        "fields": [
+          {
+            "id": "complication",
+            "label": "Suddenly...",
+            "type": "select",
+            "options": [
+              "A roller coaster gets stuck mid-loop with families on board",
+              "Gravity blinks off for fifteen seconds. Then it blinks back on.",
+              "A second team of bears walks in. They are also from the future.",
+              "The 'prop' creature in the display case starts to move"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "the-getaway",
+        "title": "The Getaway",
+        "phase": "live-interactive",
+        "triggerCue": "Climax. The bears need to vanish.",
+        "openSeconds": 60,
+        "prompt": "How do these bears get out alive?",
+        "fields": [
+          {
+            "id": "getaway",
+            "label": "The escape vehicle is...",
+            "type": "select",
+            "options": [
+              "A commandeered parade float",
+              "An escape pod that turns out to be a confetti cannon",
+              "They jump back twenty minutes and try a different door",
+              "Through the soundstage door, straight into a different movie"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

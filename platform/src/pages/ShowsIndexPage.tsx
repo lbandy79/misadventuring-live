@@ -7,6 +7,7 @@
  * for something that has already aired. Shelved shows are hidden.
  */
 
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useShow, getShowEra, type Show } from '@mtp/lib';
 
@@ -95,6 +96,33 @@ function ShowCardBody({
   show: Show;
   badge: React.ReactNode;
 }) {
+  const [metadataLabel, setMetadataLabel] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Try to dynamically load the system config to check for schema-specific metadata
+    (async () => {
+      try {
+        // Attempt to load system JSON file
+        const module = await import(`../../../src/systems/${show.systemId}.system.json`);
+        const config = module.default ?? module;
+        
+        // Check if this system has mad libs in showConfig
+        if (config?.showConfig?.madLibs && Array.isArray(config.showConfig.madLibs)) {
+          setMetadataLabel(`${config.showConfig.madLibs.length} mad libs`);
+        } else {
+          // Fall back to interactions count
+          setMetadataLabel(`${show.enabledInteractions.length} interactions`);
+        }
+      } catch (err) {
+        // If system config can't be loaded, just use interactions count
+        setMetadataLabel(`${show.enabledInteractions.length} interactions`);
+      }
+    })();
+  }, [show.systemId, show.enabledInteractions.length]);
+
+  // Use the loaded metadata, or show interactions count as fallback
+  const interactionLabel = metadataLabel ?? `${show.enabledInteractions.length} interactions`;
+
   return (
     <>
       <div className="show-card-head">
@@ -102,7 +130,7 @@ function ShowCardBody({
         {badge}
       </div>
       <div className="meta">
-        {show.themeId} · {show.systemId} · {show.enabledInteractions.length} interactions
+        {show.themeId} · {show.systemId} · {interactionLabel}
       </div>
       {show.description && <p className="desc">{show.description}</p>}
     </>
