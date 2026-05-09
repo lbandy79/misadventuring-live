@@ -326,6 +326,9 @@ textarea:focus-visible {
   font-size: 0.78rem;
   color: var(--brand-purple);
   margin: 0 0 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
 }
 .hero-title {
   font-family: var(--font-display);
@@ -337,11 +340,21 @@ textarea:focus-visible {
 }
 .hero-lede {
   max-width: 640px;
-  margin: 0 auto 2rem;
+  margin: 2rem auto;
   font-family: var(--font-hand);
   font-size: 1.1rem;
   color: var(--ink-black);
 }
+.hero-now-next {
+  margin: 2rem auto 0;
+  max-width: 640px;
+}
+.hero-now-next-line {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-hand);
+  color: var(--ink-black);
+}
+.hero-now-next-line:last-child { margin-bottom: 0; }
 .hero-cta-row {
   display: flex;
   gap: 0.85rem;

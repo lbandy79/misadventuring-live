@@ -9,7 +9,16 @@
  */
 
 import { Link } from 'react-router-dom';
-import { useShow, getShowEra } from '@mtp/lib';
+import type { CSSProperties } from 'react';
+import { useShow, getShowEra, type Show } from '@mtp/lib';
+
+function accentStyleFor(show: Show): CSSProperties | undefined {
+  if (!show.accentColor) return undefined;
+  return {
+    ['--accent' as any]: show.accentColor,
+    ...(show.accentInk ? { ['--accent-ink' as any]: show.accentInk } : {}),
+  } as CSSProperties;
+}
 
 // Hero "now / next" pointers. Hardcoded by design — flipping these is a
 // 30-second edit when the next show is locked in.
@@ -35,21 +44,24 @@ export default function LandingPage() {
   return (
     <>
       <section className="hero">
-        <p className="hero-eyebrow">Live tabletop comedy</p>
+        <p className="hero-eyebrow">
+          <span className="rec-badge" aria-hidden="true">REC</span>
+          <span>Live tabletop comedy</span>
+        </p>
         <h1 className="hero-title">
           The crowd writes the story.
           <br />
-          We just roll the dice.
+          We just roll <span className="scribble-underline">the dice.</span>
         </h1>
 
-        <div className="hero-now-next" style={{ marginTop: '2rem' }}>
-          <p className="hero-now-next-line" style={{ margin: '0 0 0.75rem 0' }}>
+        <div className="hero-now-next">
+          <p className="hero-now-next-line">
             <strong>Last show:</strong> {LATEST_RECAP.showName}.{' '}
             <Link to={LATEST_RECAP.href} className="hero-inline-cta">
               Watch the recap →
             </Link>
           </p>
-          <p className="hero-now-next-line" style={{ margin: 0 }}>
+          <p className="hero-now-next-line">
             <strong>Coming {NEXT_SHOW.dateLabel}:</strong> {NEXT_SHOW.showName}.{' '}
             <Link
               to={`/reserve?show=${encodeURIComponent(NEXT_SHOW.reserveShowId)}`}
@@ -60,7 +72,7 @@ export default function LandingPage() {
           </p>
         </div>
 
-        <p className="hero-lede" style={{ marginTop: '2rem' }}>
+        <p className="hero-lede">
           The Misadventuring Party runs interactive RPG performances where the
           audience names the villagers, builds the monster, and votes on every
           poor decision. You don't have to know the rules — you just have to
@@ -115,7 +127,7 @@ export default function LandingPage() {
             {featured.map((s) => {
               const era = getShowEra(s);
               return (
-                <Link key={s.id} to={`/shows/${s.id}`} className="show-card">
+                <Link key={s.id} to={`/shows/${s.id}`} className="show-card" style={accentStyleFor(s)}>
                   <div className="show-card-head">
                     <span className="name">{s.name}</span>
                     <span className={`status ${era === 'past' ? '' : 'draft'}`}>
