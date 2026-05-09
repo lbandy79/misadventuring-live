@@ -423,6 +423,7 @@ textarea:focus-visible {
   margin: 2.5rem 0 1rem;
   padding-left: 0.25rem;
 }
+.section-title-past { margin-top: 3rem; }
 .section-empty {
   font-family: var(--font-script);
   font-size: 1.2rem;
@@ -509,6 +510,10 @@ textarea:focus-visible {
   color: var(--ink-red);
   font-family: var(--font-hand);
   font-size: 0.95rem;
+}
+.reserve-vote-cta {
+  margin-top: 1rem;
+  text-align: center;
 }
 .reserve-fineprint {
   margin-top: 1.5rem;
@@ -694,6 +699,55 @@ textarea:focus-visible {
   margin-top: 0.5rem;
 }
 .show-detail-cta-row a:hover { color: inherit; }
+.show-detail-wrapped {
+  font-family: var(--font-script);
+  font-size: 1.2rem;
+  color: var(--ink-blue);
+  margin: 0 0 1rem;
+}
+.show-detail-grid-note {
+  font-family: var(--font-hand);
+  font-size: 0.95rem;
+  color: var(--ink-blue);
+  margin: 0.4rem 0 0;
+}
+.show-detail-madlibs { margin-top: 2rem; }
+.show-detail-madlibs-blurb {
+  font-family: var(--font-hand);
+  font-size: 1rem;
+  color: var(--ink-black);
+  margin: 0 0 1rem;
+}
+.show-detail-madlibs-list {
+  display: grid;
+  gap: 1rem;
+}
+.show-detail-madlibs-card {
+  position: relative;
+  padding: 1rem 1.1rem;
+  background: var(--paper);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
+  box-shadow: 0 6px 18px -16px var(--paper-shadow);
+}
+.show-detail-madlibs-card h4 {
+  margin: 0 0 0.4rem;
+  font-family: var(--font-marker);
+  font-weight: 400;
+  font-size: 1.05rem;
+  color: var(--ink-black);
+}
+.show-detail-madlibs-card p {
+  margin: 0;
+  font-family: var(--font-hand);
+  font-size: 0.98rem;
+  color: var(--ink-black);
+}
+.show-detail-madlibs-cta { margin-top: 1.25rem; }
+.show-detail-back {
+  margin-top: 2rem;
+  font-family: var(--font-marker);
+}
 
 /* ── Audience page ───────────────────────────────────────────────── */
 .audience-card { max-width: 520px; margin: 1.5rem auto; }
@@ -734,6 +788,11 @@ textarea:focus-visible {
   display: flex; justify-content: space-between; align-items: center;
   gap: 1rem; flex-wrap: wrap;
 }
+.companion-header-eyebrow { margin-bottom: 0.25rem; }
+.companion-header-email { margin-top: 0; }
+.companion-empty-cta { margin-top: 1rem; display: inline-block; }
+.companion-res-code { letter-spacing: 0.1em; }
+.companion-character-eyebrow { display: block; margin-bottom: 0; }
 .companion-res-card {
   display: flex; flex-direction: column; gap: 0.75rem;
 }
@@ -859,6 +918,43 @@ textarea:focus-visible {
 
 /* ── Mad Libs voting ──────────────────────────────────────────────── */
 .madlibs-vote-card { max-width: 640px; margin: 1.5rem auto; }
+.madlibs-vote-header { margin-bottom: 1.5rem; }
+.madlibs-vote-meta {
+  margin: 0;
+  font-family: var(--font-type);
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-blue);
+}
+.madlibs-vote-title {
+  margin: 0.25rem 0 0.5rem;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(1.8rem, 5vw, 2.4rem);
+  color: var(--ink-black);
+}
+.madlibs-vote-prompt {
+  margin: 0;
+  font-family: var(--font-hand);
+  font-size: 1.05rem;
+  color: var(--ink-black);
+}
+.madlibs-vote-cast-error {
+  color: var(--ink-red);
+  font-family: var(--font-hand);
+  margin-top: 1rem;
+}
+.madlibs-vote-back {
+  margin-top: 2rem;
+  font-family: var(--font-marker);
+}
+.madlibs-vote-readout-note {
+  font-family: var(--font-hand);
+  color: var(--ink-blue);
+  font-size: 0.95rem;
+  margin: 0 0 0.5rem;
+}
 .madlibs-vote-identity {
   margin-bottom: 1.25rem;
   padding: 0.75rem 1rem;

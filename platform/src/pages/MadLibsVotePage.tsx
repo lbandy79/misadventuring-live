@@ -11,6 +11,7 @@
  */
 
 import { useEffect, useMemo, useState } from 'react';
+import type { CSSProperties } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import {
   castVote,
@@ -213,13 +214,23 @@ export default function MadLibsVotePage() {
   const tallies: FieldTally[] = isLocked ? tallyVotes(allVotes, fields) : [];
 
   return (
-    <section className="page-card madlibs-vote-card">
-      <header style={{ marginBottom: '1.5rem' }}>
-        <p style={{ margin: 0, opacity: 0.7, fontSize: '0.9rem' }}>
+    <section
+      className="page-card madlibs-vote-card"
+      style={
+        show.accentColor
+          ? ({
+              ['--accent' as any]: show.accentColor,
+              ...(show.accentInk ? { ['--accent-ink' as any]: show.accentInk } : {}),
+            } as CSSProperties)
+          : undefined
+      }
+    >
+      <header className="madlibs-vote-header">
+        <p className="madlibs-vote-meta">
           {showName} · {config.showConfig?.venue} · {config.showConfig?.date}
         </p>
-        <h1 style={{ marginTop: '0.25rem' }}>{setup.title}</h1>
-        <p style={{ opacity: 0.85 }}>{setup.prompt}</p>
+        <h1 className="madlibs-vote-title">{setup.title}</h1>
+        <p className="madlibs-vote-prompt">{setup.prompt}</p>
       </header>
 
       {/* Read-only identity chip */}
@@ -316,7 +327,7 @@ export default function MadLibsVotePage() {
       </div>
 
       {castError && (
-        <p style={{ color: 'tomato', marginTop: '1rem' }}>{castError}</p>
+        <p className="madlibs-vote-cast-error">{castError}</p>
       )}
 
       {/* Winning story readout (post-lock only) */}
@@ -324,7 +335,7 @@ export default function MadLibsVotePage() {
         <ResultReadout fields={fields} tallies={tallies} />
       )}
 
-      <p style={{ marginTop: '2rem' }}>
+      <p className="madlibs-vote-back">
         <Link to={`/shows/${showId}`}>← Back to the show</Link>
       </p>
     </section>
@@ -357,7 +368,7 @@ function ResultReadout({
     <section className="madlibs-vote-readout" aria-live="polite">
       <h2>The audience's heist</h2>
       {!allLocked && (
-        <p style={{ opacity: 0.75, fontSize: '0.9rem' }}>
+        <p className="madlibs-vote-readout-note">
           A few questions had no votes; gaps are noted inline.
         </p>
       )}

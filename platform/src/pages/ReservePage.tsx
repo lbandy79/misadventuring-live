@@ -12,6 +12,7 @@
  */
 
 import { useMemo, useState } from 'react';
+import type { CSSProperties } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   useShow,
@@ -54,6 +55,13 @@ export default function ReservePage() {
   const [copied, setCopied] = useState(false);
 
   const selectedShow = reservableShows.find((s) => s.id === showId);
+
+  const accentStyle: CSSProperties | undefined = selectedShow?.accentColor
+    ? ({
+        ['--accent' as any]: selectedShow.accentColor,
+        ...(selectedShow.accentInk ? { ['--accent-ink' as any]: selectedShow.accentInk } : {}),
+      } as CSSProperties)
+    : undefined;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,7 +115,7 @@ export default function ReservePage() {
   // ── Success / existing reservation view ───────────────────────────
   if (reservation && (status === 'success' || status === 'existing')) {
     return (
-      <section className="page-card reserve-success">
+      <section className="page-card reserve-success" style={accentStyle}>
         <h1>{status === 'existing' ? 'Welcome back.' : "You're in."}</h1>
         <p className="reserve-subtitle">
           {status === 'existing'
@@ -139,7 +147,7 @@ export default function ReservePage() {
         </div>
 
         {reservation.showId === 'mad-libs-honey-heist' && (
-          <p style={{ marginTop: '1rem', textAlign: 'center' }}>
+          <p className="reserve-vote-cta">
             <a
               className="btn-primary"
               href={`/shows/${encodeURIComponent(reservation.showId)}/vote?code=${encodeURIComponent(reservation.accessCode)}`}
@@ -168,7 +176,7 @@ export default function ReservePage() {
   }
 
   return (
-    <section className="page-card reserve-form-card">
+    <section className="page-card reserve-form-card" style={accentStyle}>
       <h1>Reserve a seat</h1>
       <p className="reserve-subtitle">
         Pick a show, drop your name and email, and we'll send you a 6-character

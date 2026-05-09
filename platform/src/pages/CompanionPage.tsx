@@ -22,6 +22,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import type { CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ACCESS_CODE_LENGTH,
@@ -213,10 +214,10 @@ function CompanionDashboard({ email, onSignOut }: DashboardProps) {
     <section>
       <header className="page-card companion-header">
         <div>
-          <p className="reserve-subtitle" style={{ marginBottom: '0.25rem' }}>
+          <p className="reserve-subtitle companion-header-eyebrow">
             Signed in as
           </p>
-          <h1 style={{ marginTop: 0 }}>{email}</h1>
+          <h1 className="companion-header-email">{email}</h1>
         </div>
         <button type="button" className="btn-secondary" onClick={onSignOut}>
           Sign out
@@ -239,7 +240,7 @@ function CompanionDashboard({ email, onSignOut }: DashboardProps) {
         <section className="page-card">
           <h2>No reservations yet</h2>
           <p>You haven't reserved any shows under this email.</p>
-          <Link to="/reserve" className="btn-primary" style={{ marginTop: '1rem' }}>
+          <Link to="/reserve" className="btn-primary companion-empty-cta">
             Reserve a seat
           </Link>
         </section>
@@ -278,8 +279,15 @@ function ReservationCard({ reservation, npc }: ReservationCardProps) {
   const showName = show?.name ?? reservation.showId;
   const showStatus = show?.status;
 
+  const cardStyle: CSSProperties | undefined = show?.accentColor
+    ? ({
+        ['--accent' as any]: show.accentColor,
+        ...(show.accentInk ? { ['--accent-ink' as any]: show.accentInk } : {}),
+      } as CSSProperties)
+    : undefined;
+
   return (
-    <article className="show-card companion-res-card">
+    <article className="show-card companion-res-card" style={cardStyle}>
       <div className="show-card-head">
         <span className="name">{showName}</span>
         {showStatus === 'live' && <span className="live-badge">● Live</span>}
@@ -289,14 +297,14 @@ function ReservationCard({ reservation, npc }: ReservationCardProps) {
       </div>
 
       <div className="meta">
-        Code: <strong style={{ letterSpacing: '0.1em' }}>{reservation.accessCode}</strong>
+        Code: <strong className="companion-res-code">{reservation.accessCode}</strong>
       </div>
 
       <div className="companion-res-body">
         {npc ? (
           <>
             <p className="companion-character-name">
-              <span className="reserve-subtitle" style={{ display: 'block', marginBottom: 0 }}>
+              <span className="reserve-subtitle companion-character-eyebrow">
                 Your character
               </span>
               <strong>{npc.name}</strong>

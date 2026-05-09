@@ -8,8 +8,17 @@
  */
 
 import { useState, useEffect } from 'react';
+import type { CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 import { useShow, getShowEra, type Show } from '@mtp/lib';
+
+function accentStyleFor(show: Show): CSSProperties | undefined {
+  if (!show.accentColor) return undefined;
+  return {
+    ['--accent' as any]: show.accentColor,
+    ...(show.accentInk ? { ['--accent-ink' as any]: show.accentInk } : {}),
+  } as CSSProperties;
+}
 
 function isExternalRecap(
   show: Show
@@ -31,13 +40,14 @@ function ShowCard({
   isLive: boolean;
 }) {
   const era = getShowEra(show);
+  const cardStyle = accentStyleFor(show);
 
   // Past shows: card links straight to the recap (in-app for firestore,
   // YouTube in a new tab for external). No reserve affordance anywhere.
   if (era === 'past') {
     if (isFirestoreRecap(show)) {
       return (
-        <Link to={`/recap/${show.recap.recapId}`} className="show-card">
+        <Link to={`/recap/${show.recap.recapId}`} className="show-card" style={cardStyle}>
           <ShowCardBody show={show} badge={<span className="status">past</span>} />
           <span className="show-card-cta">Watch the recap →</span>
         </Link>
@@ -50,6 +60,7 @@ function ShowCard({
           target="_blank"
           rel="noopener noreferrer"
           className="show-card"
+          style={cardStyle}
         >
           <ShowCardBody show={show} badge={<span className="status">past</span>} />
           <span className="show-card-cta">
@@ -60,7 +71,7 @@ function ShowCard({
     }
     // Past show with no recap target — render as a plain detail link.
     return (
-      <Link to={`/shows/${show.id}`} className="show-card">
+      <Link to={`/shows/${show.id}`} className="show-card" style={cardStyle}>
         <ShowCardBody show={show} badge={<span className="status">past</span>} />
         <span className="show-card-cta">View show →</span>
       </Link>
@@ -69,7 +80,7 @@ function ShowCard({
 
   // Live or upcoming: existing detail-page behavior.
   return (
-    <Link to={`/shows/${show.id}`} className="show-card">
+    <Link to={`/shows/${show.id}`} className="show-card" style={cardStyle}>
       <ShowCardBody
         show={show}
         badge={
@@ -174,7 +185,7 @@ export default function ShowsIndexPage() {
 
       {past.length > 0 && (
         <>
-          <h2 className="section-title" style={{ marginTop: '3rem' }}>
+          <h2 className="section-title section-title-past">
             Past shows
           </h2>
           <div className="show-grid">

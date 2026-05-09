@@ -16,6 +16,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { CSSProperties } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import {
   ACCESS_CODE_LENGTH,
@@ -177,7 +178,17 @@ export default function MadLibsGatewayPage() {
   }
 
   return (
-    <section className="page-card vote-gateway-card">
+    <section
+      className="page-card vote-gateway-card"
+      style={
+        show.accentColor
+          ? ({
+              ['--accent' as any]: show.accentColor,
+              ...(show.accentInk ? { ['--accent-ink' as any]: show.accentInk } : {}),
+            } as CSSProperties)
+          : undefined
+      }
+    >
       <header className="vote-gateway-head">
         <p className="vote-gateway-eyebrow">Help shape the heist</p>
         <h1 className="vote-gateway-title">{show.name}</h1>
