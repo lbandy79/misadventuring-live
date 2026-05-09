@@ -124,7 +124,16 @@ service cloud.firestore {
     }
     match /votes/{docId} { allow read, write: if true; }
     match /group-roll/{docId} { allow read, write: if true; }
-    match /monster-builder/{docId} { allow read, write: if true; }
+    match /mad-lib-votes/{docId} {
+      // Pre-show audience voting (Honey Heist Mad Libs and future Mad Libs
+      // shows). Reads are public so the readout can be shared. Writes are
+      // open to match the rest of the live-show interaction collections;
+      // the deterministic doc id ({showId}__{madLibId}__{fieldId}__{voterId})
+      // limits a single voter to one vote per field, but does not stop a
+      // determined adversary. Tighten when we migrate live-show writes to
+      // Firebase Auth.
+      allow read, write: if true;
+    }    match /monster-builder/{docId} { allow read, write: if true; }
     match /decoder-ring/{docId} { allow read, write: if true; }
     match /ship-combat/{docId} { allow read, write: if true; }
     match /villagers/{docId} { allow read, write: if true; }

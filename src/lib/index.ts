@@ -21,3 +21,4 @@ export * from './auth';
 export * from './archive';
 export * from './interactions';
 export * from './components';
+export * from './madlibs';

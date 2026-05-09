@@ -138,6 +138,17 @@ export default function ReservePage() {
           </button>
         </div>
 
+        {reservation.showId === 'mad-libs-honey-heist' && (
+          <p style={{ marginTop: '1rem', textAlign: 'center' }}>
+            <a
+              className="btn-primary"
+              href={`/vote/honey-heist-madlibs?code=${encodeURIComponent(reservation.accessCode)}`}
+            >
+              Help shape the heist →
+            </a>
+          </p>
+        )}
+
         <p className="reserve-fineprint">
           Bring this code to the show — you'll use it to build your character
           and join the audience interactions.

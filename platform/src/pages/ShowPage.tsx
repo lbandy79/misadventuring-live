@@ -146,6 +146,16 @@ export default function ShowPage() {
               </div>
             ))}
           </div>
+          {era !== 'past' &&
+            systemConfig.showConfig.madLibs.some(
+              (m: any) => m.id === 'the-setup' && m.phase === 'pre-show',
+            ) && (
+              <div style={{ marginTop: '1.25rem' }}>
+                <Link to="/vote/honey-heist-madlibs" className="btn-primary">
+                  Help shape the heist →
+                </Link>
+              </div>
+            )}
         </section>
       )}
 

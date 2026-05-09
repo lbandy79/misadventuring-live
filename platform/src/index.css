@@ -567,3 +567,102 @@ a:hover { color: #ffd700; }
 .auth-popover-item:hover { background: rgba(255, 255, 255, 0.06); color: inherit; }
 .auth-popover-signout { color: #ff9b9b; }
 .auth-popover-signout:hover { background: rgba(231, 76, 60, 0.12); color: #ffb3b3; }
+/* ── Mad Libs voting ──────────────────────────────────────────────── */
+.madlibs-vote-card { max-width: 640px; margin: 1.5rem auto; }
+.madlibs-vote-identity {
+  margin-bottom: 1.25rem; padding: 0.75rem 1rem;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px; font-size: 0.9rem;
+}
+.madlibs-vote-identity-linked {
+  display: flex; flex-wrap: wrap; gap: 0.75rem;
+  align-items: center; justify-content: space-between;
+}
+.madlibs-vote-identity-anon summary {
+  cursor: pointer; user-select: none; font-weight: 600;
+}
+.madlibs-vote-banner {
+  margin: 0 0 1.25rem; padding: 0.75rem 1rem;
+  border-radius: 8px; font-size: 0.95rem;
+}
+.madlibs-vote-banner-open {
+  background: rgba(255, 215, 0, 0.08);
+  border: 1px solid rgba(255, 215, 0, 0.25);
+  color: #ffd700;
+}
+.madlibs-vote-banner-locked {
+  background: rgba(120, 200, 120, 0.08);
+  border: 1px solid rgba(120, 200, 120, 0.25);
+  color: #9be09b;
+}
+.madlibs-vote-fields {
+  display: flex; flex-direction: column; gap: 1.25rem;
+}
+.madlibs-vote-field {
+  margin: 0; padding: 1rem;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  background: rgba(255,255,255,0.03);
+}
+.madlibs-vote-field legend {
+  font-weight: 600; font-size: 1rem;
+  padding: 0 0.4rem; line-height: 1.3;
+}
+.madlibs-vote-field-num {
+  display: inline-block; min-width: 1.5em;
+  color: rgba(255,255,255,0.5);
+}
+.madlibs-vote-options {
+  display: flex; flex-direction: column; gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+.madlibs-vote-option {
+  display: flex; align-items: flex-start; gap: 0.6rem;
+  padding: 0.7rem 0.75rem;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.02);
+  cursor: pointer; transition: background 0.12s, border-color 0.12s;
+  line-height: 1.35; font-size: 0.95rem;
+}
+.madlibs-vote-option:hover:not(.is-locked) {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.18);
+}
+.madlibs-vote-option.is-checked {
+  background: rgba(255, 215, 0, 0.10);
+  border-color: rgba(255, 215, 0, 0.55);
+}
+.madlibs-vote-option.is-locked { cursor: default; }
+.madlibs-vote-option.is-winner {
+  background: rgba(120, 200, 120, 0.12);
+  border-color: rgba(120, 200, 120, 0.6);
+}
+.madlibs-vote-option input[type="radio"] {
+  margin-top: 0.2rem; flex-shrink: 0;
+}
+.madlibs-vote-option-text { flex: 1; }
+.madlibs-vote-option-tally {
+  display: block; margin-top: 0.35rem;
+  font-size: 0.8rem; opacity: 0.75;
+}
+.madlibs-vote-saved {
+  margin: 0.5rem 0 0; font-size: 0.85rem; color: #9be09b;
+}
+.madlibs-vote-readout {
+  margin-top: 2rem; padding: 1.25rem;
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  border-radius: 10px;
+  background: rgba(255, 215, 0, 0.05);
+}
+.madlibs-vote-readout h2 { margin: 0 0 0.75rem; font-size: 1.2rem; }
+.madlibs-vote-readout-paragraph {
+  margin: 0; font-size: 1.05rem; line-height: 1.55;
+}
+
+@media (max-width: 480px) {
+  .madlibs-vote-card { padding: 1rem; }
+  .madlibs-vote-field { padding: 0.85rem; }
+  .madlibs-vote-option { font-size: 0.95rem; }
+}
