@@ -142,7 +142,7 @@ export default function ReservePage() {
           <p style={{ marginTop: '1rem', textAlign: 'center' }}>
             <a
               className="btn-primary"
-              href={`/vote/honey-heist-madlibs?code=${encodeURIComponent(reservation.accessCode)}`}
+              href={`/shows/${encodeURIComponent(reservation.showId)}/vote?code=${encodeURIComponent(reservation.accessCode)}`}
             >
               Help shape the heist →
             </a>

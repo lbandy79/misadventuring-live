@@ -32,6 +32,7 @@ import { db } from '../../firebase';
 
 export const MAD_LIB_VOTES_COLLECTION = 'mad-lib-votes';
 const VOTER_ID_STORAGE_KEY = 'mtp_madlibs_voter_id';
+const VOTER_RESERVATION_STORAGE_KEY = 'mtp_madlibs_reservation';
 
 export interface MadLibVote {
   /** Deterministic id; see file header. */
@@ -94,6 +95,102 @@ export function getOrCreateAnonVoterId(): string {
 /** Build a reservation-scoped voter id. */
 export function buildReservationVoterId(reservationId: string): string {
   return `res:${reservationId}`;
+}
+
+/**
+ * Persisted voter identity. Set by the gateway page; consumed by the
+ * vote page. Lives in localStorage so it survives reloads on the same
+ * device, and is intentionally NOT scoped per-show (a single device
+ * has one voter identity at a time across the platform).
+ */
+export interface VoterIdentity {
+  /** `res:{reservationId}` or `anon:{uuid}` */
+  voterId: string;
+  kind: 'reservation' | 'anon';
+  /** Set when kind === 'reservation'. */
+  reservation?: {
+    id: string;
+    showId: string;
+    name: string;
+    accessCode: string;
+  };
+}
+
+/** Read the persisted voter identity, if any. */
+export function loadVoterIdentity(): VoterIdentity | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const voterId = window.localStorage.getItem(VOTER_ID_STORAGE_KEY);
+    if (!voterId) return null;
+    if (voterId.startsWith('res:')) {
+      const raw = window.localStorage.getItem(VOTER_RESERVATION_STORAGE_KEY);
+      const reservation = raw ? JSON.parse(raw) : null;
+      if (
+        reservation &&
+        typeof reservation.id === 'string' &&
+        typeof reservation.showId === 'string' &&
+        typeof reservation.name === 'string' &&
+        typeof reservation.accessCode === 'string'
+      ) {
+        return { voterId, kind: 'reservation', reservation };
+      }
+      // Fallthrough: corrupted reservation blob, treat as raw id.
+      return { voterId, kind: 'reservation' };
+    }
+    if (voterId.startsWith('anon:')) {
+      return { voterId, kind: 'anon' };
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+/** Persist a reservation-backed voter identity. */
+export function saveReservationIdentity(reservation: {
+  id: string;
+  showId: string;
+  name: string;
+  accessCode: string;
+}): VoterIdentity {
+  const voterId = buildReservationVoterId(reservation.id);
+  if (typeof window !== 'undefined') {
+    try {
+      window.localStorage.setItem(VOTER_ID_STORAGE_KEY, voterId);
+      window.localStorage.setItem(
+        VOTER_RESERVATION_STORAGE_KEY,
+        JSON.stringify(reservation),
+      );
+    } catch {
+      /* ignore storage failures */
+    }
+  }
+  return { voterId, kind: 'reservation', reservation };
+}
+
+/** Persist an anonymous voter identity. Reuses an existing anon id if present. */
+export function saveAnonIdentity(): VoterIdentity {
+  const voterId = getOrCreateAnonVoterId();
+  if (typeof window !== 'undefined') {
+    try {
+      window.localStorage.setItem(VOTER_ID_STORAGE_KEY, voterId);
+      window.localStorage.removeItem(VOTER_RESERVATION_STORAGE_KEY);
+    } catch {
+      /* ignore storage failures */
+    }
+  }
+  return { voterId, kind: 'anon' };
+}
+
+/** Clear the persisted voter identity (used by the gateway's switch flow). */
+export function clearVoterIdentity(): void {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.removeItem(VOTER_ID_STORAGE_KEY);
+    window.localStorage.removeItem(VOTER_RESERVATION_STORAGE_KEY);
+  } catch {
+    /* ignore storage failures */
+  }
 }
 
 /**

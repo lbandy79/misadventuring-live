@@ -1,39 +1,37 @@
 /**
  * MadLibsVotePage — Phase 11 / Phase 2.
  *
- * Pre-show audience voting for the "The Setup" Mad Lib (Mad Libs Honey
- * Heist, May 23 2026). One vote per field per voter; voters can change
- * their vote until the show locks at showtime.
+ * Pre-show audience voting for the "The Setup" Mad Lib. Identity is
+ * established beforehand by `MadLibsGatewayPage` (at /shows/:showId/vote)
+ * and persisted to localStorage. If we land here without an identity we
+ * redirect to the gateway.
  *
  * Tallies + winners are intentionally hidden during open voting (no
  * bandwagon). After lock, results stream in via Firestore onSnapshot.
- *
- * Identity:
- *   - With access code (?code=XXXXXX or entered) → reservation-scoped voter.
- *   - Otherwise → anonymous browser-scoped voter (localStorage UUID).
  */
 
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, Navigate, useParams } from 'react-router-dom';
 import {
-  buildReservationVoterId,
   castVote,
+  clearVoterIdentity,
   fetchOwnVotes,
-  findReservationByCode,
-  getOrCreateAnonVoterId,
-  normalizeAccessCode,
+  getShow,
+  loadVoterIdentity,
   subscribeToMadLibVotes,
   tallyVotes,
   type FieldTally,
   type MadLibVote,
-  type Reservation,
+  type VoterIdentity,
 } from '@mtp/lib';
 
-// Hard-coded for Phase 2: the only Mad Libs show running right now.
-const SHOW_ID = 'mad-libs-honey-heist';
 const MAD_LIB_ID = 'the-setup';
-const SYSTEM_ID = 'honey-heist';
-const SHOWTIME_ISO = '2026-05-23T19:00:00-05:00';
+
+/** Lock at showtime — pulled from the show's nextDate at 7pm CDT. */
+function getLockTime(nextDate: string | undefined): number {
+  if (!nextDate) return Number.POSITIVE_INFINITY;
+  return new Date(`${nextDate}T19:00:00-05:00`).getTime();
+}
 
 interface MadLibField {
   id: string;
@@ -57,20 +55,16 @@ interface SystemConfig {
 }
 
 export default function MadLibsVotePage() {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { showId } = useParams<{ showId: string }>();
+  const show = showId ? getShow(showId) : undefined;
+  const systemId = show?.systemId;
+
+  // Identity gate: if no stored identity, redirect to gateway.
+  const [identity] = useState<VoterIdentity | null>(() => loadVoterIdentity());
+  const needsGateway = !identity;
 
   const [config, setConfig] = useState<SystemConfig | null>(null);
   const [configError, setConfigError] = useState<string | null>(null);
-
-  // Identity
-  const [accessCodeInput, setAccessCodeInput] = useState(
-    searchParams.get('code') ?? '',
-  );
-  const [reservation, setReservation] = useState<Reservation | null>(null);
-  const [reservationStatus, setReservationStatus] = useState<
-    'idle' | 'checking' | 'linked' | 'invalid'
-  >('idle');
-  const [voterId, setVoterId] = useState<string>('');
 
   // Form state
   const [selections, setSelections] = useState<Record<string, number>>({});
@@ -83,34 +77,22 @@ export default function MadLibsVotePage() {
 
   // ── Load system config ─────────────────────────────────────────────
   useEffect(() => {
+    if (!systemId || needsGateway) return;
     (async () => {
       try {
-        const mod = await import(`../../../src/systems/${SYSTEM_ID}.system.json`);
+        const mod = await import(`../../../src/systems/${systemId}.system.json`);
         setConfig((mod.default ?? mod) as SystemConfig);
       } catch (err) {
         console.error('Failed to load system config:', err);
         setConfigError('Could not load the show config.');
       }
     })();
-  }, []);
-
-  // ── Bootstrap voter id (anon by default) ───────────────────────────
-  useEffect(() => {
-    setVoterId(getOrCreateAnonVoterId());
-  }, []);
-
-  // ── Auto-resolve reservation if ?code= is in URL ───────────────────
-  useEffect(() => {
-    const initialCode = searchParams.get('code');
-    if (!initialCode) return;
-    void linkReservation(initialCode, /* fromUrl */ true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [systemId, needsGateway]);
 
   // ── Lock state ─────────────────────────────────────────────────────
   const isLocked = useMemo(() => {
-    return Date.now() >= new Date(SHOWTIME_ISO).getTime();
-  }, []);
+    return Date.now() >= getLockTime(show?.nextDate);
+  }, [show?.nextDate]);
 
   const setup = useMemo(() => {
     return config?.showConfig?.madLibs?.find((m) => m.id === MAD_LIB_ID);
@@ -120,15 +102,15 @@ export default function MadLibsVotePage() {
 
   // ── Pre-fill selections from existing votes ────────────────────────
   useEffect(() => {
-    if (!voterId || fields.length === 0) return;
+    if (!identity || !showId || fields.length === 0) return;
     let cancelled = false;
     (async () => {
       try {
         const own = await fetchOwnVotes({
-          showId: SHOW_ID,
+          showId,
           madLibId: MAD_LIB_ID,
           fieldIds: fields.map((f) => f.id),
-          voterId,
+          voterId: identity.voterId,
         });
         if (!cancelled && Object.keys(own).length > 0) {
           setSelections((prev) => ({ ...own, ...prev }));
@@ -140,73 +122,35 @@ export default function MadLibsVotePage() {
     return () => {
       cancelled = true;
     };
-  }, [voterId, fields]);
+  }, [identity, showId, fields]);
 
   // ── Subscribe to all votes (only meaningful post-lock) ─────────────
   useEffect(() => {
-    if (!isLocked) return;
+    if (!isLocked || !showId) return;
     const unsub = subscribeToMadLibVotes(
-      { showId: SHOW_ID, madLibId: MAD_LIB_ID },
+      { showId, madLibId: MAD_LIB_ID },
       (votes) => setAllVotes(votes),
     );
     return unsub;
-  }, [isLocked]);
-
-  // ── Reservation linking ────────────────────────────────────────────
-  async function linkReservation(rawCode: string, fromUrl = false) {
-    const normalized = normalizeAccessCode(rawCode);
-    if (normalized.length !== 6) {
-      setReservationStatus('invalid');
-      return;
-    }
-    setReservationStatus('checking');
-    try {
-      const found = await findReservationByCode(normalized, SHOW_ID);
-      if (found) {
-        setReservation(found);
-        setVoterId(buildReservationVoterId(found.id));
-        setReservationStatus('linked');
-        if (!fromUrl) {
-          // Reflect the code in URL so it survives refresh.
-          const next = new URLSearchParams(searchParams);
-          next.set('code', normalized);
-          setSearchParams(next, { replace: true });
-        }
-      } else {
-        setReservationStatus('invalid');
-      }
-    } catch (err) {
-      console.error('Reservation lookup failed:', err);
-      setReservationStatus('invalid');
-    }
-  }
-
-  function unlinkReservation() {
-    setReservation(null);
-    setReservationStatus('idle');
-    setAccessCodeInput('');
-    setVoterId(getOrCreateAnonVoterId());
-    const next = new URLSearchParams(searchParams);
-    next.delete('code');
-    setSearchParams(next, { replace: true });
-    // Selections will refresh via the prefill effect when voterId changes.
-    setSelections({});
-  }
+  }, [isLocked, showId]);
 
   // ── Cast / change a vote ───────────────────────────────────────────
   async function handleSelect(fieldId: string, optionIndex: number) {
-    if (isLocked || !voterId) return;
+    if (isLocked || !identity || !showId) return;
     setCastError(null);
     setSelections((prev) => ({ ...prev, [fieldId]: optionIndex }));
     setSavingField(fieldId);
     try {
       await castVote({
-        showId: SHOW_ID,
+        showId,
         madLibId: MAD_LIB_ID,
         fieldId,
         optionIndex,
-        voterId,
-        reservationId: reservation?.id ?? null,
+        voterId: identity.voterId,
+        reservationId:
+          identity.kind === 'reservation' && identity.reservation
+            ? identity.reservation.id
+            : null,
       });
       setSavedField(fieldId);
       window.setTimeout(() => {
@@ -220,14 +164,36 @@ export default function MadLibsVotePage() {
     }
   }
 
+  function handleSwitchIdentity() {
+    clearVoterIdentity();
+    if (showId) window.location.assign(`/shows/${showId}/vote`);
+  }
+
   // ── Render ─────────────────────────────────────────────────────────
+  if (!showId || !show) {
+    return (
+      <section className="page-card">
+        <h1>Show not found</h1>
+        <p>No show is registered with id "{showId}".</p>
+        <p>
+          <Link to="/shows">← Back to all shows</Link>
+        </p>
+      </section>
+    );
+  }
+
+  // Send first-time visitors through the gateway.
+  if (needsGateway) {
+    return <Navigate to={`/shows/${showId}/vote`} replace />;
+  }
+
   if (configError) {
     return (
       <section className="page-card">
         <h1>Mad Libs voting</h1>
         <p>{configError}</p>
         <p>
-          <Link to={`/shows/${SHOW_ID}`}>← Back to the show</Link>
+          <Link to={`/shows/${showId}`}>← Back to the show</Link>
         </p>
       </section>
     );
@@ -241,7 +207,7 @@ export default function MadLibsVotePage() {
     );
   }
 
-  const showName = config.showConfig?.showName ?? 'Mad Libs Honey Heist';
+  const showName = config.showConfig?.showName ?? show.name;
   const totalSelected = Object.keys(selections).length;
   const totalFields = fields.length;
   const tallies: FieldTally[] = isLocked ? tallyVotes(allVotes, fields) : [];
@@ -256,57 +222,25 @@ export default function MadLibsVotePage() {
         <p style={{ opacity: 0.85 }}>{setup.prompt}</p>
       </header>
 
-      {/* Reservation link / unlink */}
-      <div className="madlibs-vote-identity">
-        {reservation ? (
-          <div className="madlibs-vote-identity-linked">
-            <div>
-              <strong>{reservation.name}</strong>
-              <span style={{ opacity: 0.7, marginLeft: '0.5rem' }}>
-                code {reservation.accessCode}
-              </span>
-            </div>
-            <button
-              type="button"
-              className="btn-secondary"
-              onClick={unlinkReservation}
-            >
-              Vote anonymously
-            </button>
-          </div>
-        ) : (
-          <details className="madlibs-vote-identity-anon">
-            <summary>Voting anonymously — link my reservation?</summary>
-            <div style={{ marginTop: '0.75rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-              <input
-                type="text"
-                value={accessCodeInput}
-                onChange={(e) => setAccessCodeInput(e.target.value)}
-                placeholder="6-char access code"
-                maxLength={8}
-                autoCapitalize="characters"
-                style={{ flex: '1 1 12rem', minWidth: 0 }}
-                disabled={reservationStatus === 'checking'}
-              />
-              <button
-                type="button"
-                className="btn-primary"
-                disabled={
-                  reservationStatus === 'checking' ||
-                  normalizeAccessCode(accessCodeInput).length !== 6
-                }
-                onClick={() => void linkReservation(accessCodeInput)}
-              >
-                {reservationStatus === 'checking' ? 'Checking…' : 'Link'}
-              </button>
-            </div>
-            {reservationStatus === 'invalid' && (
-              <p style={{ color: 'tomato', marginTop: '0.5rem', fontSize: '0.9rem' }}>
-                That code didn't match a reservation for this show.
-              </p>
-            )}
-          </details>
-        )}
+      {/* Read-only identity chip */}
+      <div className="madlibs-vote-identity-chip">
+        <span>
+          {identity!.kind === 'reservation' && identity!.reservation ? (
+            <>
+              Voting as <strong>{identity!.reservation.name}</strong> · code{' '}
+              {identity!.reservation.accessCode}
+            </>
+          ) : (
+            <>Voting anonymously</>
+          )}
+        </span>
+        <button
+          type="button"
+          className="madlibs-vote-switch-link"
+          onClick={handleSwitchIdentity}
+        >
+          Switch
+        </button>
       </div>
 
       {/* Status banner */}
@@ -391,7 +325,7 @@ export default function MadLibsVotePage() {
       )}
 
       <p style={{ marginTop: '2rem' }}>
-        <Link to={`/shows/${SHOW_ID}`}>← Back to the show</Link>
+        <Link to={`/shows/${showId}`}>← Back to the show</Link>
       </p>
     </section>
   );

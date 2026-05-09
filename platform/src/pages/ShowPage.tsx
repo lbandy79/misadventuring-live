@@ -151,7 +151,7 @@ export default function ShowPage() {
               (m: any) => m.id === 'the-setup' && m.phase === 'pre-show',
             ) && (
               <div style={{ marginTop: '1.25rem' }}>
-                <Link to="/vote/honey-heist-madlibs" className="btn-primary">
+                <Link to={`/shows/${show.id}/vote`} className="btn-primary">
                   Help shape the heist →
                 </Link>
               </div>

@@ -582,6 +582,115 @@ a:hover { color: #ffd700; }
 .madlibs-vote-identity-anon summary {
   cursor: pointer; user-select: none; font-weight: 600;
 }
+.madlibs-vote-identity-chip {
+  display: flex; flex-wrap: wrap; gap: 0.75rem;
+  align-items: center; justify-content: space-between;
+  margin-bottom: 1.25rem; padding: 0.6rem 0.9rem;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px; font-size: 0.9rem;
+}
+.madlibs-vote-switch-link {
+  background: transparent; border: none;
+  color: #ffd700; font: inherit; cursor: pointer;
+  padding: 0.25rem 0.5rem; border-radius: 4px;
+  text-decoration: underline;
+}
+.madlibs-vote-switch-link:hover { background: rgba(255, 215, 0, 0.08); }
+
+/* ── Mad Libs voting gateway (identity selector) ──────────────────── */
+.vote-gateway-card { max-width: 720px; margin: 1.5rem auto; }
+.vote-gateway-head { text-align: center; margin-bottom: 1.5rem; }
+.vote-gateway-eyebrow {
+  margin: 0; font-size: 0.85rem; letter-spacing: 0.08em;
+  text-transform: uppercase; opacity: 0.7;
+}
+.vote-gateway-title { margin: 0.25rem 0 0.5rem; }
+.vote-gateway-subtitle { margin: 0; opacity: 0.85; }
+.vote-gateway-existing {
+  margin: 0 0 1.25rem; padding: 0.6rem 0.9rem;
+  background: rgba(255, 215, 0, 0.06);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  border-radius: 8px; font-size: 0.9rem; text-align: center;
+}
+.vote-gateway-paths {
+  display: flex; flex-direction: column; gap: 1.25rem;
+}
+.vote-gateway-path {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px; padding: 1.25rem;
+}
+.vote-gateway-path h2 {
+  margin: 0 0 0.25rem; font-size: 1.1rem;
+}
+.vote-gateway-path-blurb {
+  margin: 0 0 1rem; opacity: 0.8; font-size: 0.9rem;
+}
+.vote-gateway-code-boxes {
+  display: flex; gap: 0.4rem; justify-content: center;
+  margin-bottom: 0.85rem;
+}
+.vote-gateway-code-box {
+  width: 2.5rem; height: 3rem;
+  text-align: center; font-size: 1.5rem; font-weight: 700;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  background: rgba(0,0,0,0.4);
+  color: #f4f4f8;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 8px;
+  text-transform: uppercase;
+  caret-color: #ffd700;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+.vote-gateway-code-box:focus {
+  outline: none;
+  border-color: #ffd700;
+  box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.25);
+}
+.vote-gateway-code-box.is-filled {
+  border-color: rgba(255, 215, 0, 0.6);
+  background: rgba(255, 215, 0, 0.06);
+}
+.vote-gateway-error {
+  color: tomato; margin: 0 0 0.75rem;
+  font-size: 0.9rem; text-align: center;
+}
+.vote-gateway-divider {
+  position: relative; text-align: center;
+  font-size: 0.8rem; letter-spacing: 0.15em;
+  text-transform: uppercase; opacity: 0.55;
+}
+.vote-gateway-divider::before,
+.vote-gateway-divider::after {
+  content: ''; position: absolute; top: 50%;
+  width: calc(50% - 1.5rem); height: 1px;
+  background: rgba(255,255,255,0.12);
+}
+.vote-gateway-divider::before { left: 0; }
+.vote-gateway-divider::after { right: 0; }
+.vote-gateway-fineprint {
+  margin-top: 1.5rem; text-align: center;
+  font-size: 0.85rem; opacity: 0.75;
+}
+.btn-block { width: 100%; }
+@media (min-width: 640px) {
+  .vote-gateway-paths {
+    flex-direction: row; align-items: stretch;
+  }
+  .vote-gateway-path { flex: 1 1 0; }
+  .vote-gateway-divider {
+    flex: 0 0 auto; align-self: center;
+    width: auto; padding: 0 0.25rem;
+  }
+  .vote-gateway-divider::before,
+  .vote-gateway-divider::after {
+    left: 50%; right: auto; width: 1px; height: 2rem;
+    transform: translateX(-50%);
+  }
+  .vote-gateway-divider::before { top: -2.5rem; }
+  .vote-gateway-divider::after  { top: auto; bottom: -2.5rem; }
+}
 .madlibs-vote-banner {
   margin: 0 0 1.25rem; padding: 0.75rem 1rem;
   border-radius: 8px; font-size: 0.95rem;
@@ -665,4 +774,76 @@ a:hover { color: #ffd700; }
   .madlibs-vote-card { padding: 1rem; }
   .madlibs-vote-field { padding: 0.85rem; }
   .madlibs-vote-option { font-size: 0.95rem; }
+}
+/* -- Admin: Mad Libs live tallies -------------------------------- */
+.admin-madlibs {
+  margin-top: 2rem; padding: 1.25rem;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+}
+.admin-madlibs-head {
+  display: flex; flex-wrap: wrap; gap: 0.5rem 1rem;
+  align-items: baseline; justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+.admin-madlibs-head h2 { margin: 0; }
+.admin-madlibs-meta { margin: 0; opacity: 0.7; font-size: 0.9rem; }
+.admin-madlibs-tabs {
+  display: flex; flex-wrap: wrap; gap: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+.admin-madlibs-tab {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: inherit; font: inherit;
+  padding: 0.35rem 0.75rem; border-radius: 999px;
+  cursor: pointer;
+}
+.admin-madlibs-tab.is-active {
+  background: rgba(255, 215, 0, 0.15);
+  border-color: rgba(255, 215, 0, 0.45);
+  color: #ffd700;
+}
+.admin-madlibs-prompt {
+  margin: 0 0 1rem; opacity: 0.85; font-size: 0.95rem;
+}
+.admin-madlibs-fields {
+  display: flex; flex-direction: column; gap: 1.25rem;
+}
+.admin-madlibs-field h3 {
+  margin: 0 0 0.5rem; font-size: 1rem;
+}
+.admin-madlibs-num { opacity: 0.6; margin-right: 0.25rem; }
+.admin-madlibs-options {
+  list-style: none; padding: 0; margin: 0;
+  display: flex; flex-direction: column; gap: 0.5rem;
+}
+.admin-madlibs-option {
+  background: rgba(0,0,0,0.25);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px; padding: 0.5rem 0.75rem;
+}
+.admin-madlibs-option.is-winner {
+  border-color: rgba(255, 215, 0, 0.55);
+  background: rgba(255, 215, 0, 0.06);
+}
+.admin-madlibs-option-row {
+  display: flex; justify-content: space-between;
+  gap: 0.5rem; align-items: baseline;
+  font-size: 0.9rem;
+}
+.admin-madlibs-option-text { font-weight: 500; }
+.admin-madlibs-option-count { opacity: 0.75; font-variant-numeric: tabular-nums; }
+.admin-madlibs-bar {
+  margin-top: 0.4rem; height: 4px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 2px; overflow: hidden;
+}
+.admin-madlibs-bar-fill {
+  height: 100%; background: #ffd700;
+  transition: width 240ms ease;
+}
+.admin-madlibs-empty {
+  margin: 0.4rem 0 0; font-size: 0.85rem; opacity: 0.6;
 }

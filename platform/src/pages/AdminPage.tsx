@@ -11,7 +11,8 @@
  */
 
 import { Link } from 'react-router-dom';
-import { useAuth } from '@mtp/lib';
+import { shows, useAuth } from '@mtp/lib';
+import MadLibsAdminPanel from '../components/admin/MadLibsAdminPanel';
 
 export default function AdminPage() {
   const { user, isAdmin, isLoading, isAdminLoading, signIn } = useAuth();
@@ -74,6 +75,19 @@ export default function AdminPage() {
         phase will absorb it here and replace its password gate with this
         Google sign-in flow.
       </div>
+
+      {/* Mad Libs live tallies — one panel per show that defines mad libs. */}
+      {shows
+        .filter((s) => s.id === 'mad-libs-honey-heist')
+        .map((s) => (
+          <MadLibsAdminPanel
+            key={s.id}
+            showId={s.id}
+            systemId={s.systemId}
+            showName={s.name}
+          />
+        ))}
+
       <h2>What you can do here today</h2>
       <ul>
         <li>
