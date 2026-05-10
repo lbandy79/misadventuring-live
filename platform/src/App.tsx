@@ -22,7 +22,17 @@ export default function App() {
   return (
     <div className="platform-root">
       <header className="platform-header">
-        <Link to="/" className="brand">The Misadventuring Party</Link>
+        <Link to="/" className="brand" aria-label="The Misadventuring Party home">
+          <img
+            src="/images/mtp-logo.png"
+            alt=""
+            className="brand-mark"
+            width={40}
+            height={40}
+            decoding="async"
+          />
+          <span className="brand-wordmark">The Misadventuring Party</span>
+        </Link>
         <nav>
           <Link to="/shows">Shows</Link>
           <Link to="/reserve">Reserve</Link>
@@ -46,6 +56,14 @@ export default function App() {
         </Routes>
       </main>
       <footer className="platform-footer">
+        <img
+          src="/images/mtp-logo.png"
+          alt=""
+          className="footer-mark"
+          width={28}
+          height={28}
+          decoding="async"
+        />
         <span>© {new Date().getFullYear()} The Misadventuring Party</span>
       </footer>
     </div>

@@ -75,9 +75,24 @@ a:hover { color: var(--accent); }
   letter-spacing: 0.01em;
   color: var(--ink-black);
   transform: rotate(-1deg);
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
 }
 .platform-header .brand:hover { color: var(--accent); }
+.brand-mark {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+}
+.brand-wordmark {
+  display: none;
+}
+@media (min-width: 560px) {
+  .brand-wordmark { display: inline; }
+}
 
 .platform-header nav {
   display: flex;
@@ -117,6 +132,38 @@ a:hover { color: var(--accent); }
   color: var(--ink-blue);
   text-align: center;
   background: var(--paper-warm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+.footer-mark {
+  width: 28px;
+  height: 28px;
+  opacity: 0.7;
+  object-fit: contain;
+}
+
+/* ── 404 / NotFound ─────────────────────────────────────────────── */
+.not-found-card {
+  max-width: 520px;
+  margin: 2rem auto;
+  text-align: center;
+}
+.not-found-mark {
+  display: block;
+  margin: 0 auto 1rem;
+  width: clamp(120px, 28vw, 180px);
+  height: auto;
+  object-fit: contain;
+  transform: rotate(-3deg);
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.12));
+}
+.not-found-blurb {
+  font-family: var(--font-script);
+  font-size: 1.3rem;
+  color: var(--ink-blue);
+  margin: 0.5rem 0 1.5rem;
 }
 
 /* ── Page card (taped notebook page) ─────────────────────────────── */
