@@ -16,6 +16,7 @@ import NotFoundPage from './pages/NotFoundPage';
 import RecapPage from './pages/RecapPage';
 import MadLibsVotePage from './pages/MadLibsVotePage';
 import MadLibsGatewayPage from './pages/MadLibsGatewayPage';
+import MadLibsDisplayPage from './pages/MadLibsDisplayPage';
 import AuthMenu from './components/AuthMenu';
 
 export default function App() {
@@ -51,6 +52,9 @@ export default function App() {
           <Route path="/recap/:showId" element={<RecapPage />} />
           <Route path="/shows/:showId/vote" element={<MadLibsGatewayPage />} />
           <Route path="/vote/:showId" element={<MadLibsVotePage />} />
+          {/* Projector / "big screen" view. Reusable across any system
+              that exposes `showConfig.madLibs` in its system.json. */}
+          <Route path="/shows/:showId/display" element={<MadLibsDisplayPage />} />
           <Route path="/admin" element={<AdminPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

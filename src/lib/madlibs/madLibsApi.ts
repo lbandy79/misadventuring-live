@@ -1,20 +1,27 @@
 /**
- * Mad Libs voting API — Phase 11 / Phase 2.
+ * Mad Libs voting API — the engine behind the reusable Mad Libs template.
  *
- * Pre-show audience voting for Mad Libs–format shows (e.g., Honey Heist).
- * One vote per (showId, madLibId, fieldId, voter). Voters can change their
- * vote until the field is locked (at showtime).
+ * ─── Reusability ───────────────────────────────────────────────────────
+ * This module is the public contract for the Mad Libs feature template.
+ * Any system (Honey Heist, Kids on Bikes, etc.) that conforms by adding
+ * a `showConfig.madLibs[]` array to its `*.system.json` automatically
+ * gets the full UX — gateway, audience phone, GM admin panel, projector.
  *
- * Document IDs are deterministic so a re-vote upserts in place:
- *   `${showId}__${madLibId}__${fieldId}__${voterId}`
+ * Three Firestore collections, all keyed by `showId` so multiple shows
+ * can run in parallel:
+ *   - `mad-lib-votes`  — one doc per (show, madLib, field, voter); upsert
+ *                        on re-vote via deterministic doc id.
+ *   - `mad-lib-locks`  — one doc per (show, madLib); GM "close voting".
+ *   - `mad-lib-active` — one doc per show; GM "now showing" pointer.
  *
- * Identity:
- *   - If a reservation accessCode resolves, voterId = `res:{reservationId}`.
- *   - Otherwise voterId = `anon:{uuid}` stored in localStorage.
+ * ─── Identity ──────────────────────────────────────────────────────────
+ *   - reservation: voterId = `res:{reservationId}`
+ *   - anonymous:   voterId = `anon:{uuid}` (localStorage)
  *
- * Tallies are intentionally NOT exposed during open voting (no bandwagon).
- * Consumers should subscribe to all votes for a (showId, madLibId) once
- * the field is locked, then tally client-side.
+ * ─── Bandwagon avoidance ───────────────────────────────────────────────
+ * Tallies are intentionally NOT exposed to audience phones during open
+ * voting. Consumers should subscribe to all votes for a (showId, madLibId)
+ * after lock, then `tallyVotes()` client-side.
  */
 
 import {
@@ -34,6 +41,8 @@ import {
 import { db } from '../../firebase';
 
 export const MAD_LIB_VOTES_COLLECTION = 'mad-lib-votes';
+export const MAD_LIB_LOCKS_COLLECTION = 'mad-lib-locks';
+export const MAD_LIB_ACTIVE_COLLECTION = 'mad-lib-active';
 const VOTER_ID_STORAGE_KEY = 'mtp_madlibs_voter_id';
 const VOTER_RESERVATION_STORAGE_KEY = 'mtp_madlibs_reservation';
 
@@ -310,6 +319,143 @@ export async function deleteAllMadLibVotes(input: {
     }
   }
   return docs.length;
+}
+
+/**
+ * Delete a single vote by deterministic doc id. Used by the admin
+ * panel's "remove this submission" panic control.
+ */
+export async function deleteMadLibVote(voteId: string): Promise<void> {
+  await deleteDoc(doc(db, MAD_LIB_VOTES_COLLECTION, voteId));
+}
+
+// ── Manual lock (admin override of the time-based showtime lock) ────
+//
+// One doc per (showId, madLibId) at `mad-lib-locks/{showId}__{madLibId}`.
+// `manualLockedAt` is set when an admin manually closes voting and
+// cleared (set to null) when they reopen. The vote page treats either
+// the time-based showtime lock OR the manual lock as "closed".
+
+export interface MadLibLock {
+  manualLockedAt: Timestamp | null;
+  lockedBy?: string | null;
+  updatedAt?: Timestamp | null;
+}
+
+function buildLockDocId(showId: string, madLibId: string): string {
+  return `${showId}__${madLibId}`;
+}
+
+/** Subscribe to the manual-lock state for a (showId, madLibId). */
+export function subscribeToMadLibLock(
+  input: { showId: string; madLibId: string },
+  onChange: (lock: MadLibLock | null) => void,
+  onError?: (err: Error) => void,
+): () => void {
+  const ref = doc(
+    db,
+    MAD_LIB_LOCKS_COLLECTION,
+    buildLockDocId(input.showId, input.madLibId),
+  );
+  return onSnapshot(
+    ref,
+    (snap) => {
+      if (!snap.exists()) {
+        onChange(null);
+        return;
+      }
+      onChange(snap.data() as MadLibLock);
+    },
+    (err) => {
+      if (onError) onError(err);
+      else console.warn('mad-lib-lock subscription failed:', err);
+    },
+  );
+}
+
+/**
+ * Set or clear the manual lock. `locked: true` closes voting now;
+ * `locked: false` reopens voting (revoking any earlier manual lock).
+ */
+export async function setMadLibLock(input: {
+  showId: string;
+  madLibId: string;
+  locked: boolean;
+  lockedBy?: string | null;
+}): Promise<void> {
+  const ref = doc(
+    db,
+    MAD_LIB_LOCKS_COLLECTION,
+    buildLockDocId(input.showId, input.madLibId),
+  );
+  await setDoc(
+    ref,
+    {
+      manualLockedAt: input.locked ? serverTimestamp() : null,
+      lockedBy: input.lockedBy ?? null,
+      updatedAt: serverTimestamp(),
+    },
+    { merge: true },
+  );
+}
+
+// ── Active Mad Lib pointer (admin-controlled "now showing") ──────────
+//
+// One doc per show at `mad-lib-active/{showId}`. When set, the audience
+// vote page renders that Mad Lib's form. When unset/null, the page falls
+// back to its caller's default (typically the first pre-show Mad Lib).
+//
+// Admin uses this to "push" each live-interactive Mad Lib to phones at
+// the right narrative cue.
+
+export interface ActiveMadLibPointer {
+  activeMadLibId: string | null;
+  updatedBy?: string | null;
+  updatedAt?: Timestamp | null;
+}
+
+/** Subscribe to which Mad Lib (if any) the admin is currently pushing. */
+export function subscribeToActiveMadLib(
+  input: { showId: string },
+  onChange: (pointer: ActiveMadLibPointer | null) => void,
+  onError?: (err: Error) => void,
+): () => void {
+  const ref = doc(db, MAD_LIB_ACTIVE_COLLECTION, input.showId);
+  return onSnapshot(
+    ref,
+    (snap) => {
+      if (!snap.exists()) {
+        onChange(null);
+        return;
+      }
+      onChange(snap.data() as ActiveMadLibPointer);
+    },
+    (err) => {
+      if (onError) onError(err);
+      else console.warn('mad-lib-active subscription failed:', err);
+    },
+  );
+}
+
+/**
+ * Set the active Mad Lib pointer. Pass `madLibId: null` to clear (audience
+ * phones return to the show's default / idle state).
+ */
+export async function setActiveMadLib(input: {
+  showId: string;
+  madLibId: string | null;
+  updatedBy?: string | null;
+}): Promise<void> {
+  const ref = doc(db, MAD_LIB_ACTIVE_COLLECTION, input.showId);
+  await setDoc(
+    ref,
+    {
+      activeMadLibId: input.madLibId,
+      updatedBy: input.updatedBy ?? null,
+      updatedAt: serverTimestamp(),
+    },
+    { merge: true },
+  );
 }
 
 /**

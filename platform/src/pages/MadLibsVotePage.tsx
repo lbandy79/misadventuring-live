@@ -1,13 +1,27 @@
 /**
- * MadLibsVotePage — Phase 11 / Phase 2.
+ * MadLibsVotePage — audience phone view for any Mad Libs show.
  *
- * Pre-show audience voting for the "The Setup" Mad Lib. Identity is
- * established beforehand by `MadLibsGatewayPage` (at /shows/:showId/vote)
- * and persisted to localStorage. If we land here without an identity we
- * redirect to the gateway.
+ * ─── Reusability ───────────────────────────────────────────────────────
+ * System-agnostic. Reads `showConfig.madLibs[]` from the show's
+ * `<systemId>.system.json` (see `src/systems/honey-heist.system.json` for
+ * the canonical shape). To use this for Kids on Bikes, Blade Runner, etc.,
+ * just add a `madLibs` array to that system's config — no changes here.
  *
- * Tallies + winners are intentionally hidden during open voting (no
- * bandwagon). After lock, results stream in via Firestore onSnapshot.
+ * Companion surfaces (all share the same Firestore collections, so they
+ * stay in sync automatically):
+ *   - MadLibsGatewayPage  — onboarding (reservation lookup / anon)
+ *   - MadLibsAdminPanel   — GM controls
+ *   - MadLibsDisplayPage  — projector / big screen
+ *
+ * ─── Behavior ──────────────────────────────────────────────────────────
+ * Identity is established by the gateway and persisted to localStorage; if
+ * we land here without one we redirect. Tallies are intentionally hidden
+ * during open voting (no bandwagon); results stream in once locked.
+ *
+ * The "active" Mad Lib is whichever the GM has pushed via the admin panel
+ * (Firestore: `mad-lib-active/{showId}`). Falls back to the first
+ * `phase: 'pre-show'` Mad Lib so reservation-time voting Just Works
+ * without any admin action.
  */
 
 import { useEffect, useMemo, useState } from 'react';
@@ -19,14 +33,30 @@ import {
   fetchOwnVotes,
   getShow,
   loadVoterIdentity,
+  subscribeToActiveMadLib,
+  subscribeToMadLibLock,
   subscribeToMadLibVotes,
   tallyVotes,
+  type ActiveMadLibPointer,
   type FieldTally,
+  type MadLibLock,
   type MadLibVote,
   type VoterIdentity,
 } from '@mtp/lib';
 
-const MAD_LIB_ID = 'the-setup';
+/**
+ * Default fallback when no admin pointer is set: prefer the first
+ * `phase: 'pre-show'` Mad Lib, otherwise the first defined Mad Lib.
+ * This preserves the original behavior of `/vote/:showId` always
+ * landing on the pre-show form.
+ */
+function resolveDefaultMadLibId(
+  madLibs: Array<{ id: string; phase: string }> | undefined,
+): string | null {
+  if (!madLibs || madLibs.length === 0) return null;
+  const preShow = madLibs.find((m) => m.phase === 'pre-show');
+  return (preShow ?? madLibs[0]).id;
+}
 
 /** Lock at showtime — pulled from the show's nextDate at 7pm CDT. */
 function getLockTime(nextDate: string | undefined): number {
@@ -70,11 +100,19 @@ export default function MadLibsVotePage() {
   // Form state
   const [selections, setSelections] = useState<Record<string, number>>({});
   const [savingField, setSavingField] = useState<string | null>(null);
-  const [savedField, setSavedField] = useState<string | null>(null);
   const [castError, setCastError] = useState<string | null>(null);
 
   // Live votes (post-lock tally)
   const [allVotes, setAllVotes] = useState<MadLibVote[]>([]);
+
+  // Manual close-voting toggle from admin (overrides time-based lock).
+  const [manualLock, setManualLock] = useState<MadLibLock | null>(null);
+
+  // Admin "now showing" pointer. null = no admin override; fall back
+  // to the first pre-show Mad Lib so /vote/:showId still works without
+  // any admin action.
+  const [activePointer, setActivePointer] =
+    useState<ActiveMadLibPointer | null>(null);
 
   // ── Load system config ─────────────────────────────────────────────
   useEffect(() => {
@@ -91,25 +129,48 @@ export default function MadLibsVotePage() {
   }, [systemId, needsGateway]);
 
   // ── Lock state ─────────────────────────────────────────────────────
+  const isManualLocked = !!manualLock?.manualLockedAt;
   const isLocked = useMemo(() => {
+    if (isManualLocked) return true;
     return Date.now() >= getLockTime(show?.nextDate);
-  }, [show?.nextDate]);
+  }, [show?.nextDate, isManualLocked]);
+
+  // ── Resolve which Mad Lib to render ────────────────────────────────
+  // Pointer wins; otherwise default to the first pre-show Mad Lib.
+  // `activePointer === null` AND `activeMadLibId === null` means the
+  // admin explicitly cleared (idle state).
+  const defaultMadLibId = useMemo(
+    () => resolveDefaultMadLibId(config?.showConfig?.madLibs),
+    [config],
+  );
+  const activeMadLibId: string | null =
+    activePointer === null
+      ? defaultMadLibId
+      : (activePointer.activeMadLibId ?? null);
 
   const setup = useMemo(() => {
-    return config?.showConfig?.madLibs?.find((m) => m.id === MAD_LIB_ID);
-  }, [config]);
+    if (!activeMadLibId) return undefined;
+    return config?.showConfig?.madLibs?.find((m) => m.id === activeMadLibId);
+  }, [config, activeMadLibId]);
 
   const fields: MadLibField[] = setup?.fields ?? [];
 
   // ── Pre-fill selections from existing votes ────────────────────────
+  // Reset selections whenever the active Mad Lib changes (admin pushed a
+  // new one), then refill from Firestore for that Mad Lib.
   useEffect(() => {
-    if (!identity || !showId || fields.length === 0) return;
+    setSelections({});
+    setCastError(null);
+  }, [activeMadLibId]);
+
+  useEffect(() => {
+    if (!identity || !showId || !activeMadLibId || fields.length === 0) return;
     let cancelled = false;
     (async () => {
       try {
         const own = await fetchOwnVotes({
           showId,
-          madLibId: MAD_LIB_ID,
+          madLibId: activeMadLibId,
           fieldIds: fields.map((f) => f.id),
           voterId: identity.voterId,
         });
@@ -123,28 +184,49 @@ export default function MadLibsVotePage() {
     return () => {
       cancelled = true;
     };
-  }, [identity, showId, fields]);
+  }, [identity, showId, activeMadLibId, fields]);
 
   // ── Subscribe to all votes (only meaningful post-lock) ─────────────
   useEffect(() => {
-    if (!isLocked || !showId) return;
+    if (!isLocked || !showId || !activeMadLibId) return;
     const unsub = subscribeToMadLibVotes(
-      { showId, madLibId: MAD_LIB_ID },
+      { showId, madLibId: activeMadLibId },
       (votes) => setAllVotes(votes),
     );
     return unsub;
-  }, [isLocked, showId]);
-
+  }, [isLocked, showId, activeMadLibId]);
+  // ── Subscribe to manual lock state ──────────────────────────────
+  useEffect(() => {
+    if (!showId || !activeMadLibId) {
+      setManualLock(null);
+      return;
+    }
+    const unsub = subscribeToMadLibLock(
+      { showId, madLibId: activeMadLibId },
+      (lock) => setManualLock(lock),
+    );
+    return unsub;
+  }, [showId, activeMadLibId]);
+  // ── Subscribe to admin's active-Mad-Lib pointer ────────────────────
+  useEffect(() => {
+    if (!showId) return;
+    const unsub = subscribeToActiveMadLib(
+      { showId },
+      (pointer) => setActivePointer(pointer),
+    );
+    return unsub;
+  }, [showId]);
   // ── Cast / change a vote ───────────────────────────────────────────
   async function handleSelect(fieldId: string, optionIndex: number) {
-    if (isLocked || !identity || !showId) return;
+    if (isLocked || !identity || !showId || !activeMadLibId) return;
     setCastError(null);
+    const previous = selections[fieldId];
     setSelections((prev) => ({ ...prev, [fieldId]: optionIndex }));
     setSavingField(fieldId);
     try {
       await castVote({
         showId,
-        madLibId: MAD_LIB_ID,
+        madLibId: activeMadLibId,
         fieldId,
         optionIndex,
         voterId: identity.voterId,
@@ -153,13 +235,16 @@ export default function MadLibsVotePage() {
             ? identity.reservation.id
             : null,
       });
-      setSavedField(fieldId);
-      window.setTimeout(() => {
-        setSavedField((s) => (s === fieldId ? null : s));
-      }, 1500);
     } catch (err) {
       console.error('Vote cast failed:', err);
-      setCastError('We could not save that vote. Please try again.');
+      setCastError('We could not save that pick. Please try again.');
+      // Roll back optimistic selection so the confirmation does not lie.
+      setSelections((prev) => {
+        const next = { ...prev };
+        if (previous === undefined) delete next[fieldId];
+        else next[fieldId] = previous;
+        return next;
+      });
     } finally {
       setSavingField((s) => (s === fieldId ? null : s));
     }
@@ -200,10 +285,29 @@ export default function MadLibsVotePage() {
     );
   }
 
-  if (!config || !setup) {
+  if (!config) {
     return (
       <section className="page-card">
         <p>Loading the heist…</p>
+      </section>
+    );
+  }
+
+  // Admin has explicitly cleared the active Mad Lib (pointer doc exists,
+  // activeMadLibId is null) → audience phones show an idle waiting state.
+  const isAdminIdle =
+    activePointer !== null && activePointer.activeMadLibId === null;
+  if (isAdminIdle || !setup) {
+    return (
+      <section className="page-card madlibs-vote-card madlibs-vote-idle">
+        <h1 className="madlibs-vote-title">Waiting for the next Mad Lib…</h1>
+        <p className="madlibs-vote-prompt">
+          Keep this page open. The next audience vote will appear here when
+          the cast cues it up.
+        </p>
+        <p className="madlibs-vote-back">
+          <Link to={`/shows/${showId}`}>← Back to the show</Link>
+        </p>
       </section>
     );
   }
@@ -254,15 +358,21 @@ export default function MadLibsVotePage() {
         </button>
       </div>
 
-      {/* Status banner */}
+      {/* Status banner — persistent, sticky on mobile so it stays visible. */}
       {isLocked ? (
         <p className="madlibs-vote-banner madlibs-vote-banner-locked">
-          🔒 Voting is closed. Here's what the audience picked.
+          🔒 Voting is closed{isManualLocked ? ' by the GM' : ''}. Here's what
+          the audience picked.
+        </p>
+      ) : totalFields > 0 && totalSelected === totalFields ? (
+        <p className="madlibs-vote-banner madlibs-vote-banner-complete">
+          ✓ All locked in — see you on show night! You can still change any
+          pick until voting closes.
         </p>
       ) : (
         <p className="madlibs-vote-banner madlibs-vote-banner-open">
-          ✏️ Voting is open. Pick one option per question. Tallies stay hidden
-          until showtime ({totalSelected}/{totalFields} answered).
+          ✏️ Voting is open. Saved {totalSelected} of {totalFields}. Tallies
+          stay hidden until showtime.
         </p>
       )}
 
@@ -270,7 +380,13 @@ export default function MadLibsVotePage() {
       <div className="madlibs-vote-fields">
         {fields.map((field, idx) => {
           const selected = selections[field.id];
+          const hasSelection = typeof selected === 'number';
+          const isSaving = savingField === field.id;
           const tally = tallies[idx];
+          const selectedLabel =
+            hasSelection && field.options[selected as number]
+              ? field.options[selected as number]
+              : null;
           return (
             <fieldset key={field.id} className="madlibs-vote-field">
               <legend>
@@ -318,8 +434,21 @@ export default function MadLibsVotePage() {
                   );
                 })}
               </div>
-              {!isLocked && savedField === field.id && (
-                <p className="madlibs-vote-saved">✓ Saved</p>
+              {!isLocked && (
+                <p
+                  className={
+                    'madlibs-vote-saved' +
+                    (hasSelection ? ' is-confirmed' : ' is-pending') +
+                    (isSaving ? ' is-saving' : '')
+                  }
+                  aria-live="polite"
+                >
+                  {isSaving
+                    ? 'Saving…'
+                    : selectedLabel
+                      ? `✓ Your pick: ${selectedLabel}`
+                      : 'Pick one option to lock it in.'}
+                </p>
               )}
             </fieldset>
           );
