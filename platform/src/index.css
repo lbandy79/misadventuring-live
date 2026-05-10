@@ -978,6 +978,18 @@ textarea:focus-visible {
 
 /* ── Mad Libs voting ──────────────────────────────────────────────── */
 .madlibs-vote-card { max-width: 640px; margin: 1.5rem auto; }
+.madlibs-vote-idle {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  border: 2px dashed rgba(0, 0, 0, 0.18);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.02);
+}
+.madlibs-vote-idle .madlibs-vote-prompt {
+  margin: 1rem auto;
+  max-width: 420px;
+  color: rgba(0, 0, 0, 0.65);
+}
 .madlibs-vote-header { margin-bottom: 1.5rem; }
 .madlibs-vote-meta {
   margin: 0;
@@ -1187,11 +1199,15 @@ textarea:focus-visible {
 }
 
 .madlibs-vote-banner {
+  position: sticky;
+  top: 0.5rem;
+  z-index: 5;
   margin: 0 0 1.25rem;
   padding: 0.75rem 1rem;
   border-radius: 3px;
   font-family: var(--font-hand);
   font-size: 1rem;
+  backdrop-filter: blur(6px);
 }
 .madlibs-vote-banner-open {
   background: var(--paper-warm);
@@ -1276,6 +1292,25 @@ textarea:focus-visible {
   font-family: var(--font-script);
   font-size: 1.05rem;
   color: #3a5a25;
+  min-height: 1.5em;
+  transition: color 0.15s;
+}
+.madlibs-vote-saved.is-pending {
+  color: rgba(0, 0, 0, 0.45);
+  font-style: italic;
+}
+.madlibs-vote-saved.is-confirmed {
+  color: #2e4a1b;
+  font-weight: 500;
+}
+.madlibs-vote-saved.is-saving {
+  color: var(--ink-blue);
+}
+.madlibs-vote-banner-complete {
+  background: rgba(120, 160, 90, 0.18);
+  border: 2px solid rgba(80, 120, 60, 0.6);
+  color: #2e4a1b;
+  font-weight: 500;
 }
 .madlibs-vote-readout {
   margin-top: 2rem;
@@ -1403,4 +1438,373 @@ textarea:focus-visible {
   background: rgba(0, 0, 0, 0.08);
   border-radius: 2px;
   overflow: hidden;
+}
+.admin-madlibs-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.3s ease;
+}
+.admin-madlibs-empty {
+  margin: 0.5rem 0 0;
+  font-family: var(--font-type);
+  font-size: 0.85rem;
+  color: rgba(0, 0, 0, 0.55);
+  font-style: italic;
+}
+
+/* ── Admin actions row (close-toggle, clear, panic reset) ─────────── */
+.admin-madlibs-actions {
+  display: flex; flex-wrap: wrap; gap: 0.5rem 0.75rem;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 4px;
+}
+.admin-madlibs-lock {
+  font-family: var(--font-marker);
+  font-size: 0.95rem;
+  padding: 0.45rem 0.9rem;
+  border: 2px solid var(--ink-black);
+  border-radius: 4px;
+  background: var(--paper);
+  color: var(--ink-black);
+  cursor: pointer;
+}
+.admin-madlibs-lock.is-locked {
+  background: rgba(200, 80, 60, 0.12);
+  border-color: rgba(180, 60, 40, 0.7);
+  color: rgba(140, 30, 10, 1);
+}
+.admin-madlibs-lock:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.admin-madlibs-push {
+  font-family: var(--font-marker);
+  font-size: 0.95rem;
+  padding: 0.45rem 0.9rem;
+  border: 2px solid rgba(40, 100, 180, 0.7);
+  border-radius: 4px;
+  background: rgba(40, 100, 180, 0.08);
+  color: rgba(20, 60, 130, 1);
+  cursor: pointer;
+}
+.admin-madlibs-push.is-active {
+  background: rgba(40, 140, 80, 0.18);
+  border-color: rgba(20, 110, 60, 0.85);
+  color: rgba(10, 80, 40, 1);
+}
+.admin-madlibs-push:disabled { opacity: 0.55; cursor: not-allowed; }
+.admin-madlibs-push-clear {
+  font-family: var(--font-marker);
+  font-size: 0.9rem;
+  padding: 0.4rem 0.85rem;
+  border: 1.5px solid var(--ink-black);
+  border-radius: 4px;
+  background: var(--paper);
+  color: var(--ink-black);
+  cursor: pointer;
+}
+.admin-madlibs-push-clear:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.admin-madlibs-danger {
+  font-family: var(--font-marker);
+  font-size: 0.9rem;
+  padding: 0.4rem 0.85rem;
+  border: 1.5px solid rgba(180, 60, 40, 0.7);
+  border-radius: 4px;
+  background: var(--paper);
+  color: rgba(140, 30, 10, 1);
+  cursor: pointer;
+}
+.admin-madlibs-danger:hover:not(:disabled) {
+  background: rgba(200, 80, 60, 0.1);
+}
+.admin-madlibs-danger:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.admin-madlibs-panic {
+  background: rgba(200, 80, 60, 0.15);
+  border-width: 2px;
+  font-weight: 600;
+}
+
+.admin-madlibs-status {
+  font-family: var(--font-type);
+  font-size: 0.85rem;
+  color: var(--ink-blue);
+}
+.admin-madlibs-status-error { color: rgba(140, 30, 10, 1); }
+
+/* ── Per-vote submission list (for single-vote delete) ────────────── */
+.admin-madlibs-submissions {
+  margin-top: 0.6rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed rgba(0, 0, 0, 0.15);
+}
+.admin-madlibs-submissions-toggle {
+  background: none;
+  border: none;
+  padding: 0.2rem 0;
+  font-family: var(--font-type);
+  font-size: 0.8rem;
+  color: var(--ink-blue);
+  cursor: pointer;
+}
+.admin-madlibs-submissions-list {
+  list-style: none;
+  margin: 0.4rem 0 0;
+  padding: 0;
+  display: flex; flex-direction: column; gap: 0.25rem;
+  max-height: 240px;
+  overflow-y: auto;
+}
+.admin-madlibs-submission-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr) auto;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.3rem 0.5rem;
+  background: var(--paper);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 3px;
+  font-family: var(--font-type);
+  font-size: 0.8rem;
+}
+.admin-madlibs-submission-voter {
+  color: var(--ink-blue);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.admin-madlibs-submission-pick {
+  font-family: var(--font-hand);
+  font-size: 0.95rem;
+  color: var(--ink-black);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.admin-madlibs-submission-delete {
+  background: none;
+  border: 1px solid rgba(180, 60, 40, 0.4);
+  border-radius: 3px;
+  padding: 0.15rem 0.45rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+.admin-madlibs-submission-delete:hover:not(:disabled) {
+  background: rgba(200, 80, 60, 0.12);
+}
+.admin-madlibs-submission-delete:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ─────────────────────────────────────────────────────────────────────
+ * Mad Libs DISPLAY (projector) view
+ *
+ * Reusable across systems. Theme-able via two custom properties set on
+ * the root `.madlibs-display` element by the React component:
+ *   --display-accent       — primary highlight (winner bars, accents)
+ *   --display-on-accent    — text color used on top of `--display-accent`
+ * Override either of these in a per-show theme stylesheet to restyle.
+ * ───────────────────────────────────────────────────────────────────── */
+.madlibs-display {
+  min-height: calc(100vh - 6rem);
+  padding: 3vh 4vw;
+  display: flex;
+  flex-direction: column;
+  background: var(--paper, #faf6ec);
+  color: var(--ink-black, #1c1c1c);
+}
+.madlibs-display-loading { align-items: center; justify-content: center; }
+.madlibs-display-footer {
+  margin-top: auto;
+  padding-top: 1.5rem;
+  font-family: var(--font-type);
+  font-size: 0.75rem;
+  opacity: 0.5;
+  text-align: right;
+}
+.madlibs-display-footer a { color: inherit; }
+
+.madlibs-display-eyebrow {
+  margin: 0;
+  font-family: var(--font-type);
+  font-size: clamp(0.9rem, 1.4vw, 1.1rem);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--display-accent);
+}
+
+/* ── IDLE ─────────────────────────────────────────────────────────── */
+.madlibs-display-idle {
+  flex: 1;
+  display: grid;
+  grid-template-rows: auto auto auto 1fr;
+  align-items: center;
+  justify-items: center;
+  text-align: center;
+  gap: 1.5rem;
+}
+.madlibs-display-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(3rem, 8vw, 6.5rem);
+  line-height: 1.05;
+  color: var(--ink-black);
+}
+.madlibs-display-date {
+  margin: 0;
+  font-family: var(--font-marker);
+  font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+  color: var(--ink-blue);
+}
+.madlibs-display-qr-block {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2rem;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  background: #fff;
+  border: 3px solid var(--ink-black);
+  border-radius: 8px;
+  box-shadow: 6px 6px 0 var(--display-accent);
+}
+.madlibs-display-qr { line-height: 0; }
+.madlibs-display-qr-caption { text-align: left; }
+.madlibs-display-qr-label {
+  margin: 0 0 0.4rem;
+  font-family: var(--font-marker);
+  font-size: clamp(1.4rem, 3vw, 2.2rem);
+}
+.madlibs-display-qr-url {
+  margin: 0;
+  font-family: var(--font-type);
+  font-size: clamp(0.9rem, 1.4vw, 1.2rem);
+  color: var(--ink-blue);
+  word-break: break-all;
+}
+
+/* ── OPEN (live tally) ────────────────────────────────────────────── */
+.madlibs-display-open-header { margin-bottom: 1.5rem; }
+.madlibs-display-prompt {
+  margin: 0.4rem 0 0.6rem;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2rem, 4.5vw, 3.4rem);
+  line-height: 1.1;
+}
+.madlibs-display-join {
+  margin: 0;
+  font-family: var(--font-type);
+  font-size: clamp(0.9rem, 1.4vw, 1.1rem);
+  color: var(--ink-blue);
+}
+.madlibs-display-fields {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1.25rem;
+}
+.madlibs-display-field-label {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-marker);
+  font-size: clamp(1rem, 1.8vw, 1.3rem);
+}
+.madlibs-display-field-num { color: var(--display-accent); margin-right: 0.25rem; }
+.madlibs-display-bars {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.4rem;
+}
+.madlibs-display-bar {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.4rem 0.75rem;
+  border: 1.5px solid rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  background: #fff;
+  overflow: hidden;
+  transition: border-color 200ms ease;
+}
+.madlibs-display-bar.is-leader { border-color: var(--display-accent); }
+.madlibs-display-bar-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--display-accent);
+  opacity: 0.18;
+  transition: width 400ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.madlibs-display-bar.is-leader .madlibs-display-bar-fill { opacity: 0.32; }
+.madlibs-display-bar-text {
+  position: relative;
+  font-family: var(--font-type);
+  font-size: clamp(0.9rem, 1.3vw, 1.05rem);
+}
+.madlibs-display-bar-count {
+  position: relative;
+  font-family: var(--font-marker);
+  font-size: clamp(1rem, 1.6vw, 1.4rem);
+  min-width: 1.5em;
+  text-align: right;
+  color: var(--display-accent);
+}
+
+/* ── REVEAL ───────────────────────────────────────────────────────── */
+.madlibs-display-reveal-header { text-align: center; margin-bottom: 2rem; }
+.madlibs-display-reveal-title {
+  margin: 0.5rem 0 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2.4rem, 5vw, 4rem);
+}
+.madlibs-display-reveal-cards {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
+  max-width: 1100px;
+  display: grid;
+  gap: 1.25rem;
+}
+.madlibs-display-reveal-card {
+  padding: 1.5rem 2rem;
+  background: #fff;
+  border: 3px solid var(--ink-black);
+  border-radius: 8px;
+  box-shadow: 6px 6px 0 var(--display-accent);
+  /* Staggered reveal — `--reveal-delay` is set inline per card. */
+  opacity: 0;
+  transform: rotateX(-90deg);
+  transform-origin: top center;
+  animation: madlibs-reveal-flip 700ms cubic-bezier(0.2, 0.8, 0.3, 1.1) forwards;
+  animation-delay: var(--reveal-delay, 0s);
+}
+.madlibs-display-reveal-card-label {
+  margin: 0 0 0.4rem;
+  font-family: var(--font-type);
+  font-size: clamp(0.85rem, 1.3vw, 1rem);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.65;
+}
+.madlibs-display-reveal-card-winner {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(1.6rem, 3vw, 2.6rem);
+  line-height: 1.2;
+  color: var(--ink-black);
+}
+@keyframes madlibs-reveal-flip {
+  0%   { opacity: 0; transform: rotateX(-90deg) translateY(-10px); }
+  60%  { opacity: 1; transform: rotateX(8deg)   translateY(0); }
+  100% { opacity: 1; transform: rotateX(0)      translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .madlibs-display-reveal-card {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
 }

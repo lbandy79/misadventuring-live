@@ -133,7 +133,22 @@ service cloud.firestore {
       // determined adversary. Tighten when we migrate live-show writes to
       // Firebase Auth.
       allow read, write: if true;
-    }    match /monster-builder/{docId} { allow read, write: if true; }
+    }
+    match /mad-lib-locks/{docId} {
+      // Admin manual close-voting toggle for Mad Libs. Public read so the
+      // vote page renders the lock state in real time. Writes are open to
+      // match neighboring live-show collections; the admin panel is gated
+      // by Firebase Auth + the email allowlist on the client side.
+      allow read, write: if true;
+    }
+    match /mad-lib-active/{docId} {
+      // Admin "push to audience" pointer. One doc per showId pointing at
+      // the currently-active Mad Lib id (or null). Public read so audience
+      // phones can follow live segments; writes match neighboring live-show
+      // collections (admin gating is client-side via Firebase Auth).
+      allow read, write: if true;
+    }
+    match /monster-builder/{docId} { allow read, write: if true; }
     match /decoder-ring/{docId} { allow read, write: if true; }
     match /ship-combat/{docId} { allow read, write: if true; }
     match /villagers/{docId} { allow read, write: if true; }
