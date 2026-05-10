@@ -54,6 +54,17 @@ export interface Show {
   nextDate?: string;
 
   /**
+   * Per-show accent color (CSS color, typically hex). Drives `--accent` on
+   * marketing surfaces (show detail, voting, reservation, recap pointer).
+   * Body text never sits on this color directly; pair with `accentInk` if
+   * the on-accent text needs a non-default contrast pair.
+   */
+  accentColor?: string;
+
+  /** Optional CSS color for text/icons rendered on top of `accentColor`. */
+  accentInk?: string;
+
+  /**
    * Public recap target. Presence implies the show has aired and the audience
    * can revisit it. `firestore` points at an episode doc keyed in
    * `recapConfigs`; `external` points at e.g. a YouTube link.

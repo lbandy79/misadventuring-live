@@ -17,4 +17,6 @@ export const madLibsHoneyHeistShow: Show = {
   status: 'live',
   era: 'upcoming',
   nextDate: '2026-05-23',
+  accentColor: '#e0a022',
+  accentInk: '#1c1c1c',
 };

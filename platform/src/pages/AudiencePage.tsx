@@ -16,6 +16,7 @@
  */
 
 import { useMemo, useState } from 'react';
+import type { CSSProperties } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   ShowProvider,
@@ -45,7 +46,12 @@ export default function AudiencePage() {
 
   return (
     <ShowProvider forceShowId={showId}>
-      <AudiencePageInner showId={showId} showName={show.name} />
+      <AudiencePageInner
+        showId={showId}
+        showName={show.name}
+        accentColor={show.accentColor}
+        accentInk={show.accentInk}
+      />
     </ShowProvider>
   );
 }
@@ -53,9 +59,11 @@ export default function AudiencePage() {
 interface AudienceInnerProps {
   showId: string;
   showName: string;
+  accentColor?: string;
+  accentInk?: string;
 }
 
-function AudiencePageInner({ showId, showName }: AudienceInnerProps) {
+function AudiencePageInner({ showId, showName, accentColor, accentInk }: AudienceInnerProps) {
   // useShow gives us the raw platform.currentShowId via context.
   // (forceShowId is what *this* tree resolves to, but the underlying
   //  platform doc is still subscribed and exposed here.)
@@ -96,7 +104,17 @@ function AudiencePageInner({ showId, showName }: AudienceInnerProps) {
   };
 
   return (
-    <section className="page-card audience-card">
+    <section
+      className="page-card audience-card"
+      style={
+        accentColor
+          ? ({
+              ['--accent' as any]: accentColor,
+              ...(accentInk ? { ['--accent-ink' as any]: accentInk } : {}),
+            } as CSSProperties)
+          : undefined
+      }
+    >
       <div className="audience-status-row">
         {isLiveStatus ? (
           <span className="live-badge">● Live</span>

@@ -11,6 +11,7 @@
  * accidentally try to register for something that has already aired.
  */
 
+import type { CSSProperties } from 'react';
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getShow, getShowEra, useShow } from '@mtp/lib';
@@ -66,8 +67,16 @@ export default function ShowPage() {
       ? (show.recap.label ?? 'Watch the recap')
       : 'Watch the recap';
 
+  // Per-show accent color flows via CSS custom properties on the page wrapper.
+  const accentStyle = (show.accentColor
+    ? ({
+        ['--accent' as any]: show.accentColor,
+        ...(show.accentInk ? { ['--accent-ink' as any]: show.accentInk } : {}),
+      } as CSSProperties)
+    : undefined);
+
   return (
-    <section className="page-card show-detail-card">
+    <section className="page-card show-detail-card" style={accentStyle}>
       <div className="show-detail-head">
         <div>
           <h1 className="show-detail-title">{show.name}</h1>
@@ -84,7 +93,7 @@ export default function ShowPage() {
       </div>
 
       {era === 'past' && (
-        <p className="show-detail-wrapped" style={{ fontStyle: 'italic', opacity: 0.85 }}>
+        <p className="show-detail-wrapped">
           This show has wrapped. Catch the recap below.
         </p>
       )}
@@ -100,7 +109,7 @@ export default function ShowPage() {
           <h3>System</h3>
           <p>{show.systemId}</p>
           {systemConfig?.system?.description && (
-            <p style={{ fontSize: '0.9rem', opacity: 0.8, marginTop: '0.5rem' }}>
+            <p className="show-detail-grid-note">
               {systemConfig.system.description}
             </p>
           )}
@@ -123,26 +132,16 @@ export default function ShowPage() {
       )}
 
       {systemConfig?.showConfig?.madLibs && Array.isArray(systemConfig.showConfig.madLibs) && (
-        <section className="show-detail-madlibs" style={{ marginTop: '2rem' }}>
+        <section className="show-detail-madlibs">
           <h3>Mad Libs</h3>
-          <p style={{ opacity: 0.85, fontSize: '0.95rem', marginBottom: '1rem' }}>
+          <p className="show-detail-madlibs-blurb">
             Help shape the story before the show starts.
           </p>
-          <div style={{ display: 'grid', gap: '1rem' }}>
+          <div className="show-detail-madlibs-list">
             {systemConfig.showConfig.madLibs.map((madlib: any) => (
-              <div
-                key={madlib.id}
-                style={{
-                  padding: '1rem',
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  borderRadius: '8px',
-                }}
-              >
-                <h4 style={{ margin: '0 0 0.5rem 0' }}>{madlib.title}</h4>
-                <p style={{ margin: '0', opacity: 0.85, fontSize: '0.9rem' }}>
-                  {madlib.prompt}
-                </p>
+              <div key={madlib.id} className="show-detail-madlibs-card">
+                <h4>{madlib.title}</h4>
+                <p>{madlib.prompt}</p>
               </div>
             ))}
           </div>
@@ -150,7 +149,7 @@ export default function ShowPage() {
             systemConfig.showConfig.madLibs.some(
               (m: any) => m.id === 'the-setup' && m.phase === 'pre-show',
             ) && (
-              <div style={{ marginTop: '1.25rem' }}>
+              <div className="show-detail-madlibs-cta">
                 <Link to={`/shows/${show.id}/vote`} className="btn-primary">
                   Help shape the heist →
                 </Link>
@@ -207,7 +206,7 @@ export default function ShowPage() {
         )}
       </div>
 
-      <p style={{ marginTop: '2rem' }}>
+      <p className="show-detail-back">
         <Link to="/shows">← Back to all shows</Link>
       </p>
     </section>

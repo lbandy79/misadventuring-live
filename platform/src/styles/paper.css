@@ -1,0 +1,147 @@
+/* ─────────────────────────────────────────────────────────────────
+ * paper.css — global pen-and-paper design tokens.
+ *
+ * Promoted from recap.css so every public route can opt into the
+ * notebook aesthetic. The recap page (`.recap-page`) keeps its own
+ * scoped overrides; these `:root` definitions are lower specificity
+ * and therefore do not change the recap's appearance.
+ *
+ * Per-show accent color: pages set `--accent` (and optionally
+ * `--accent-ink` for text-on-accent contrast) inline on a wrapper.
+ *
+ * Fonts loaded in platform/index.html (no extra network requests):
+ *   Bowlby One        — display sharpie titles
+ *   Permanent Marker  — section sharpie headings
+ *   Kalam             — handwritten body
+ *   Caveat            — informal handwriting
+ *   Special Elite     — typewriter labels
+ * ───────────────────────────────────────────────────────────────── */
+
+:root {
+  /* Inks */
+  --ink-blue:  #1a3a7a;
+  --ink-black: #1c1c1c;
+  --ink-red:   #d9352b;
+
+  /* Paper */
+  --paper:        #f5f1e6;
+  --paper-warm:   #fffdf3;
+  --paper-line:   rgba(26, 58, 122, 0.18);
+  --paper-margin: rgba(217, 53, 43, 0.5);
+  --paper-fold:   rgba(0, 0, 0, 0.05);
+  --paper-shadow: rgba(0, 0, 0, 0.12);
+
+  /* TMP brand */
+  --brand-purple: #5b3aa0;
+  --brand-amber:  #ffb627;
+
+  /* Per-show accent slot. Pages override `--accent` on a wrapper.
+   * Default to Betawave red so the global shell has a sensible color. */
+  --accent:      var(--ink-red);
+  --accent-soft: rgba(217, 53, 43, 0.18);
+  --accent-ink:  #fffdf3;
+
+  /* Font stacks */
+  --font-display: 'Bowlby One', 'Permanent Marker', cursive;
+  --font-marker:  'Permanent Marker', 'Bowlby One', cursive;
+  --font-hand:    'Kalam', 'Caveat', system-ui, sans-serif;
+  --font-script:  'Caveat', 'Kalam', cursive;
+  --font-type:    'Special Elite', ui-monospace, 'Courier New', monospace;
+
+  /* Tape strip color (golden masking tape) */
+  --tape: rgba(255, 220, 130, 0.65);
+}
+
+/* ─── Utility: lined notebook paper background ─────────────────── */
+.paper-bg {
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--paper-line) 1px, transparent 1px),
+    linear-gradient(90deg,
+      transparent 0,
+      transparent calc(2.25rem - 1px),
+      var(--paper-margin) calc(2.25rem - 1px),
+      var(--paper-margin) 2.25rem,
+      transparent 2.25rem);
+  background-size: 100% 1.75rem, 100% 100%;
+  background-position: 0 1rem, 0 0;
+}
+
+/* ─── Utility: paper card (taped index card / page) ────────────── */
+.paper-card {
+  position: relative;
+  background: var(--paper-warm);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  box-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.05),
+    0 12px 32px -18px var(--paper-shadow);
+}
+
+/* ─── Utility: tape strip across the top of a card ─────────────── */
+.tape-strip::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-3deg);
+  width: 64px;
+  height: 18px;
+  background: var(--tape);
+  border-radius: 1px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+/* ─── Utility: scribble underline (accent ink wobble) ──────────── */
+.scribble-underline {
+  background-image: linear-gradient(
+    to right,
+    var(--accent) 0,
+    var(--accent) 100%);
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 100% 0.18em;
+  padding-bottom: 0.05em;
+}
+
+/* ─── Utility: typewriter label (caps, tracked, mono) ──────────── */
+.typewriter-label {
+  font-family: var(--font-type);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.72rem;
+  color: var(--ink-blue);
+}
+
+/* ─── Utility: REC blink badge ─────────────────────────────────── */
+.rec-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-type);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.rec-badge::before {
+  content: '';
+  width: 0.55em;
+  height: 0.55em;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: rec-blink 1.4s steps(2, end) infinite;
+}
+@keyframes rec-blink {
+  0%, 49%   { opacity: 1; }
+  50%, 100% { opacity: 0.15; }
+}
+
+/* ─── Utility: deterministic gentle tilts ──────────────────────── */
+.tilt-l { transform: rotate(-0.6deg); }
+.tilt-r { transform: rotate(0.6deg); }
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .rec-badge::before { animation: none; opacity: 1; }
+}
