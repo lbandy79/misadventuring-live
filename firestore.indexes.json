@@ -1,0 +1,76 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "audience-profiles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "magicToken", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "audience-profiles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "accessCode", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "audience-profiles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "optedInForNotebook", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "npcs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "showId", "order": "ASCENDING" },
+        { "fieldPath": "isActive", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "npcs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "showId", "order": "ASCENDING" },
+        { "fieldPath": "deviceToken", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "npc-world-votes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "showId", "order": "ASCENDING" },
+        { "fieldPath": "deviceToken", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "beats",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "npcId", "order": "ASCENDING" },
+        { "fieldPath": "triggeredAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "beats",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "showId", "order": "ASCENDING" },
+        { "fieldPath": "triggeredAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "beats",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "showId", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "moderatedAt", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

@@ -190,10 +190,10 @@ export default function MadLibsGatewayPage() {
       }
     >
       <header className="vote-gateway-head">
-        <p className="vote-gateway-eyebrow">Help shape the heist</p>
+        <p className="vote-gateway-eyebrow">Your words. Their heist.</p>
         <h1 className="vote-gateway-title">{show.name}</h1>
         <p className="vote-gateway-subtitle">
-          Two ways in. Pick one.
+          Two doors. Pick one and get in there.
         </p>
       </header>
 
@@ -218,7 +218,7 @@ export default function MadLibsGatewayPage() {
         >
           <h2 id="vote-path-code-title">I have a reservation code</h2>
           <p className="vote-gateway-path-blurb">
-            Vote tied to your seat. Switching devices later? Re-enter the code.
+            Your seat, your vote. Switch devices any time by re-entering the code.
           </p>
 
           <div className="vote-gateway-code-boxes" role="group" aria-label="Access code">
@@ -265,9 +265,9 @@ export default function MadLibsGatewayPage() {
           className="vote-gateway-path vote-gateway-path-anon"
           aria-labelledby="vote-path-anon-title"
         >
-          <h2 id="vote-path-anon-title">Vote anonymously</h2>
+          <h2 id="vote-path-anon-title">Show up anyway</h2>
           <p className="vote-gateway-path-blurb">
-            No code needed. One vote per device. Tied to this browser only.
+            No code? No problem. One vote per device. The bears need everyone.
           </p>
           <button
             type="button"
@@ -275,17 +275,13 @@ export default function MadLibsGatewayPage() {
             onClick={handleAnonymous}
             disabled={isChecking}
           >
-            Vote without a reservation
+            I'm here for the chaos
           </button>
         </div>
       </div>
 
       <p className="vote-gateway-fineprint">
-        Don't have a code yet?{' '}
-        <Link to={`/reserve?show=${encodeURIComponent(showId)}`}>
-          Reserve a seat
-        </Link>
-        .
+        Scan the QR code at the door to join without a code.
       </p>
     </section>
   );

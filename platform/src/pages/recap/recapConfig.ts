@@ -20,6 +20,11 @@ export interface ComingNext {
   blurb?: string;
 }
 
+export interface RecapClip {
+  label: string;
+  youtubeId: string;
+}
+
 export interface RecapConfig {
   showId: string;
   seriesName: string;
@@ -30,6 +35,16 @@ export interface RecapConfig {
   venue: string;
   systemName: string;
   costume: RecapCostume;
+  /** One-paragraph summary in TMP brand voice. */
+  summary?: string;
+  /** YouTube ID for the full episode. */
+  fullEpisodeYoutubeId?: string;
+  /** Short highlight clips to embed on the recap page. */
+  clips?: RecapClip[];
+  /** NPC document IDs to surface as show highlights. */
+  npcHighlights?: string[];
+  /** Beat document IDs to surface as Stinger highlights. */
+  stingerHighlights?: string[];
   /** Reservation id of the NPC to feature at the top of the section. */
   featuredReservationId?: string;
   /** Whether the monster reveal is recoverable from data. `lost` → mythology sticky note. */
@@ -55,7 +70,7 @@ export const recapConfigs: Record<string, RecapConfig> = {
       venue: 'Lucky Straws, Winter Garden, FL',
       // System is being decided between Honey Heist and Lasers & Feelings.
       systemName: undefined,
-      rsvpHref: '/reserve',
+      rsvpHref: '/shows/mad-libs-honey-heist/join',
       blurb:
         'Mad Libs format. The audience writes the prompts. The cast plays it live.',
     },

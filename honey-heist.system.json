@@ -136,152 +136,95 @@
   },
 
   "showConfig": {
-    "_comment": "Mad Libs Honey Heist at Lucky Straws, May 23 2026. Four themed worlds: Theme Park, Outer Space, Time Travel, Movie Monster. Every Mad Lib has 4 options in that same order, so option index = theme. Audience can mix worlds freely; the cast plays whatever combo lands.",
+    "_comment": "Mad Libs Honey Heist at Lucky Straws, May 23 2026. The Mad Libs IS the login. Audience members build an NPC through the creation form, which is the only entry point. Personal fields shape their NPC identity. World fields aggregate as shared votes that the GM resolves at showtime. Stingers (Beats) are pushed live by the GM to individual NPCs.",
     "showId": "honey-heist-madlibs-2026-05-23",
     "showName": "Mad Libs Honey Heist",
     "seriesName": "TMP One-Shots",
     "venue": "Lucky Straws",
     "date": "2026-05-23",
-    "format": "mad-libs",
-    "themes": [
-      { "id": "theme-park", "name": "Theme Park", "order": 0 },
-      { "id": "outer-space", "name": "Outer Space", "order": 1 },
-      { "id": "time-travel", "name": "Time Travel", "order": 2 },
-      { "id": "movie-monster", "name": "Movie Monster", "order": 3 }
-    ],
-    "interactionMode": {
-      "preShow": "Audience reservations include a 5-question Setup Mad Lib that locks at showtime. Most-voted option wins per field.",
-      "live": "Three smaller Mad Libs pushed in real time at narrative cues. Open 60 seconds each."
+    "format": "npc-mad-libs",
+
+    "theme": {
+      "beatLabel": "Stinger",
+      "campaignId": "honey-heist",
+      "primaryColor": "#1c1c1c",
+      "accentColor": "#e0a022"
     },
-    "madLibs": [
-      {
-        "id": "the-setup",
-        "title": "The Setup",
-        "phase": "pre-show",
-        "openAt": "reservation-confirmed",
-        "closesAt": "showtime",
-        "prompt": "Help us set the heist up before the bears even know what they're stealing. Pick the world. Pick the chaos. The cast plays whatever you choose.",
-        "fields": [
-          {
-            "id": "setting",
-            "label": "HoneyCon 2026 is being held at...",
-            "type": "select",
-            "options": [
-              "BeeWorld, a struggling theme park that just bet everything on a honey-themed rebrand",
-              "The Apiary, an orbital station whose artificial gravity is held together with rubber bands",
-              "A traveling festival that exists in 1976, 2014, and next Tuesday simultaneously",
-              "An abandoned soundstage where a cursed honey commercial was filmed in 1987"
-            ]
-          },
-          {
-            "id": "organizer",
-            "label": "The convention organizer is...",
-            "type": "select",
-            "options": [
-              "A relentlessly upbeat CEO who insists everyone call him Uncle Buzzy",
-              "A space-station admin who is three months past her psych eval",
-              "A historian from 2387 who claims she's already won this heist",
-              "A reclusive horror director who hasn't been seen in thirty years"
-            ]
-          },
-          {
-            "id": "prize",
-            "label": "Aside from loads of honey, the real prize is...",
-            "type": "select",
-            "options": [
-              "The original animatronic Bee mascot, said to still hum",
-              "A jar of honey from the asteroid belt that pours sideways",
-              "A teaspoon of prehistoric honey, scooped from the very first hive",
-              "The final unreleased reel of Sting II: The Reckoning"
-            ]
-          },
-          {
-            "id": "twist",
-            "label": "But little do the bears know...",
-            "type": "select",
-            "options": [
-              "The park mascots are real, sentient, and unionizing tonight",
-              "The station is gradually de-orbiting and nobody told the guests",
-              "They've already done this heist three times. They lost every time.",
-              "The thing they thought was a prop isn't a prop"
-            ]
-          },
-          {
-            "id": "wildcard",
-            "label": "Also, somehow, also at HoneyCon...",
-            "type": "select",
-            "options": [
-              "A high school marching band that booked the same venue",
-              "A diplomatic delegation of sentient bees that just docked",
-              "The bears' own younger selves, who do not recognize them",
-              "A live YouTube ghost-hunting crew, filming everything"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "the-disguise",
-        "title": "The Disguise",
-        "phase": "live-interactive",
-        "triggerCue": "When the bears need to bluff past the front desk.",
-        "openSeconds": 60,
-        "prompt": "What's the worst (best?) disguise these bears could possibly wear?",
-        "fields": [
-          {
-            "id": "disguise",
-            "label": "The bears walk in dressed as...",
-            "type": "select",
-            "options": [
-              "The cast of the live mascot show, Ursine Spectacular!",
-              "Ambassadors from the Honeyjamm Cluster",
-              "Time-traveling beekeeping inspectors from a very specific year",
-              "The documentary crew that's been filming the whole convention"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "the-complication",
-        "title": "The Complication",
-        "phase": "live-interactive",
-        "triggerCue": "Halfway through the heist, when something has to go wrong.",
-        "openSeconds": 60,
-        "prompt": "Time for chaos. Pick the complication.",
-        "fields": [
-          {
-            "id": "complication",
-            "label": "Suddenly...",
-            "type": "select",
-            "options": [
-              "A roller coaster gets stuck mid-loop with families on board",
-              "Gravity blinks off for fifteen seconds. Then it blinks back on.",
-              "A second team of bears walks in. They are also from the future.",
-              "The 'prop' creature in the display case starts to move"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "the-getaway",
-        "title": "The Getaway",
-        "phase": "live-interactive",
-        "triggerCue": "Climax. The bears need to vanish.",
-        "openSeconds": 60,
-        "prompt": "How do these bears get out alive?",
-        "fields": [
-          {
-            "id": "getaway",
-            "label": "The escape vehicle is...",
-            "type": "select",
-            "options": [
-              "A commandeered parade float",
-              "An escape pod that turns out to be a confetti cannon",
-              "They jump back twenty minutes and try a different door",
-              "Through the soundstage door, straight into a different movie"
-            ]
-          }
-        ]
-      }
-    ]
+
+    "npcCreation": {
+      "_comment": "displayNameTemplate uses {fieldId} from personal fields only.",
+      "displayNameTemplate": "{adjective} {job_title}, {tagline}",
+      "fields": [
+        {
+          "id": "adjective",
+          "type": "ADJECTIVE",
+          "fieldType": "personal",
+          "label": "You are someone who is ____",
+          "options": ["extremely chill", "definitely suspicious", "professionally confused", "technically licensed"]
+        },
+        {
+          "id": "noun",
+          "type": "NOUN PHRASE",
+          "fieldType": "personal",
+          "label": "You're at HoneyCon as a ____",
+          "options": ["honey enthusiast", "uninvited guest", "documentary subject", "someone's plus-one"]
+        },
+        {
+          "id": "job_title",
+          "type": "JOB TITLE",
+          "fieldType": "personal",
+          "label": "Your official title is ____",
+          "options": ["regional manager", "time inspector", "professional ghost", "licensed beekeeper"]
+        },
+        {
+          "id": "tagline",
+          "type": "TAGLINE",
+          "fieldType": "personal",
+          "label": "The one thing everyone knows about you",
+          "options": ["last seen in 1987", "don't ask about the hat", "technically not invited", "knows too much"]
+        },
+        {
+          "id": "setting",
+          "type": "SETTING",
+          "fieldType": "world",
+          "label": "HoneyCon 2026 is happening at a ____",
+          "options": [
+            "crumbling BeeWorld theme park",
+            "orbital honey station",
+            "time-traveling festival (all three dates)",
+            "cursed HoneyCon soundstage"
+          ]
+        },
+        {
+          "id": "prize",
+          "type": "THE PRIZE",
+          "fieldType": "world",
+          "label": "The thing everyone's really after",
+          "options": [
+            "animatronic Bee mascot, said to still hum",
+            "asteroid-belt honey that pours sideways",
+            "prehistoric honey from the very first hive",
+            "final reel of Sting II: The Reckoning"
+          ]
+        }
+      ]
+    },
+
+    "stingerQueue": {
+      "defaultDuration": 30,
+      "responseTemplate": "I {verb} the {noun} and now the {place} is {adjective}.",
+      "responseSlots": [
+        { "id": "verb", "type": "VERB", "label": "What you did", "options": ["knocked over", "accidentally ate", "dramatically revealed", "heroically ignored"] },
+        { "id": "noun", "type": "NOUN", "label": "What you affected", "options": ["honey jar", "bears' disguise", "entire escape plan", "whole vibe"] },
+        { "id": "place", "type": "NOUN", "label": "Where this happened", "options": ["room", "venue", "timeline", "situation"] },
+        { "id": "adjective", "type": "ADJECTIVE", "label": "How it is now", "options": ["on fire", "very confused", "slightly improved", "technically illegal"] }
+      ],
+      "promptPresets": [
+        { "id": "worst-moment", "label": "Walk in at the worst moment", "prompt": "You just walked into the worst possible moment. What do you do?" },
+        { "id": "witness", "label": "See something you shouldn't have", "prompt": "You saw something you shouldn't have. Now what?" },
+        { "id": "accident", "label": "Make it worse", "prompt": "You tried to stay out of it. That's over. How did you accidentally make it worse?" },
+        { "id": "distraction", "label": "Be the distraction", "prompt": "The bears need three seconds and a distraction. You're the only one here. Go." }
+      ]
+    }
   }
 }

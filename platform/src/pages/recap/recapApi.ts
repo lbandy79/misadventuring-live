@@ -7,9 +7,12 @@
  * and applies the curation filter (no `gmFlagged: true`, no test names).
  */
 
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@mtp/firebase';
 import type { NPC, Reservation } from '@mtp/lib';
+import { BEATS_COLLECTION, type Beat } from '../../../../src/lib/npcs/npcApi';
+
+export type { Beat };
 
 /** NPC projection that the recap page is allowed to render. Strips GM-only fields. */
 export type PublicNPC = Omit<NPC, 'gmFlagged' | 'gmNotes'>;
@@ -39,6 +42,17 @@ function isPublicEligible(npc: NPC): boolean {
   if (npc.gmFlagged === true) return false;
   if (typeof npc.name === 'string' && TEST_NAME_PATTERN.test(npc.name)) return false;
   return true;
+}
+
+/** Fetch specific Beat documents by ID for Stinger highlight display. */
+export async function fetchHighlightBeats(beatIds: string[]): Promise<Beat[]> {
+  if (beatIds.length === 0) return [];
+  const results = await Promise.all(
+    beatIds.map((id) => getDoc(doc(db, BEATS_COLLECTION, id))),
+  );
+  return results
+    .filter((d) => d.exists())
+    .map((d) => ({ id: d.id, ...(d.data() as Omit<Beat, 'id'>) }));
 }
 
 export async function fetchRecapData(showId: string): Promise<RecapData> {

@@ -47,7 +47,7 @@ function ShowCard({
   if (era === 'past') {
     if (isFirestoreRecap(show)) {
       return (
-        <Link to={`/recap/${show.recap.recapId}`} className="show-card" style={cardStyle}>
+        <Link to={`/shows/${show.recap.recapId}/recap`} className="show-card" style={cardStyle}>
           <ShowCardBody show={show} badge={<span className="status">past</span>} />
           <span className="show-card-cta">Watch the recap →</span>
         </Link>
@@ -164,7 +164,7 @@ export default function ShowsIndexPage() {
         <h1>Shows</h1>
         <p>
           Each show has its own world, system, and audience interactions.
-          Reserve a seat for what's coming — or revisit what's already aired.
+          Scan in at the door for what's coming — or revisit what's already aired.
         </p>
       </header>
 

@@ -1,6 +1,7 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getFirestore, doc, setDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
+import { getFunctions } from 'firebase/functions';
 
 // Extend Window interface for our test flag
 declare global {
@@ -31,6 +32,7 @@ if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 export const db = getFirestore(app);
 export const auth = getAuth(app);
+export const functions = getFunctions(app, 'us-central1');
 
 console.log('🔥 Firebase ready - project:', firebaseConfig.projectId);
 

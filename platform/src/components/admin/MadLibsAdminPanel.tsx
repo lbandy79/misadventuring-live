@@ -38,8 +38,9 @@ import {
   type MadLibVote,
 } from '@mtp/lib';
 
-interface MadLibField {
+interface MadLibSlot {
   id: string;
+  type: string;
   label: string;
   options: string[];
 }
@@ -48,7 +49,8 @@ interface MadLibDef {
   id: string;
   title: string;
   prompt: string;
-  fields?: MadLibField[];
+  template?: string;
+  slots?: MadLibSlot[];
 }
 
 interface SystemConfig {
@@ -146,10 +148,10 @@ export default function MadLibsAdminPanel({ showId, systemId, showName }: Props)
     () => madLibs.find((m) => m.id === selectedMadLibId),
     [madLibs, selectedMadLibId],
   );
-  const fields: MadLibField[] = current?.fields ?? [];
+  const slots: MadLibSlot[] = current?.slots ?? [];
   const tallies: FieldTally[] = useMemo(
-    () => tallyVotes(votes, fields),
-    [votes, fields],
+    () => tallyVotes(votes, slots),
+    [votes, slots],
   );
 
   const uniqueVoters = useMemo(() => {
@@ -440,25 +442,26 @@ export default function MadLibsAdminPanel({ showId, systemId, showName }: Props)
       )}
 
       <div className="admin-madlibs-fields">
-        {fields.map((field, idx) => {
+        {slots.map((slot, idx) => {
           const tally = tallies[idx];
           const total = tally?.totalVotes ?? 0;
-          const fieldVotes = votes
-            .filter((v) => v.fieldId === field.id)
+          const slotVotes = votes
+            .filter((v) => v.fieldId === slot.id)
             .sort((a, b) => {
               const aT = a.timestamp?.toMillis?.() ?? 0;
               const bT = b.timestamp?.toMillis?.() ?? 0;
               return bT - aT;
             });
-          const isExpanded = expandedFieldId === field.id;
+          const isExpanded = expandedFieldId === slot.id;
           return (
-            <div key={field.id} className="admin-madlibs-field">
+            <div key={slot.id} className="admin-madlibs-field">
               <h3>
                 <span className="admin-madlibs-num">{idx + 1}.</span>{' '}
-                {field.label}
+                <span className="admin-madlibs-slot-type">[{slot.type}]</span>{' '}
+                <span className="admin-madlibs-slot-label">{slot.label}</span>
               </h3>
               <ul className="admin-madlibs-options">
-                {field.options.map((opt, optIdx) => {
+                {slot.options.map((opt: string, optIdx: number) => {
                   const count = tally?.counts[optIdx] ?? 0;
                   const pct = total > 0 ? Math.round((count / total) * 100) : 0;
                   const isWinner =
@@ -491,26 +494,26 @@ export default function MadLibsAdminPanel({ showId, systemId, showName }: Props)
               {!tally?.hasVotes && (
                 <p className="admin-madlibs-empty">No votes yet.</p>
               )}
-              {fieldVotes.length > 0 && (
+              {slotVotes.length > 0 && (
                 <div className="admin-madlibs-submissions">
                   <button
                     type="button"
                     className="admin-madlibs-submissions-toggle"
                     onClick={() =>
                       setExpandedFieldId((prev) =>
-                        prev === field.id ? null : field.id,
+                        prev === slot.id ? null : slot.id,
                       )
                     }
                     aria-expanded={isExpanded}
                   >
                     {isExpanded ? '▾' : '▸'} Individual submissions (
-                    {fieldVotes.length})
+                    {slotVotes.length})
                   </button>
                   {isExpanded && (
                     <ul className="admin-madlibs-submissions-list">
-                      {fieldVotes.map((vote) => {
+                      {slotVotes.map((vote) => {
                         const optionLabel =
-                          field.options[vote.optionIndex] ??
+                          slot.options[vote.optionIndex] ??
                           `option #${vote.optionIndex}`;
                         const voterShort = vote.voterId.startsWith('res:')
                           ? `🎫 ${vote.voterId.slice(4, 12)}…`
