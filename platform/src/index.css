@@ -1808,3 +1808,457 @@ textarea:focus-visible {
     animation: none;
   }
 }
+
+/* ── NPC Admin Panel ──────────────────────────────────────────────────── */
+.admin-welcome { margin: 0 0 1.5rem; font-family: var(--font-hand); }
+
+.npc-admin-panel {
+  border: 1.5px solid rgba(26, 58, 122, 0.2);
+  border-radius: 6px;
+  margin-top: 1.5rem;
+  overflow: hidden;
+}
+.npc-admin-panel__header {
+  padding: 0.75rem 1rem 0.6rem;
+  background: var(--paper);
+  border-bottom: 1px solid rgba(26, 58, 122, 0.15);
+}
+.npc-admin-panel__title {
+  margin: 0 0 0.1rem;
+  font-family: var(--font-marker);
+  font-size: 1.1rem;
+}
+.npc-admin-panel__meta {
+  margin: 0;
+  font-family: var(--font-type);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: var(--ink-blue);
+}
+.npc-admin-panel__body { padding: 1rem; }
+.npc-admin-panel__empty {
+  font-family: var(--font-hand);
+  color: rgba(28,28,28,0.5);
+  margin: 0;
+  padding: 0.5rem 0;
+}
+.npc-admin-panel__loading { font-family: var(--font-hand); color: rgba(28,28,28,0.5); }
+.npc-admin-panel__error { color: var(--ink-red); font-family: var(--font-hand); }
+
+/* Tabs */
+.npc-admin-tabs {
+  display: flex;
+  border-bottom: 1.5px solid rgba(26, 58, 122, 0.2);
+  background: var(--paper-warm);
+}
+.npc-admin-tab {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  background: none;
+  border: none;
+  border-bottom: 2.5px solid transparent;
+  font-family: var(--font-marker);
+  font-size: 0.82rem;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  color: rgba(28,28,28,0.55);
+  transition: color 0.12s, border-color 0.12s;
+}
+.npc-admin-tab:hover { color: var(--ink-black); }
+.npc-admin-tab--active {
+  color: var(--ink-black);
+  border-bottom-color: var(--accent);
+}
+
+/* Roster */
+.npc-roster { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+.npc-roster__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--paper);
+  border: 1px solid rgba(26, 58, 122, 0.12);
+  border-radius: 4px;
+}
+.npc-roster__info { display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; }
+.npc-roster__name {
+  font-family: var(--font-hand);
+  font-size: 1rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.npc-roster__fields {
+  font-family: var(--font-type);
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  color: var(--ink-blue);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.npc-roster__fire-btn { white-space: nowrap; flex-shrink: 0; }
+
+/* Fire tab */
+.npc-fire-tab { display: flex; flex-direction: column; gap: 1rem; }
+.npc-fire-tab__success {
+  padding: 0.5rem 0.75rem;
+  background: rgba(0, 140, 70, 0.1);
+  border: 1px solid rgba(0, 140, 70, 0.3);
+  border-radius: 4px;
+  font-family: var(--font-hand);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.npc-fire-tab__dismiss {
+  background: none; border: none; cursor: pointer;
+  font-size: 1.1rem; line-height: 1; color: rgba(28,28,28,0.5);
+}
+.npc-fire-tab__label {
+  display: block;
+  font-family: var(--font-marker);
+  font-size: 0.82rem;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.3rem;
+}
+.npc-fire-tab__select {
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  font-family: var(--font-hand);
+  font-size: 1rem;
+  border: 1.5px solid rgba(26, 58, 122, 0.3);
+  border-radius: 4px;
+  background: var(--paper-warm);
+}
+.npc-fire-tab__prompt-mode { display: flex; gap: 1.5rem; }
+.npc-fire-tab__mode-label { font-family: var(--font-hand); cursor: pointer; }
+.npc-fire-tab__presets { display: flex; flex-direction: column; gap: 0.4rem; }
+.npc-fire-tab__preset {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.5rem 0.75rem;
+  border: 1.5px solid rgba(26, 58, 122, 0.2);
+  border-radius: 4px;
+  cursor: pointer;
+  background: var(--paper);
+  transition: border-color 0.12s;
+}
+.npc-fire-tab__preset--selected { border-color: var(--accent); background: var(--accent-soft); }
+.npc-fire-tab__preset-radio { margin-right: 0.4rem; accent-color: var(--accent); }
+.npc-fire-tab__preset-label {
+  font-family: var(--font-marker);
+  font-size: 0.82rem;
+}
+.npc-fire-tab__preset-prompt {
+  font-family: var(--font-hand);
+  font-size: 0.92rem;
+  color: rgba(28,28,28,0.7);
+  padding-left: 1.4rem;
+}
+.npc-fire-tab__custom {
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  font-family: var(--font-hand);
+  font-size: 1rem;
+  border: 1.5px solid rgba(26, 58, 122, 0.3);
+  border-radius: 4px;
+  background: var(--paper-warm);
+  resize: vertical;
+}
+.npc-fire-tab__preview {
+  padding: 0.6rem 0.75rem;
+  background: var(--paper);
+  border: 1px dashed rgba(26, 58, 122, 0.25);
+  border-radius: 4px;
+  font-family: var(--font-hand);
+  font-size: 0.9rem;
+}
+.npc-fire-tab__preview-label {
+  font-family: var(--font-type);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-blue);
+  display: block;
+  margin-bottom: 0.25rem;
+}
+.npc-fire-tab__preview-template { color: rgba(28,28,28,0.55); font-size: 0.85rem; margin: 0.25rem 0 0; }
+.npc-fire-tab__error { color: var(--ink-red); font-family: var(--font-hand); margin: 0; }
+.npc-fire-tab__fire-btn { align-self: flex-start; }
+
+/* Mod queue */
+.npc-mod-queue { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.75rem; }
+.npc-mod-queue__item {
+  padding: 0.75rem 1rem;
+  background: var(--paper);
+  border: 1.5px solid rgba(26, 58, 122, 0.15);
+  border-radius: 4px;
+}
+.npc-mod-queue__meta { display: flex; flex-direction: column; gap: 0.1rem; margin-bottom: 0.5rem; }
+.npc-mod-queue__name {
+  font-family: var(--font-marker);
+  font-size: 0.88rem;
+  color: var(--accent);
+}
+.npc-mod-queue__prompt {
+  font-family: var(--font-hand);
+  font-size: 0.88rem;
+  color: rgba(28,28,28,0.6);
+}
+.npc-mod-queue__response {
+  font-family: var(--font-hand);
+  font-size: 1.05rem;
+  margin: 0 0 0.6rem;
+  font-weight: 600;
+}
+.npc-mod-queue__waiting {
+  font-family: var(--font-type);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(28,28,28,0.4);
+  margin: 0;
+}
+.npc-mod-queue__actions { display: flex; gap: 0.5rem; }
+.npc-mod-queue__reject {
+  border: 1.5px solid rgba(26, 58, 122, 0.25);
+  background: none;
+  color: rgba(28,28,28,0.6);
+  cursor: pointer;
+  padding: 0.35rem 0.75rem;
+  border-radius: 4px;
+  font-family: var(--font-hand);
+  font-size: 0.9rem;
+}
+
+/* ── NPC Creation / Join page ─────────────────────────────────────────── */
+.join-page { max-width: 680px; margin: 1.5rem auto; }
+
+.join-header { margin-bottom: 2rem; }
+.join-eyebrow {
+  margin: 0 0 0.25rem;
+  font-family: var(--font-type);
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--brand-purple);
+}
+.join-title {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2rem, 6vw, 3rem);
+  line-height: 1.1;
+}
+.join-subtitle {
+  margin: 0;
+  font-family: var(--font-hand);
+  font-size: 1.05rem;
+  color: var(--ink-mid);
+}
+
+/* Name field */
+.join-name-field { margin-bottom: 2rem; }
+.join-name-field__label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-family: var(--font-marker);
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-blue);
+}
+.join-name-field__input {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  font-family: var(--font-hand);
+  font-size: 1.2rem;
+  border: 2px solid rgba(26, 58, 122, 0.35);
+  border-radius: 4px;
+  background: var(--paper-warm);
+  color: var(--ink-black);
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+.join-name-field__input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.join-name-field__input::placeholder { color: rgba(28, 28, 28, 0.38); }
+
+/* Mad Libs fields */
+.join-form { display: flex; flex-direction: column; gap: 1.25rem; }
+
+.join-field {
+  border: 1.5px solid rgba(26, 58, 122, 0.25);
+  border-radius: 6px;
+  padding: 0.75rem 1rem 1rem;
+  margin: 0;
+  background: var(--paper-warm);
+}
+.join-field--world { border-color: var(--accent); border-style: dashed; }
+
+.join-field__legend {
+  padding: 0 0.25rem;
+  line-height: 1;
+}
+.join-field__type {
+  display: block;
+  font-family: var(--font-type);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-blue);
+  margin-bottom: 0.2rem;
+}
+.join-field__label {
+  display: block;
+  font-family: var(--font-hand);
+  font-size: 1rem;
+  color: var(--ink-black);
+}
+.join-field__world-tag {
+  display: inline-block;
+  margin-left: 0.5rem;
+  font-family: var(--font-type);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  vertical-align: middle;
+}
+
+.join-field__options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+.join-field__option {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.7rem;
+  border: 1.5px solid rgba(26, 58, 122, 0.25);
+  border-radius: 999px;
+  font-family: var(--font-hand);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s;
+  background: var(--paper);
+}
+.join-field__option:hover { border-color: var(--accent); }
+.join-field__option--selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  font-weight: 600;
+}
+.join-field__radio { accent-color: var(--accent); }
+
+/* World divider */
+.join-form__world-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.5rem 0;
+  color: var(--ink-blue);
+  font-family: var(--font-type);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.join-form__world-divider::before,
+.join-form__world-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(26, 58, 122, 0.2);
+}
+
+/* Error + submit */
+.join-form__error {
+  color: var(--ink-red);
+  font-family: var(--font-hand);
+  font-size: 0.95rem;
+  margin: 0;
+}
+.join-submit { width: 100%; margin-top: 0.5rem; }
+.join-cancel {
+  width: 100%;
+  margin-top: 0.5rem;
+  background: none;
+  border: 1.5px solid rgba(26, 58, 122, 0.25);
+  color: rgba(28, 28, 28, 0.6);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-family: var(--font-hand);
+  font-size: 0.95rem;
+}
+
+/* Post-submit NPC view */
+.join-npc-card {
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  background: var(--paper-warm);
+}
+.npc-card__name {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  margin: 0 0 0.5rem;
+}
+.npc-card__fields { display: flex; flex-direction: column; gap: 0.25rem; margin: 0; }
+.npc-card__field { display: flex; gap: 0.5rem; align-items: baseline; }
+.npc-card__field-label {
+  font-family: var(--font-marker);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-blue);
+  white-space: nowrap;
+}
+.npc-card__field-value { font-family: var(--font-hand); font-size: 1rem; }
+
+/* Feed */
+.join-feed { margin-bottom: 1.5rem; }
+.join-feed__title {
+  font-family: var(--font-marker);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-blue);
+  margin: 0 0 0.75rem;
+}
+.join-feed__list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+.join-feed__item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--paper);
+  border-radius: 4px;
+  border: 1px solid rgba(26, 58, 122, 0.15);
+}
+.join-feed__name { font-family: var(--font-marker); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); }
+.join-feed__text { font-family: var(--font-hand); font-size: 1rem; }
+
+/* Edit button row */
+.join-edit-row { margin-top: 1rem; text-align: center; }
+.join-edit-btn {
+  background: none;
+  border: none;
+  font-family: var(--font-hand);
+  font-size: 0.9rem;
+  color: rgba(28, 28, 28, 0.55);
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+}
+.join-loading { font-family: var(--font-hand); color: rgba(28,28,28,0.55); text-align: center; padding: 2rem; }

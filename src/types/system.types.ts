@@ -169,43 +169,12 @@ export interface NpcCreatorOverrides {
   secretPrompt: string;
 }
 
-// =============================================================================
-// MAD LIB TYPES (Honey Heist and future mad-libs-format shows)
-// =============================================================================
-
-export interface MadLibField {
-  id: string;
-  label: string;
-  type: 'select' | 'text';
-  options?: string[];
-}
-
-export interface MadLib {
-  id: string;
-  title: string;
-  phase: string;
-  prompt: string;
-  fields: MadLibField[];
-  openAt?: string;
-  closesAt?: string;
-  triggerCue?: string;
-  openSeconds?: number;
-}
-
 export interface ShowConfig {
   _comment?: string;
   showId: string;
   showName: string;
   seriesName: string;
-  /** KoB only */
   tapeNumber: number;
-  /** KoB only */
   setting: ShowSetting;
-  /** KoB only */
   npcCreatorOverrides: NpcCreatorOverrides;
-  /** Honey Heist / mad-libs format */
-  venue?: string;
-  date?: string;
-  format?: string;
-  madLibs?: MadLib[];
 }

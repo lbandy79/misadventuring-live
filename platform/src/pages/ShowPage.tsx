@@ -15,6 +15,7 @@ import type { CSSProperties } from 'react';
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getShow, getShowEra, useShow } from '@mtp/lib';
+import { CampaignDecor } from '../components/CampaignDecor';
 
 export default function ShowPage() {
   const { showId } = useParams<{ showId: string }>();
@@ -57,7 +58,7 @@ export default function ShowPage() {
 
   const recapHref =
     show.recap?.kind === 'firestore'
-      ? `/recap/${show.recap.recapId}`
+      ? `/shows/${show.recap.recapId}/recap`
       : show.recap?.kind === 'external'
         ? show.recap.url
         : undefined;
@@ -75,8 +76,12 @@ export default function ShowPage() {
       } as CSSProperties)
     : undefined);
 
+  const campaignId: string | undefined = systemConfig?.showConfig?.theme?.campaignId;
+  const isNpcMadLibs = !!systemConfig?.showConfig?.npcCreation;
+
   return (
     <section className="page-card show-detail-card" style={accentStyle}>
+      {campaignId && <CampaignDecor campaignId={campaignId} />}
       <div className="show-detail-head">
         <div>
           <h1 className="show-detail-title">{show.name}</h1>
@@ -131,30 +136,16 @@ export default function ShowPage() {
         </details>
       )}
 
-      {systemConfig?.showConfig?.madLibs && Array.isArray(systemConfig.showConfig.madLibs) && (
+      {systemConfig?.showConfig?.npcCreation && era !== 'past' && (
         <section className="show-detail-madlibs">
-          <h3>Mad Libs</h3>
           <p className="show-detail-madlibs-blurb">
-            Help shape the story before the show starts.
+            You write the words. The bears live with them.
           </p>
-          <div className="show-detail-madlibs-list">
-            {systemConfig.showConfig.madLibs.map((madlib: any) => (
-              <div key={madlib.id} className="show-detail-madlibs-card">
-                <h4>{madlib.title}</h4>
-                <p>{madlib.prompt}</p>
-              </div>
-            ))}
+          <div className="show-detail-madlibs-cta">
+            <Link to={`/shows/${show.id}/join`} className="btn-primary">
+              Help shape the heist →
+            </Link>
           </div>
-          {era !== 'past' &&
-            systemConfig.showConfig.madLibs.some(
-              (m: any) => m.id === 'the-setup' && m.phase === 'pre-show',
-            ) && (
-              <div className="show-detail-madlibs-cta">
-                <Link to={`/shows/${show.id}/vote`} className="btn-primary">
-                  Help shape the heist →
-                </Link>
-              </div>
-            )}
         </section>
       )}
 
@@ -178,14 +169,7 @@ export default function ShowPage() {
           <Link to={`/shows/${show.id}/audience`} className="btn-primary btn-lg">
             Enter the live show →
           </Link>
-        ) : (
-          <Link
-            to={`/reserve?show=${encodeURIComponent(show.id)}`}
-            className="btn-primary btn-lg"
-          >
-            Reserve a seat
-          </Link>
-        )}
+        ) : null}
 
         {/* Secondary YouTube link when a Firestore recap is the primary CTA. */}
         {era === 'past' && show.recap?.kind === 'firestore' && show.youtubeUrl && (
@@ -197,12 +181,6 @@ export default function ShowPage() {
           >
             Watch on YouTube ↗
           </a>
-        )}
-
-        {era !== 'past' && (
-          <Link to={`/shows/${show.id}/audience`} className="btn-secondary btn-lg">
-            I have an access code
-          </Link>
         )}
       </div>
 

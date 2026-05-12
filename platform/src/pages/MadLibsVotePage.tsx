@@ -64,8 +64,9 @@ function getLockTime(nextDate: string | undefined): number {
   return new Date(`${nextDate}T19:00:00-05:00`).getTime();
 }
 
-interface MadLibField {
+interface MadLibSlot {
   id: string;
+  type: string;
   label: string;
   options: string[];
 }
@@ -80,7 +81,8 @@ interface SystemConfig {
       title: string;
       phase: string;
       prompt: string;
-      fields?: MadLibField[];
+      template?: string;
+      slots?: MadLibSlot[];
     }>;
   };
 }
@@ -153,7 +155,7 @@ export default function MadLibsVotePage() {
     return config?.showConfig?.madLibs?.find((m) => m.id === activeMadLibId);
   }, [config, activeMadLibId]);
 
-  const fields: MadLibField[] = setup?.fields ?? [];
+  const slots: MadLibSlot[] = setup?.slots ?? [];
 
   // ── Pre-fill selections from existing votes ────────────────────────
   // Reset selections whenever the active Mad Lib changes (admin pushed a
@@ -164,14 +166,14 @@ export default function MadLibsVotePage() {
   }, [activeMadLibId]);
 
   useEffect(() => {
-    if (!identity || !showId || !activeMadLibId || fields.length === 0) return;
+    if (!identity || !showId || !activeMadLibId || slots.length === 0) return;
     let cancelled = false;
     (async () => {
       try {
         const own = await fetchOwnVotes({
           showId,
           madLibId: activeMadLibId,
-          fieldIds: fields.map((f) => f.id),
+          fieldIds: slots.map((s) => s.id),
           voterId: identity.voterId,
         });
         if (!cancelled && Object.keys(own).length > 0) {
@@ -184,7 +186,7 @@ export default function MadLibsVotePage() {
     return () => {
       cancelled = true;
     };
-  }, [identity, showId, activeMadLibId, fields]);
+  }, [identity, showId, activeMadLibId, slots]);
 
   // ── Subscribe to all votes (only meaningful post-lock) ─────────────
   useEffect(() => {
@@ -300,10 +302,9 @@ export default function MadLibsVotePage() {
   if (isAdminIdle || !setup) {
     return (
       <section className="page-card madlibs-vote-card madlibs-vote-idle">
-        <h1 className="madlibs-vote-title">Waiting for the next Mad Lib…</h1>
+        <h1 className="madlibs-vote-title">Stand by.</h1>
         <p className="madlibs-vote-prompt">
-          Keep this page open. The next audience vote will appear here when
-          the cast cues it up.
+          Don't close this. The next vote drops here when the crew cues it up.
         </p>
         <p className="madlibs-vote-back">
           <Link to={`/shows/${showId}`}>← Back to the show</Link>
@@ -314,8 +315,8 @@ export default function MadLibsVotePage() {
 
   const showName = config.showConfig?.showName ?? show.name;
   const totalSelected = Object.keys(selections).length;
-  const totalFields = fields.length;
-  const tallies: FieldTally[] = isLocked ? tallyVotes(allVotes, fields) : [];
+  const totalSlots = slots.length;
+  const tallies: FieldTally[] = isLocked ? tallyVotes(allVotes, slots) : [];
 
   return (
     <section
@@ -361,40 +362,37 @@ export default function MadLibsVotePage() {
       {/* Status banner — persistent, sticky on mobile so it stays visible. */}
       {isLocked ? (
         <p className="madlibs-vote-banner madlibs-vote-banner-locked">
-          🔒 Voting is closed{isManualLocked ? ' by the GM' : ''}. Here's what
-          the audience picked.
+          🔒 The votes are in{isManualLocked ? ' — GM locked it' : ''}. Here's what you all chose.
         </p>
-      ) : totalFields > 0 && totalSelected === totalFields ? (
+      ) : totalSlots > 0 && totalSelected === totalSlots ? (
         <p className="madlibs-vote-banner madlibs-vote-banner-complete">
-          ✓ All locked in — see you on show night! You can still change any
-          pick until voting closes.
+          ✓ All in. You can still change your mind until the GM locks it down.
         </p>
       ) : (
         <p className="madlibs-vote-banner madlibs-vote-banner-open">
-          ✏️ Voting is open. Saved {totalSelected} of {totalFields}. Tallies
-          stay hidden until showtime.
+          ✏️ Voting is open. {totalSelected} of {totalSlots} locked in. Results hidden until the reveal.
         </p>
       )}
 
-      {/* Fields */}
+      {/* Slots */}
       <div className="madlibs-vote-fields">
-        {fields.map((field, idx) => {
-          const selected = selections[field.id];
+        {slots.map((slot, idx) => {
+          const selected = selections[slot.id];
           const hasSelection = typeof selected === 'number';
-          const isSaving = savingField === field.id;
+          const isSaving = savingField === slot.id;
           const tally = tallies[idx];
           const selectedLabel =
-            hasSelection && field.options[selected as number]
-              ? field.options[selected as number]
+            hasSelection && slot.options[selected as number]
+              ? slot.options[selected as number]
               : null;
           return (
-            <fieldset key={field.id} className="madlibs-vote-field">
+            <fieldset key={slot.id} className="madlibs-vote-field">
               <legend>
-                <span className="madlibs-vote-field-num">{idx + 1}.</span>{' '}
-                {field.label}
+                <span className="madlibs-vote-slot-type">{slot.type}</span>
+                <span className="madlibs-vote-slot-label">{slot.label}</span>
               </legend>
               <div className="madlibs-vote-options">
-                {field.options.map((opt, optIdx) => {
+                {slot.options.map((opt, optIdx) => {
                   const checked = selected === optIdx;
                   const isWinner =
                     isLocked && tally?.hasVotes && tally.winnerIndex === optIdx;
@@ -416,11 +414,11 @@ export default function MadLibsVotePage() {
                     >
                       <input
                         type="radio"
-                        name={field.id}
+                        name={slot.id}
                         value={optIdx}
                         checked={checked}
-                        disabled={isLocked || savingField === field.id}
-                        onChange={() => handleSelect(field.id, optIdx)}
+                        disabled={isLocked || savingField === slot.id}
+                        onChange={() => handleSelect(slot.id, optIdx)}
                       />
                       <span className="madlibs-vote-option-text">{opt}</span>
                       {isLocked && (
@@ -447,7 +445,7 @@ export default function MadLibsVotePage() {
                     ? 'Saving…'
                     : selectedLabel
                       ? `✓ Your pick: ${selectedLabel}`
-                      : 'Pick one option to lock it in.'}
+                      : 'Pick one. Lock it in.'}
                 </p>
               )}
             </fieldset>
@@ -459,9 +457,9 @@ export default function MadLibsVotePage() {
         <p className="madlibs-vote-cast-error">{castError}</p>
       )}
 
-      {/* Winning story readout (post-lock only) */}
-      {isLocked && fields.length > 0 && (
-        <ResultReadout fields={fields} tallies={tallies} />
+      {/* Assembled paragraph readout (post-lock only) */}
+      {isLocked && slots.length > 0 && (
+        <ResultReadout slots={slots} tallies={tallies} template={setup.template} />
       )}
 
       <p className="madlibs-vote-back">
@@ -471,39 +469,43 @@ export default function MadLibsVotePage() {
   );
 }
 
-/**
- * Combine the winning option per field into a continuous Mad-Libs-style
- * paragraph using the field labels as connective tissue.
- */
 function ResultReadout({
-  fields,
+  slots,
   tallies,
+  template,
 }: {
-  fields: MadLibField[];
+  slots: MadLibSlot[];
   tallies: FieldTally[];
+  template?: string;
 }) {
-  const sentences = fields.map((field, idx) => {
-    const tally = tallies[idx];
-    if (!tally?.hasVotes) {
-      return `${field.label} (no votes cast).`;
-    }
-    const winning = field.options[tally.winnerIndex];
-    return `${field.label} ${winning}.`;
-  });
+  const allVoted = tallies.every((t) => t.hasVotes);
 
-  const allLocked = tallies.every((t) => t.hasVotes);
+  let paragraph: string;
+  if (template) {
+    paragraph = slots.reduce((text, slot, idx) => {
+      const tally = tallies[idx];
+      const winner = tally?.hasVotes ? slot.options[tally.winnerIndex] : '___';
+      return text.replace(new RegExp(`\\{${slot.id}\\}`, 'g'), winner);
+    }, template);
+  } else {
+    paragraph = slots
+      .map((slot, idx) => {
+        const tally = tallies[idx];
+        if (!tally?.hasVotes) return `${slot.label}: (no votes).`;
+        return `${slot.label}: ${slot.options[tally.winnerIndex]}.`;
+      })
+      .join(' ');
+  }
 
   return (
     <section className="madlibs-vote-readout" aria-live="polite">
-      <h2>The audience's heist</h2>
-      {!allLocked && (
+      <h2>What you all built</h2>
+      {!allVoted && (
         <p className="madlibs-vote-readout-note">
-          A few questions had no votes; gaps are noted inline.
+          Some words had no votes. Those blanks are marked.
         </p>
       )}
-      <p className="madlibs-vote-readout-paragraph">
-        {sentences.join(' ')}
-      </p>
+      <p className="madlibs-vote-readout-paragraph">{paragraph}</p>
     </section>
   );
 }
