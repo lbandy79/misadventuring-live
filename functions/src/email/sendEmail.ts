@@ -9,6 +9,7 @@
 
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import { getResend, FROM_ADDRESS } from './resendClient';
+import { ALLOWED_ORIGINS } from '../config';
 import {
   renderCharacterSaved,
   type CharacterSavedData,
@@ -22,7 +23,7 @@ interface SendEmailRequest {
 }
 
 export const sendEmail = onCall<SendEmailRequest>(
-  { region: 'us-central1' },
+  { region: 'us-central1', cors: ALLOWED_ORIGINS },
   async (request) => {
     const { template, recipient, data } = request.data;
 

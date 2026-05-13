@@ -12,6 +12,7 @@
 
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
+import { ALLOWED_ORIGINS } from '../config';
 import { getResend, FROM_ADDRESS } from './resendClient';
 import { renderCharacterSaved } from './templates/characterSaved';
 
@@ -43,7 +44,7 @@ interface AudienceProfile {
 }
 
 export const sendNotebookBatch = onCall<SendNotebookBatchRequest>(
-  { region: 'us-central1' },
+  { region: 'us-central1', cors: ALLOWED_ORIGINS },
   async (request): Promise<SendNotebookBatchResult> => {
     // GM-only: require Firebase Auth + admin claim (or just auth for v1).
     // Add stricter claim checks when the admin auth system is built out.
