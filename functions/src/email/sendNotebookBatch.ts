@@ -12,7 +12,7 @@
 
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
-import { resend, FROM_ADDRESS } from './resendClient';
+import { getResend, FROM_ADDRESS } from './resendClient';
 import { renderCharacterSaved } from './templates/characterSaved';
 
 interface SendNotebookBatchRequest {
@@ -99,7 +99,7 @@ export const sendNotebookBatch = onCall<SendNotebookBatchRequest>(
           showName: showId,
         });
 
-        const { error } = await resend.emails.send({
+        const { error } = await getResend().emails.send({
           from: FROM_ADDRESS,
           to: profile.email,
           subject: rendered.subject,

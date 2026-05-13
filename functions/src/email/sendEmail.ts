@@ -8,7 +8,7 @@
  */
 
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
-import { resend, FROM_ADDRESS } from './resendClient';
+import { getResend, FROM_ADDRESS } from './resendClient';
 import {
   renderCharacterSaved,
   type CharacterSavedData,
@@ -43,7 +43,7 @@ export const sendEmail = onCall<SendEmailRequest>(
         throw new HttpsError('invalid-argument', `unknown template: ${template}`);
     }
 
-    const { error } = await resend.emails.send({
+    const { error } = await getResend().emails.send({
       from: FROM_ADDRESS,
       to: recipient,
       subject: rendered.subject,
