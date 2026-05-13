@@ -10,21 +10,18 @@
  * Returns: { queued, skipped, errors }
  */
 
-import { onCall, HttpsError } from 'firebase-functions/v2/https';
+import { onRequest } from 'firebase-functions/v2/https';
+import cors from 'cors';
 import * as admin from 'firebase-admin';
 import { ALLOWED_ORIGINS } from '../config';
 import { getResend, FROM_ADDRESS } from './resendClient';
 import { renderCharacterSaved } from './templates/characterSaved';
 
+const corsHandler = cors({ origin: ALLOWED_ORIGINS });
+
 interface SendNotebookBatchRequest {
   showId: string;
   dryRun?: boolean;
-}
-
-interface SendNotebookBatchResult {
-  queued: number;
-  skipped: number;
-  errors: string[];
 }
 
 interface AudienceNpcRef {
@@ -43,85 +40,98 @@ interface AudienceProfile {
   optedInForNotebook?: boolean;
 }
 
-export const sendNotebookBatch = onCall<SendNotebookBatchRequest>(
-  { region: 'us-central1', cors: ALLOWED_ORIGINS },
-  async (request): Promise<SendNotebookBatchResult> => {
-    // GM-only: require Firebase Auth + admin claim (or just auth for v1).
-    // Add stricter claim checks when the admin auth system is built out.
-    if (!request.auth) {
-      throw new HttpsError('unauthenticated', 'Must be signed in to send batch emails.');
-    }
-
-    const { showId, dryRun = false } = request.data;
-    if (!showId) {
-      throw new HttpsError('invalid-argument', 'showId is required');
-    }
-
-    const db = admin.firestore();
-    const snapshot = await db
-      .collection('audience-profiles')
-      .where('optedInForNotebook', '==', true)
-      .get();
-
-    const queued: number[] = [];
-    const errors: string[] = [];
-    let skipped = 0;
-
-    for (const docSnap of snapshot.docs) {
-      const profile = docSnap.data() as AudienceProfile;
-      const npcRef = profile.npcs?.find((n) => n.showId === showId);
-
-      if (!npcRef) {
-        skipped++;
-        continue;
+export const sendNotebookBatch = onRequest({ region: 'us-central1' }, (req, res) => {
+  corsHandler(req, res, () => {
+    (async () => {
+      if (req.method !== 'POST') {
+        res.status(405).json({ error: 'Method not allowed' });
+        return;
       }
 
-      if (!profile.magicToken || !profile.accessCode) {
-        // Profile pre-dates the token/code system — skip gracefully.
-        skipped++;
-        continue;
+      // Verify Firebase ID token — GM-only endpoint.
+      const authHeader = req.headers.authorization ?? '';
+      const idToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+      if (!idToken) {
+        res.status(401).json({ error: 'Must be signed in to send batch emails.' });
+        return;
       }
-
-      const revealSentence = npcRef.revealSentence ?? '';
-      const characterName = npcRef.characterName ?? 'Your character';
-
-      if (dryRun) {
-        console.log(`[dryRun] Would email ${profile.email} — ${characterName}`);
-        queued.push(1);
-        continue;
-      }
-
       try {
-        const rendered = renderCharacterSaved({
-          characterName,
-          revealSentence,
-          magicToken: profile.magicToken,
-          accessCode: profile.accessCode,
-          showName: showId,
-        });
-
-        const { error } = await getResend().emails.send({
-          from: FROM_ADDRESS,
-          to: profile.email,
-          subject: rendered.subject,
-          html: rendered.html,
-          text: rendered.text,
-        });
-
-        if (error) {
-          errors.push(`${profile.email}: ${error.message}`);
-        } else {
-          queued.push(1);
-        }
-      } catch (err) {
-        errors.push(`${profile.email}: ${String(err)}`);
+        await admin.auth().verifyIdToken(idToken);
+      } catch {
+        res.status(401).json({ error: 'Invalid or expired auth token.' });
+        return;
       }
-    }
 
-    return {
-      queued: queued.length,
-      skipped,
-      errors,
-    };
-  },
-);
+      const { showId, dryRun = false } = req.body as SendNotebookBatchRequest;
+      if (!showId) {
+        res.status(400).json({ error: 'showId is required' });
+        return;
+      }
+
+      const db = admin.firestore();
+      const snapshot = await db
+        .collection('audience-profiles')
+        .where('optedInForNotebook', '==', true)
+        .get();
+
+      const queued: number[] = [];
+      const errors: string[] = [];
+      let skipped = 0;
+
+      for (const docSnap of snapshot.docs) {
+        const profile = docSnap.data() as AudienceProfile;
+        const npcRef = profile.npcs?.find((n) => n.showId === showId);
+
+        if (!npcRef) {
+          skipped++;
+          continue;
+        }
+
+        if (!profile.magicToken || !profile.accessCode) {
+          skipped++;
+          continue;
+        }
+
+        const revealSentence = npcRef.revealSentence ?? '';
+        const characterName = npcRef.characterName ?? 'Your character';
+
+        if (dryRun) {
+          console.log(`[dryRun] Would email ${profile.email} — ${characterName}`);
+          queued.push(1);
+          continue;
+        }
+
+        try {
+          const rendered = renderCharacterSaved({
+            characterName,
+            revealSentence,
+            magicToken: profile.magicToken,
+            accessCode: profile.accessCode,
+            showName: showId,
+          });
+
+          const { error } = await getResend().emails.send({
+            from: FROM_ADDRESS,
+            to: profile.email,
+            subject: rendered.subject,
+            html: rendered.html,
+            text: rendered.text,
+          });
+
+          if (error) {
+            errors.push(`${profile.email}: ${error.message}`);
+          } else {
+            queued.push(1);
+          }
+        } catch (err) {
+          errors.push(`${profile.email}: ${String(err)}`);
+        }
+      }
+
+      res.json({ queued: queued.length, skipped, errors });
+    })().catch((err: unknown) => {
+      console.error('Unhandled error in sendNotebookBatch:', err);
+      if (!res.headersSent) res.status(500).json({ error: 'Internal server error' });
+    });
+  });
+});
