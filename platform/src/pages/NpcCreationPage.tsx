@@ -17,6 +17,8 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
+import { auth } from '../../../src/firebase';
 import { getShow } from '@mtp/lib';
 import {
   getOrCreateDeviceToken,
@@ -75,6 +77,8 @@ export default function NpcCreationPage() {
   const { showId } = useParams<{ showId: string }>();
   const show = useMemo(() => (showId ? getShow(showId) : undefined), [showId]);
 
+  const [authReady, setAuthReady] = useState(false);
+
   const [phase, setPhase] = useState<PagePhase>('loading');
   const [showConfig, setShowConfig] = useState<ShowConfig | null>(null);
   const [configError, setConfigError] = useState(false);
@@ -103,6 +107,25 @@ export default function NpcCreationPage() {
   // Stinger overlay dismiss — tracks the last beat the user manually closed
   const [dismissedBeatId, setDismissedBeatId] = useState<string | null>(null);
 
+  // ── Anonymous auth — runs once on mount ─────────────────────────────────────
+  // Gives unauthenticated audience members a Firebase uid so Firestore rules
+  // that require request.auth != null (npcs create) pass without a sign-up form.
+  // If the user already has a session (admin or returning anonymous), onAuthStateChanged
+  // fires immediately with that user and we skip signInAnonymously.
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setAuthReady(true);
+      } else {
+        signInAnonymously(auth).catch(console.error);
+        // authReady stays false; the next onAuthStateChanged callback fires with
+        // the new anonymous user and sets authReady = true.
+      }
+    });
+    return unsub;
+  }, []);
+
   // ── Load system.json ────────────────────────────────────────────────────────
 
   useEffect(() => {
@@ -127,7 +150,7 @@ export default function NpcCreationPage() {
   const firestoreShowId = showConfig?.showId ?? null;
 
   useEffect(() => {
-    if (!firestoreShowId) return;
+    if (!firestoreShowId || !authReady) return;
     const token = getOrCreateDeviceToken();
     getNpcByDeviceToken(firestoreShowId, token).then((existing) => {
       if (existing && !existing.isArchived) {
@@ -137,7 +160,7 @@ export default function NpcCreationPage() {
         setPhase('create');
       }
     });
-  }, [firestoreShowId]);
+  }, [firestoreShowId, authReady]);
 
   // ── Beats subscriptions ────────────────────────────────────────────────────
 

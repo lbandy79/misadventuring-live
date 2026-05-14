@@ -22,6 +22,7 @@
  */
 
 import {
+  arrayUnion,
   collection,
   doc,
   getDoc,
@@ -30,7 +31,6 @@ import {
   query,
   serverTimestamp,
   setDoc,
-  updateDoc,
   where,
 } from 'firebase/firestore';
 import { db } from '../../firebase';
@@ -58,6 +58,11 @@ export interface AudienceProfile {
   optedInForAnnouncements: boolean;
 }
 
+// Read-free upsert: setDoc+merge eliminates the getDoc that previously required
+// isAdmin() to read audience-profiles. Tradeoff: createdAt is refreshed on each
+// call (not first-write-only), and npcs dedup is by deep equality via arrayUnion
+// rather than by npcId — a user who saves twice gets two entries if savedAt differs.
+// Both are acceptable for the May 23 deadline.
 export async function upsertAudienceProfile(input: {
   email: string;
   npc?: AudienceNpcRef;
@@ -72,49 +77,33 @@ export async function upsertAudienceProfile(input: {
   if (!emailNorm) return;
 
   const ref = doc(db, AUDIENCE_PROFILES_COLLECTION, emailNorm);
-  const existing = await getDoc(ref);
 
-  if (!existing.exists()) {
-    const notebookOpt = input.optedInForNotebook ?? input.optedInForUpdates ?? false;
-    await setDoc(ref, {
-      email: emailNorm,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-      npcs: input.npc ? [input.npc] : [],
-      magicToken: input.magicToken ?? null,
-      accessCode: input.accessCode ?? null,
-      optedInForNotebook: notebookOpt,
-      optedInForAnnouncements: input.optedInForAnnouncements ?? notebookOpt,
-    });
-    return;
-  }
+  const payload: Record<string, unknown> = {
+    email: emailNorm,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  };
 
-  const existingData = existing.data() as AudienceProfile;
-  const patch: Record<string, unknown> = { updatedAt: serverTimestamp() };
-
-  // Deduplicate by npcId — only append if this NPC isn't already recorded.
   if (input.npc) {
-    const alreadyHas = (existingData.npcs ?? []).some((n) => n.npcId === input.npc!.npcId);
-    if (!alreadyHas) {
-      patch.npcs = [...(existingData.npcs ?? []), input.npc];
-    }
+    payload.npcs = arrayUnion(input.npc);
   }
+  if (input.magicToken !== undefined) payload.magicToken = input.magicToken;
+  if (input.accessCode !== undefined) payload.accessCode = input.accessCode;
 
-  if (input.magicToken !== undefined) patch.magicToken = input.magicToken;
-  if (input.accessCode !== undefined) patch.accessCode = input.accessCode;
-
+  // Only write opt-in fields when explicitly provided so merge doesn't overwrite
+  // a prior opt-in with false.
   if (input.optedInForNotebook !== undefined) {
-    patch.optedInForNotebook = input.optedInForNotebook;
+    payload.optedInForNotebook = input.optedInForNotebook;
+  } else if (input.optedInForUpdates !== undefined) {
+    payload.optedInForNotebook = input.optedInForUpdates;
   }
   if (input.optedInForAnnouncements !== undefined) {
-    patch.optedInForAnnouncements = input.optedInForAnnouncements;
-  }
-  // Legacy field alias from footer form
-  if (input.optedInForUpdates !== undefined && input.optedInForNotebook === undefined) {
-    patch.optedInForAnnouncements = input.optedInForUpdates;
+    payload.optedInForAnnouncements = input.optedInForAnnouncements;
+  } else if (input.optedInForUpdates !== undefined) {
+    payload.optedInForAnnouncements = input.optedInForUpdates;
   }
 
-  await updateDoc(ref, patch);
+  await setDoc(ref, payload, { merge: true });
 }
 
 /** Fetch by normalized email. Returns null if not found. */

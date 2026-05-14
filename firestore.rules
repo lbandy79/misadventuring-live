@@ -73,7 +73,8 @@ service cloud.firestore {
       allow read: if true;
 
       allow create: if
-        request.resource.data.keys().hasAll([
+        isSignedIn()
+        && request.resource.data.keys().hasAll([
           'showId','systemId','displayName','fieldValues',
           'deviceToken','createdAt','isActive','hasBeenTagged'
         ])
