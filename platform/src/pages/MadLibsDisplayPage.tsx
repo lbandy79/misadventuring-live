@@ -204,8 +204,8 @@ export default function MadLibsDisplayPage() {
   if (!showId || !show) {
     return (
       <section className="page-card">
-        <h1>Show not found</h1>
-        <p>No show is registered with id "{showId}".</p>
+        <h1>That show doesn't exist.</h1>
+        <p>Nothing matches "{showId}". Check the link?</p>
       </section>
     );
   }

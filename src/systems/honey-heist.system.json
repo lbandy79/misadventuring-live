@@ -168,7 +168,7 @@
           "type": "JOB TITLE",
           "fieldType": "personal",
           "label": "Give me a job title.",
-          "options": ["manager", "inspector", "consultant", "ghost"]
+          "options": ["manager", "inspector", "consultant", "intern"]
         },
         {
           "id": "tagline",
@@ -221,25 +221,25 @@
           "id": "verb",
           "type": "VERB (past tense)",
           "label": "What you did",
-          "options": ["knocked", "ate", "revealed", "ignored"]
+          "options": ["ate", "leaked", "panicked", "monetized"]
         },
         {
           "id": "noun",
           "type": "NOUN",
           "label": "What you affected",
-          "options": ["jar", "disguise", "plan", "hat"]
+          "options": ["jar", "disguise", "alibi", "paperwork"]
         },
         {
           "id": "place",
           "type": "PLACE",
           "label": "Where this happened",
-          "options": ["elevator", "bathroom", "lobby", "timeline"]
+          "options": ["bathroom", "gift shop", "parking lot", "supply closet"]
         },
         {
           "id": "adjective",
           "type": "ADJECTIVE",
           "label": "How it is now",
-          "options": ["chaotic", "improved", "on fire", "illegal"]
+          "options": ["on fire", "worse", "trending", "classified"]
         }
       ],
       "promptPresets": [

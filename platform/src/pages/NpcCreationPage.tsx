@@ -205,7 +205,7 @@ export default function NpcCreationPage() {
     const fields = showConfig.npcCreation.fields;
     const allFilled = fields.every((f) => fieldValues[f.id]) && customName.trim().length > 0;
     if (!allFilled) {
-      setSubmitError('Fill in every blank first.');
+      setSubmitError('One of these is blank. Find it.');
       return;
     }
 
@@ -249,7 +249,7 @@ export default function NpcCreationPage() {
       // Edit flow skips reveal (they've already seen it once)
       setPhase(isEditing ? 'my-npc' : 'reveal');
     } catch (err) {
-      setSubmitError('Something went sideways. Try again?');
+      setSubmitError('Something went sideways. Try again.');
       console.error(err);
     } finally {
       setSubmitting(false);
@@ -317,7 +317,7 @@ export default function NpcCreationPage() {
       setSavedEmailAddress(trimmed);
     } catch (err) {
       console.error('save character failed:', err);
-      setEmailSaveError('Something went sideways. Try again.');
+      setEmailSaveError('Email didn\'t save. Try once more.');
     } finally {
       setEmailSaving(false);
     }
@@ -337,8 +337,8 @@ export default function NpcCreationPage() {
   if (configError) {
     return (
       <section className="page-card">
-        <h1>This show isn't ready yet.</h1>
-        <p>The Mad Libs haven't been loaded. Check back closer to showtime.</p>
+        <h1>Doors aren't open yet.</h1>
+        <p>The bears haven't shown up. Come back closer to seven.</p>
         <p><Link to={`/shows/${showId}`}>← Back to show page</Link></p>
       </section>
     );
