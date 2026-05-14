@@ -21,4 +21,4 @@ export const FROM_ADDRESS =
   process.env.RESEND_FROM_ADDRESS ?? 'shows@themisadventuringparty.com';
 
 export const APP_BASE_URL =
-  process.env.APP_BASE_URL ?? 'https://themisadventuringparty.com';
+  process.env.APP_BASE_URL ?? 'https://app.themisadventuringparty.com';

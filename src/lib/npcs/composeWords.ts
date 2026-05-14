@@ -18,17 +18,25 @@ export interface CollectedWord {
 
 /**
  * Substitutes {id} placeholders in a template string with collected word
- * values. Unknown placeholders are left as-is.
+ * values. Unknown placeholders are left as-is. A/An article agreement is
+ * corrected after substitution based on the first letter of the following word.
  */
 export function composeFromWords(
   template: string,
   words: CollectedWord[],
 ): string {
-  return words.reduce(
+  const composed = words.reduce(
     (text, word) =>
       text.replace(new RegExp(`\\{${escapeRegex(word.id)}\\}`, 'g'), word.value),
     template,
   );
+  return fixArticles(composed);
+}
+
+function fixArticles(text: string): string {
+  return text
+    .replace(/\bA ([aeiouAEIOU])/g, 'An $1')
+    .replace(/\bAn ([^aeiouAEIOU\s])/g, 'A $1');
 }
 
 function escapeRegex(s: string): string {
