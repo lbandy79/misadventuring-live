@@ -11,7 +11,7 @@
  */
 
 import { useEffect, useState, type ReactNode } from 'react';
-import { httpsCallable } from 'firebase/functions';
+import { getAuth } from 'firebase/auth';
 import {
   subscribeToNpcs,
   subscribeToBeatsForShow,
@@ -23,7 +23,8 @@ import {
   type Beat,
   type BeatResponseSlot,
 } from '../../../../src/lib/npcs/npcApi';
-import { functions } from '../../../../src/firebase';
+
+const FUNCTIONS_BASE = 'https://us-central1-misadventuring-live.cloudfunctions.net';
 
 // ─── Config types ──────────────────────────────────────────────────────────
 
@@ -72,11 +73,6 @@ interface NotebookBatchResult {
   skipped: number;
   errors: string[];
 }
-
-const sendNotebookBatchFn = httpsCallable<
-  { showId: string; dryRun?: boolean },
-  NotebookBatchResult
->(functions, 'sendNotebookBatch');
 
 export default function NpcAdminPanel({ showId: registryId, systemId, showName }: NpcAdminPanelProps) {
   const [tab, setTab] = useState<Tab>('roster');
@@ -150,8 +146,18 @@ export default function NpcAdminPanel({ showId: registryId, systemId, showName }
     setBatchStatus('sending');
     setBatchResult(null);
     try {
-      const result = await sendNotebookBatchFn({ showId: showConfig.showId, dryRun });
-      setBatchResult(result.data);
+      const token = await getAuth().currentUser?.getIdToken();
+      const resp = await fetch(`${FUNCTIONS_BASE}/sendNotebookBatch`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ showId: showConfig.showId, dryRun }),
+      });
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const result: NotebookBatchResult = await resp.json() as NotebookBatchResult;
+      setBatchResult(result);
       setBatchStatus('done');
     } catch (err) {
       console.error('sendNotebookBatch failed:', err);

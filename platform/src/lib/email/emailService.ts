@@ -1,5 +1,5 @@
 /**
- * Client-side email service — wraps Firebase callable functions that use Resend.
+ * Client-side email service — calls Firebase onRequest functions that use Resend.
  *
  * The API key lives server-side in functions/.env (never in the browser bundle).
  * Each exported function maps to a named template in functions/src/email/templates/.
@@ -12,25 +12,7 @@
  *   next-show-announcement — broadcast to opted-in audience before the next show
  */
 
-import { httpsCallable } from 'firebase/functions';
-import { functions } from '../../../../src/firebase';
-
-type EmailTemplate = 'character-saved' | 'notebook-ready' | 'next-show-announcement';
-
-interface SendEmailInput {
-  template: EmailTemplate;
-  recipient: string;
-  data: Record<string, unknown>;
-}
-
-interface SendEmailResult {
-  success: boolean;
-}
-
-const sendEmailCallable = httpsCallable<SendEmailInput, SendEmailResult>(
-  functions,
-  'sendEmail',
-);
+const FUNCTIONS_BASE = 'https://us-central1-misadventuring-live.cloudfunctions.net';
 
 export async function sendCharacterSavedEmail(params: {
   recipient: string;
@@ -41,13 +23,14 @@ export async function sendCharacterSavedEmail(params: {
   showName: string;
 }): Promise<void> {
   const { recipient, ...data } = params;
-  const result = await sendEmailCallable({
-    template: 'character-saved',
-    recipient,
-    data,
+  const resp = await fetch(`${FUNCTIONS_BASE}/sendEmail`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ template: 'character-saved', recipient, data }),
   });
-  if (!result.data.success) {
-    throw new Error('Email send returned success: false');
+  if (!resp.ok) {
+    const payload = await resp.json().catch(() => ({})) as Record<string, unknown>;
+    throw new Error(`Email send failed (${resp.status}): ${payload['error'] ?? 'unknown'}`);
   }
 }
 
