@@ -38,7 +38,8 @@ import { db } from '../../firebase';
 export const AUDIENCE_PROFILES_COLLECTION = 'audience-profiles';
 
 export interface AudienceNpcRef {
-  showId: string;
+  showId: string;          // Firestore collection key (e.g. "honey-heist-madlibs-2026-05-23")
+  showSlug?: string;       // URL slug for routing (e.g. "mad-libs-honey-heist")
   npcId: string;
   savedAt?: string;        // ISO timestamp — when the audience member saved
   showName?: string;       // display name of the show

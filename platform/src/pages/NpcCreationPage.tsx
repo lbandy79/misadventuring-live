@@ -265,6 +265,7 @@ export default function NpcCreationPage() {
         email: trimmed,
         npc: {
           showId: myNpc.showId,
+          showSlug: showId,  // URL slug for /return routing
           npcId: myNpc.id,
           savedAt: new Date().toISOString(),
           revealSentence,

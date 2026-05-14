@@ -13,12 +13,18 @@ import type { AudienceProfile } from '../../../src/lib/audience/audienceApi';
 
 type Status = 'resolving' | 'not-found' | 'error' | 'no-token';
 
-function mostRecentShowId(profile: AudienceProfile): string | null {
+// Fallback map for records saved before showSlug was added to the schema.
+const FIRESTORE_ID_TO_SLUG: Record<string, string> = {
+  'honey-heist-madlibs-2026-05-23': 'mad-libs-honey-heist',
+};
+
+function mostRecentShowSlug(profile: AudienceProfile): string | null {
   if (!profile.npcs?.length) return null;
   const sorted = [...profile.npcs].sort((a, b) =>
     (b.savedAt ?? '').localeCompare(a.savedAt ?? ''),
   );
-  return sorted[0].showId ?? null;
+  const ref = sorted[0];
+  return ref.showSlug ?? FIRESTORE_ID_TO_SLUG[ref.showId] ?? null;
 }
 
 export default function ReturnPage() {
@@ -38,8 +44,8 @@ export default function ReturnPage() {
           return;
         }
         setAudienceSession(profile.email);
-        const showId = mostRecentShowId(profile);
-        navigate(showId ? `/shows/${showId}/join` : '/shows', { replace: true });
+        const slug = mostRecentShowSlug(profile);
+        navigate(slug ? `/shows/${slug}/join` : '/shows', { replace: true });
       } catch {
         setStatus('error');
       }
