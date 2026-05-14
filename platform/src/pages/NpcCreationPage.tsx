@@ -118,9 +118,12 @@ export default function NpcCreationPage() {
       if (user) {
         setAuthReady(true);
       } else {
-        signInAnonymously(auth).catch(console.error);
-        // authReady stays false; the next onAuthStateChanged callback fires with
-        // the new anonymous user and sets authReady = true.
+        signInAnonymously(auth).catch((err) => {
+          console.error('Anonymous sign-in failed — Anonymous provider may be disabled in Firebase Console:', err);
+          setAuthReady(true); // unblock the page; Firestore writes will fail at the rules layer
+        });
+        // On success, the next onAuthStateChanged callback fires with the new
+        // anonymous user and sets authReady = true.
       }
     });
     return unsub;
