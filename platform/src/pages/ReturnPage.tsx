@@ -1,33 +1,33 @@
 /**
  * ReturnPage — /return
  *
- * Two paths to resolution:
- *   1. URL token: /return?token=XYZ — auto-resolves on mount
- *   2. Manual code entry — 6-char access code typed by the audience member
- *
- * On success: store a 90-day localStorage session → redirect to /my-characters.
+ * Resolves a magic link token from ?token=XYZ, sets a 90-day localStorage
+ * session, and redirects to the audience member's most recent show.
  */
 
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
-import {
-  getAudienceProfileByToken,
-  getAudienceProfileByCode,
-} from '../../../src/lib/audience/audienceApi';
+import { getAudienceProfileByToken } from '../../../src/lib/audience/audienceApi';
 import { setAudienceSession } from '../lib/session';
+import type { AudienceProfile } from '../../../src/lib/audience/audienceApi';
 
-type Status = 'idle' | 'resolving' | 'not-found' | 'error';
+type Status = 'resolving' | 'not-found' | 'error' | 'no-token';
+
+function mostRecentShowId(profile: AudienceProfile): string | null {
+  if (!profile.npcs?.length) return null;
+  const sorted = [...profile.npcs].sort((a, b) =>
+    (b.savedAt ?? '').localeCompare(a.savedAt ?? ''),
+  );
+  return sorted[0].showId ?? null;
+}
 
 export default function ReturnPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const token = searchParams.get('token');
 
-  const [code, setCode] = useState('');
-  const [status, setStatus] = useState<Status>(token ? 'resolving' : 'idle');
-  const [hint, setHint] = useState('');
+  const [status, setStatus] = useState<Status>(token ? 'resolving' : 'no-token');
 
-  // Auto-resolve magic link token on mount
   useEffect(() => {
     if (!token) return;
     (async () => {
@@ -38,35 +38,15 @@ export default function ReturnPage() {
           return;
         }
         setAudienceSession(profile.email);
-        navigate('/my-characters', { replace: true });
+        const showId = mostRecentShowId(profile);
+        navigate(showId ? `/shows/${showId}/join` : '/shows', { replace: true });
       } catch {
         setStatus('error');
       }
     })();
   }, [token, navigate]);
 
-  async function handleCodeSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    const trimmed = code.trim().toUpperCase();
-    if (!trimmed || status === 'resolving') return;
-    setStatus('resolving');
-    setHint('');
-    try {
-      const profile = await getAudienceProfileByCode(trimmed);
-      if (!profile) {
-        setStatus('not-found');
-        setHint('That code didn\'t match anything. Double-check it and try again.');
-        return;
-      }
-      setAudienceSession(profile.email);
-      navigate('/my-characters', { replace: true });
-    } catch {
-      setStatus('error');
-      setHint('Something went sideways. Try again.');
-    }
-  }
-
-  if (status === 'resolving' && token) {
+  if (status === 'resolving') {
     return (
       <section className="page-card return-page">
         <p className="return-page__resolving">Finding your character…</p>
@@ -78,58 +58,14 @@ export default function ReturnPage() {
     <section className="page-card return-page">
       <header className="return-page__header">
         <p className="return-page__eyebrow">The Misadventuring Party</p>
-        <h1 className="return-page__title">Come back to your character.</h1>
+        <h1 className="return-page__title">This link has expired.</h1>
         <p className="return-page__subtitle">
-          Enter the code from your confirmation email.
+          Magic links are single-use. Find your show below to jump back in.
         </p>
       </header>
-
-      <form className="return-page__form" onSubmit={handleCodeSubmit} noValidate>
-        <input
-          className="return-page__code-input"
-          type="text"
-          value={code}
-          onChange={(e) => {
-            setCode(e.target.value.toUpperCase());
-            if (status === 'not-found') setStatus('idle');
-          }}
-          placeholder="ABC123"
-          maxLength={6}
-          autoCapitalize="characters"
-          autoCorrect="off"
-          autoComplete="off"
-          spellCheck={false}
-          disabled={status === 'resolving'}
-        />
-        <button
-          className="btn-primary return-page__submit"
-          type="submit"
-          disabled={code.trim().length < 6 || status === 'resolving'}
-        >
-          {status === 'resolving' ? 'Checking…' : 'Find my character'}
-        </button>
-      </form>
-
-      {hint && (
-        <p className="return-page__hint" role="alert">{hint}</p>
-      )}
-
-      {status === 'not-found' && !hint && (
-        <p className="return-page__hint" role="alert">
-          That code didn't match anything. Double-check it and try again.
-        </p>
-      )}
-
-      {status === 'error' && !hint && (
-        <p className="return-page__hint" role="alert">
-          Something went sideways. Try again.
-        </p>
-      )}
-
-      <p className="return-page__no-code">
-        No code yet?{' '}
-        <Link to="/shows">Find a show and save your character.</Link>
-      </p>
+      <Link className="btn-primary return-page__submit" to="/shows">
+        Browse shows
+      </Link>
     </section>
   );
 }

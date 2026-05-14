@@ -56,17 +56,13 @@ export function renderCharacterSaved(data: CharacterSavedData): {
               </table>
 
               <!-- CTA button -->
-              <table cellpadding="0" cellspacing="0" border="0" style="margin:32px 0 24px;">
+              <table cellpadding="0" cellspacing="0" border="0" style="margin:32px 0 40px;">
                 <tr>
                   <td style="background-color:#1a1a1a;border-radius:2px;">
                     <a href="${returnUrl}" style="display:inline-block;padding:14px 28px;font-family:Georgia,serif;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#FEFDF0;text-decoration:none;font-weight:bold;">Come Back to Your Character &rarr;</a>
                   </td>
                 </tr>
               </table>
-
-              <!-- Access code fallback -->
-              <p style="margin:0 0 40px;font-size:14px;color:#666666;">Lost the link? Type this code at <a href="${APP_BASE_URL}/return" style="color:#666666;">${APP_BASE_URL.replace('https://', '')}/return</a>:</p>
-              <p style="margin:-28px 0 40px;font-family:'Caveat',cursive,Georgia,serif;font-size:32px;font-weight:700;letter-spacing:0.12em;color:#1a1a1a;">${escapeHtml(data.accessCode)}</p>
 
               <!-- Notebook teaser -->
               <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:2px solid #D8D2BC;">
@@ -97,8 +93,6 @@ Your character is in the books.
 We'll keep them ready for the next show. Come back any time:
 
 ${returnUrl}
-
-Lost the link? Type this code at ${APP_BASE_URL}/return: ${data.accessCode}
 
 ---
 
