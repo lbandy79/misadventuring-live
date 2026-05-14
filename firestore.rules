@@ -214,6 +214,16 @@ service cloud.firestore {
       allow read, write: if true;
     }
 
+    // ── Magic tokens (return-link lookup) ─────────────────────────
+    // One doc per magic link, keyed by the UUID token.
+    // Public read so ReturnPage can resolve the link without auth.
+    // Write requires anonymous-or-better auth (audience members have this
+    // after signInAnonymously on the join page).
+    match /magic-tokens/{token} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
     // ── Audience profiles (email capture + NPC linking) ───────────
     // Keyed by lowercased email. Audience writes their own doc;
     // no auth available, so writes are open. Reads are admin-only.

@@ -36,6 +36,7 @@ import {
 import { db } from '../../firebase';
 
 export const AUDIENCE_PROFILES_COLLECTION = 'audience-profiles';
+export const MAGIC_TOKENS_COLLECTION = 'magic-tokens';
 
 export interface AudienceNpcRef {
   showId: string;          // Firestore collection key (e.g. "honey-heist-madlibs-2026-05-23")
@@ -45,6 +46,12 @@ export interface AudienceNpcRef {
   showName?: string;       // display name of the show
   revealSentence?: string; // pre-composed for notebook emails
   characterName?: string;  // NPC displayName at save time
+}
+
+/** Minimal shape returned by token/code lookup — only what ReturnPage needs. */
+export interface AudienceReturnData {
+  email: string;
+  npcs: AudienceNpcRef[];
 }
 
 export interface AudienceProfile {
@@ -103,7 +110,21 @@ export async function upsertAudienceProfile(input: {
     payload.optedInForAnnouncements = input.optedInForUpdates;
   }
 
-  await setDoc(ref, payload, { merge: true });
+  const writes: Promise<void>[] = [setDoc(ref, payload, { merge: true })];
+
+  // Write a publicly-readable token doc so ReturnPage can resolve the magic link
+  // without needing list access on the protected audience-profiles collection.
+  if (input.magicToken) {
+    writes.push(
+      setDoc(doc(db, MAGIC_TOKENS_COLLECTION, input.magicToken), {
+        email: emailNorm,
+        npcs: input.npc ? [input.npc] : [],
+        createdAt: serverTimestamp(),
+      }),
+    );
+  }
+
+  await Promise.all(writes);
 }
 
 /** Fetch by normalized email. Returns null if not found. */
@@ -116,19 +137,20 @@ export async function getAudienceProfileByEmail(
   return snap.exists() ? (snap.data() as AudienceProfile) : null;
 }
 
-/** Fetch by magic token (for /return?token= deep links). Returns null if not found. */
+/** Fetch by magic token (for /return?token= deep links). Returns null if not found.
+ *  Reads from magic-tokens/{token} (publicly readable) instead of querying the
+ *  admin-only audience-profiles collection. */
 export async function getAudienceProfileByToken(
   magicToken: string,
-): Promise<AudienceProfile | null> {
+): Promise<AudienceReturnData | null> {
   if (!magicToken) return null;
-  const q = query(
-    collection(db, AUDIENCE_PROFILES_COLLECTION),
-    where('magicToken', '==', magicToken),
-    limit(1),
-  );
-  const snap = await getDocs(q);
-  if (snap.empty) return null;
-  return snap.docs[0].data() as AudienceProfile;
+  const snap = await getDoc(doc(db, MAGIC_TOKENS_COLLECTION, magicToken));
+  if (!snap.exists()) return null;
+  const data = snap.data();
+  return {
+    email: data.email as string,
+    npcs: (data.npcs ?? []) as AudienceNpcRef[],
+  };
 }
 
 /** Fetch by access code (for manual code entry on /return). Returns null if not found. */

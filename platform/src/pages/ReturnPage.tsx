@@ -9,7 +9,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { getAudienceProfileByToken } from '../../../src/lib/audience/audienceApi';
 import { setAudienceSession } from '../lib/session';
-import type { AudienceProfile } from '../../../src/lib/audience/audienceApi';
+import type { AudienceReturnData } from '../../../src/lib/audience/audienceApi';
 
 type Status = 'resolving' | 'not-found' | 'error' | 'no-token';
 
@@ -18,7 +18,7 @@ const FIRESTORE_ID_TO_SLUG: Record<string, string> = {
   'honey-heist-madlibs-2026-05-23': 'mad-libs-honey-heist',
 };
 
-function mostRecentShowSlug(profile: AudienceProfile): string | null {
+function mostRecentShowSlug(profile: AudienceReturnData): string | null {
   if (!profile.npcs?.length) return null;
   const sorted = [...profile.npcs].sort((a, b) =>
     (b.savedAt ?? '').localeCompare(a.savedAt ?? ''),
