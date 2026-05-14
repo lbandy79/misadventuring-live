@@ -88,12 +88,14 @@ service cloud.firestore {
 
       // Owner (matching deviceToken) can update displayName + fieldValues.
       // showId and deviceToken are immutable. Admins bypass.
+      // Anyone can add their email to an existing NPC (save-your-character flow).
       allow update: if
         isAdmin()
         || (
           request.resource.data.showId == resource.data.showId
           && request.resource.data.deviceToken == resource.data.deviceToken
-        );
+        )
+        || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['email']);
 
       allow delete: if isAdmin();
     }
