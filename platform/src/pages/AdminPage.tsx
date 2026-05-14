@@ -12,7 +12,7 @@
 
 import { Link } from 'react-router-dom';
 import { shows, useAuth } from '@mtp/lib';
-import MadLibsAdminPanel from '../components/admin/MadLibsAdminPanel';
+import NpcAdminPanel from '../components/admin/NpcAdminPanel';
 
 export default function AdminPage() {
   const { user, isAdmin, isLoading, isAdminLoading, signIn } = useAuth();
@@ -60,43 +60,28 @@ export default function AdminPage() {
     );
   }
 
+  // NPC Mad Libs shows — shows that use npcCreation format
+  const npcShows = shows.filter((s) => s.id === 'mad-libs-honey-heist');
+
   return (
     <section className="page-card">
-      <h1>Admin</h1>
-      <p>
-        Welcome, <strong>{user.displayName || user.email}</strong>. Phase 8
-        ships the auth foundation — admin role works, and rules now require
-        admin auth for sensitive writes (current-show selection, NPC
-        deletion, GM-flagging).
+      <h1>GM Panel</h1>
+      <p className="admin-welcome">
+        Signed in as <strong>{user.displayName || user.email}</strong>.
       </p>
-      <div className="placeholder-banner">
-        The full admin panel still lives in the legacy app at{' '}
-        <a href="/admin" target="_blank" rel="noreferrer">/admin</a>. A future
-        phase will absorb it here and replace its password gate with this
-        Google sign-in flow.
-      </div>
 
-      {/* Mad Libs live tallies — one panel per show that defines mad libs. */}
-      {shows
-        .filter((s) => s.id === 'mad-libs-honey-heist')
-        .map((s) => (
-          <MadLibsAdminPanel
-            key={s.id}
-            showId={s.id}
-            systemId={s.systemId}
-            showName={s.name}
-          />
-        ))}
+      {npcShows.map((s) => (
+        <NpcAdminPanel
+          key={s.id}
+          showId={s.id}
+          systemId={s.systemId}
+          showName={s.name}
+        />
+      ))}
 
-      <h2>What you can do here today</h2>
-      <ul>
-        <li>
-          Set the platform's currently-running show via{' '}
-          <code>setCurrentShow(showId)</code> (rules now require admin auth).
-        </li>
-        <li>Manage the admin allowlist by editing <code>config/admins.emails</code>.</li>
-        <li>Delete NPCs and toggle GM-flagging (rules now require admin auth).</li>
-      </ul>
+      {npcShows.length === 0 && (
+        <p className="npc-admin-panel__empty">No NPC shows configured.</p>
+      )}
     </section>
   );
 }

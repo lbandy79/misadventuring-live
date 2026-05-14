@@ -66,31 +66,67 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // ── NPCs (player-created characters) ───────────────────────────
+    // ── NPCs (audience-created, device-token identity) ────────────
+    // New model: no reservationId, no auth, no gmFlagged.
+    // Identity = localStorage UUID (deviceToken). Soft de-dupe only.
     match /npcs/{npcId} {
       allow read: if true;
 
       allow create: if
-        request.resource.data.keys().hasAll(['reservationId','showId','systemId','name','createdAt'])
-        && request.resource.data.name is string
-        && request.resource.data.name.size() >= 1
-        && request.resource.data.name.size() <= 60
-        && request.resource.data.reservationId is string
+        request.resource.data.keys().hasAll([
+          'showId','systemId','displayName','fieldValues',
+          'deviceToken','createdAt','isActive','hasBeenTagged'
+        ])
         && request.resource.data.showId is string
-        && request.resource.data.gmFlagged == false;
+        && request.resource.data.systemId is string
+        && request.resource.data.displayName is string
+        && request.resource.data.displayName.size() >= 1
+        && request.resource.data.displayName.size() <= 120
+        && request.resource.data.deviceToken is string
+        && request.resource.data.isActive == true
+        && request.resource.data.hasBeenTagged == false;
 
-      // Player-side updates: never touch identity, never flip gmFlagged.
-      // GM-side updates (gmNotes / gmFlagged) require admin auth.
+      // Owner (matching deviceToken) can update displayName + fieldValues.
+      // showId and deviceToken are immutable. Admins bypass.
+      // Anyone can add their email to an existing NPC (save-your-character flow).
       allow update: if
-        request.resource.data.reservationId == resource.data.reservationId
-        && request.resource.data.showId == resource.data.showId
-        && request.resource.data.name == resource.data.name
-        && (
-          // Player update — gmFlagged stays put.
-          request.resource.data.gmFlagged == resource.data.gmFlagged
-          // OR an admin is touching gmNotes / gmFlagged.
-          || isAdmin()
-        );
+        isAdmin()
+        || (
+          request.resource.data.showId == resource.data.showId
+          && request.resource.data.deviceToken == resource.data.deviceToken
+        )
+        || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['email']);
+
+      allow delete: if isAdmin();
+    }
+
+    // ── NPC world votes ────────────────────────────────────────────
+    // One upsert per (showId, fieldId, deviceToken). Deterministic doc
+    // id prevents a single device from voting twice on the same field.
+    match /npc-world-votes/{voteId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // ── Beats / Stingers ───────────────────────────────────────────
+    // GM creates beats (admin auth required). Audience responds
+    // (status: pending → responded). GM moderates (admin auth).
+    match /beats/{beatId} {
+      allow read: if true;
+
+      allow create: if isAdmin();
+
+      allow update: if
+        // Audience submitting their Mad-Lib response to a pending beat.
+        (
+          resource.data.status == 'pending'
+          && request.resource.data.status == 'responded'
+          && request.resource.data.keys().hasAll(['response','respondedAt'])
+          && request.resource.data.showId == resource.data.showId
+          && request.resource.data.npcId == resource.data.npcId
+        )
+        // GM approving or rejecting.
+        || isAdmin();
 
       allow delete: if isAdmin();
     }
@@ -175,6 +211,14 @@ service cloud.firestore {
     }
     match /archives/{showId}/{document=**} {
       allow read, write: if true;
+    }
+
+    // ── Audience profiles (email capture + NPC linking) ───────────
+    // Keyed by lowercased email. Audience writes their own doc;
+    // no auth available, so writes are open. Reads are admin-only.
+    match /audience-profiles/{emailId} {
+      allow read: if isAdmin();
+      allow write: if true;
     }
 
     // Default deny — anything not matched above is locked.

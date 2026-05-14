@@ -53,14 +53,15 @@ import {
   type MadLibLock,
   type MadLibVote,
 } from '@mtp/lib';
+import { subscribeToApprovedBeats, type Beat } from '../../../src/lib/npcs/npcApi';
 
 // ─── Local types matching the system.json schema ────────────────────────
 // Kept local (not imported from @mtp/lib) so adding new optional fields to
 // system configs doesn't ripple through the shared types package.
-interface MadLibField {
+interface MadLibSlot {
   id: string;
+  type: string;
   label: string;
-  type: 'select';
   options: string[];
 }
 interface MadLibTemplate {
@@ -68,14 +69,18 @@ interface MadLibTemplate {
   title: string;
   phase: string;
   prompt: string;
-  fields?: MadLibField[];
+  template?: string;
+  slots?: MadLibSlot[];
 }
 interface SystemConfig {
   showConfig?: {
+    showId?: string;
     showName?: string;
     venue?: string;
     date?: string;
     madLibs?: MadLibTemplate[];
+    /** Present on NPC Mad Libs shows — signals stinger feed should be active. */
+    npcCreation?: { displayNameTemplate: string; fields: unknown[] };
   };
 }
 
@@ -108,6 +113,7 @@ export default function MadLibsDisplayPage() {
     useState<ActiveMadLibPointer | null>(null);
   const [lock, setLock] = useState<MadLibLock | null>(null);
   const [votes, setVotes] = useState<MadLibVote[]>([]);
+  const [approvedBeats, setApprovedBeats] = useState<Beat[]>([]);
 
   // ── Load system config (same dynamic-import pattern as the vote page) ─
   useEffect(() => {
@@ -173,6 +179,18 @@ export default function MadLibsDisplayPage() {
     };
   }, [showId, activeMadLibId]);
 
+  // ── Subscribe to approved Stingers (NPC Mad Libs shows only) ─────────
+  // Uses the canonical showId from showConfig rather than the URL param so
+  // the projector and the join page agree on the same Firestore collection.
+  const npcShowId: string | undefined = config?.showConfig?.showId;
+  useEffect(() => {
+    if (!config?.showConfig?.npcCreation || !npcShowId) return;
+    const unsub = subscribeToApprovedBeats(npcShowId, (beats) =>
+      setApprovedBeats(beats),
+    );
+    return unsub;
+  }, [npcShowId, config?.showConfig?.npcCreation]);
+
   // ── Theming via CSS custom properties ────────────────────────────────
   // Show authors set `accentColor` / `accentInk` on the registry entry.
   // Anything inside `.madlibs-display` can `var(--display-accent)` for
@@ -219,17 +237,18 @@ export default function MadLibsDisplayPage() {
         ? 'reveal'
         : 'open';
 
-  // Audience join URL — what the QR encodes. Uses the live origin so the
-  // same code works on localhost, preview deploys, and prod custom domain.
+  // Audience join URL — what the QR encodes.
+  // NPC Mad Libs shows use /join; classic voting shows use /vote.
+  const joinPath = config?.showConfig?.npcCreation ? 'join' : 'vote';
   const voteUrl =
     typeof window !== 'undefined'
-      ? `${window.location.origin}/shows/${showId}/vote`
-      : `/shows/${showId}/vote`;
+      ? `${window.location.origin}/shows/${showId}/${joinPath}`
+      : `/shows/${showId}/${joinPath}`;
 
   return (
     <section className={`madlibs-display madlibs-display-${mode}`} style={themeStyle}>
       {mode === 'idle' && (
-        <DisplayIdle show={show} voteUrl={voteUrl} />
+        <DisplayIdle show={show} voteUrl={voteUrl} approvedBeats={approvedBeats} />
       )}
       {mode === 'open' && activeMadLib && (
         <DisplayOpen madLib={activeMadLib} votes={votes} voteUrl={voteUrl} />
@@ -254,9 +273,11 @@ export default function MadLibsDisplayPage() {
 function DisplayIdle({
   show,
   voteUrl,
+  approvedBeats = [],
 }: {
   show: { name: string; nextDate?: string };
   voteUrl: string;
+  approvedBeats?: Beat[];
 }) {
   const dateLabel = show.nextDate
     ? new Date(show.nextDate + 'T00:00:00').toLocaleDateString(undefined, {
@@ -265,6 +286,9 @@ function DisplayIdle({
         day: 'numeric',
       })
     : null;
+
+  const isJoinUrl = voteUrl.endsWith('/join');
+
   return (
     <div className="madlibs-display-idle">
       <p className="madlibs-display-eyebrow">Tonight at The Misadventuring Party</p>
@@ -276,10 +300,32 @@ function DisplayIdle({
           <QRCodeSVG value={voteUrl} size={280} includeMargin />
         </div>
         <div className="madlibs-display-qr-caption">
-          <p className="madlibs-display-qr-label">Scan to play along</p>
+          <p className="madlibs-display-qr-label">
+            {isJoinUrl ? 'Scan to join' : 'Scan to vote'}
+          </p>
           <p className="madlibs-display-qr-url">{stripScheme(voteUrl)}</p>
         </div>
       </div>
+
+      {approvedBeats.length > 0 && (
+        <section className="madlibs-display-stinger-feed" aria-label="Stinger feed">
+          <p className="madlibs-display-stinger-feed-label">What's happened so far</p>
+          <ol className="madlibs-display-stinger-feed-list">
+            {approvedBeats.map((beat) => (
+              <li key={beat.id} className="madlibs-display-stinger-feed-item">
+                <span className="madlibs-display-stinger-feed-name">
+                  {beat.npcDisplayName}
+                </span>
+                {beat.response && (
+                  <span className="madlibs-display-stinger-feed-text">
+                    {beat.response.assembledText}
+                  </span>
+                )}
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
     </div>
   );
 }
@@ -297,14 +343,10 @@ function DisplayOpen({
   votes: MadLibVote[];
   voteUrl: string;
 }) {
-  const fields = madLib.fields ?? [];
+  const slots = madLib.slots ?? [];
   const tallies = useMemo(
-    () =>
-      tallyVotes(
-        votes,
-        fields.map((f) => ({ id: f.id, options: f.options })),
-      ),
-    [votes, fields],
+    () => tallyVotes(votes, slots.map((s) => ({ id: s.id, options: s.options }))),
+    [votes, slots],
   );
 
   return (
@@ -313,18 +355,19 @@ function DisplayOpen({
         <p className="madlibs-display-eyebrow">{madLib.title}</p>
         <h1 className="madlibs-display-prompt">{madLib.prompt}</h1>
         <p className="madlibs-display-join">
-          Join: <strong>{stripScheme(voteUrl)}</strong>
+          Scan to vote: <strong>{stripScheme(voteUrl)}</strong>
         </p>
       </header>
 
       <ol className="madlibs-display-fields">
-        {fields.map((field, i) => (
-          <li key={field.id} className="madlibs-display-field">
+        {slots.map((slot, i) => (
+          <li key={slot.id} className="madlibs-display-field">
             <p className="madlibs-display-field-label">
               <span className="madlibs-display-field-num">{i + 1}.</span>{' '}
-              {field.label}
+              <span className="madlibs-display-field-type">{slot.type}</span>
+              <span className="madlibs-display-field-sublabel">{slot.label}</span>
             </p>
-            <TallyBars field={field} tally={tallies[i]} />
+            <TallyBars slot={slot} tally={tallies[i]} />
           </li>
         ))}
       </ol>
@@ -332,11 +375,11 @@ function DisplayOpen({
   );
 }
 
-function TallyBars({ field, tally }: { field: MadLibField; tally?: FieldTally }) {
+function TallyBars({ slot, tally }: { slot: MadLibSlot; tally?: FieldTally }) {
   const total = tally?.totalVotes ?? 0;
   return (
     <ul className="madlibs-display-bars">
-      {field.options.map((opt, idx) => {
+      {slot.options.map((opt, idx) => {
         const count = tally?.counts[idx] ?? 0;
         const pct = total === 0 ? 0 : (count / total) * 100;
         const isLeader = total > 0 && idx === tally?.winnerIndex;
@@ -376,27 +419,30 @@ function DisplayReveal({
   votes: MadLibVote[];
   isPreview: boolean;
 }) {
-  const fields = madLib.fields ?? [];
+  const slots = madLib.slots ?? [];
   const tallies = useMemo(
-    () =>
-      tallyVotes(
-        votes,
-        fields.map((f) => ({ id: f.id, options: f.options })),
-      ),
-    [votes, fields],
+    () => tallyVotes(votes, slots.map((s) => ({ id: s.id, options: s.options }))),
+    [votes, slots],
   );
 
-  // Preview mode: when there are no real votes yet, fall back to the first
-  // option per field so the GM still sees the layout/animation.
+  // Preview: fall back to first option per slot so the GM sees the layout.
   function winnerFor(i: number): string {
     const t = tallies[i];
-    const field = fields[i];
-    if (!t || !field) return '';
-    if (!t.hasVotes) {
-      return isPreview ? field.options[0] : '— no votes —';
-    }
-    return field.options[t.winnerIndex];
+    const slot = slots[i];
+    if (!t || !slot) return '';
+    if (!t.hasVotes) return isPreview ? slot.options[0] : '—';
+    return slot.options[t.winnerIndex];
   }
+
+  // Assemble the template paragraph with winning words substituted in.
+  const paragraph = madLib.template
+    ? slots.reduce((text, slot, i) => {
+        return text.replace(new RegExp(`\\{${slot.id}\\}`, 'g'), winnerFor(i));
+      }, madLib.template)
+    : null;
+
+  const CARD_STAGGER = 0.4;
+  const paragraphDelay = slots.length * CARD_STAGGER + 0.6;
 
   return (
     <div className="madlibs-display-reveal">
@@ -404,21 +450,30 @@ function DisplayReveal({
         <p className="madlibs-display-eyebrow">
           {isPreview ? `Preview · ${madLib.title}` : madLib.title}
         </p>
-        <h1 className="madlibs-display-reveal-title">The audience has spoken.</h1>
+        <h1 className="madlibs-display-reveal-title">The people have voted.</h1>
       </header>
 
       <ol className="madlibs-display-reveal-cards">
-        {fields.map((field, i) => (
+        {slots.map((slot, i) => (
           <li
-            key={field.id}
+            key={slot.id}
             className="madlibs-display-reveal-card"
-            style={{ ['--reveal-delay' as string]: `${i * 0.4}s` }}
+            style={{ ['--reveal-delay' as string]: `${i * CARD_STAGGER}s` }}
           >
-            <p className="madlibs-display-reveal-card-label">{field.label}</p>
+            <p className="madlibs-display-reveal-card-type">{slot.type}</p>
             <p className="madlibs-display-reveal-card-winner">{winnerFor(i)}</p>
           </li>
         ))}
       </ol>
+
+      {paragraph && (
+        <div
+          className="madlibs-display-reveal-paragraph"
+          style={{ ['--reveal-delay' as string]: `${paragraphDelay}s` }}
+        >
+          <p>{paragraph}</p>
+        </div>
+      )}
     </div>
   );
 }

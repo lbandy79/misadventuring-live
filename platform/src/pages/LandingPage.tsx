@@ -1,16 +1,16 @@
 /**
- * LandingPage — Phase 5.
+ * LandingPage — Phase 5, post-pivot.
  *
- * Real marketing copy: "now / next" hero (last show recap + next show
- * reservation), what-it-is explainer, featured shows pulled from the
- * platform Show registry, and a clear reservation CTA. Hero "now / next"
- * pointers are hardcoded constants — update them when the show calendar
- * advances.
+ * No reservation system. Content-first: last recap + next show scan CTA,
+ * friction-free How It Works, featured shows linking to recap pages.
+ * Hero "now / next" pointers are hardcoded constants — 30-second edit
+ * each season.
  */
 
 import { Link } from 'react-router-dom';
 import type { CSSProperties } from 'react';
 import { useShow, getShowEra, type Show } from '@mtp/lib';
+import { recapConfigs } from './recap/recapConfig';
 
 function accentStyleFor(show: Show): CSSProperties | undefined {
   if (!show.accentColor) return undefined;
@@ -20,25 +20,32 @@ function accentStyleFor(show: Show): CSSProperties | undefined {
   } as CSSProperties;
 }
 
-// Hero "now / next" pointers. Hardcoded by design — flipping these is a
-// 30-second edit when the next show is locked in.
+/** Returns the canonical recap href for a show, or null if no recap exists. */
+function recapHrefFor(show: Show): string | null {
+  if (show.recap?.kind === 'external') return show.recap.url;
+  if (show.recap?.kind === 'firestore') return `/shows/${show.recap.recapId}/recap`;
+  // Fall back to scanning recapConfigs for a matching seriesName
+  const entry = Object.values(recapConfigs).find(
+    (c) => c.showId === show.id || c.seriesName === show.name,
+  );
+  if (entry) return `/shows/${entry.showId}/recap`;
+  return null;
+}
+
 const LATEST_RECAP = {
   showName: 'Betawave: Last Call',
-  href: '/recap/betawave-last-call-2026-04-18',
+  href: '/shows/betawave-last-call-2026-04-18/recap',
 };
 const NEXT_SHOW = {
   showName: 'Mad Libs Honey Heist',
   dateLabel: 'May 23',
-  reserveShowId: 'mad-libs-honey-heist',
+  joinHref: '/shows/mad-libs-honey-heist/join',
 };
 
 export default function LandingPage() {
   const { allShows } = useShow();
   const featured = allShows
-    .filter((s) => {
-      const era = getShowEra(s);
-      return era !== 'shelved';
-    })
+    .filter((s) => getShowEra(s) !== 'shelved')
     .slice(0, 3);
 
   return (
@@ -63,11 +70,8 @@ export default function LandingPage() {
           </p>
           <p className="hero-now-next-line">
             <strong>Coming {NEXT_SHOW.dateLabel}:</strong> {NEXT_SHOW.showName}.{' '}
-            <Link
-              to={`/reserve?show=${encodeURIComponent(NEXT_SHOW.reserveShowId)}`}
-              className="hero-inline-cta"
-            >
-              Reserve your seat →
+            <Link to={NEXT_SHOW.joinHref} className="hero-inline-cta">
+              Scan in at the show →
             </Link>
           </p>
         </div>
@@ -79,13 +83,7 @@ export default function LandingPage() {
           show up and yell.
         </p>
         <div className="hero-cta-row">
-          <Link
-            to={`/reserve?show=${encodeURIComponent(NEXT_SHOW.reserveShowId)}`}
-            className="btn-primary btn-lg"
-          >
-            Reserve a seat
-          </Link>
-          <Link to="/shows" className="btn-secondary btn-lg">
+          <Link to="/shows" className="btn-primary btn-lg">
             Browse shows
           </Link>
         </div>
@@ -97,22 +95,22 @@ export default function LandingPage() {
           <li>
             <span className="step-num">1</span>
             <div>
-              <h3>Reserve a seat</h3>
-              <p>Drop your name and email. We send you a 6-character access code.</p>
+              <h3>Show up.</h3>
+              <p>No ticket, no code, no app. Lucky Straws, Winter Garden, FL. Walk in.</p>
             </div>
           </li>
           <li>
             <span className="step-num">2</span>
             <div>
-              <h3>Build a character</h3>
-              <p>Open the companion at the show, punch in your code, and roll up an NPC the GM will weave into the story.</p>
+              <h3>Scan the QR.</h3>
+              <p>Your phone is the companion. Scan the QR at the door and join the show in thirty seconds.</p>
             </div>
           </li>
           <li>
             <span className="step-num">3</span>
             <div>
-              <h3>Steer the chaos</h3>
-              <p>Vote on encounters, name the beasts, and watch your terrible ideas become canon in real time.</p>
+              <h3>Steer the chaos.</h3>
+              <p>Build a character, vote on encounters, name the beasts. Your terrible ideas become canon in real time.</p>
             </div>
           </li>
         </ol>
@@ -126,21 +124,39 @@ export default function LandingPage() {
           <div className="show-grid">
             {featured.map((s) => {
               const era = getShowEra(s);
-              return (
-                <Link key={s.id} to={`/shows/${s.id}`} className="show-card" style={accentStyleFor(s)}>
+              const recap = recapHrefFor(s);
+              const href = era === 'past' && recap ? recap : `/shows/${s.id}`;
+              const isExternal = era === 'past' && s.recap?.kind === 'external';
+              const ctaLabel = era === 'past' ? 'Watch the recap →' : 'View show →';
+
+              return isExternal && recap ? (
+                <a
+                  key={s.id}
+                  href={recap}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="show-card"
+                  style={accentStyleFor(s)}
+                >
+                  <div className="show-card-head">
+                    <span className="name">{s.name}</span>
+                    <span className="status">past</span>
+                  </div>
+                  <div className="meta">{s.themeId} · {s.systemId}</div>
+                  {s.description && <p className="desc">{s.description}</p>}
+                  <span className="show-card-cta">{ctaLabel} ↗</span>
+                </a>
+              ) : (
+                <Link key={s.id} to={href} className="show-card" style={accentStyleFor(s)}>
                   <div className="show-card-head">
                     <span className="name">{s.name}</span>
                     <span className={`status ${era === 'past' ? '' : 'draft'}`}>
                       {era}
                     </span>
                   </div>
-                  <div className="meta">
-                    {s.themeId} · {s.systemId}
-                  </div>
+                  <div className="meta">{s.themeId} · {s.systemId}</div>
                   {s.description && <p className="desc">{s.description}</p>}
-                  <span className="show-card-cta">
-                    {era === 'past' ? 'Watch the recap →' : 'View show →'}
-                  </span>
+                  <span className="show-card-cta">{ctaLabel}</span>
                 </Link>
               );
             })}

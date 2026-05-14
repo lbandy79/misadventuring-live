@@ -136,152 +136,238 @@
   },
 
   "showConfig": {
-    "_comment": "Mad Libs Honey Heist at Lucky Straws, May 23 2026. Four themed worlds: Theme Park, Outer Space, Time Travel, Movie Monster. Every Mad Lib has 4 options in that same order, so option index = theme. Audience can mix worlds freely; the cast plays whatever combo lands.",
+    "_comment": "Mad Libs Honey Heist at Lucky Straws, May 23 2026. The Mad Libs IS the login. Audience members build an NPC through the creation form, which is the only entry point. Personal fields shape their NPC identity. World fields aggregate as shared votes that the GM resolves at showtime. Stingers (Beats) are pushed live by the GM to individual NPCs.",
     "showId": "honey-heist-madlibs-2026-05-23",
     "showName": "Mad Libs Honey Heist",
     "seriesName": "TMP One-Shots",
     "venue": "Lucky Straws",
     "date": "2026-05-23",
-    "format": "mad-libs",
-    "themes": [
-      { "id": "theme-park", "name": "Theme Park", "order": 0 },
-      { "id": "outer-space", "name": "Outer Space", "order": 1 },
-      { "id": "time-travel", "name": "Time Travel", "order": 2 },
-      { "id": "movie-monster", "name": "Movie Monster", "order": 3 }
-    ],
-    "interactionMode": {
-      "preShow": "Audience reservations include a 5-question Setup Mad Lib that locks at showtime. Most-voted option wins per field.",
-      "live": "Three smaller Mad Libs pushed in real time at narrative cues. Open 60 seconds each."
+    "format": "npc-mad-libs",
+
+    "theme": {
+      "beatLabel": "Stinger",
+      "campaignId": "honey-heist",
+      "primaryColor": "#1c1c1c",
+      "accentColor": "#e0a022"
     },
-    "madLibs": [
-      {
-        "id": "the-setup",
-        "title": "The Setup",
-        "phase": "pre-show",
-        "openAt": "reservation-confirmed",
-        "closesAt": "showtime",
-        "prompt": "Help us set the heist up before the bears even know what they're stealing. Pick the world. Pick the chaos. The cast plays whatever you choose.",
-        "fields": [
-          {
-            "id": "setting",
-            "label": "HoneyCon 2026 is being held at...",
-            "type": "select",
-            "options": [
-              "BeeWorld, a struggling theme park that just bet everything on a honey-themed rebrand",
-              "The Apiary, an orbital station whose artificial gravity is held together with rubber bands",
-              "A traveling festival that exists in 1976, 2014, and next Tuesday simultaneously",
-              "An abandoned soundstage where a cursed honey commercial was filmed in 1987"
-            ]
-          },
-          {
-            "id": "organizer",
-            "label": "The convention organizer is...",
-            "type": "select",
-            "options": [
-              "A relentlessly upbeat CEO who insists everyone call him Uncle Buzzy",
-              "A space-station admin who is three months past her psych eval",
-              "A historian from 2387 who claims she's already won this heist",
-              "A reclusive horror director who hasn't been seen in thirty years"
-            ]
-          },
-          {
-            "id": "prize",
-            "label": "Aside from loads of honey, the real prize is...",
-            "type": "select",
-            "options": [
-              "The original animatronic Bee mascot, said to still hum",
-              "A jar of honey from the asteroid belt that pours sideways",
-              "A teaspoon of prehistoric honey, scooped from the very first hive",
-              "The final unreleased reel of Sting II: The Reckoning"
-            ]
-          },
-          {
-            "id": "twist",
-            "label": "But little do the bears know...",
-            "type": "select",
-            "options": [
-              "The park mascots are real, sentient, and unionizing tonight",
-              "The station is gradually de-orbiting and nobody told the guests",
-              "They've already done this heist three times. They lost every time.",
-              "The thing they thought was a prop isn't a prop"
-            ]
-          },
-          {
-            "id": "wildcard",
-            "label": "Also, somehow, also at HoneyCon...",
-            "type": "select",
-            "options": [
-              "A high school marching band that booked the same venue",
-              "A diplomatic delegation of sentient bees that just docked",
-              "The bears' own younger selves, who do not recognize them",
-              "A live YouTube ghost-hunting crew, filming everything"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "the-disguise",
-        "title": "The Disguise",
-        "phase": "live-interactive",
-        "triggerCue": "When the bears need to bluff past the front desk.",
-        "openSeconds": 60,
-        "prompt": "What's the worst (best?) disguise these bears could possibly wear?",
-        "fields": [
-          {
-            "id": "disguise",
-            "label": "The bears walk in dressed as...",
-            "type": "select",
-            "options": [
-              "The cast of the live mascot show, Ursine Spectacular!",
-              "Ambassadors from the Honeyjamm Cluster",
-              "Time-traveling beekeeping inspectors from a very specific year",
-              "The documentary crew that's been filming the whole convention"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "the-complication",
-        "title": "The Complication",
-        "phase": "live-interactive",
-        "triggerCue": "Halfway through the heist, when something has to go wrong.",
-        "openSeconds": 60,
-        "prompt": "Time for chaos. Pick the complication.",
-        "fields": [
-          {
-            "id": "complication",
-            "label": "Suddenly...",
-            "type": "select",
-            "options": [
-              "A roller coaster gets stuck mid-loop with families on board",
-              "Gravity blinks off for fifteen seconds. Then it blinks back on.",
-              "A second team of bears walks in. They are also from the future.",
-              "The 'prop' creature in the display case starts to move"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "the-getaway",
-        "title": "The Getaway",
-        "phase": "live-interactive",
-        "triggerCue": "Climax. The bears need to vanish.",
-        "openSeconds": 60,
-        "prompt": "How do these bears get out alive?",
-        "fields": [
-          {
-            "id": "getaway",
-            "label": "The escape vehicle is...",
-            "type": "select",
-            "options": [
-              "A commandeered parade float",
-              "An escape pod that turns out to be a confetti cannon",
-              "They jump back twenty minutes and try a different door",
-              "Through the soundstage door, straight into a different movie"
-            ]
-          }
-        ]
-      }
-    ]
+
+    "npcCreation": {
+      "_comment": "Blind word collection — labels show word type only, no sentence context. Comedy is in the reveal. displayNameTemplate uses {fieldId} from personal fields only.",
+      "displayNameTemplate": "{adjective} {job_title}, {tagline}",
+      "revealTemplate": "A {adjective} {job_title}, reportedly {tagline}, attending {setting} as a {noun}.",
+      "fields": [
+        {
+          "id": "adjective",
+          "type": "ADJECTIVE",
+          "fieldType": "personal",
+          "label": "Give me an adjective.",
+          "options": ["suspicious", "licensed", "enormous", "chill"]
+        },
+        {
+          "id": "job_title",
+          "type": "JOB TITLE",
+          "fieldType": "personal",
+          "label": "Give me a job title.",
+          "options": ["manager", "inspector", "consultant", "ghost"]
+        },
+        {
+          "id": "tagline",
+          "type": "ADJECTIVE",
+          "fieldType": "personal",
+          "label": "One more adjective.",
+          "options": ["notorious", "retired", "haunted", "unlicensed"]
+        },
+        {
+          "id": "noun",
+          "type": "NOUN",
+          "fieldType": "personal",
+          "label": "Give me a noun.",
+          "options": ["tourist", "stranger", "journalist", "plus-one"]
+        },
+        {
+          "id": "setting",
+          "type": "PLACE",
+          "fieldType": "world",
+          "label": "Give me a place.",
+          "_comment": "World-voted. Options align with original themes: Theme Park / Outer Space / Time Travel / Monster Movie.",
+          "options": [
+            "a theme park",
+            "a space station",
+            "a time loop",
+            "a film set"
+          ]
+        },
+        {
+          "id": "prize",
+          "type": "NOUN",
+          "fieldType": "world",
+          "label": "Give me a noun.",
+          "options": [
+            "the mascot",
+            "old honey",
+            "a film reel",
+            "something alive"
+          ]
+        }
+      ]
+    },
+
+    "stingerQueue": {
+      "_comment": "Blind word collection — slot labels are hidden from the audience during collection. Reveal happens on GM approval. Same ID-keyed substitution as npcCreation. Each promptPreset has its own responseSlots tuned for that scenario.",
+      "defaultDuration": 30,
+      "responseTemplate": "I {verb} the {noun} and now the {place} is {adjective}.",
+      "responseSlots": [
+        {
+          "id": "verb",
+          "type": "VERB (past tense)",
+          "label": "What you did",
+          "options": ["knocked", "ate", "revealed", "ignored"]
+        },
+        {
+          "id": "noun",
+          "type": "NOUN",
+          "label": "What you affected",
+          "options": ["jar", "disguise", "plan", "hat"]
+        },
+        {
+          "id": "place",
+          "type": "PLACE",
+          "label": "Where this happened",
+          "options": ["elevator", "bathroom", "lobby", "timeline"]
+        },
+        {
+          "id": "adjective",
+          "type": "ADJECTIVE",
+          "label": "How it is now",
+          "options": ["chaotic", "improved", "on fire", "illegal"]
+        }
+      ],
+      "promptPresets": [
+        {
+          "id": "worst-moment",
+          "label": "Walk in at the worst moment",
+          "prompt": "You just walked into the worst possible moment. What do you do?",
+          "responseSlots": [
+            {
+              "id": "verb",
+              "type": "VERB (past tense)",
+              "label": "What you did",
+              "options": ["photographed", "livestreamed", "narrated", "auctioned"]
+            },
+            {
+              "id": "noun",
+              "type": "NOUN",
+              "label": "What you affected",
+              "options": ["mascot head", "escape route", "security override", "emergency honey"]
+            },
+            {
+              "id": "place",
+              "type": "PLACE",
+              "label": "Where this is now",
+              "options": ["main stage", "exhibit hall B", "feeds", "vault anteroom"]
+            },
+            {
+              "id": "adjective",
+              "type": "ADJECTIVE",
+              "label": "How it is now",
+              "options": ["trending", "a crime scene", "very witnessed", "legally complicated"]
+            }
+          ]
+        },
+        {
+          "id": "witness",
+          "label": "See something you shouldn't have",
+          "prompt": "You saw something you absolutely should not have seen. Now what?",
+          "responseSlots": [
+            {
+              "id": "verb",
+              "type": "VERB (past tense)",
+              "label": "What you did with it",
+              "options": ["described", "reported", "identified", "sketched"]
+            },
+            {
+              "id": "noun",
+              "type": "NOUN",
+              "label": "What you saw",
+              "options": ["bear disguise", "honey drop", "whole plan", "backup signal"]
+            },
+            {
+              "id": "place",
+              "type": "PLACE",
+              "label": "Where it ended up",
+              "options": ["front page", "official record", "security office", "group chat"]
+            },
+            {
+              "id": "adjective",
+              "type": "ADJECTIVE",
+              "label": "How it is now",
+              "options": ["documented", "no longer deniable", "on the news", "a statement"]
+            }
+          ]
+        },
+        {
+          "id": "accident",
+          "label": "Make it worse",
+          "prompt": "You tried to stay out of it. That's over. How did you accidentally make it worse?",
+          "responseSlots": [
+            {
+              "id": "verb",
+              "type": "VERB (past tense)",
+              "label": "What you did",
+              "options": ["announced", "helped", "narrated", "fixed"]
+            },
+            {
+              "id": "noun",
+              "type": "NOUN",
+              "label": "What you touched",
+              "options": ["backup plan", "wrong bear", "whole thing", "getaway car"]
+            },
+            {
+              "id": "place",
+              "type": "PLACE",
+              "label": "What paid for it",
+              "options": ["exits", "main stage", "parking structure", "timeline"]
+            },
+            {
+              "id": "adjective",
+              "type": "ADJECTIVE",
+              "label": "How it is now",
+              "options": ["worse somehow", "a podcast", "on fire", "permanent"]
+            }
+          ]
+        },
+        {
+          "id": "distraction",
+          "label": "Be the distraction",
+          "prompt": "The bears need three seconds and a distraction. You're the only one here. Go.",
+          "responseSlots": [
+            {
+              "id": "verb",
+              "type": "VERB (past tense)",
+              "label": "What you did",
+              "options": ["performed", "announced", "narrated", "sang"]
+            },
+            {
+              "id": "noun",
+              "type": "NOUN",
+              "label": "What it was",
+              "options": ["interpretive fall", "beekeeper credentials", "emergency dance", "exit speech"]
+            },
+            {
+              "id": "place",
+              "type": "PLACE",
+              "label": "Where it landed",
+              "options": ["stage", "exhibit hall B", "front desk", "parking lot"]
+            },
+            {
+              "id": "adjective",
+              "type": "ADJECTIVE",
+              "label": "How it is now",
+              "options": ["still happening", "too successful", "a thing now", "technically a performance"]
+            }
+          ]
+        }
+      ]
+    }
   }
 }
