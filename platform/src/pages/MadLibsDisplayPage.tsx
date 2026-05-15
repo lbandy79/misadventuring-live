@@ -53,7 +53,13 @@ import {
   type MadLibLock,
   type MadLibVote,
 } from '@mtp/lib';
-import { subscribeToApprovedBeats, type Beat } from '../../../src/lib/npcs/npcApi';
+import {
+  subscribeToApprovedBeats,
+  subscribeToDisplayNpcs,
+  type Beat,
+  type NpcProfile,
+} from '../../../src/lib/npcs/npcApi';
+import NpcDisplayRow from '../components/display/NpcDisplayRow';
 
 // ─── Local types matching the system.json schema ────────────────────────
 // Kept local (not imported from @mtp/lib) so adding new optional fields to
@@ -114,6 +120,7 @@ export default function MadLibsDisplayPage() {
   const [lock, setLock] = useState<MadLibLock | null>(null);
   const [votes, setVotes] = useState<MadLibVote[]>([]);
   const [approvedBeats, setApprovedBeats] = useState<Beat[]>([]);
+  const [displayNpcs, setDisplayNpcs] = useState<NpcProfile[]>([]);
 
   // ── Load system config (same dynamic-import pattern as the vote page) ─
   useEffect(() => {
@@ -179,16 +186,18 @@ export default function MadLibsDisplayPage() {
     };
   }, [showId, activeMadLibId]);
 
-  // ── Subscribe to approved Stingers (NPC Mad Libs shows only) ─────────
+  // ── Subscribe to approved Stingers + display NPCs (NPC shows only) ──
   // Uses the canonical showId from showConfig rather than the URL param so
   // the projector and the join page agree on the same Firestore collection.
   const npcShowId: string | undefined = config?.showConfig?.showId;
   useEffect(() => {
     if (!config?.showConfig?.npcCreation || !npcShowId) return;
-    const unsub = subscribeToApprovedBeats(npcShowId, (beats) =>
-      setApprovedBeats(beats),
-    );
-    return unsub;
+    const unsubBeats = subscribeToApprovedBeats(npcShowId, setApprovedBeats);
+    const unsubDisplay = subscribeToDisplayNpcs(npcShowId, setDisplayNpcs);
+    return () => {
+      unsubBeats();
+      unsubDisplay();
+    };
   }, [npcShowId, config?.showConfig?.npcCreation]);
 
   // ── Theming via CSS custom properties ────────────────────────────────
@@ -247,7 +256,10 @@ export default function MadLibsDisplayPage() {
 
   return (
     <section className={`madlibs-display madlibs-display-${mode}`} style={themeStyle}>
-      {mode === 'idle' && (
+      {mode === 'idle' && displayNpcs.length > 0 && (
+        <DisplayNpcScene npcs={displayNpcs} voteUrl={voteUrl} />
+      )}
+      {mode === 'idle' && displayNpcs.length === 0 && (
         <DisplayIdle show={show} voteUrl={voteUrl} approvedBeats={approvedBeats} />
       )}
       {mode === 'open' && activeMadLib && (
@@ -262,6 +274,34 @@ export default function MadLibsDisplayPage() {
         <Link to={`/shows/${showId}`}>← Back to show</Link>
       </p>
     </section>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// NPC SCENE — shown when any NPC has showOnDisplay === true.
+// NPC cards are prominent + centered. QR code stays visible in the corner
+// so walk-ins can still join while the GM presents the cast.
+// Replaces the normal IDLE layout; stinger feed is hidden in this mode.
+// ─────────────────────────────────────────────────────────────────────────
+function DisplayNpcScene({
+  npcs,
+  voteUrl,
+}: {
+  npcs: NpcProfile[];
+  voteUrl: string;
+}) {
+  const isJoinUrl = voteUrl.endsWith('/join');
+  return (
+    <div className="madlibs-display-npc-scene">
+      <NpcDisplayRow npcs={npcs} />
+      <div className="madlibs-display-npc-scene__qr">
+        <QRCodeSVG value={voteUrl} size={140} includeMargin />
+        <p className="madlibs-display-npc-scene__qr-label">
+          {isJoinUrl ? 'Scan to join' : 'Scan to vote'}
+        </p>
+        <p className="madlibs-display-npc-scene__qr-url">{stripScheme(voteUrl)}</p>
+      </div>
+    </div>
   );
 }
 

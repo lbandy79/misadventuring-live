@@ -61,6 +61,11 @@ export interface NpcProfile {
   isArchived?: boolean;
   /** Optional email captured on the save-your-bear screen. */
   email?: string;
+  /** If true, this NPC appears in the projector NPC scene. Default false.
+   *  Toggled by the GM from the admin Roster tab. */
+  showOnDisplay?: boolean;
+  /** Seed for the DiceBear avatar. Defaults to displayName at render time. */
+  avatarSeed?: string;
 }
 
 /** One device's vote on a shared world field. Deterministic doc id. */
@@ -162,6 +167,7 @@ export async function createNpc(input: {
     isActive: true,
     hasBeenTagged: false,
     isArchived: false,
+    showOnDisplay: false,
   };
   if (input.fieldWriteIns && Object.keys(input.fieldWriteIns).length > 0) {
     doc_data.fieldWriteIns = input.fieldWriteIns;
@@ -235,6 +241,36 @@ export async function archiveNpc(npcId: string): Promise<void> {
     isArchived: true,
     isActive: false,
   });
+}
+
+/** Toggle a single NPC's visibility on the projector display. */
+export async function setNpcDisplay(npcId: string, showOnDisplay: boolean): Promise<void> {
+  await updateDoc(doc(db, NPCS_COLLECTION, npcId), { showOnDisplay });
+}
+
+/** Set showOnDisplay for every active NPC in a show — bulk show/hide. */
+export async function setAllNpcsDisplay(showId: string, showOnDisplay: boolean): Promise<void> {
+  const q = query(
+    collection(db, NPCS_COLLECTION),
+    where('showId', '==', showId),
+    where('isActive', '==', true),
+  );
+  const snap = await getDocs(q);
+  await Promise.all(snap.docs.map((d) => updateDoc(d.ref, { showOnDisplay })));
+}
+
+/** Subscribe to NPCs currently visible on the projector (showOnDisplay === true).
+ *  Filters client-side from the active-NPC subscription to avoid a composite index. */
+export function subscribeToDisplayNpcs(
+  showId: string,
+  onChange: (npcs: NpcProfile[]) => void,
+  onError?: (err: Error) => void,
+): () => void {
+  return subscribeToNpcs(
+    showId,
+    (npcs) => onChange(npcs.filter((n) => n.showOnDisplay === true)),
+    onError,
+  );
 }
 
 /** Subscribe to all active NPCs for a show, ordered by createdAt. */

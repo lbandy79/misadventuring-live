@@ -1,0 +1,104 @@
+/* ── NpcDisplayRow — projector cast card row ────────────────────────
+ * Designed for the paper-theme display (light background, ink-black
+ * borders). The accent shadow uses --display-accent which the parent
+ * MadLibsDisplayPage pipes in as a CSS custom property from the show's
+ * accentColor (gold #e0a022 for Honey Heist).
+ * ──────────────────────────────────────────────────────────────────── */
+
+.npc-display-row {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.npc-display-row--solo  { gap: 0; }
+.npc-display-row--row   { flex-wrap: nowrap; }
+.npc-display-row--grid  { flex-wrap: wrap; }
+
+/* ── Card ─────────────────────────────────────────────────────────── */
+
+.npc-display-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 1.25rem 1rem 1.1rem;
+  background: var(--paper-warm, #fffdf3);
+  border: 2px solid var(--ink-black, #1c1c1c);
+  border-radius: 6px;
+  box-shadow: 5px 5px 0 var(--display-accent, #e0a022);
+  text-align: center;
+}
+
+.npc-display-row--solo .npc-display-card  { max-width: 320px; width: 320px; }
+.npc-display-row--row  .npc-display-card  { max-width: 240px; width: 240px; }
+.npc-display-row--grid .npc-display-card  { max-width: 200px; width: 200px; }
+
+/* ── Avatar + badge ───────────────────────────────────────────────── */
+
+.npc-display-card__avatar-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.2rem;
+}
+
+.npc-display-avatar {
+  display: block;
+  border-radius: 4px;
+  image-rendering: pixelated;
+}
+
+.npc-display-avatar--fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  font-weight: 700;
+}
+
+/* Muted gold "NPC" pill badge */
+.npc-display-card__badge {
+  display: inline-block;
+  padding: 0.12em 0.55em;
+  background: var(--display-accent, #e0a022);
+  color: var(--ink-black, #1c1c1c);
+  font-family: var(--font-type, 'Special Elite', monospace);
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  border-radius: 2px;
+  opacity: 0.75;
+}
+
+/* ── Text lines ───────────────────────────────────────────────────── */
+
+/* Line 1: Adjective + Job Title, title-cased */
+.npc-display-card__name {
+  margin: 0;
+  font-family: var(--font-marker, 'Permanent Marker', cursive);
+  font-size: clamp(1.05rem, 2.2vw, 1.55rem);
+  line-height: 1.1;
+  color: var(--ink-black, #1c1c1c);
+}
+
+/* Line 2: Job Title, all-caps typewriter */
+.npc-display-card__role {
+  margin: 0;
+  font-family: var(--font-type, 'Special Elite', monospace);
+  font-size: clamp(0.62rem, 1.1vw, 0.78rem);
+  letter-spacing: 0.18em;
+  color: var(--ink-blue, #1a3a7a);
+}
+
+/* Line 3: Tagline, italic handwritten */
+.npc-display-card__tagline {
+  margin: 0;
+  font-family: var(--font-hand, 'Kalam', sans-serif);
+  font-style: italic;
+  font-size: clamp(0.82rem, 1.4vw, 0.98rem);
+  color: var(--ink-black, #1c1c1c);
+  opacity: 0.65;
+}

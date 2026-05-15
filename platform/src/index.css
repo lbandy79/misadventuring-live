@@ -1902,6 +1902,102 @@ textarea:focus-visible {
 }
 .npc-roster__fire-btn { white-space: nowrap; flex-shrink: 0; }
 
+/* Roster — bulk display controls */
+.npc-roster__bulk-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+}
+.npc-roster__bulk-btn--hide {
+  display: inline-block;
+  padding: 0.65rem 1.25rem;
+  font-family: var(--font-hand);
+  font-size: 1rem;
+  font-weight: 400;
+  border: 2px solid var(--ink-black);
+  border-radius: 4px;
+  background: var(--paper);
+  color: var(--ink-black);
+  box-shadow: 3px 3px 0 0 var(--ink-black);
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.npc-roster__bulk-btn--hide:hover:not(:disabled) {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 0 var(--ink-black);
+}
+.npc-roster__bulk-btn--hide:disabled { opacity: 0.5; cursor: not-allowed; }
+.npc-roster__on-screen-count {
+  font-family: var(--font-type);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  color: var(--ink-blue);
+  margin-left: 0.25rem;
+}
+
+/* Roster — per-NPC visibility toggle */
+.npc-roster__visibility-btn {
+  display: inline-block;
+  padding: 0.4rem 0.7rem;
+  font-family: var(--font-hand);
+  font-size: 0.85rem;
+  border: 2px solid var(--ink-black);
+  border-radius: 4px;
+  background: var(--paper);
+  color: var(--ink-black);
+  box-shadow: 2px 2px 0 0 var(--ink-black);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+}
+.npc-roster__visibility-btn:hover:not(:disabled) {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 0 var(--ink-black);
+}
+.npc-roster__visibility-btn--on {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+.npc-roster__visibility-btn--on:hover:not(:disabled) {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 0 var(--ink-black);
+}
+.npc-roster__visibility-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* NPC scene — display mode when any NPC has showOnDisplay === true */
+.madlibs-display-npc-scene {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  position: relative;
+  padding: 1.5rem 1rem;
+}
+.madlibs-display-npc-scene__qr {
+  position: absolute;
+  bottom: 1rem;
+  right: 1.5rem;
+  text-align: center;
+  opacity: 0.55;
+}
+.madlibs-display-npc-scene__qr-label {
+  margin: 0.35rem 0 0.15rem;
+  font-family: var(--font-marker);
+  font-size: 0.82rem;
+}
+.madlibs-display-npc-scene__qr-url {
+  margin: 0;
+  font-family: var(--font-type);
+  font-size: 0.68rem;
+  color: var(--ink-blue);
+  word-break: break-all;
+}
+
 /* Fire tab */
 .npc-fire-tab { display: flex; flex-direction: column; gap: 1rem; }
 .npc-fire-tab__success {

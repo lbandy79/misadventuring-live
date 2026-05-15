@@ -19,6 +19,8 @@ import {
   moderateBeat,
   clearBeat,
   archiveNpc,
+  setNpcDisplay,
+  setAllNpcsDisplay,
   type NpcProfile,
   type Beat,
   type BeatResponseSlot,
@@ -225,6 +227,7 @@ export default function NpcAdminPanel({ showId: registryId, systemId, showName }
           <RosterTab
             npcs={npcs}
             fields={showConfig.npcCreation?.fields ?? []}
+            showId={showConfig.showId}
             onSelectForStinger={() => setTab('fire')}
           />
         )}
@@ -251,13 +254,17 @@ export default function NpcAdminPanel({ showId: registryId, systemId, showName }
 function RosterTab({
   npcs,
   fields,
+  showId,
   onSelectForStinger,
 }: {
   npcs: NpcProfile[];
   fields: NpcFieldDef[];
+  showId: string;
   onSelectForStinger: (npc: NpcProfile) => void;
 }) {
   const [archiving, setArchiving] = useState<string | null>(null);
+  const [toggling, setToggling] = useState<string | null>(null);
+  const [bulkBusy, setBulkBusy] = useState(false);
 
   if (npcs.length === 0) {
     return <p className="npc-admin-panel__empty">No one has joined yet.</p>;
@@ -279,61 +286,130 @@ function RosterTab({
     }
   }
 
+  async function handleToggleDisplay(npc: NpcProfile) {
+    setToggling(npc.id);
+    try {
+      await setNpcDisplay(npc.id, !npc.showOnDisplay);
+    } catch (err) {
+      console.error('setNpcDisplay failed:', err);
+    } finally {
+      setToggling(null);
+    }
+  }
+
+  async function handleShowAll() {
+    setBulkBusy(true);
+    try {
+      await setAllNpcsDisplay(showId, true);
+    } catch (err) {
+      console.error('setAllNpcsDisplay(true) failed:', err);
+    } finally {
+      setBulkBusy(false);
+    }
+  }
+
+  async function handleHideAll() {
+    setBulkBusy(true);
+    try {
+      await setAllNpcsDisplay(showId, false);
+    } catch (err) {
+      console.error('setAllNpcsDisplay(false) failed:', err);
+    } finally {
+      setBulkBusy(false);
+    }
+  }
+
+  const onScreenCount = npcs.filter((n) => n.showOnDisplay).length;
+
   return (
-    <ol className="npc-roster">
-      {npcs.map((npc) => (
-        <li key={npc.id} className="npc-roster__item">
-          <div className="npc-roster__info">
-            <span className="npc-roster__name">{npc.displayName}</span>
-            <span className="npc-roster__fields">
-              {fields
-                .filter((f) => f.fieldType === 'personal')
-                .map((f) => {
-                  const val = npc.fieldValues[f.id];
-                  if (!val) return null;
-                  const isWriteIn = npc.fieldWriteIns?.[f.id] ?? false;
-                  return (
-                    <span key={f.id} className="npc-roster__field-val">
-                      {val}
-                      {isWriteIn && (
-                        <span
-                          className="npc-roster__write-in-badge"
-                          title="Audience write-in"
-                        >
-                          ✍
-                        </span>
-                      )}
-                    </span>
-                  );
-                })
-                .filter(Boolean)
-                .reduce<ReactNode[]>((acc, el, i) => {
-                  if (i > 0) acc.push(<span key={`sep-${i}`} className="npc-roster__sep"> · </span>);
-                  acc.push(el);
-                  return acc;
-                }, [])}
-            </span>
-          </div>
-          <div className="npc-roster__actions">
-            <button
-              className="npc-roster__fire-btn btn-secondary"
-              onClick={() => onSelectForStinger(npc)}
-              title="Go to Fire Stinger tab"
-            >
-              Stinger →
-            </button>
-            <button
-              className="npc-roster__archive-btn btn-ghost"
-              onClick={() => handleArchive(npc)}
-              disabled={archiving === npc.id}
-              title="Archive this NPC (soft-delete, never hard-deleted)"
-            >
-              {archiving === npc.id ? '…' : 'Archive'}
-            </button>
-          </div>
-        </li>
-      ))}
-    </ol>
+    <>
+      <div className="npc-roster__bulk-actions">
+        <button
+          className="btn-secondary npc-roster__bulk-btn"
+          onClick={handleShowAll}
+          disabled={bulkBusy}
+          title="Show every NPC on the projector display"
+        >
+          {bulkBusy ? '…' : 'Show All'}
+        </button>
+        <button
+          className="npc-roster__bulk-btn npc-roster__bulk-btn--hide"
+          onClick={handleHideAll}
+          disabled={bulkBusy}
+          title="Hide every NPC from the projector display"
+        >
+          {bulkBusy ? '…' : 'Hide All'}
+        </button>
+        {onScreenCount > 0 && (
+          <span className="npc-roster__on-screen-count">
+            {onScreenCount} on screen
+          </span>
+        )}
+      </div>
+
+      <ol className="npc-roster">
+        {npcs.map((npc) => (
+          <li key={npc.id} className="npc-roster__item">
+            <div className="npc-roster__info">
+              <span className="npc-roster__name">{npc.displayName}</span>
+              <span className="npc-roster__fields">
+                {fields
+                  .filter((f) => f.fieldType === 'personal')
+                  .map((f) => {
+                    const val = npc.fieldValues[f.id];
+                    if (!val) return null;
+                    const isWriteIn = npc.fieldWriteIns?.[f.id] ?? false;
+                    return (
+                      <span key={f.id} className="npc-roster__field-val">
+                        {val}
+                        {isWriteIn && (
+                          <span
+                            className="npc-roster__write-in-badge"
+                            title="Audience write-in"
+                          >
+                            ✍
+                          </span>
+                        )}
+                      </span>
+                    );
+                  })
+                  .filter(Boolean)
+                  .reduce<ReactNode[]>((acc, el, i) => {
+                    if (i > 0) acc.push(<span key={`sep-${i}`} className="npc-roster__sep"> · </span>);
+                    acc.push(el);
+                    return acc;
+                  }, [])}
+              </span>
+            </div>
+            <div className="npc-roster__actions">
+              <button
+                className={`npc-roster__visibility-btn${npc.showOnDisplay ? ' npc-roster__visibility-btn--on' : ''}`}
+                onClick={() => handleToggleDisplay(npc)}
+                disabled={toggling === npc.id || bulkBusy}
+                title={npc.showOnDisplay ? 'Hide from projector' : 'Show on projector'}
+              >
+                {toggling === npc.id ? '…' : npc.showOnDisplay ? '📽 On screen' : 'Show'}
+              </button>
+              <button
+                className="npc-roster__fire-btn btn-secondary"
+                onClick={() => onSelectForStinger(npc)}
+                title="Go to Fire Stinger tab"
+              >
+                Stinger →
+              </button>
+              <button
+                className="npc-roster__archive-btn btn-ghost"
+                onClick={() => handleArchive(npc)}
+                disabled={archiving === npc.id}
+                title="Archive this NPC (soft-delete, never hard-deleted)"
+              >
+                {archiving === npc.id ? '…' : 'Archive'}
+              </button>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </>
   );
 }
 
