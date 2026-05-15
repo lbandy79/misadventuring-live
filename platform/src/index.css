@@ -1980,10 +1980,11 @@ textarea:focus-visible {
 }
 .madlibs-display-npc-scene__qr {
   position: absolute;
-  bottom: 1rem;
+  top: 0;
   right: 1.5rem;
   text-align: center;
   opacity: 0.55;
+  z-index: 1;
 }
 .madlibs-display-npc-scene__qr-label {
   margin: 0.35rem 0 0.15rem;
