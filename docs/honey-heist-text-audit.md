@@ -460,7 +460,7 @@ Displayed in `FieldBlock` during `phase === 'create'`. Each field shows as a fie
 - **Options:**
   - `a theme park`
   - `a space station`
-  - `a time loop`
+  - `a comic convention`
   - `a film set`
 - **File:** `src/systems/honey-heist.system.json` lines 184–199
 - **Setting:** World-voted — the winning option determines the setting for all NPCs
