@@ -38,6 +38,7 @@ import { composeFromWords, type CollectedWord } from '../../../src/lib/npcs/comp
 import { sendCharacterSavedEmail } from '../lib/email/emailService';
 import { NpcCard } from '../components/NpcCard';
 import { StingerPrompt } from '../components/StingerPrompt';
+import { Doodle } from '../components/Doodle';
 
 // ─── Local types ──────────────────────────────────────────────────────────────
 
@@ -360,6 +361,12 @@ export default function NpcCreationPage() {
   const pendingBeat = myBeats.find((b) => b.status === 'pending' && b.id !== dismissedBeatId) ?? null;
   const myApprovedBeats = myBeats.filter((b) => b.status === 'approved');
 
+  // Per-show accent tokens — cascades into buttons, borders, badges via --accent
+  const accentStyle = {
+    '--accent': showConfig.theme.accentColor,
+    '--accent-ink': show?.accentInk ?? 'var(--ink-black)',
+  } as Record<string, string>;
+
   // ── Reveal screen ────────────────────────────────────────────────────────────
 
   if (phase === 'reveal' && myNpc && showConfig) {
@@ -375,7 +382,9 @@ export default function NpcCreationPage() {
       : null;
 
     return (
-      <section className="page-card join-page join-page--reveal">
+      <section className="page-card join-page join-page--reveal" style={accentStyle} data-show={showId}>
+        <Doodle name="shine" top="-18px" right="-22px" rotation={20} opacity={0.55} width="85px" />
+        <Doodle name="stars" bottom="24px" left="-18px" rotation={-12} opacity={0.5} width="72px" />
         <header className="join-header">
           <p className="join-eyebrow">{showConfig.showName}</p>
           <h1 className="join-title">Here's who you are.</h1>
@@ -402,7 +411,9 @@ export default function NpcCreationPage() {
 
   if (phase === 'create') {
     return (
-      <section className="page-card join-page">
+      <section className="page-card join-page" style={accentStyle} data-show={showId}>
+        <Doodle name="bear" top="-24px" right="-28px" rotation={15} opacity={0.8} width="112px" />
+        <Doodle name="bees" bottom="72px" left="-20px" rotation={-8} opacity={0.6} width="76px" />
         <header className="join-header">
           <p className="join-eyebrow">{showConfig.showName}</p>
           <h1 className="join-title">
@@ -498,7 +509,9 @@ export default function NpcCreationPage() {
         <StingerPrompt beat={pendingBeat} onDismiss={() => setDismissedBeatId(pendingBeat.id)} />
       )}
 
-      <section className="page-card join-page join-page--my-npc">
+      <section className="page-card join-page join-page--my-npc" style={accentStyle} data-show={showId}>
+        <Doodle name="bear_face" top="-22px" right="-24px" rotation={10} opacity={0.75} width="92px" />
+        <Doodle name="squiggle" bottom="36px" left="-16px" rotation={-5} opacity={0.45} width="82px" />
         <header className="join-header">
           <p className="join-eyebrow">{showConfig.showName}</p>
           <h1 className="join-title">You're in.</h1>

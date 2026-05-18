@@ -38,7 +38,7 @@
   /* Per-show accent slot. Pages override `--accent` on a wrapper.
    * Default to Betawave red so the global shell has a sensible color. */
   --accent:      var(--ink-red);
-  --accent-soft: rgba(217, 53, 43, 0.18);
+  --accent-soft: color-mix(in srgb, var(--accent) 18%, transparent);
   --accent-ink:  #fffdf3;
 
   /* Font stacks */

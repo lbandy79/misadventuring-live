@@ -1,0 +1,24 @@
+/* ─────────────────────────────────────────────────────────────────
+ * Doodle — absolutely-positioned decorative image.
+ *
+ * Parent must have position: relative (or position: absolute/fixed).
+ * All doodles are aria-hidden and pointer-events: none — purely visual.
+ *
+ * Hide on mobile so images don't crowd narrow viewports.
+ * ───────────────────────────────────────────────────────────────── */
+
+.doodle {
+  position: absolute;
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+
+@media (max-width: 600px) {
+  .doodle { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .doodle { animation: none !important; transition: none !important; }
+}
