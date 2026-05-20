@@ -85,7 +85,7 @@ export default function NpcDisplayRow({ npcs }: NpcDisplayRowProps) {
           const jobTitle  = npc.fieldValues?.job_title  ?? '';
           const tagline   = npc.fieldValues?.tagline    ?? '';
           const seed      = npc.avatarSeed ?? npc.displayName;
-          const nameLine  = toTitleCase([adjective, jobTitle].filter(Boolean).join(' '));
+          const roleLine  = toTitleCase([adjective, jobTitle].filter(Boolean).join(' '));
 
           return (
             <motion.div
@@ -100,9 +100,9 @@ export default function NpcDisplayRow({ npcs }: NpcDisplayRowProps) {
                 <NpcCardAvatar seed={seed} size={avatarSize} />
                 <span className="npc-display-card__badge">NPC</span>
               </div>
-              {nameLine  && <p className="npc-display-card__name">{nameLine}</p>}
-              {jobTitle  && <p className="npc-display-card__role">{jobTitle.toUpperCase()}</p>}
-              {tagline   && <p className="npc-display-card__tagline">{tagline}</p>}
+              {npc.displayName && <p className="npc-display-card__name">{npc.displayName}</p>}
+              {roleLine  && <p className="npc-display-card__role">{roleLine}</p>}
+              {tagline   && <p className="npc-display-card__tagline">reportedly {tagline}</p>}
             </motion.div>
           );
         })}

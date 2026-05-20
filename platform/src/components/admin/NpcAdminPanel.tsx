@@ -10,11 +10,13 @@
  * stingerQueue promptPresets, responseTemplate, and responseSlots.
  */
 
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { getAuth } from 'firebase/auth';
 import {
   subscribeToNpcs,
   subscribeToBeatsForShow,
+  subscribeToWorldSelection,
+  setWorldSelection,
   triggerBeat,
   moderateBeat,
   clearBeat,
@@ -24,6 +26,8 @@ import {
   type NpcProfile,
   type Beat,
   type BeatResponseSlot,
+  type WorldVoteTally,
+  type WorldSelection,
 } from '../../../../src/lib/npcs/npcApi';
 
 const FUNCTIONS_BASE = 'https://us-central1-misadventuring-live.cloudfunctions.net';
@@ -48,6 +52,7 @@ interface NpcFieldDef {
   type: string;
   label: string;
   fieldType: 'personal' | 'world';
+  options?: string[];
 }
 
 interface ShowConfig {
@@ -66,7 +71,7 @@ interface NpcAdminPanelProps {
   showName: string;
 }
 
-type Tab = 'roster' | 'fire' | 'mod';
+type Tab = 'roster' | 'fire' | 'world' | 'mod';
 
 // ─── Panel ─────────────────────────────────────────────────────────────────
 
@@ -209,7 +214,7 @@ export default function NpcAdminPanel({ showId: registryId, systemId, showName }
       </div>
 
       <div className="npc-admin-tabs">
-        {(['roster', 'fire', 'mod'] as Tab[]).map((t) => (
+        {(['roster', 'fire', 'world', 'mod'] as Tab[]).map((t) => (
           <button
             key={t}
             className={`npc-admin-tab ${tab === t ? 'npc-admin-tab--active' : ''}`}
@@ -217,6 +222,7 @@ export default function NpcAdminPanel({ showId: registryId, systemId, showName }
           >
             {t === 'roster' && `Roster (${npcs.length})`}
             {t === 'fire' && 'Fire Stinger'}
+            {t === 'world' && 'The World'}
             {t === 'mod' && `Mod Queue${modQueueCount > 0 ? ` (${modQueueCount})` : ''}`}
           </button>
         ))}
@@ -240,6 +246,15 @@ export default function NpcAdminPanel({ showId: registryId, systemId, showName }
         )}
         {tab === 'fire' && !showConfig.stingerQueue && (
           <p className="npc-admin-panel__empty">No stingerQueue defined in system config.</p>
+        )}
+        {tab === 'world' && (
+          <WorldTab
+            showId={showConfig.showId}
+            npcs={npcs}
+            worldFields={(showConfig.npcCreation?.fields ?? []).filter(
+              (f) => f.fieldType === 'world',
+            )}
+          />
         )}
         {tab === 'mod' && (
           <ModTab beats={respondedBeats} approvedBeats={approvedBeats} />
@@ -578,6 +593,229 @@ function FireTab({
       >
         {firing ? 'Firing…' : '🎯 Fire Stinger'}
       </button>
+    </div>
+  );
+}
+
+// ─── World tab ─────────────────────────────────────────────────────────────
+
+function WorldTab({
+  showId,
+  npcs,
+  worldFields,
+}: {
+  showId: string;
+  npcs: NpcProfile[];
+  worldFields: NpcFieldDef[];
+}) {
+  const [selection, setSelection] = useState<WorldSelection | null>(null);
+  const [gmPicks, setGmPicks] = useState<Record<string, string>>({});
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Tally computed from active NPCs only — ignores stale test votes
+  const tally = useMemo<WorldVoteTally>(() => {
+    const result: WorldVoteTally = {};
+    worldFields.forEach((field) => {
+      const counts: Record<string, number> = {};
+      let total = 0;
+      const validOptions = new Set(field.options ?? []);
+      npcs.forEach((npc) => {
+        const val = npc.fieldValues?.[field.id];
+        if (val && validOptions.has(val)) {
+          counts[val] = (counts[val] ?? 0) + 1;
+          total += 1;
+        }
+      });
+      let winner: string | null = null;
+      let max = 0;
+      Object.entries(counts).forEach(([text, count]) => {
+        if (count > max) { max = count; winner = text; }
+      });
+      result[field.id] = { counts, total, winnerText: winner };
+    });
+    return result;
+  }, [npcs, worldFields]);
+
+  useEffect(() => {
+    const unsub = subscribeToWorldSelection(showId, (sel) => {
+      setSelection(sel);
+      if (sel) {
+        setGmPicks({ setting: sel.settingValue, prize: sel.prizeValue });
+      }
+    });
+    return unsub;
+  }, [showId]);
+
+  const displayMode = selection?.displayMode ?? 'hidden';
+
+  const canReveal = worldFields.every((f) => {
+    const fallback = f.id === 'setting' ? selection?.settingValue : selection?.prizeValue;
+    return !!(gmPicks[f.id] || fallback);
+  });
+
+  async function handleSaveAndReveal(mode: WorldSelection['displayMode']) {
+    setSaving(true);
+    setError(null);
+    try {
+      await setWorldSelection(showId, {
+        settingValue: gmPicks['setting'] ?? selection?.settingValue ?? '',
+        prizeValue: gmPicks['prize'] ?? selection?.prizeValue ?? '',
+        displayMode: mode,
+      });
+    } catch (err) {
+      console.error('setWorldSelection failed:', err);
+      setError('Could not update. Check the console.');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (worldFields.length === 0) {
+    return (
+      <p className="npc-admin-panel__empty">
+        No world fields defined in this show's system config.
+      </p>
+    );
+  }
+
+  const modeLabel: Record<WorldSelection['displayMode'], string> = {
+    hidden: 'Hidden — not yet shown',
+    'world-reveal': 'World Reveal — flip cards on screen',
+    cast: 'Cast Scene — NPC cards + world sidebar',
+  };
+
+  return (
+    <div className="npc-world-tab">
+      <div className="npc-world-tab__status">
+        <span className="npc-world-tab__status-label">Display:</span>
+        <span className={`npc-world-tab__mode npc-world-tab__mode--${displayMode.replace('-', '_')}`}>
+          {modeLabel[displayMode]}
+        </span>
+      </div>
+
+      <div className="npc-world-tab__fields">
+        {worldFields.map((field) => {
+          const fieldTally = tally[field.id];
+          const currentPick = gmPicks[field.id] ?? '';
+          const storedValue = field.id === 'setting'
+            ? selection?.settingValue
+            : selection?.prizeValue;
+
+          return (
+            <div key={field.id} className="npc-world-field">
+              <h3 className="npc-world-field__heading">
+                <span className="npc-world-field__type">{field.type}</span>
+                <span className="npc-world-field__label">{field.label}</span>
+                {fieldTally && (
+                  <span className="npc-world-field__total">
+                    {fieldTally.total} vote{fieldTally.total !== 1 ? 's' : ''}
+                  </span>
+                )}
+              </h3>
+
+              <div className="npc-world-field__options">
+                {(field.options ?? []).map((opt: string) => {
+                  const count = fieldTally?.counts[opt] ?? 0;
+                  const total = fieldTally?.total ?? 0;
+                  const pct = total === 0 ? 0 : Math.round((count / total) * 100);
+                  const isVoteWinner = fieldTally?.winnerText === opt && total > 0;
+                  const isSelected = currentPick === opt;
+
+                  return (
+                    <label
+                      key={opt}
+                      className={[
+                        'npc-world-option',
+                        isSelected ? 'npc-world-option--selected' : '',
+                        isVoteWinner ? 'npc-world-option--winner' : '',
+                      ].filter(Boolean).join(' ')}
+                    >
+                      <input
+                        type="radio"
+                        name={`world-pick-${field.id}`}
+                        value={opt}
+                        checked={isSelected}
+                        onChange={() => setGmPicks((prev) => ({ ...prev, [field.id]: opt }))}
+                        className="npc-world-option__radio"
+                      />
+                      <span className="npc-world-option__bar-wrap">
+                        <span
+                          className="npc-world-option__bar"
+                          style={{ width: `${Math.max(pct, 2)}%` }}
+                          aria-hidden
+                        />
+                      </span>
+                      <span className="npc-world-option__text">{opt}</span>
+                      <span className="npc-world-option__count">
+                        {count > 0 && <>{count} · {pct}%</>}
+                        {isVoteWinner && <span className="npc-world-option__winner-badge">audience pick</span>}
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+
+              {storedValue && currentPick !== storedValue && (
+                <p className="npc-world-field__pending">
+                  Unsaved — currently live: <strong>{storedValue}</strong>
+                </p>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {error && <p className="npc-world-tab__error" role="alert">{error}</p>}
+
+      <div className="npc-world-tab__actions">
+        {displayMode === 'hidden' && (
+          <button
+            className="btn-primary npc-world-tab__reveal-btn"
+            onClick={() => handleSaveAndReveal('world-reveal')}
+            disabled={saving || !canReveal}
+            title="Saves your picks and shows flip cards on the projector"
+          >
+            {saving ? 'Saving…' : '🌍 Reveal World to Audience'}
+          </button>
+        )}
+        {displayMode === 'world-reveal' && (
+          <>
+            <button
+              className="btn-primary npc-world-tab__cast-btn"
+              onClick={() => handleSaveAndReveal('cast')}
+              disabled={saving}
+            >
+              {saving ? 'Saving…' : '🎭 Show the Cast'}
+            </button>
+            <button
+              className="btn-ghost npc-world-tab__reset-btn"
+              onClick={() => handleSaveAndReveal('hidden')}
+              disabled={saving}
+            >
+              ← Back to Hidden
+            </button>
+          </>
+        )}
+        {displayMode === 'cast' && (
+          <button
+            className="btn-ghost npc-world-tab__reset-btn"
+            onClick={() => handleSaveAndReveal('hidden')}
+            disabled={saving}
+          >
+            Reset Display
+          </button>
+        )}
+        {displayMode !== 'hidden' && (
+          <button
+            className="btn-ghost npc-world-tab__update-btn"
+            onClick={() => handleSaveAndReveal(displayMode)}
+            disabled={saving}
+          >
+            {saving ? 'Saving…' : 'Save Pick Changes'}
+          </button>
+        )}
+      </div>
     </div>
   );
 }

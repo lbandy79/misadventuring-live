@@ -1967,21 +1967,53 @@ textarea:focus-visible {
 }
 .npc-roster__visibility-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-/* NPC scene — display mode when any NPC has showOnDisplay === true */
-.madlibs-display-npc-scene {
+/* ── WORLD REVEAL ─────────────────────────────────────────────────── */
+.madlibs-display-world-reveal {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  padding: 2rem;
   gap: 2rem;
-  position: relative;
-  padding: 1.5rem 1rem;
 }
+
+/* ── 3-ZONE NPC SCENE ─────────────────────────────────────────────── */
+/* Base: cards centered, no sidebars */
+.madlibs-display-npc-scene {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-areas: "cards";
+  gap: 1rem;
+  padding: 1.5rem 1rem;
+  align-items: start;
+}
+.madlibs-display-npc-scene__cards { grid-area: cards; }
+
+/* With world panel: left sidebar appears */
+.madlibs-display-npc-scene--has-world {
+  grid-template-columns: 200px 1fr;
+  grid-template-areas: "world cards";
+}
+
+/* With both sidebars */
+.madlibs-display-npc-scene--has-world.madlibs-display-npc-scene--has-beats {
+  grid-template-columns: 200px 1fr 200px;
+  grid-template-areas: "world cards beats";
+}
+
+/* Without world but with beats */
+.madlibs-display-npc-scene--has-beats:not(.madlibs-display-npc-scene--has-world) {
+  grid-template-columns: 1fr 200px;
+  grid-template-areas: "cards beats";
+}
+
+/* QR floats top-right when no world panel */
 .madlibs-display-npc-scene__qr {
   position: fixed;
   top: 1rem;
-  right: 1.5rem;
+  right: 1rem;
   text-align: center;
   opacity: 0.85;
   z-index: 10;
@@ -1997,6 +2029,243 @@ textarea:focus-visible {
   font-size: 0.68rem;
   color: var(--ink-blue);
   word-break: break-all;
+}
+
+/* ── WORLD PANEL (left sidebar) ───────────────────────────────────── */
+.madlibs-display-world-panel {
+  grid-area: world;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.25rem 1rem;
+  background: color-mix(in srgb, var(--display-accent, #e0a022) 12%, transparent);
+  border-right: 2px solid color-mix(in srgb, var(--display-accent, #e0a022) 30%, transparent);
+  border-radius: 4px 0 0 4px;
+  align-self: stretch;
+}
+.madlibs-display-world-panel__eyebrow {
+  margin: 0;
+  font-family: var(--font-marker);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.6;
+}
+.madlibs-display-world-panel__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.madlibs-display-world-panel__type {
+  font-family: var(--font-type);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  opacity: 0.55;
+}
+.madlibs-display-world-panel__value {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  line-height: 1.2;
+  color: var(--ink-black);
+}
+.madlibs-display-world-panel__qr {
+  margin-top: auto;
+  text-align: center;
+}
+.madlibs-display-world-panel__qr-label {
+  margin: 0.3rem 0 0.1rem;
+  font-family: var(--font-marker);
+  font-size: 0.72rem;
+}
+.madlibs-display-world-panel__qr-url {
+  margin: 0;
+  font-family: var(--font-type);
+  font-size: 0.6rem;
+  color: var(--ink-blue);
+  word-break: break-all;
+}
+
+/* ── STINGER FEED PANEL (right sidebar) ───────────────────────────── */
+.madlibs-display-stinger-panel {
+  grid-area: beats;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.25rem 1rem;
+  border-left: 2px solid var(--paper-line, #d0c9b0);
+  align-self: stretch;
+  overflow-y: auto;
+}
+.madlibs-display-stinger-panel__heading {
+  margin: 0;
+  font-family: var(--font-marker);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.6;
+}
+.madlibs-display-stinger-panel__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.madlibs-display-stinger-panel__item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.madlibs-display-stinger-panel__name {
+  font-family: var(--font-hand);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.madlibs-display-stinger-panel__text {
+  font-family: var(--font-script);
+  font-size: 0.85rem;
+  line-height: 1.35;
+  opacity: 0.85;
+}
+
+/* ── WORLD ADMIN TAB ──────────────────────────────────────────────── */
+.npc-world-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 0.5rem 0;
+}
+.npc-world-tab__status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--paper-warm, #f5f0e8);
+  border-radius: 4px;
+  font-family: var(--font-type);
+  font-size: 0.8rem;
+}
+.npc-world-tab__status-label { opacity: 0.6; }
+.npc-world-tab__mode { font-weight: 600; }
+.npc-world-tab__mode--hidden { color: var(--ink-black); opacity: 0.5; }
+.npc-world-tab__mode--world_reveal { color: var(--ink-blue); }
+.npc-world-tab__mode--cast { color: #2a7a2a; }
+
+.npc-world-tab__fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.25rem;
+}
+.npc-world-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1rem;
+  border: 1px solid var(--paper-line, #d0c9b0);
+  border-radius: 6px;
+  background: #fff;
+}
+.npc-world-field__heading {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 0;
+}
+.npc-world-field__type {
+  font-family: var(--font-type);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.55;
+}
+.npc-world-field__label {
+  font-family: var(--font-hand);
+  font-size: 0.9rem;
+}
+.npc-world-field__total {
+  margin-left: auto;
+  font-family: var(--font-type);
+  font-size: 0.72rem;
+  opacity: 0.5;
+}
+.npc-world-field__pending {
+  margin: 0;
+  font-family: var(--font-type);
+  font-size: 0.72rem;
+  color: var(--ink-red, #c0392b);
+}
+
+.npc-world-field__options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.npc-world-option {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.npc-world-option:hover { background: var(--paper-warm, #f5f0e8); }
+.npc-world-option--selected { background: color-mix(in srgb, var(--accent, #e0a022) 15%, transparent); }
+.npc-world-option--winner .npc-world-option__text { font-weight: 600; }
+.npc-world-option__radio { margin: 0; accent-color: var(--accent, #e0a022); }
+.npc-world-option__bar-wrap {
+  height: 6px;
+  background: var(--paper-line, #d0c9b0);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.npc-world-option__bar {
+  display: block;
+  height: 100%;
+  background: var(--accent, #e0a022);
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+.npc-world-option__text {
+  font-family: var(--font-hand);
+  font-size: 0.88rem;
+}
+.npc-world-option__count {
+  font-family: var(--font-type);
+  font-size: 0.7rem;
+  opacity: 0.65;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.npc-world-option__winner-badge {
+  font-family: var(--font-type);
+  font-size: 0.62rem;
+  padding: 0.1rem 0.35rem;
+  background: var(--accent, #e0a022);
+  color: var(--on-accent, #1c1c1c);
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.npc-world-tab__actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--paper-line, #d0c9b0);
+}
+.npc-world-tab__reveal-btn,
+.npc-world-tab__cast-btn { flex: 1; }
+.npc-world-tab__error {
+  color: var(--ink-red, #c0392b);
+  font-family: var(--font-type);
+  font-size: 0.8rem;
+  margin: 0;
 }
 
 /* Fire tab */

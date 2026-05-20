@@ -36,6 +36,7 @@ import { db } from '../../firebase';
 
 export const NPCS_COLLECTION = 'npcs';
 export const WORLD_VOTES_COLLECTION = 'npc-world-votes';
+export const WORLD_SELECTIONS_COLLECTION = 'world-selections';
 export const BEATS_COLLECTION = 'beats';
 
 const DEVICE_TOKEN_KEY = 'mtp_device_token';
@@ -77,6 +78,28 @@ export interface WorldVote {
   optionText: string;
   deviceToken: string;
   createdAt: Timestamp | null;
+}
+
+/** Per-field vote tally aggregated from npc-world-votes. */
+export interface WorldFieldTally {
+  counts: Record<string, number>; // optionText → vote count
+  total: number;
+  winnerText: string | null;
+}
+export type WorldVoteTally = Record<string, WorldFieldTally>; // fieldId → tally
+
+/**
+ * GM's authoritative world selection for a show.
+ * displayMode drives the projector:
+ *   hidden       — nothing world-related on screen yet
+ *   world-reveal — flip cards showing setting + prize
+ *   cast         — NPC scene with world sidebar + stinger feed
+ */
+export interface WorldSelection {
+  settingValue: string;
+  prizeValue: string;
+  displayMode: 'hidden' | 'world-reveal' | 'cast';
+  revealedAt: Timestamp | null;
 }
 
 export interface BeatResponseSlot {
@@ -344,6 +367,79 @@ export async function getWorldVotesForDevice(
     result[data.fieldId] = data.optionIndex;
   });
   return result;
+}
+
+/** Subscribe to live vote tallies for all world fields in a show.
+ *  Aggregates npc-world-votes client-side — no composite index needed. */
+export function subscribeToWorldVotes(
+  showId: string,
+  onChange: (tally: WorldVoteTally) => void,
+  onError?: (err: Error) => void,
+): () => void {
+  const q = query(
+    collection(db, WORLD_VOTES_COLLECTION),
+    where('showId', '==', showId),
+  );
+  return onSnapshot(
+    q,
+    (snap) => {
+      const tally: WorldVoteTally = {};
+      snap.docs.forEach((d) => {
+        const vote = d.data() as Omit<WorldVote, 'id'>;
+        if (!tally[vote.fieldId]) {
+          tally[vote.fieldId] = { counts: {}, total: 0, winnerText: null };
+        }
+        const entry = tally[vote.fieldId];
+        entry.counts[vote.optionText] = (entry.counts[vote.optionText] ?? 0) + 1;
+        entry.total += 1;
+      });
+      // Resolve winner per field
+      Object.values(tally).forEach((entry) => {
+        let max = 0;
+        let winner: string | null = null;
+        Object.entries(entry.counts).forEach(([text, count]) => {
+          if (count > max) { max = count; winner = text; }
+        });
+        entry.winnerText = winner;
+      });
+      onChange(tally);
+    },
+    (err) => {
+      if (onError) onError(err);
+      else console.warn('world-votes subscription failed:', err);
+    },
+  );
+}
+
+/** Subscribe to the GM's world selection doc for a show (display + admin). */
+export function subscribeToWorldSelection(
+  showId: string,
+  onChange: (selection: WorldSelection | null) => void,
+  onError?: (err: Error) => void,
+): () => void {
+  return onSnapshot(
+    doc(db, WORLD_SELECTIONS_COLLECTION, showId),
+    (snap) => {
+      if (!snap.exists()) { onChange(null); return; }
+      onChange(snap.data() as WorldSelection);
+    },
+    (err) => {
+      if (onError) onError(err);
+      else console.warn('world-selection subscription failed:', err);
+    },
+  );
+}
+
+/** GM writes (or updates) their world selection and controls the display mode. */
+export async function setWorldSelection(
+  showId: string,
+  update: Partial<Pick<WorldSelection, 'settingValue' | 'prizeValue' | 'displayMode'>>,
+): Promise<void> {
+  const patch: Record<string, unknown> = { ...update };
+  if (update.displayMode === 'world-reveal') {
+    patch.revealedAt = serverTimestamp();
+  }
+  await setDoc(doc(db, WORLD_SELECTIONS_COLLECTION, showId), patch, { merge: true });
 }
 
 // ─── Beats ────────────────────────────────────────────────────────────────────

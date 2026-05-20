@@ -56,8 +56,10 @@ import {
 import {
   subscribeToApprovedBeats,
   subscribeToDisplayNpcs,
+  subscribeToWorldSelection,
   type Beat,
   type NpcProfile,
+  type WorldSelection,
 } from '../../../src/lib/npcs/npcApi';
 import NpcDisplayRow from '../components/display/NpcDisplayRow';
 
@@ -121,6 +123,7 @@ export default function MadLibsDisplayPage() {
   const [votes, setVotes] = useState<MadLibVote[]>([]);
   const [approvedBeats, setApprovedBeats] = useState<Beat[]>([]);
   const [displayNpcs, setDisplayNpcs] = useState<NpcProfile[]>([]);
+  const [worldSelection, setWorldSelection] = useState<WorldSelection | null>(null);
 
   // ── Load system config (same dynamic-import pattern as the vote page) ─
   useEffect(() => {
@@ -194,9 +197,11 @@ export default function MadLibsDisplayPage() {
     if (!config?.showConfig?.npcCreation || !npcShowId) return;
     const unsubBeats = subscribeToApprovedBeats(npcShowId, setApprovedBeats);
     const unsubDisplay = subscribeToDisplayNpcs(npcShowId, setDisplayNpcs);
+    const unsubWorld = subscribeToWorldSelection(npcShowId, setWorldSelection);
     return () => {
       unsubBeats();
       unsubDisplay();
+      unsubWorld();
     };
   }, [npcShowId, config?.showConfig?.npcCreation]);
 
@@ -235,16 +240,21 @@ export default function MadLibsDisplayPage() {
   }
 
   // ── Mode selection ───────────────────────────────────────────────────
-  // Preview short-circuits to REVEAL (with the default Mad Lib) so the GM
-  // can rehearse the reveal animation without touching real lock state.
+  // World selection displayMode takes priority over the Mad Libs state so the
+  // GM can drive the narrative arc: world reveal → cast scene → mad libs.
   const isManualLocked = !!lock?.manualLockedAt;
-  const mode: 'idle' | 'open' | 'reveal' = isPreview
+  const worldDisplayMode = worldSelection?.displayMode ?? 'hidden';
+  const mode: 'idle' | 'open' | 'reveal' | 'world-reveal' | 'cast' = isPreview
     ? 'reveal'
-    : !activeMadLib
-      ? 'idle'
-      : isManualLocked
-        ? 'reveal'
-        : 'open';
+    : worldDisplayMode === 'world-reveal'
+      ? 'world-reveal'
+      : worldDisplayMode === 'cast'
+        ? 'cast'
+        : !activeMadLib
+          ? 'idle'
+          : isManualLocked
+            ? 'reveal'
+            : 'open';
 
   // Audience join URL — what the QR encodes.
   // NPC Mad Libs shows use /join; classic voting shows use /vote.
@@ -256,11 +266,17 @@ export default function MadLibsDisplayPage() {
 
   return (
     <section className={`madlibs-display madlibs-display-${mode}`} style={themeStyle}>
-      {mode === 'idle' && displayNpcs.length > 0 && (
-        <DisplayNpcScene npcs={displayNpcs} voteUrl={voteUrl} />
-      )}
       {mode === 'idle' && displayNpcs.length === 0 && (
         <DisplayIdle show={show} voteUrl={voteUrl} approvedBeats={approvedBeats} />
+      )}
+      {mode === 'idle' && displayNpcs.length > 0 && (
+        <DisplayNpcScene npcs={displayNpcs} voteUrl={voteUrl} worldSelection={worldSelection} approvedBeats={approvedBeats} />
+      )}
+      {mode === 'world-reveal' && worldSelection && (
+        <DisplayWorldReveal worldSelection={worldSelection} />
+      )}
+      {mode === 'cast' && (
+        <DisplayNpcScene npcs={displayNpcs} voteUrl={voteUrl} worldSelection={worldSelection} approvedBeats={approvedBeats} />
       )}
       {mode === 'open' && activeMadLib && (
         <DisplayOpen madLib={activeMadLib} votes={votes} voteUrl={voteUrl} />
@@ -278,29 +294,122 @@ export default function MadLibsDisplayPage() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// NPC SCENE — shown when any NPC has showOnDisplay === true.
-// NPC cards are prominent + centered. QR code stays visible in the corner
-// so walk-ins can still join while the GM presents the cast.
-// Replaces the normal IDLE layout; stinger feed is hidden in this mode.
+// WORLD REVEAL — GM has triggered world reveal. Two flip cards animate in
+// showing the voted setting (PLACE) and prize (NOUN). Same CSS keyframe
+// pattern as DisplayReveal's field cards.
+// ─────────────────────────────────────────────────────────────────────────
+function DisplayWorldReveal({ worldSelection }: { worldSelection: WorldSelection }) {
+  return (
+    <div className="madlibs-display-world-reveal">
+      <header className="madlibs-display-reveal-header">
+        <p className="madlibs-display-eyebrow">The people have decided.</p>
+        <h1 className="madlibs-display-reveal-title">Here's what you're walking into.</h1>
+      </header>
+
+      <ol className="madlibs-display-reveal-cards">
+        <li
+          className="madlibs-display-reveal-card"
+          style={{ ['--reveal-delay' as string]: '0s' }}
+        >
+          <p className="madlibs-display-reveal-card-type">PLACE</p>
+          <p className="madlibs-display-reveal-card-winner">{worldSelection.settingValue}</p>
+        </li>
+        <li
+          className="madlibs-display-reveal-card"
+          style={{ ['--reveal-delay' as string]: '0.4s' }}
+        >
+          <p className="madlibs-display-reveal-card-type">THE PRIZE</p>
+          <p className="madlibs-display-reveal-card-winner">{worldSelection.prizeValue}</p>
+        </li>
+      </ol>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// NPC SCENE — 3-zone layout: world sidebar | NPC cards | stinger feed.
+// World sidebar appears once GM has made a world selection (cast mode).
+// Stinger feed appears once beats have been approved.
+// QR code sits in the world panel when present, otherwise floats top-right.
 // ─────────────────────────────────────────────────────────────────────────
 function DisplayNpcScene({
   npcs,
   voteUrl,
+  worldSelection,
+  approvedBeats,
 }: {
   npcs: NpcProfile[];
   voteUrl: string;
+  worldSelection: WorldSelection | null;
+  approvedBeats: Beat[];
 }) {
   const isJoinUrl = voteUrl.endsWith('/join');
+  const hasWorld = !!(worldSelection?.settingValue && worldSelection?.prizeValue);
+  const hasBeats = approvedBeats.length > 0;
+
   return (
-    <div className="madlibs-display-npc-scene">
-      <NpcDisplayRow npcs={npcs} />
-      <div className="madlibs-display-npc-scene__qr">
-        <QRCodeSVG value={voteUrl} size={140} includeMargin />
-        <p className="madlibs-display-npc-scene__qr-label">
-          {isJoinUrl ? 'Scan to join' : 'Scan to vote'}
-        </p>
-        <p className="madlibs-display-npc-scene__qr-url">{stripScheme(voteUrl)}</p>
+    <div className={[
+      'madlibs-display-npc-scene',
+      hasWorld ? 'madlibs-display-npc-scene--has-world' : '',
+      hasBeats ? 'madlibs-display-npc-scene--has-beats' : '',
+    ].filter(Boolean).join(' ')}>
+
+      {/* Left — world panel */}
+      {hasWorld && (
+        <aside className="madlibs-display-world-panel">
+          <p className="madlibs-display-world-panel__eyebrow">Tonight's Heist</p>
+          <div className="madlibs-display-world-panel__field">
+            <span className="madlibs-display-world-panel__type">PLACE</span>
+            <span className="madlibs-display-world-panel__value">{worldSelection!.settingValue}</span>
+          </div>
+          <div className="madlibs-display-world-panel__field">
+            <span className="madlibs-display-world-panel__type">THE PRIZE</span>
+            <span className="madlibs-display-world-panel__value">{worldSelection!.prizeValue}</span>
+          </div>
+          <div className="madlibs-display-world-panel__qr">
+            <QRCodeSVG value={voteUrl} size={100} includeMargin />
+            <p className="madlibs-display-world-panel__qr-label">
+              {isJoinUrl ? 'Scan to join' : 'Scan to vote'}
+            </p>
+            <p className="madlibs-display-world-panel__qr-url">{stripScheme(voteUrl)}</p>
+          </div>
+        </aside>
+      )}
+
+      {/* Center — NPC cards */}
+      <div className="madlibs-display-npc-scene__cards">
+        <NpcDisplayRow npcs={npcs} />
+        {!hasWorld && (
+          <div className="madlibs-display-npc-scene__qr">
+            <QRCodeSVG value={voteUrl} size={140} includeMargin />
+            <p className="madlibs-display-npc-scene__qr-label">
+              {isJoinUrl ? 'Scan to join' : 'Scan to vote'}
+            </p>
+            <p className="madlibs-display-npc-scene__qr-url">{stripScheme(voteUrl)}</p>
+          </div>
+        )}
       </div>
+
+      {/* Right — stinger feed */}
+      {hasBeats && (
+        <aside className="madlibs-display-stinger-panel">
+          <p className="madlibs-display-stinger-panel__heading">What's happened so far</p>
+          <ol className="madlibs-display-stinger-panel__list">
+            {approvedBeats.map((beat) => (
+              <li key={beat.id} className="madlibs-display-stinger-panel__item">
+                <span className="madlibs-display-stinger-panel__name">
+                  {beat.npcDisplayName}
+                </span>
+                {beat.response && (
+                  <span className="madlibs-display-stinger-panel__text">
+                    {beat.response.assembledText}
+                  </span>
+                )}
+              </li>
+            ))}
+          </ol>
+        </aside>
+      )}
     </div>
   );
 }

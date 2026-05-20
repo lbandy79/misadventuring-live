@@ -154,7 +154,7 @@
     "npcCreation": {
       "_comment": "Blind word collection — labels show word type only, no sentence context. Comedy is in the reveal. displayNameTemplate uses {fieldId} from personal fields only.",
       "displayNameTemplate": "{adjective} {job_title}, {tagline}",
-      "revealTemplate": "A {adjective} {job_title}, reportedly {tagline}, attending {setting} as a {noun}.",
+      "revealTemplate": "A {adjective} {job_title}, reportedly {tagline}, at a {setting}.",
       "fields": [
         {
           "id": "adjective",
@@ -178,23 +178,16 @@
           "options": ["notorious", "retired", "haunted", "unlicensed"]
         },
         {
-          "id": "noun",
-          "type": "NOUN",
-          "fieldType": "personal",
-          "label": "Give me a noun.",
-          "options": ["tourist", "stranger", "journalist", "plus-one"]
-        },
-        {
           "id": "setting",
           "type": "PLACE",
           "fieldType": "world",
           "label": "Give me a place.",
           "_comment": "World-voted. Options align with original themes: Theme Park / Outer Space / Time Travel / Monster Movie.",
           "options": [
-            "a theme park",
-            "a space station",
-            "a time loop",
-            "a film set"
+            "theme park",
+            "space station",
+            "comic convention",
+            "film set"
           ]
         },
         {

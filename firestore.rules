@@ -109,6 +109,14 @@ service cloud.firestore {
       allow write: if true;
     }
 
+    // ── World selections (GM-driven world reveal) ─────────────────
+    // One doc per showId. Display page reads it to drive world-reveal
+    // and cast modes. Only admins write — this controls the projector.
+    match /world-selections/{showId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     // ── Beats / Stingers ───────────────────────────────────────────
     // GM creates beats (admin auth required). Audience responds
     // (status: pending → responded). GM moderates (admin auth).
