@@ -613,16 +613,16 @@ function WorldTab({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Tally computed from active NPCs only — ignores stale test votes
+  // Tally from active roster only (npcs already filtered to isActive).
+  // Counts ALL votes including write-ins — not limited to predefined options.
   const tally = useMemo<WorldVoteTally>(() => {
     const result: WorldVoteTally = {};
     worldFields.forEach((field) => {
       const counts: Record<string, number> = {};
       let total = 0;
-      const validOptions = new Set(field.options ?? []);
       npcs.forEach((npc) => {
         const val = npc.fieldValues?.[field.id];
-        if (val && validOptions.has(val)) {
+        if (val) {
           counts[val] = (counts[val] ?? 0) + 1;
           total += 1;
         }
@@ -687,12 +687,19 @@ function WorldTab({
 
   return (
     <div className="npc-world-tab">
-      <div className="npc-world-tab__status">
-        <span className="npc-world-tab__status-label">Display:</span>
-        <span className={`npc-world-tab__mode npc-world-tab__mode--${displayMode.replace('-', '_')}`}>
-          {modeLabel[displayMode]}
-        </span>
-      </div>
+      {/* Live values — visible when something is on screen so GM knows what the audience sees */}
+      {displayMode !== 'hidden' && selection && (
+        <div className="npc-world-tab__live-bar">
+          <span className="npc-world-tab__live-label">On screen now:</span>
+          {worldFields.map((f) => {
+            const val = f.id === 'setting' ? selection.settingValue : selection.prizeValue;
+            return val ? (
+              <span key={f.id} className="npc-world-tab__live-chip">{val}</span>
+            ) : null;
+          })}
+          <span className="npc-world-tab__live-mode">({modeLabel[displayMode]})</span>
+        </div>
+      )}
 
       <div className="npc-world-tab__fields">
         {worldFields.map((field) => {
@@ -714,47 +721,75 @@ function WorldTab({
                 )}
               </h3>
 
-              <div className="npc-world-field__options">
-                {(field.options ?? []).map((opt: string) => {
-                  const count = fieldTally?.counts[opt] ?? 0;
-                  const total = fieldTally?.total ?? 0;
-                  const pct = total === 0 ? 0 : Math.round((count / total) * 100);
-                  const isVoteWinner = fieldTally?.winnerText === opt && total > 0;
-                  const isSelected = currentPick === opt;
+              {(() => {
+                // Build the full option list visible to the GM:
+                //   1. Predefined options from system config
+                //   2. Write-ins that active roster members voted for
+                //   3. The stored live value if it doesn't appear in 1 or 2 (orphan)
+                const presetOpts = field.options ?? [];
+                const writeInOpts = Object.keys(fieldTally?.counts ?? {}).filter(
+                  (o) => !presetOpts.includes(o),
+                );
+                const orphan =
+                  storedValue &&
+                  !presetOpts.includes(storedValue) &&
+                  !writeInOpts.includes(storedValue)
+                    ? storedValue
+                    : null;
+                type Kind = 'preset' | 'write-in' | 'orphan';
+                const allOpts: { text: string; kind: Kind }[] = [
+                  ...presetOpts.map((o) => ({ text: o, kind: 'preset' as Kind })),
+                  ...writeInOpts.map((o) => ({ text: o, kind: 'write-in' as Kind })),
+                  ...(orphan ? [{ text: orphan, kind: 'orphan' as Kind }] : []),
+                ];
 
-                  return (
-                    <label
-                      key={opt}
-                      className={[
-                        'npc-world-option',
-                        isSelected ? 'npc-world-option--selected' : '',
-                        isVoteWinner ? 'npc-world-option--winner' : '',
-                      ].filter(Boolean).join(' ')}
-                    >
-                      <input
-                        type="radio"
-                        name={`world-pick-${field.id}`}
-                        value={opt}
-                        checked={isSelected}
-                        onChange={() => setGmPicks((prev) => ({ ...prev, [field.id]: opt }))}
-                        className="npc-world-option__radio"
-                      />
-                      <span className="npc-world-option__bar-wrap">
-                        <span
-                          className="npc-world-option__bar"
-                          style={{ width: `${Math.max(pct, 2)}%` }}
-                          aria-hidden
-                        />
-                      </span>
-                      <span className="npc-world-option__text">{opt}</span>
-                      <span className="npc-world-option__count">
-                        {count > 0 && <>{count} · {pct}%</>}
-                        {isVoteWinner && <span className="npc-world-option__winner-badge">audience pick</span>}
-                      </span>
-                    </label>
-                  );
-                })}
-              </div>
+                return (
+                  <div className="npc-world-field__options">
+                    {allOpts.map(({ text: opt, kind }) => {
+                      const count = fieldTally?.counts[opt] ?? 0;
+                      const total = fieldTally?.total ?? 0;
+                      const pct = total === 0 ? 0 : Math.round((count / total) * 100);
+                      const isVoteWinner = fieldTally?.winnerText === opt && total > 0;
+                      const isSelected = currentPick === opt;
+
+                      return (
+                        <label
+                          key={opt}
+                          className={[
+                            'npc-world-option',
+                            isSelected ? 'npc-world-option--selected' : '',
+                            isVoteWinner ? 'npc-world-option--winner' : '',
+                            kind !== 'preset' ? 'npc-world-option--write-in' : '',
+                          ].filter(Boolean).join(' ')}
+                        >
+                          <input
+                            type="radio"
+                            name={`world-pick-${field.id}`}
+                            value={opt}
+                            checked={isSelected}
+                            onChange={() => setGmPicks((prev) => ({ ...prev, [field.id]: opt }))}
+                            className="npc-world-option__radio"
+                          />
+                          <span className="npc-world-option__bar-wrap">
+                            <span
+                              className="npc-world-option__bar"
+                              style={{ width: count > 0 ? `${pct}%` : '0%' }}
+                              aria-hidden
+                            />
+                          </span>
+                          <span className="npc-world-option__text">{opt}</span>
+                          <span className="npc-world-option__count">
+                            {count > 0 && <>{count} · {pct}%</>}
+                            {isVoteWinner && <span className="npc-world-option__winner-badge">audience pick</span>}
+                            {kind === 'write-in' && <span className="npc-world-option__write-in-badge">write-in</span>}
+                            {kind === 'orphan' && <span className="npc-world-option__write-in-badge">live · no active votes</span>}
+                          </span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
 
               {storedValue && currentPick !== storedValue && (
                 <p className="npc-world-field__pending">
@@ -768,52 +803,37 @@ function WorldTab({
 
       {error && <p className="npc-world-tab__error" role="alert">{error}</p>}
 
-      <div className="npc-world-tab__actions">
-        {displayMode === 'hidden' && (
+      {/* Persistent mode control — always visible, jump to any state directly */}
+      <div className="npc-world-tab__display-control">
+        <p className="npc-world-tab__display-label">Show on projector:</p>
+        <div className="npc-world-tab__mode-seg">
           <button
-            className="btn-primary npc-world-tab__reveal-btn"
-            onClick={() => handleSaveAndReveal('world-reveal')}
-            disabled={saving || !canReveal}
-            title="Saves your picks and shows flip cards on the projector"
-          >
-            {saving ? 'Saving…' : '🌍 Reveal World to Audience'}
-          </button>
-        )}
-        {displayMode === 'world-reveal' && (
-          <>
-            <button
-              className="btn-primary npc-world-tab__cast-btn"
-              onClick={() => handleSaveAndReveal('cast')}
-              disabled={saving}
-            >
-              {saving ? 'Saving…' : '🎭 Show the Cast'}
-            </button>
-            <button
-              className="btn-ghost npc-world-tab__reset-btn"
-              onClick={() => handleSaveAndReveal('hidden')}
-              disabled={saving}
-            >
-              ← Back to Hidden
-            </button>
-          </>
-        )}
-        {displayMode === 'cast' && (
-          <button
-            className="btn-ghost npc-world-tab__reset-btn"
+            className={`npc-world-tab__mode-btn${displayMode === 'hidden' ? ' npc-world-tab__mode-btn--active' : ''}`}
             onClick={() => handleSaveAndReveal('hidden')}
             disabled={saving}
           >
-            Reset Display
+            Hide
           </button>
-        )}
-        {displayMode !== 'hidden' && (
           <button
-            className="btn-ghost npc-world-tab__update-btn"
-            onClick={() => handleSaveAndReveal(displayMode)}
-            disabled={saving}
+            className={`npc-world-tab__mode-btn${displayMode === 'world-reveal' ? ' npc-world-tab__mode-btn--active' : ''}`}
+            onClick={() => handleSaveAndReveal('world-reveal')}
+            disabled={saving || !canReveal}
+            title={!canReveal ? 'Pick a value for each field first' : 'Show flip-card reveal on the projector'}
           >
-            {saving ? 'Saving…' : 'Save Pick Changes'}
+            World Reveal
           </button>
+          <button
+            className={`npc-world-tab__mode-btn${displayMode === 'cast' ? ' npc-world-tab__mode-btn--active' : ''}`}
+            onClick={() => handleSaveAndReveal('cast')}
+            disabled={saving || !canReveal}
+            title={!canReveal ? 'Pick a value for each field first' : 'Show NPC cards + world sidebar on the projector'}
+          >
+            Show Cast
+          </button>
+        </div>
+        {saving && <p className="npc-world-tab__mode-hint">Saving…</p>}
+        {!canReveal && !saving && (
+          <p className="npc-world-tab__mode-hint">Pick a value for each field to enable World Reveal and Show Cast.</p>
         )}
       </div>
     </div>

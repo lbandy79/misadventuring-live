@@ -1795,6 +1795,7 @@ textarea:focus-visible {
   font-size: clamp(1.6rem, 3vw, 2.6rem);
   line-height: 1.2;
   color: var(--ink-black);
+  text-transform: capitalize;
 }
 @keyframes madlibs-reveal-flip {
   0%   { opacity: 0; transform: rotateX(-90deg) translateY(-10px); }
@@ -2068,6 +2069,7 @@ textarea:focus-visible {
   font-size: 1.15rem;
   line-height: 1.2;
   color: var(--ink-black);
+  text-transform: capitalize;
 }
 .madlibs-display-world-panel__qr {
   margin-top: auto;
@@ -2137,6 +2139,87 @@ textarea:focus-visible {
   gap: 1.25rem;
   padding: 0.5rem 0;
 }
+/* Live-values bar — shows what's currently on the projector */
+.npc-world-tab__live-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  padding: 0.45rem 0.75rem;
+  background: color-mix(in srgb, var(--accent, #e0a022) 10%, transparent);
+  border-left: 3px solid var(--accent, #e0a022);
+  border-radius: 2px;
+  font-family: var(--font-type);
+  font-size: 0.75rem;
+}
+.npc-world-tab__live-label { opacity: 0.65; }
+.npc-world-tab__live-chip {
+  padding: 0.1em 0.5em;
+  background: var(--accent, #e0a022);
+  color: var(--ink-black, #1c1c1c);
+  border-radius: 2px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.npc-world-tab__live-mode { opacity: 0.5; font-size: 0.7rem; }
+
+/* Segmented display-mode control */
+.npc-world-tab__display-control {
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--paper-line, #d0c9b0);
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+.npc-world-tab__display-label {
+  margin: 0;
+  font-family: var(--font-type);
+  font-size: 0.72rem;
+  opacity: 0.6;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.npc-world-tab__mode-seg {
+  display: flex;
+  gap: 0;
+  border: 1.5px solid var(--ink-black, #1c1c1c);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.npc-world-tab__mode-btn {
+  flex: 1;
+  padding: 0.45rem 0.6rem;
+  background: transparent;
+  border: none;
+  border-right: 1px solid var(--ink-black, #1c1c1c);
+  font-family: var(--font-type);
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.npc-world-tab__mode-btn:last-child { border-right: none; }
+.npc-world-tab__mode-btn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--ink-black, #1c1c1c) 6%, transparent);
+}
+.npc-world-tab__mode-btn--active {
+  background: var(--ink-black, #1c1c1c);
+  color: var(--paper, #f5f0e8);
+}
+.npc-world-tab__mode-btn--active:hover:not(:disabled) {
+  background: var(--ink-black, #1c1c1c);
+}
+.npc-world-tab__mode-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.npc-world-tab__mode-hint {
+  margin: 0;
+  font-family: var(--font-type);
+  font-size: 0.68rem;
+  opacity: 0.55;
+}
+
 .npc-world-tab__status {
   display: flex;
   align-items: center;
@@ -2195,6 +2278,20 @@ textarea:focus-visible {
   font-family: var(--font-type);
   font-size: 0.72rem;
   color: var(--ink-red, #c0392b);
+}
+.npc-world-option--write-in {
+  opacity: 0.85;
+}
+.npc-world-option__write-in-badge {
+  display: inline-block;
+  padding: 0.1em 0.4em;
+  font-family: var(--font-type);
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  background: color-mix(in srgb, var(--ink-blue, #1a3a7a) 10%, transparent);
+  color: var(--ink-blue, #1a3a7a);
+  border-radius: 2px;
+  vertical-align: middle;
 }
 
 .npc-world-field__options {

@@ -785,12 +785,12 @@ Prose, templates, and narrative prompts. All setting context is determined by th
 `src/systems/honey-heist.system.json` line 158
 
 ```
-A {adjective} {job_title}, reportedly {tagline}, attending {setting} as a {noun}.
+A {adjective} {job_title}, reportedly {tagline}, at a {setting} as a {noun}.
 ```
 
 - **Where it surfaces:** Composed by `composeFromWords()` and rendered in the reveal screen (`<p className="join-reveal__sentence">`). Also used as `revealSentence` in the character-saved email (non-blocking send in `handleSaveEmail()`).
 - **Field substitution:** All six NPC creation fields.
-- **Example output:** `A suspicious manager, reportedly notorious, attending a theme park as a tourist.`
+- **Example output:** `A suspicious manager, reportedly notorious, at a theme park as a tourist.`
 - **Note:** `{setting}` is the world-voted value — every audience member's reveal sentence uses the same setting word, determined by aggregate votes.
 
 ---
