@@ -32,9 +32,9 @@
   text-align: center;
 }
 
-.npc-display-row--solo .npc-display-card  { max-width: 320px; width: 320px; }
-.npc-display-row--row  .npc-display-card  { max-width: 240px; width: 240px; }
-.npc-display-row--grid .npc-display-card  { max-width: 200px; width: 200px; }
+.npc-display-row--solo .npc-display-card  { max-width: 380px; width: 380px; }
+.npc-display-row--row  .npc-display-card  { max-width: 300px; width: 300px; }
+.npc-display-row--grid .npc-display-card  { max-width: 240px; width: 240px; }
 
 /* ── Avatar + badge ───────────────────────────────────────────────── */
 

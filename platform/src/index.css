@@ -1603,12 +1603,16 @@ textarea:focus-visible {
  * Override either of these in a per-show theme stylesheet to restyle.
  * ───────────────────────────────────────────────────────────────────── */
 .madlibs-display {
-  min-height: calc(100vh - 6rem);
+  min-height: 100dvh;
   padding: 3vh 4vw;
   display: flex;
   flex-direction: column;
   background: var(--paper, #faf6ec);
   color: var(--ink-black, #1c1c1c);
+}
+/* When NPC scene fills the viewport, zero out root padding so sidebars reach edges */
+.madlibs-display:has(.madlibs-display-npc-scene) {
+  padding: 0;
 }
 .madlibs-display-loading { align-items: center; justify-content: center; }
 .madlibs-display-footer {
@@ -1618,6 +1622,14 @@ textarea:focus-visible {
   font-size: 0.75rem;
   opacity: 0.5;
   text-align: right;
+}
+/* In NPC scene mode, footer overlays so it doesn't push the scene down */
+.madlibs-display:has(.madlibs-display-npc-scene) .madlibs-display-footer {
+  position: fixed;
+  bottom: 0.5rem;
+  right: 0.75rem;
+  padding-top: 0;
+  margin-top: 0;
 }
 .madlibs-display-footer a { color: inherit; }
 
@@ -1983,30 +1995,37 @@ textarea:focus-visible {
 /* Base: cards centered, no sidebars */
 .madlibs-display-npc-scene {
   flex: 1;
+  min-height: 100dvh;
   display: grid;
   grid-template-columns: 1fr;
   grid-template-areas: "cards";
-  gap: 1rem;
-  padding: 1.5rem 1rem;
-  align-items: start;
+  gap: 0;
+  padding: 0;
+  align-items: stretch;
 }
-.madlibs-display-npc-scene__cards { grid-area: cards; }
+.madlibs-display-npc-scene__cards {
+  grid-area: cards;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 2rem;
+}
 
 /* With world panel: left sidebar appears */
 .madlibs-display-npc-scene--has-world {
-  grid-template-columns: 200px 1fr;
+  grid-template-columns: clamp(200px, 20vw, 280px) 1fr;
   grid-template-areas: "world cards";
 }
 
 /* With both sidebars */
 .madlibs-display-npc-scene--has-world.madlibs-display-npc-scene--has-beats {
-  grid-template-columns: 200px 1fr 200px;
+  grid-template-columns: clamp(200px, 20vw, 280px) 1fr clamp(200px, 20vw, 280px);
   grid-template-areas: "world cards beats";
 }
 
 /* Without world but with beats */
 .madlibs-display-npc-scene--has-beats:not(.madlibs-display-npc-scene--has-world) {
-  grid-template-columns: 1fr 200px;
+  grid-template-columns: 1fr clamp(200px, 20vw, 280px);
   grid-template-areas: "cards beats";
 }
 
@@ -2037,17 +2056,17 @@ textarea:focus-visible {
   grid-area: world;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
-  padding: 1.25rem 1rem;
-  background: color-mix(in srgb, var(--display-accent, #e0a022) 12%, transparent);
-  border-right: 2px solid color-mix(in srgb, var(--display-accent, #e0a022) 30%, transparent);
-  border-radius: 4px 0 0 4px;
+  gap: 1.5rem;
+  padding: 2rem 1.5rem;
+  background: color-mix(in srgb, var(--display-accent, #e0a022) 15%, var(--paper, #faf6ec));
+  border-right: 3px solid color-mix(in srgb, var(--display-accent, #e0a022) 40%, transparent);
+  border-radius: 0;
   align-self: stretch;
 }
 .madlibs-display-world-panel__eyebrow {
   margin: 0;
   font-family: var(--font-marker);
-  font-size: 0.78rem;
+  font-size: clamp(0.78rem, 1.2vw, 1rem);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   opacity: 0.6;
@@ -2055,35 +2074,35 @@ textarea:focus-visible {
 .madlibs-display-world-panel__field {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.3rem;
 }
 .madlibs-display-world-panel__type {
   font-family: var(--font-type);
-  font-size: 0.65rem;
+  font-size: clamp(0.65rem, 0.9vw, 0.8rem);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   opacity: 0.55;
 }
 .madlibs-display-world-panel__value {
   font-family: var(--font-display);
-  font-size: 1.15rem;
+  font-size: clamp(1.15rem, 2vw, 1.6rem);
   line-height: 1.2;
   color: var(--ink-black);
   text-transform: capitalize;
 }
 .madlibs-display-world-panel__qr {
-  margin-top: auto;
+  margin-top: 0.5rem;
   text-align: center;
 }
 .madlibs-display-world-panel__qr-label {
-  margin: 0.3rem 0 0.1rem;
+  margin: 0.4rem 0 0.15rem;
   font-family: var(--font-marker);
-  font-size: 0.72rem;
+  font-size: clamp(0.72rem, 1vw, 0.9rem);
 }
 .madlibs-display-world-panel__qr-url {
   margin: 0;
   font-family: var(--font-type);
-  font-size: 0.6rem;
+  font-size: clamp(0.6rem, 0.8vw, 0.72rem);
   color: var(--ink-blue);
   word-break: break-all;
 }
@@ -2094,18 +2113,22 @@ textarea:focus-visible {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  padding: 1.25rem 1rem;
-  border-left: 2px solid var(--paper-line, #d0c9b0);
+  padding: 2rem 1.5rem;
+  border-left: 3px solid color-mix(in srgb, var(--ink-black, #1c1c1c) 15%, transparent);
+  background: color-mix(in srgb, var(--ink-blue, #1a3a7a) 4%, var(--paper, #faf6ec));
   align-self: stretch;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  text-align: left;
 }
 .madlibs-display-stinger-panel__heading {
   margin: 0;
   font-family: var(--font-marker);
-  font-size: 0.78rem;
+  font-size: clamp(0.78rem, 1.2vw, 1rem);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   opacity: 0.6;
+  text-align: left;
 }
 .madlibs-display-stinger-panel__list {
   list-style: none;
@@ -2113,21 +2136,28 @@ textarea:focus-visible {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.9rem;
 }
 .madlibs-display-stinger-panel__item {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.25rem;
+  animation: stinger-slide-in 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.madlibs-display-stinger-panel__item:nth-child(n+5) { opacity: 0.55; }
+.madlibs-display-stinger-panel__item:nth-child(n+7) { opacity: 0.3; }
+@keyframes stinger-slide-in {
+  from { opacity: 0; transform: translateX(14px); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 .madlibs-display-stinger-panel__name {
   font-family: var(--font-hand);
-  font-size: 0.8rem;
+  font-size: clamp(0.8rem, 1.3vw, 1rem);
   font-weight: 600;
 }
 .madlibs-display-stinger-panel__text {
   font-family: var(--font-script);
-  font-size: 0.85rem;
+  font-size: clamp(0.85rem, 1.4vw, 1.05rem);
   line-height: 1.35;
   opacity: 0.85;
 }

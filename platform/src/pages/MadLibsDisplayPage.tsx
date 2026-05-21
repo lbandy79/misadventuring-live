@@ -266,10 +266,10 @@ export default function MadLibsDisplayPage() {
 
   return (
     <section className={`madlibs-display madlibs-display-${mode}`} style={themeStyle}>
-      {mode === 'idle' && displayNpcs.length === 0 && (
+      {mode === 'idle' && (worldDisplayMode === 'hidden' || displayNpcs.length === 0) && (
         <DisplayIdle show={show} voteUrl={voteUrl} approvedBeats={approvedBeats} />
       )}
-      {mode === 'idle' && displayNpcs.length > 0 && (
+      {mode === 'idle' && worldDisplayMode !== 'hidden' && displayNpcs.length > 0 && (
         <DisplayNpcScene npcs={displayNpcs} voteUrl={voteUrl} worldSelection={worldSelection} approvedBeats={approvedBeats} />
       )}
       {mode === 'world-reveal' && worldSelection && (

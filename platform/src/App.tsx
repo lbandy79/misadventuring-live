@@ -10,7 +10,7 @@
  */
 
 import { useState } from 'react';
-import { Routes, Route, Link, Navigate } from 'react-router-dom';
+import { Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 import { upsertAudienceProfile } from '../../src/lib/audience/audienceApi';
 import LandingPage from './pages/LandingPage';
 import ShowsIndexPage from './pages/ShowsIndexPage';
@@ -28,9 +28,12 @@ import MyCharactersPage from './pages/MyCharactersPage';
 import AuthMenu from './components/AuthMenu';
 
 export default function App() {
+  const location = useLocation();
+  const isDisplay = /\/shows\/[^/]+\/display/.test(location.pathname);
+
   return (
     <div className="platform-root">
-      <header className="platform-header">
+      {!isDisplay && <header className="platform-header">
         <Link to="/" className="brand" aria-label="The Misadventuring Party home">
           <img
             src="/images/mtp-logo.png"
@@ -47,37 +50,43 @@ export default function App() {
           <Link to="/notebook">Notebook</Link>
           <AuthMenu />
         </nav>
-      </header>
-      <main className="platform-main">
+      </header>}
+      {/* Display routes render directly in platform-root — no platform-main wrapper,
+          so they're never constrained by max-width: 1080px or platform-main padding. */}
+      {isDisplay ? (
         <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/shows" element={<ShowsIndexPage />} />
-          <Route path="/shows/:showId" element={<ShowPage />} />
-          <Route path="/shows/:showId/audience" element={<AudiencePage />} />
-          {/* Canonical recap URL */}
-          <Route path="/shows/:showId/recap" element={<RecapPage />} />
-          {/* Backward-compat alias — keep for old QR codes and external links */}
-          <Route path="/recap/:showId" element={<RecapPage />} />
-          {/* Audience NPC creation / join flow */}
-          <Route path="/shows/:showId/join" element={<NpcCreationPage />} />
-          {/* Projector / "big screen" view */}
           <Route path="/shows/:showId/display" element={<MadLibsDisplayPage />} />
-          {/* Misadventuring Notebook — per-show/NPC URL reserved for future build */}
-          <Route path="/shows/:showId/notebook/:npcId" element={<NotebookShowPage />} />
-          {/* Notebook concept page — top-level */}
-          <Route path="/notebook" element={<NotebookPage />} />
-          {/* Audience return flow */}
-          <Route path="/return" element={<ReturnPage />} />
-          <Route path="/my-characters" element={<MyCharactersPage />} />
-          {/* Cutover alias — /my-bears lived in old links, redirect silently */}
-          <Route path="/my-bears" element={<Navigate to="/my-characters" replace />} />
-          {/* Companion redirects to notebook — old nav link alias */}
-          <Route path="/companion" element={<Navigate to="/notebook" replace />} />
-          <Route path="/admin" element={<AdminPage />} />
-          <Route path="*" element={<NotFoundPage />} />
         </Routes>
-      </main>
-      <footer className="platform-footer">
+      ) : (
+        <main className="platform-main">
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/shows" element={<ShowsIndexPage />} />
+            <Route path="/shows/:showId" element={<ShowPage />} />
+            <Route path="/shows/:showId/audience" element={<AudiencePage />} />
+            {/* Canonical recap URL */}
+            <Route path="/shows/:showId/recap" element={<RecapPage />} />
+            {/* Backward-compat alias — keep for old QR codes and external links */}
+            <Route path="/recap/:showId" element={<RecapPage />} />
+            {/* Audience NPC creation / join flow */}
+            <Route path="/shows/:showId/join" element={<NpcCreationPage />} />
+            {/* Misadventuring Notebook — per-show/NPC URL reserved for future build */}
+            <Route path="/shows/:showId/notebook/:npcId" element={<NotebookShowPage />} />
+            {/* Notebook concept page — top-level */}
+            <Route path="/notebook" element={<NotebookPage />} />
+            {/* Audience return flow */}
+            <Route path="/return" element={<ReturnPage />} />
+            <Route path="/my-characters" element={<MyCharactersPage />} />
+            {/* Cutover alias — /my-bears lived in old links, redirect silently */}
+            <Route path="/my-bears" element={<Navigate to="/my-characters" replace />} />
+            {/* Companion redirects to notebook — old nav link alias */}
+            <Route path="/companion" element={<Navigate to="/notebook" replace />} />
+            <Route path="/admin" element={<AdminPage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </main>
+      )}
+      {!isDisplay && <footer className="platform-footer">
         <div className="footer-brand">
           <img
             src="/images/mtp-logo.png"
@@ -90,7 +99,7 @@ export default function App() {
           <span>© {new Date().getFullYear()} The Misadventuring Party</span>
         </div>
         <NotifyForm />
-      </footer>
+      </footer>}
     </div>
   );
 }

@@ -74,7 +74,7 @@ interface NpcDisplayRowProps {
 export default function NpcDisplayRow({ npcs }: NpcDisplayRowProps) {
   const count = npcs.length;
   const layoutClass = count === 1 ? 'solo' : count <= 3 ? 'row' : 'grid';
-  const avatarSize = count === 1 ? 180 : count <= 3 ? 140 : 100;
+  const avatarSize = count === 1 ? 220 : count <= 3 ? 170 : 120;
 
   return (
     // TODO: drag-to-reorder is a post-launch enhancement; NPCs currently sorted by createdAt from Firestore
