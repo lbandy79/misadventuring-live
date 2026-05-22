@@ -38,7 +38,6 @@ interface PromptPreset {
   id: string;
   label: string;
   prompt: string;
-  responseTemplate?: string;
   responseSlots?: BeatResponseSlot[];
 }
 
@@ -472,7 +471,7 @@ function FireTab({
         npcId: selectedNpc.id,
         npcDisplayName: selectedNpc.displayName,
         promptText,
-        responseTemplate: selectedPreset?.responseTemplate ?? stingerQueue.responseTemplate,
+        responseTemplate: stingerQueue.responseTemplate,
         responseSlots: selectedPreset?.responseSlots ?? stingerQueue.responseSlots,
       });
       setFired(selectedNpc.displayName);
