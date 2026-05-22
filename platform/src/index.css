@@ -2814,38 +2814,37 @@ textarea:focus-visible {
 }
 .stinger-slot__options {
   display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 .stinger-slot__option {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0.3rem 0.25rem;
+  padding: 0.35rem 0.75rem;
+  border: 1.5px solid var(--ink-black, #1c1c1c);
+  border-radius: 20px;
   font-family: var(--font-hand);
-  font-size: 1rem;
+  font-size: 0.95rem;
   cursor: pointer;
-  border-radius: 3px;
+  transition: background 0.1s, color 0.1s;
   user-select: none;
 }
 .stinger-slot__option:hover {
-  background: color-mix(in srgb, var(--ink-black, #1c1c1c) 5%, transparent);
+  background: color-mix(in srgb, var(--ink-black, #1c1c1c) 8%, transparent);
 }
 .stinger-slot__option--selected {
-  font-weight: 700;
-  color: var(--ink-black, #1c1c1c);
+  background: var(--ink-black, #1c1c1c);
+  color: var(--paper, #f5f0e8);
 }
 .stinger-slot__radio {
-  width: 1.1rem;
-  height: 1.1rem;
-  accent-color: var(--ink-black, #1c1c1c);
-  flex-shrink: 0;
-  cursor: pointer;
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
 }
 .stinger-slot__text-input {
   width: 100%;
-  margin-top: 0.5rem;
-  padding: 0.3rem 0.25rem;
+  margin-top: 0.6rem;
+  padding: 0.45rem 0.1rem;
   font-family: var(--font-hand);
   font-size: 1rem;
   background: transparent;
