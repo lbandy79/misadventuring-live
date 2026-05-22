@@ -506,7 +506,7 @@ export default function NpcCreationPage() {
   return (
     <>
       {pendingBeat && !isEditing && (
-        <StingerPrompt beat={pendingBeat} onDismiss={() => setDismissedBeatId(pendingBeat.id)} />
+        <StingerPrompt key={pendingBeat.id} beat={pendingBeat} onDismiss={() => setDismissedBeatId(pendingBeat.id)} />
       )}
 
       <section className="page-card join-page join-page--my-npc" style={accentStyle} data-show={showId}>
