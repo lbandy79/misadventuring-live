@@ -106,7 +106,8 @@ export interface BeatResponseSlot {
   id: string;
   type: string;
   label: string;
-  options: string[];
+  options?: string[];
+  freeText?: boolean;
 }
 
 /** A GM-triggered audience moment for one NPC. */

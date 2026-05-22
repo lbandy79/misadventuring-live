@@ -22,7 +22,7 @@ export function StingerPrompt({ beat, onDismiss }: StingerPromptProps) {
   const [submitted, setSubmitted] = useState(false);
 
   const slots: BeatResponseSlot[] = beat.responseSlots ?? [];
-  const allFilled = slots.every((s) => slotValues[s.id]);
+  const allFilled = slots.every((s) => (slotValues[s.id] ?? '').trim().length > 0);
 
   function assembleText(): string {
     return slots.reduce(
@@ -60,31 +60,45 @@ export function StingerPrompt({ beat, onDismiss }: StingerPromptProps) {
                   <legend className="stinger-slot__legend">
                     <span className="stinger-slot__type">{slot.type}</span>
                   </legend>
-                  <div className="stinger-slot__options" role="radiogroup">
-                    {slot.options.map((opt) => (
-                      <label
-                        key={opt}
-                        className={[
-                          'stinger-slot__option',
-                          slotValues[slot.id] === opt ? 'stinger-slot__option--selected' : '',
-                        ]
-                          .filter(Boolean)
-                          .join(' ')}
-                      >
-                        <input
-                          type="radio"
-                          name={slot.id}
-                          value={opt}
-                          checked={slotValues[slot.id] === opt}
-                          onChange={() =>
-                            setSlotValues((prev) => ({ ...prev, [slot.id]: opt }))
-                          }
-                          className="stinger-slot__radio"
-                        />
-                        {opt}
-                      </label>
-                    ))}
-                  </div>
+
+                  {slot.freeText ? (
+                    <input
+                      type="text"
+                      className="stinger-slot__text-input"
+                      placeholder={slot.label}
+                      value={slotValues[slot.id] ?? ''}
+                      maxLength={120}
+                      onChange={(e) =>
+                        setSlotValues((prev) => ({ ...prev, [slot.id]: e.target.value }))
+                      }
+                    />
+                  ) : (
+                    <div className="stinger-slot__options" role="radiogroup">
+                      {(slot.options ?? []).map((opt) => (
+                        <label
+                          key={opt}
+                          className={[
+                            'stinger-slot__option',
+                            slotValues[slot.id] === opt ? 'stinger-slot__option--selected' : '',
+                          ]
+                            .filter(Boolean)
+                            .join(' ')}
+                        >
+                          <input
+                            type="radio"
+                            name={slot.id}
+                            value={opt}
+                            checked={slotValues[slot.id] === opt}
+                            onChange={() =>
+                              setSlotValues((prev) => ({ ...prev, [slot.id]: opt }))
+                            }
+                            className="stinger-slot__radio"
+                          />
+                          {opt}
+                        </label>
+                      ))}
+                    </div>
+                  )}
                 </fieldset>
               ))}
             </div>
