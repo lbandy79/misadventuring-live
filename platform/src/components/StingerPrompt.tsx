@@ -61,7 +61,7 @@ export function StingerPrompt({ beat, onDismiss }: StingerPromptProps) {
                     <span className="stinger-slot__type">{slot.type}</span>
                   </legend>
                   <div className="stinger-slot__options" role="radiogroup">
-                    {slot.options.map((opt) => (
+                    {(slot.options ?? []).map((opt) => (
                       <label
                         key={opt}
                         className={[
