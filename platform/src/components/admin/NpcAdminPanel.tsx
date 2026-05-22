@@ -467,13 +467,16 @@ function FireTab({
         ? stingerQueue.promptPresets.find((p) => p.id === selectedPresetId) ?? null
         : null;
     try {
+      const isCustom = promptMode === 'custom';
       const beatId = await triggerBeat({
         showId,
         npcId: selectedNpc.id,
         npcDisplayName: selectedNpc.displayName,
         promptText,
-        responseTemplate: selectedPreset?.responseTemplate ?? stingerQueue.responseTemplate,
-        responseSlots: selectedPreset?.responseSlots ?? stingerQueue.responseSlots,
+        responseTemplate: isCustom ? '{response}' : (selectedPreset?.responseTemplate ?? stingerQueue.responseTemplate),
+        responseSlots: isCustom
+          ? [{ id: 'response', type: 'Your answer', label: 'Your answer', freeText: true }]
+          : (selectedPreset?.responseSlots ?? stingerQueue.responseSlots),
       });
       setFired(selectedNpc.displayName);
       setSelectedNpcId('');
