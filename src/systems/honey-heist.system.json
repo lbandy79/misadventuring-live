@@ -208,36 +208,34 @@
     "stingerQueue": {
       "_comment": "Blind word collection — slot labels are hidden from the audience during collection. Reveal happens on GM approval. freeText slots render a text input instead of radio buttons.",
       "defaultDuration": 30,
-      "responseTemplate": "I {verb} the {noun} and now the {place} is {adjective}. Official statement: {statement}.",
+      "responseTemplate": "I {verb} the {noun} and now the {place} is {adjective}.",
       "responseSlots": [
         {
           "id": "verb",
           "type": "VERB (past tense)",
           "label": "What you did",
-          "options": ["handled", "secured", "ignored", "reported"]
+          "options": ["handled", "secured", "ignored", "reported"],
+          "freeText": true
         },
         {
           "id": "noun",
           "type": "NOUN",
           "label": "What you affected",
-          "options": ["situation", "honey inventory", "bear-related incident", "whole thing"]
+          "options": ["situation", "honey inventory", "bear-related incident", "whole thing"],
+          "freeText": true
         },
         {
           "id": "place",
           "type": "PLACE",
           "label": "Where this happened",
-          "options": ["exhibit", "gift shop", "parking lot", "record"]
+          "options": ["exhibit", "gift shop", "parking lot", "record"],
+          "freeText": true
         },
         {
           "id": "adjective",
           "type": "ADJECTIVE",
           "label": "How it is now",
-          "options": ["fine", "not my problem", "under review", "technically resolved"]
-        },
-        {
-          "id": "statement",
-          "type": "YOUR OFFICIAL STATEMENT",
-          "label": "What you're telling anyone who asks",
+          "options": ["fine", "not my problem", "under review", "technically resolved"],
           "freeText": true
         }
       ],
@@ -246,36 +244,34 @@
           "id": "saw-the-bears",
           "label": "You saw the bears",
           "prompt": "You definitely just saw bears in disguise near the honey exhibit. What's your official account?",
-          "responseTemplate": "I {verb} the {noun} at the {place} and I can confirm it was {adjective}. Official statement: {statement}.",
+          "responseTemplate": "I {verb} the {noun} at the {place} and I can confirm it was {adjective}.",
           "responseSlots": [
             {
               "id": "verb",
               "type": "VERB (past tense)",
               "label": "What you did",
-              "options": ["observed", "documented", "absolutely did not see", "reported seeing"]
+              "options": ["observed", "documented", "absolutely did not see", "reported seeing"],
+              "freeText": true
             },
             {
               "id": "noun",
               "type": "NOUN",
               "label": "What you saw",
-              "options": ["three bears", "suspicious honey activity", "a trenchcoat situation", "what appeared to be a unit"]
+              "options": ["three bears", "suspicious honey activity", "a trenchcoat situation", "what appeared to be a unit"],
+              "freeText": true
             },
             {
               "id": "place",
               "type": "PLACE",
               "label": "Where this happened",
-              "options": ["honey exhibit", "back exit", "gift shop", "main stage"]
+              "options": ["honey exhibit", "back exit", "gift shop", "main stage"],
+              "freeText": true
             },
             {
               "id": "adjective",
               "type": "ADJECTIVE",
               "label": "How it is now",
-              "options": ["unrelated to me", "not my department", "a weather event", "contained"]
-            },
-            {
-              "id": "statement",
-              "type": "WHAT YOU'RE TELLING SECURITY",
-              "label": "Your official account (in your own words)",
+              "options": ["unrelated to me", "not my department", "a weather event", "contained"],
               "freeText": true
             }
           ]
@@ -284,36 +280,34 @@
           "id": "you-helped",
           "label": "You helped (sort of)",
           "prompt": "A bear made eye contact with you. Now you're involved. What did you do?",
-          "responseTemplate": "I {verb} the {noun} from the {place} and now it's {adjective}. For the record: {statement}.",
+          "responseTemplate": "I {verb} the {noun} from the {place} and now it's {adjective}.",
           "responseSlots": [
             {
               "id": "verb",
               "type": "VERB (past tense)",
               "label": "What you did",
-              "options": ["moved", "hid", "definitely did not steal", "relocated for safety"]
+              "options": ["moved", "hid", "definitely did not steal", "relocated for safety"],
+              "freeText": true
             },
             {
               "id": "noun",
               "type": "NOUN",
               "label": "What you touched",
-              "options": ["honey reserve", "exhibit sign", "security badge", "bear costume piece"]
+              "options": ["honey reserve", "exhibit sign", "security badge", "bear costume piece"],
+              "freeText": true
             },
             {
               "id": "place",
               "type": "PLACE",
               "label": "Where it was",
-              "options": ["display case", "evidence bag", "lost and found", "my bag"]
+              "options": ["display case", "evidence bag", "lost and found", "my bag"],
+              "freeText": true
             },
             {
               "id": "adjective",
               "type": "ADJECTIVE",
               "label": "How it is now",
-              "options": ["gone", "fine actually", "a mystery", "secured"]
-            },
-            {
-              "id": "statement",
-              "type": "WHY YOU'RE NOT IN TROUBLE",
-              "label": "Your explanation (be specific)",
+              "options": ["gone", "fine actually", "a mystery", "secured"],
               "freeText": true
             }
           ]
@@ -322,36 +316,34 @@
           "id": "trenchcoat",
           "label": "The trenchcoat",
           "prompt": "That was definitely a bear in a trenchcoat. You had to make a choice.",
-          "responseTemplate": "I {verb} the {noun} near the {place} — clearly {adjective}. My position: {statement}.",
+          "responseTemplate": "I {verb} the {noun} near the {place} — clearly {adjective}.",
           "responseSlots": [
             {
               "id": "verb",
               "type": "VERB (past tense)",
               "label": "What you did",
-              "options": ["greeted", "complimented", "issued a badge to", "held the door for"]
+              "options": ["greeted", "complimented", "issued a badge to", "held the door for"],
+              "freeText": true
             },
             {
               "id": "noun",
               "type": "NOUN",
               "label": "What you called them",
-              "options": ["distinguished guest", "trenchcoat situation", "suspicious unit", "tall human being"]
+              "options": ["distinguished guest", "trenchcoat situation", "suspicious unit", "tall human being"],
+              "freeText": true
             },
             {
               "id": "place",
               "type": "PLACE",
               "label": "Where this was",
-              "options": ["main entrance", "employee entrance", "VIP area", "honey exhibit"]
+              "options": ["main entrance", "employee entrance", "VIP area", "honey exhibit"],
+              "freeText": true
             },
             {
               "id": "adjective",
               "type": "ADJECTIVE",
               "label": "How they seemed",
-              "options": ["completely normal", "a human adult", "not suspicious at all", "my best customer"]
-            },
-            {
-              "id": "statement",
-              "type": "WHAT YOU THOUGHT BUT DIDN'T SAY",
-              "label": "What you noticed (off the record)",
+              "options": ["completely normal", "a human adult", "not suspicious at all", "my best customer"],
               "freeText": true
             }
           ]
@@ -360,36 +352,34 @@
           "id": "made-it-worse",
           "label": "You made it worse",
           "prompt": "You tried to stay out of it. That's over. How did you accidentally make it worse?",
-          "responseTemplate": "I {verb} the {noun} because the {place} situation seemed {adjective}. Then: {statement}.",
+          "responseTemplate": "I {verb} the {noun} because the {place} situation seemed {adjective}.",
           "responseSlots": [
             {
               "id": "verb",
               "type": "VERB (past tense)",
               "label": "What you did",
-              "options": ["alerted", "helped myself to", "unlocked", "escalated to"]
+              "options": ["alerted", "helped myself to", "unlocked", "escalated to"],
+              "freeText": true
             },
             {
               "id": "noun",
               "type": "NOUN",
               "label": "What you touched",
-              "options": ["honey stockpile", "wrong bear", "emergency exit", "backup security"]
+              "options": ["honey stockpile", "wrong bear", "emergency exit", "backup security"],
+              "freeText": true
             },
             {
               "id": "place",
               "type": "PLACE",
               "label": "Where it started",
-              "options": ["exhibit", "vault anteroom", "loading dock", "parking structure"]
+              "options": ["exhibit", "vault anteroom", "loading dock", "parking structure"],
+              "freeText": true
             },
             {
               "id": "adjective",
               "type": "ADJECTIVE",
               "label": "How it seemed at the time",
-              "options": ["fine", "under control", "not my problem", "someone else's job"]
-            },
-            {
-              "id": "statement",
-              "type": "WHAT HAPPENED AFTER THAT",
-              "label": "Describe the sequence (briefly)",
+              "options": ["fine", "under control", "not my problem", "someone else's job"],
               "freeText": true
             }
           ]
@@ -398,36 +388,34 @@
           "id": "distraction",
           "label": "You were the distraction",
           "prompt": "The bears needed three seconds and a distraction. You were there. It counts.",
-          "responseTemplate": "I {verb} a {noun} in the {place} and it was {adjective}. Nobody asked me to, but: {statement}.",
+          "responseTemplate": "I {verb} a {noun} in the {place} and it was {adjective}.",
           "responseSlots": [
             {
               "id": "verb",
               "type": "VERB (past tense)",
               "label": "What you did",
-              "options": ["performed", "delivered", "staged", "narrated"]
+              "options": ["performed", "delivered", "staged", "narrated"],
+              "freeText": true
             },
             {
               "id": "noun",
               "type": "NOUN",
               "label": "What it was",
-              "options": ["medical episode", "passionate speech", "interpretive moment", "customer complaint"]
+              "options": ["medical episode", "passionate speech", "interpretive moment", "customer complaint"],
+              "freeText": true
             },
             {
               "id": "place",
               "type": "PLACE",
               "label": "Where it happened",
-              "options": ["main entrance", "gift shop queue", "security checkpoint", "exhibit hall B"]
+              "options": ["main entrance", "gift shop queue", "security checkpoint", "exhibit hall B"],
+              "freeText": true
             },
             {
               "id": "adjective",
               "type": "ADJECTIVE",
               "label": "How it went",
-              "options": ["very effective", "unprompted", "technically voluntary", "still ongoing"]
-            },
-            {
-              "id": "statement",
-              "type": "WHAT YOU'RE CALLING IT",
-              "label": "Your name for what just happened",
+              "options": ["very effective", "unprompted", "technically voluntary", "still ongoing"],
               "freeText": true
             }
           ]
