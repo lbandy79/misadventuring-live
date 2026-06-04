@@ -33,12 +33,12 @@ function recapHrefFor(show: Show): string | null {
 }
 
 const LATEST_RECAP = {
-  showName: 'Betawave: Last Call',
-  href: '/shows/betawave-last-call-2026-04-18/recap',
+  showName: 'Mad Libs Honey Heist',
+  href: 'https://www.youtube.com/watch?v=7qH6W5Nfy6Q',
 };
 const NEXT_SHOW = {
-  showName: 'Mad Libs Honey Heist',
-  dateLabel: 'May 23',
+  showName: 'Monster of the Week',
+  dateLabel: 'June 27',
   joinHref: '/shows/mad-libs-honey-heist/join',
 };
 
@@ -64,9 +64,9 @@ export default function LandingPage() {
         <div className="hero-now-next">
           <p className="hero-now-next-line">
             <strong>Last show:</strong> {LATEST_RECAP.showName}.{' '}
-            <Link to={LATEST_RECAP.href} className="hero-inline-cta">
+            <a href={LATEST_RECAP.href} className="hero-inline-cta" target="_blank" rel="noopener noreferrer">
               Watch the recap →
-            </Link>
+            </a>
           </p>
           <p className="hero-now-next-line">
             <strong>Coming {NEXT_SHOW.dateLabel}:</strong> {NEXT_SHOW.showName}.{' '}

@@ -53,6 +53,23 @@ export interface RecapConfig {
 }
 
 export const recapConfigs: Record<string, RecapConfig> = {
+  'honey-heist-madlibs-2026-05-23': {
+    showId: 'honey-heist-madlibs-2026-05-23',
+    seriesName: 'Mad Libs Honey Heist',
+    episodeTitle: 'Mad Libs Honey Heist',
+    chapter: 'One-Shot',
+    date: '2026-05-31',
+    venue: 'Lucky Straws, Winter Garden, FL',
+    systemName: 'Honey Heist',
+    costume: 'paper-base',
+    fullEpisodeYoutubeId: '7qH6W5Nfy6Q',
+    monsterStatus: 'available',
+    next: {
+      date: '2026-06-27',
+      venue: 'Lucky Straws, Winter Garden, FL',
+      systemName: 'Monster of the Week',
+    },
+  },
   'betawave-last-call-2026-04-18': {
     showId: 'betawave-last-call-2026-04-18',
     seriesName: 'The Betawave Tapes',

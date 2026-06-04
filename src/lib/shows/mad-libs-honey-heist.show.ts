@@ -15,8 +15,9 @@ export const madLibsHoneyHeistShow: Show = {
   description:
     'Mad Libs format. The audience writes the prompts. The cast plays it live.',
   status: 'live',
-  era: 'upcoming',
-  nextDate: '2026-05-23',
+  era: 'past',
   accentColor: '#e0a022',
   accentInk: '#1c1c1c',
+  recap: { kind: 'firestore', recapId: 'honey-heist-madlibs-2026-05-23' },
+  youtubeUrl: 'https://www.youtube.com/watch?v=7qH6W5Nfy6Q',
 };

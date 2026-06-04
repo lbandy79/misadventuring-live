@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import HeroSection from './recap/HeroSection';
 import FeaturedCharacter from './recap/FeaturedCharacter';
-import CharacterGrid from './recap/CharacterGrid';
+import NpcDisplayRow from '../components/display/NpcDisplayRow';
 import MonsterStickyNote from './recap/MonsterStickyNote';
 import ComingNextStickyNote from './recap/ComingNextStickyNote';
 import AboutPageFooter from './recap/AboutPageFooter';
@@ -167,9 +167,8 @@ export default function RecapPage() {
             </p>
           )}
           {featured && <FeaturedCharacter npc={featured} />}
-          <CharacterGrid
-            npcs={data.npcs}
-            excludeReservationId={featured?.reservationId}
+          <NpcDisplayRow
+            npcs={featured ? data.npcs.filter((n) => n.id !== featured.id) : data.npcs}
           />
         </section>
       )}

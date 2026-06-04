@@ -17,14 +17,15 @@ interface PaperAvatarProps {
 
 export default function PaperAvatar({ name, size = 88, className = '' }: PaperAvatarProps) {
   const [failed, setFailed] = useState(false);
-  const seed = encodeURIComponent(name.trim());
+  const safeName = name ?? '';
+  const seed = encodeURIComponent(safeName.trim());
   const url = `${DICEBEAR_BASE}/pixel-art/svg?seed=${seed}`;
 
-  if (failed || !name.trim()) {
+  if (failed || !safeName.trim()) {
     let hash = 0;
-    for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    for (let i = 0; i < safeName.length; i++) hash = safeName.charCodeAt(i) + ((hash << 5) - hash);
     const hue = Math.abs(hash) % 360;
-    const initial = name.trim().charAt(0).toUpperCase() || '?';
+    const initial = safeName.trim().charAt(0).toUpperCase() || '?';
     return (
       <div
         className={`recap-avatar recap-avatar-fallback ${className}`}

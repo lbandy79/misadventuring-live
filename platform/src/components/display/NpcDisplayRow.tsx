@@ -18,10 +18,17 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { NpcProfile } from '../../../../src/lib/npcs/npcApi';
 import './NpcDisplayRow.css';
 
 const DICEBEAR_BASE = 'https://api.dicebear.com/9.x';
+
+/** Minimal shape required by NpcDisplayRow — satisfied by both NpcProfile and PublicNPC. */
+export interface DisplayableNpc {
+  id: string;
+  displayName?: string;
+  fieldValues?: Record<string, string>;
+  avatarSeed?: string;
+}
 
 function toTitleCase(str: string): string {
   return str.replace(/\b\w/g, (c) => c.toUpperCase());
@@ -68,7 +75,7 @@ function NpcCardAvatar({ seed, size }: { seed: string; size: number }) {
 }
 
 interface NpcDisplayRowProps {
-  npcs: NpcProfile[];
+  npcs: DisplayableNpc[];
 }
 
 export default function NpcDisplayRow({ npcs }: NpcDisplayRowProps) {
@@ -84,7 +91,7 @@ export default function NpcDisplayRow({ npcs }: NpcDisplayRowProps) {
           const adjective = npc.fieldValues?.adjective ?? '';
           const jobTitle  = npc.fieldValues?.job_title  ?? '';
           const tagline   = npc.fieldValues?.tagline    ?? '';
-          const seed      = npc.avatarSeed ?? npc.displayName;
+          const seed      = npc.avatarSeed ?? npc.displayName ?? '';
           const roleLine  = toTitleCase([adjective, jobTitle].filter(Boolean).join(' '));
 
           return (
