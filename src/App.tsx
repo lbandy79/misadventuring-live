@@ -9,6 +9,7 @@ import NPCCreationPage from './components/NPCCreator/NPCCreationPage';
 import BladeRunnerCreationPage from './components/BladeRunnerCreator/BladeRunnerCreationPage';
 import BladeRunnerSheetPage from './components/BladeRunnerSheet/BladeRunnerSheetPage';
 import BladeRunnerRoster from './components/BladeRunnerSheet/BladeRunnerRoster';
+import MotWCreationPage from './components/MotWCreator/MotWCreationPage';
 import QRDisplay from './components/QRDisplay';
 import FantasyBackground from './components/FantasyBackground';
 import './index.css';
@@ -66,6 +67,7 @@ function App() {
           <Route path="/" element={<CodeRedirect />} />
           <Route path="/create" element={<NPCCreationPage />} />
           <Route path="/blade-runner/create" element={<BladeRunnerCreationPage />} />
+          <Route path="/monster-of-the-week/create" element={<MotWCreationPage />} />
           <Route path="/blade-runner/roster" element={<BladeRunnerRoster />} />
           <Route path="/blade-runner/play/:id" element={<BladeRunnerSheetPage />} />
           <Route path="/play/:npcId" element={<PlayView />} />
