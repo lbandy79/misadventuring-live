@@ -122,13 +122,43 @@ export default function SummaryStep({
           </ul>
         </div>
 
-        {state.specialNotes && (
+        {(Object.values(state.specialSelections).some((arr) => arr.length > 0) || state.specialNotes) && (
           <div className="motw-sheet-section motw-sheet-wide">
             <div className="motw-sheet-section-head">
               <h3>Special Mechanics & Notes</h3>
               <button type="button" className="motw-jump-btn" onClick={() => onJumpToStep('specials')}>Edit</button>
             </div>
-            <p className="motw-sheet-notes">{state.specialNotes}</p>
+            {playbook.specialMechanics && (
+              <div className="motw-sheet-specials">
+                {Object.keys(playbook.specialMechanics).map((sectionKey) => {
+                  const sectionEntries = Object.entries(state.specialSelections).filter(
+                    ([k, v]) => k.startsWith(`${sectionKey}.`) && v.length > 0
+                  );
+                  if (sectionEntries.length === 0) return null;
+                  const sectionLabel = sectionKey
+                    .replace(/([A-Z])/g, ' $1')
+                    .replace(/^./, (s) => s.toUpperCase());
+                  return (
+                    <div key={sectionKey} className="motw-sheet-special-group">
+                      <div className="motw-sheet-special-group-name">{sectionLabel}</div>
+                      {sectionEntries.map(([k, items]) => {
+                        const fieldKey = k.replace(`${sectionKey}.`, '');
+                        const fieldLabel = fieldKey
+                          .replace(/([A-Z])/g, ' $1')
+                          .replace(/^./, (s) => s.toUpperCase());
+                        return (
+                          <div key={k} className="motw-sheet-special-field">
+                            <span className="motw-sheet-special-field-label">{fieldLabel}:</span>
+                            <span className="motw-sheet-special-field-val">{items.join(', ')}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+            {state.specialNotes && <p className="motw-sheet-notes">{state.specialNotes}</p>}
           </div>
         )}
 

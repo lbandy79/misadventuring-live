@@ -2,7 +2,9 @@ import type { MotWPlaybook, MotWSpecialMechanicsSection } from '../../../types/m
 
 interface SpecialStepProps {
   playbook: MotWPlaybook;
+  specialSelections: Record<string, string[]>;
   specialNotes: string;
+  onToggle: (key: string, item: string, limit: number) => void;
   onNotesChange: (notes: string) => void;
   hunterName: string;
   playerName: string;
@@ -10,8 +12,58 @@ interface SpecialStepProps {
   onPlayerNameChange: (name: string) => void;
 }
 
-function SectionDisplay({ sectionKey, section }: { sectionKey: string; section: MotWSpecialMechanicsSection }) {
+interface SelectableListProps {
+  items: string[];
+  selectionKey: string;
+  limit: number;
+  selected: string[];
+  onToggle: (key: string, item: string, limit: number) => void;
+  variant?: 'normal' | 'bad';
+  showCount?: boolean;
+}
+
+function SelectableList({ items, selectionKey, limit, selected, onToggle, variant = 'normal', showCount }: SelectableListProps) {
+  return (
+    <div>
+      {showCount && (
+        <span className={`motw-sel-count${selected.length >= limit ? ' full' : ''}`}>
+          {selected.length} / {limit} selected
+        </span>
+      )}
+      <ul className={`motw-special-list${variant === 'bad' ? ' motw-list-bad' : ''} motw-selectable-list`}>
+        {items.map((item) => {
+          const isSelected = selected.includes(item);
+          const isDisabled = !isSelected && selected.length >= limit && limit > 1;
+          return (
+            <li key={item}>
+              <button
+                type="button"
+                className={`motw-special-item${isSelected ? ' selected' : ''}${isDisabled ? ' disabled' : ''}`}
+                onClick={() => onToggle(selectionKey, item, limit)}
+                disabled={isDisabled}
+              >
+                {isSelected ? '✓ ' : ''}{item}
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+interface SectionDisplayProps {
+  sectionKey: string;
+  section: MotWSpecialMechanicsSection;
+  selections: Record<string, string[]>;
+  onToggle: (key: string, item: string, limit: number) => void;
+}
+
+function SectionDisplay({ sectionKey, section, selections, onToggle }: SectionDisplayProps) {
   const label = sectionKey.replace(/([A-Z])/g, ' $1').replace(/^./, (s) => s.toUpperCase());
+
+  const sel = (field: string) => selections[`${sectionKey}.${field}`] ?? [];
+  const tog = (field: string, item: string, limit: number) => onToggle(`${sectionKey}.${field}`, item, limit);
 
   return (
     <div className="motw-special-section">
@@ -20,14 +72,17 @@ function SectionDisplay({ sectionKey, section }: { sectionKey: string; section: 
 
       {section.options && section.options.length > 0 && (
         <div className="motw-special-options">
-          {(section.pickCount ?? section.pick) ? (
-            <p className="motw-special-pick">
-              Pick {section.pickCount ?? section.pick}:
-            </p>
-          ) : null}
-          <ul className="motw-special-list">
-            {section.options.map((opt) => <li key={opt}>{opt}</li>)}
-          </ul>
+          <p className="motw-special-pick">
+            Pick {section.pickCount ?? section.pick ?? 1}:
+          </p>
+          <SelectableList
+            items={section.options}
+            selectionKey={`${sectionKey}.options`}
+            limit={section.pickCount ?? section.pick ?? 1}
+            selected={sel('options')}
+            onToggle={onToggle}
+            showCount={(section.pickCount ?? section.pick ?? 1) > 1}
+          />
         </div>
       )}
 
@@ -35,15 +90,11 @@ function SectionDisplay({ sectionKey, section }: { sectionKey: string; section: 
         <div className="motw-special-two-col">
           <div>
             <p className="motw-special-pick">Good traditions (pick 2):</p>
-            <ul className="motw-special-list">
-              {section.goodTraditions.map((t) => <li key={t}>{t}</li>)}
-            </ul>
+            <SelectableList items={section.goodTraditions} selectionKey={`${sectionKey}.goodTraditions`} limit={2} selected={sel('goodTraditions')} onToggle={onToggle} showCount />
           </div>
           <div>
             <p className="motw-special-pick motw-pick-bad">Bad traditions (pick 1):</p>
-            <ul className="motw-special-list motw-list-bad">
-              {section.badTraditions?.map((t) => <li key={t}>{t}</li>)}
-            </ul>
+            <SelectableList items={section.badTraditions ?? []} selectionKey={`${sectionKey}.badTraditions`} limit={1} selected={sel('badTraditions')} onToggle={onToggle} variant="bad" />
           </div>
         </div>
       )}
@@ -52,15 +103,11 @@ function SectionDisplay({ sectionKey, section }: { sectionKey: string; section: 
         <div className="motw-special-two-col">
           <div>
             <p className="motw-special-pick">Resources (pick 2):</p>
-            <ul className="motw-special-list">
-              {section.resources.map((r) => <li key={r}>{r}</li>)}
-            </ul>
+            <SelectableList items={section.resources} selectionKey={`${sectionKey}.resources`} limit={2} selected={sel('resources')} onToggle={onToggle} showCount />
           </div>
           <div>
             <p className="motw-special-pick motw-pick-bad">Red tape (pick 2):</p>
-            <ul className="motw-special-list motw-list-bad">
-              {section.redTape?.map((r) => <li key={r}>{r}</li>)}
-            </ul>
+            <SelectableList items={section.redTape ?? []} selectionKey={`${sectionKey}.redTape`} limit={2} selected={sel('redTape')} onToggle={onToggle} variant="bad" showCount />
           </div>
         </div>
       )}
@@ -68,9 +115,7 @@ function SectionDisplay({ sectionKey, section }: { sectionKey: string; section: 
       {section.tags && (
         <div className="motw-special-options">
           <p className="motw-special-pick">Pick {section.pick}:</p>
-          <ul className="motw-special-tag-list">
-            {section.tags.map((t) => <li key={t}>{t}</li>)}
-          </ul>
+          <SelectableList items={section.tags} selectionKey={`${sectionKey}.tags`} limit={section.pick ?? 3} selected={sel('tags')} onToggle={onToggle} showCount />
         </div>
       )}
 
@@ -78,75 +123,57 @@ function SectionDisplay({ sectionKey, section }: { sectionKey: string; section: 
         <div className="motw-special-two-col">
           <div>
             <p className="motw-special-pick">Heroic tags (pick 2):</p>
-            <ul className="motw-special-list">
-              {section.heroicTags.map((t) => <li key={t}>{t}</li>)}
-            </ul>
+            <SelectableList items={section.heroicTags} selectionKey={`${sectionKey}.heroicTags`} limit={2} selected={sel('heroicTags')} onToggle={onToggle} showCount />
           </div>
           <div>
             <p className="motw-special-pick motw-pick-bad">Doom tags (pick 2):</p>
-            <ul className="motw-special-list motw-list-bad">
-              {section.doomTags?.map((t) => <li key={t}>{t}</li>)}
-            </ul>
+            <SelectableList items={section.doomTags ?? []} selectionKey={`${sectionKey}.doomTags`} limit={2} selected={sel('doomTags')} onToggle={onToggle} variant="bad" showCount />
           </div>
         </div>
       )}
 
       {section.howYouFoundOut && (
         <div className="motw-special-options">
-          <p className="motw-special-pick">How did you find out?</p>
-          <ul className="motw-special-list">
-            {section.howYouFoundOut.map((o) => <li key={o}>{o}</li>)}
-          </ul>
-        </div>
-      )}
-
-      {section.bases && (
-        <div className="motw-special-options">
-          <p className="motw-special-pick">Bases (pick 1):</p>
-          <ul className="motw-special-list">
-            {section.bases.map((b) => <li key={b}>{b}</li>)}
-          </ul>
-          {section.extras && (
-            <>
-              <p className="motw-special-pick">Extras (optional):</p>
-              <ul className="motw-special-list">
-                {section.extras.map((e) => <li key={e}>{e}</li>)}
-              </ul>
-            </>
-          )}
-          {section.effects && (
-            <>
-              <p className="motw-special-pick">Effects (pick up to 3):</p>
-              <ul className="motw-special-list">
-                {section.effects.map((e) => <li key={e}>{e}</li>)}
-              </ul>
-            </>
-          )}
+          <p className="motw-special-pick">How did you find out? (pick 1)</p>
+          <SelectableList items={section.howYouFoundOut} selectionKey={`${sectionKey}.howYouFoundOut`} limit={1} selected={sel('howYouFoundOut')} onToggle={onToggle} />
         </div>
       )}
 
       {section.suggestions && (
         <div className="motw-special-options">
-          <p className="motw-special-pick">Suggestions:</p>
-          <ul className="motw-special-list">
-            {section.suggestions.map((s) => <li key={s}>{s}</li>)}
-          </ul>
+          <p className="motw-special-pick">Pick one:</p>
+          <SelectableList items={section.suggestions} selectionKey={`${sectionKey}.suggestions`} limit={1} selected={sel('suggestions')} onToggle={onToggle} />
+        </div>
+      )}
+
+      {section.bases && (
+        <div className="motw-special-options">
+          <p className="motw-special-pick">Base (pick 1):</p>
+          <SelectableList items={section.bases} selectionKey={`${sectionKey}.bases`} limit={1} selected={sel('bases')} onToggle={onToggle} />
+          {section.extras && (
+            <>
+              <p className="motw-special-pick" style={{ marginTop: '0.5rem' }}>Extras (pick any):</p>
+              <SelectableList items={section.extras} selectionKey={`${sectionKey}.extras`} limit={section.extras.length} selected={sel('extras')} onToggle={onToggle} />
+            </>
+          )}
+          {section.effects && (
+            <>
+              <p className="motw-special-pick" style={{ marginTop: '0.5rem' }}>Effects (pick up to 3):</p>
+              <SelectableList items={section.effects} selectionKey={`${sectionKey}.effects`} limit={3} selected={sel('effects')} onToggle={onToggle} showCount />
+            </>
+          )}
         </div>
       )}
 
       {section.whoYouLost && (
         <div className="motw-special-two-col">
           <div>
-            <p className="motw-special-pick">Who you lost:</p>
-            <ul className="motw-special-list">
-              {section.whoYouLost.map((w) => <li key={w}>{w}</li>)}
-            </ul>
+            <p className="motw-special-pick">Who you lost (pick 1):</p>
+            <SelectableList items={section.whoYouLost} selectionKey={`${sectionKey}.whoYouLost`} limit={1} selected={sel('whoYouLost')} onToggle={onToggle} />
           </div>
           <div>
-            <p className="motw-special-pick motw-pick-bad">Why you couldn't save them:</p>
-            <ul className="motw-special-list motw-list-bad">
-              {section.whyYouCouldntSave?.map((w) => <li key={w}>{w}</li>)}
-            </ul>
+            <p className="motw-special-pick motw-pick-bad">Why you couldn't save them (pick 1):</p>
+            <SelectableList items={section.whyYouCouldntSave ?? []} selectionKey={`${sectionKey}.whyYouCouldntSave`} limit={1} selected={sel('whyYouCouldntSave')} onToggle={onToggle} variant="bad" />
           </div>
         </div>
       )}
@@ -160,7 +187,9 @@ function SectionDisplay({ sectionKey, section }: { sectionKey: string; section: 
 
 export default function SpecialStep({
   playbook,
+  specialSelections,
   specialNotes,
+  onToggle,
   onNotesChange,
   hunterName,
   playerName,
@@ -175,7 +204,7 @@ export default function SpecialStep({
         <div className="motw-eyebrow">{playbook.name}</div>
         <h2>Details & Special Mechanics</h2>
         <p className="motw-step-subtitle">
-          Name your hunter and review {playbook.name.replace('The ', '')}-specific choices to make before play.
+          Name your hunter and make {playbook.name.replace('The ', '')}-specific choices before play.
         </p>
       </header>
 
@@ -205,27 +234,33 @@ export default function SpecialStep({
       {hasSpecials ? (
         <div className="motw-specials-wrap">
           <div className="motw-specials-header">
-            <span className="motw-eyebrow">Reference — make these choices before play</span>
+            <span className="motw-eyebrow">Make your choices below</span>
           </div>
           {Object.entries(playbook.specialMechanics!).map(([key, section]) => (
-            <SectionDisplay key={key} sectionKey={key} section={section} />
+            <SectionDisplay
+              key={key}
+              sectionKey={key}
+              section={section}
+              selections={specialSelections}
+              onToggle={onToggle}
+            />
           ))}
         </div>
       ) : (
         <div className="motw-specials-empty">
-          <p>No special mechanics for {playbook.name} — just moves, ratings, and gear. Simple and effective.</p>
+          <p>No special mechanics for {playbook.name} — just moves, ratings, and gear.</p>
         </div>
       )}
 
       <div className="motw-notes-section">
         <label className="motw-field-label">
-          Notes (your choices, background, anything else)
+          Additional Notes
           <textarea
             className="motw-textarea"
             value={specialNotes}
             onChange={(e) => onNotesChange(e.target.value)}
-            placeholder="Write down your special mechanics choices, character background, gear details, etc."
-            rows={5}
+            placeholder="Anything else — character background, gear details, prey name, etc."
+            rows={4}
           />
         </label>
       </div>

@@ -137,6 +137,7 @@ export interface MotWCreatorState {
   playbookId: string | null;
   ratingsLineIndex: number | null;
   selectedMoveNames: string[];
+  specialSelections: Record<string, string[]>; // "sectionKey.fieldKey" → selected items
   specialNotes: string;
   hunterName: string;
   playerName: string;

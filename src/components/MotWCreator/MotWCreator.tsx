@@ -129,7 +129,11 @@ function MotWCreatorInner({ config }: { config: MotWSystemConfig }) {
         return (
           <SpecialStep
             playbook={selectedPlaybook}
+            specialSelections={state.specialSelections}
             specialNotes={state.specialNotes}
+            onToggle={(key, item, limit) =>
+              dispatch({ type: 'TOGGLE_SPECIAL_SELECTION', payload: { key, item, limit } })
+            }
             onNotesChange={(notes) => dispatch({ type: 'SET_SPECIAL_NOTES', payload: notes })}
             hunterName={state.hunterName}
             playerName={state.playerName}

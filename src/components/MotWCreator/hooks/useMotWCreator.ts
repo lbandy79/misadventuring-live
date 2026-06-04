@@ -6,6 +6,7 @@ type Action =
   | { type: 'SET_PLAYBOOK'; payload: string }
   | { type: 'SET_RATINGS_LINE'; payload: number }
   | { type: 'TOGGLE_MOVE'; payload: string }
+  | { type: 'TOGGLE_SPECIAL_SELECTION'; payload: { key: string; item: string; limit: number } }
   | { type: 'SET_SPECIAL_NOTES'; payload: string }
   | { type: 'SET_HUNTER_NAME'; payload: string }
   | { type: 'SET_PLAYER_NAME'; payload: string }
@@ -19,6 +20,7 @@ const INITIAL_STATE: MotWCreatorState = {
   playbookId: null,
   ratingsLineIndex: null,
   selectedMoveNames: [],
+  specialSelections: {},
   specialNotes: '',
   hunterName: '',
   playerName: '',
@@ -42,6 +44,26 @@ function reducer(state: MotWCreatorState, action: Action): MotWCreatorState {
         selectedMoveNames: already
           ? state.selectedMoveNames.filter((n) => n !== name)
           : [...state.selectedMoveNames, name],
+      };
+    }
+    case 'TOGGLE_SPECIAL_SELECTION': {
+      const { key, item, limit } = action.payload;
+      const current = state.specialSelections[key] ?? [];
+      const already = current.includes(item);
+      let next: string[];
+      if (already) {
+        next = current.filter((i) => i !== item);
+      } else if (current.length < limit) {
+        next = [...current, item];
+      } else if (limit === 1) {
+        // Single-select: replace
+        next = [item];
+      } else {
+        next = current;
+      }
+      return {
+        ...state,
+        specialSelections: { ...state.specialSelections, [key]: next },
       };
     }
     case 'SET_SPECIAL_NOTES':

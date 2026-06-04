@@ -817,6 +817,97 @@
   border-radius: 2px;
 }
 
+/* ── Interactive selectable list (special mechanics) ── */
+.motw-selectable-list li {
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.motw-special-item {
+  background: var(--motw-bg);
+  border: 1px solid var(--motw-border);
+  padding: 0.2rem 0.5rem;
+  border-radius: 2px;
+  color: var(--motw-text-dim);
+  font-size: 0.78rem;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s, color 0.12s;
+  display: block;
+  text-align: left;
+}
+
+.motw-special-item:hover:not(:disabled) {
+  border-color: var(--motw-manila-dim);
+  color: var(--motw-text);
+}
+
+.motw-special-item.selected {
+  background: rgba(200, 169, 110, 0.1);
+  border-color: var(--motw-manila);
+  color: var(--motw-manila);
+}
+
+.motw-list-bad .motw-special-item.selected {
+  background: var(--motw-red-soft);
+  border-color: var(--motw-red);
+  color: var(--motw-text);
+}
+
+.motw-special-item.disabled,
+.motw-special-item:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.motw-sel-count {
+  font-size: 0.65rem;
+  color: var(--motw-muted);
+  letter-spacing: 0.04em;
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+.motw-sel-count.full { color: var(--motw-manila); }
+
+/* ── Sheet: special mechanics display ── */
+.motw-sheet-specials {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 0.5rem;
+}
+
+.motw-sheet-special-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.motw-sheet-special-group-name {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--motw-manila);
+  font-weight: bold;
+}
+
+.motw-sheet-special-field {
+  font-size: 0.8rem;
+  color: var(--motw-text-dim);
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.motw-sheet-special-field-label {
+  color: var(--motw-muted);
+  font-style: italic;
+}
+
+.motw-sheet-special-field-val { color: var(--motw-text); }
+
 .motw-notes-section { margin-top: 0.5rem; }
 
 .motw-textarea {
