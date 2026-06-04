@@ -9,6 +9,7 @@ interface SummaryStepProps {
   config: MotWSystemConfig;
   onJumpToStep: (step: MotWStep) => void;
   onReset: () => void;
+  onBack: () => void;
 }
 
 function formatRating(val: number): string {
@@ -44,6 +45,7 @@ export default function SummaryStep({
   config,
   onJumpToStep,
   onReset,
+  onBack,
 }: SummaryStepProps) {
   const allSelectedMoves = [
     ...mandatoryMoves,
@@ -165,9 +167,14 @@ export default function SummaryStep({
       </div>
 
       <div className="motw-summary-actions">
-        <button type="button" className="motw-btn-secondary" onClick={onReset}>
-          Start Over
-        </button>
+        <div className="motw-summary-actions-left">
+          <button type="button" className="motw-btn-secondary" onClick={onBack}>
+            Back
+          </button>
+          <button type="button" className="motw-btn-secondary" onClick={onReset}>
+            Start Over
+          </button>
+        </div>
         <button type="button" className="motw-btn-primary" onClick={() => window.print()}>
           Print / Save as PDF
         </button>

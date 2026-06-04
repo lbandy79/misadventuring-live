@@ -149,6 +149,7 @@ function MotWCreatorInner({ config }: { config: MotWSystemConfig }) {
             config={config}
             onJumpToStep={(step) => dispatch({ type: 'SET_STEP', payload: step })}
             onReset={() => dispatch({ type: 'RESET' })}
+            onBack={() => dispatch({ type: 'PREV_STEP' })}
           />
         );
 

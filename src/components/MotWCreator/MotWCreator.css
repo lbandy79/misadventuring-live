@@ -1150,9 +1150,15 @@
 .motw-summary-actions {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: 1rem;
   padding-top: 0.5rem;
   border-top: 1px solid var(--motw-border);
+}
+
+.motw-summary-actions-left {
+  display: flex;
+  gap: 0.5rem;
 }
 
 /* ── Print styles ── */
