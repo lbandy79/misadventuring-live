@@ -12,6 +12,7 @@ import {
   getCastEmails,
   setCastEmails,
   subscribeToAllHunterSheets,
+  deleteHunterSheet,
   type HunterSheet,
 } from '../../../../src/lib/hunters/hunterApi';
 
@@ -166,6 +167,7 @@ function CastListTab() {
 function HuntersTab() {
   const [sheets, setSheets] = useState<HunterSheet[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState<string | null>(null);
 
   useEffect(() => {
     const unsub = subscribeToAllHunterSheets((all) => {
@@ -174,6 +176,18 @@ function HuntersTab() {
     });
     return unsub;
   }, []);
+
+  async function handleDelete(sheet: HunterSheet) {
+    if (!confirm(`Remove "${sheet.hunterName}" (${sheet.playbookName}) by ${sheet.castMemberName}? This can't be undone.`)) return;
+    setDeleting(sheet.id);
+    try {
+      await deleteHunterSheet(sheet.id);
+    } catch (err) {
+      console.error('Failed to delete hunter sheet:', err);
+    } finally {
+      setDeleting(null);
+    }
+  }
 
   if (loading) {
     return <p className="npc-admin-panel__empty">Loading hunter sheets…</p>;
@@ -188,7 +202,6 @@ function HuntersTab() {
     );
   }
 
-  // Group by cast member
   const byMember = sheets.reduce<Record<string, HunterSheet[]>>((acc, s) => {
     const key = s.castMemberName || s.castMemberEmail;
     if (!acc[key]) acc[key] = [];
@@ -204,10 +217,21 @@ function HuntersTab() {
           <ul className="hunters-admin-member__sheets">
             {memberSheets.map((sheet) => (
               <li key={sheet.id} className="hunters-admin-member__sheet">
-                <strong>{sheet.hunterName}</strong>
-                {' — '}
-                <span className="hunters-admin-member__playbook">{sheet.playbookName}</span>
-                <span className="hunters-admin-member__show"> ({sheet.showId})</span>
+                <span>
+                  <strong>{sheet.hunterName}</strong>
+                  {' — '}
+                  <span className="hunters-admin-member__playbook">{sheet.playbookName}</span>
+                  <span className="hunters-admin-member__show"> ({sheet.showId})</span>
+                </span>
+                <button
+                  type="button"
+                  className="cast-admin-list__remove"
+                  onClick={() => handleDelete(sheet)}
+                  disabled={deleting === sheet.id}
+                  aria-label={`Remove ${sheet.hunterName}`}
+                >
+                  {deleting === sheet.id ? '…' : 'Remove'}
+                </button>
               </li>
             ))}
           </ul>

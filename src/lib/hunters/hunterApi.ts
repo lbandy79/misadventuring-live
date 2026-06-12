@@ -12,6 +12,7 @@
 import {
   addDoc,
   collection,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
@@ -97,6 +98,10 @@ export async function updateHunterSheet(id: string, updates: HunterSheetUpdate):
     ...updates,
     updatedAt: serverTimestamp(),
   });
+}
+
+export async function deleteHunterSheet(id: string): Promise<void> {
+  await deleteDoc(doc(db, COLLECTION, id));
 }
 
 // ─── Read ─────────────────────────────────────────────────────────────────────
