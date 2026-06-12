@@ -77,7 +77,16 @@ export default function ShowPage() {
     : undefined);
 
   const campaignId: string | undefined = systemConfig?.showConfig?.theme?.campaignId;
-  const isNpcMadLibs = !!systemConfig?.showConfig?.npcCreation;
+
+  const systemName: string =
+    systemConfig?.system?.name ??
+    show.systemId.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+
+  const upcomingDateLabel = show.nextDate
+    ? new Date(show.nextDate + 'T12:00:00').toLocaleDateString('en-US', {
+        weekday: 'long', month: 'long', day: 'numeric', year: 'numeric',
+      })
+    : null;
 
   return (
     <section className="page-card show-detail-card" style={accentStyle}>
@@ -92,7 +101,9 @@ export default function ShowPage() {
         <div className="show-detail-badges">
           {isLiveNow && <span className="live-badge">● Live now</span>}
           {!isLiveNow && era && (
-            <span className={`upcoming-badge ${era}`}>{era}</span>
+            <span className={`upcoming-badge ${era}`}>
+              {era === 'upcoming' && upcomingDateLabel ? upcomingDateLabel : era}
+            </span>
           )}
         </div>
       </div>
@@ -103,30 +114,30 @@ export default function ShowPage() {
         </p>
       )}
 
+      {era === 'upcoming' && (
+        <p className="show-detail-wrapped">
+          Coming up at Lucky Straws, Winter Garden, FL. Walk in — no ticket needed.
+        </p>
+      )}
+
       {show.description && <p className="show-detail-desc">{show.description}</p>}
 
-      <div className="show-detail-grid">
-        <div>
-          <h3>Theme</h3>
-          <p>{show.themeId}</p>
+      {(systemConfig?.system?.description || systemName) && (
+        <div className="show-detail-grid">
+          <div>
+            <h3>System</h3>
+            <p>{systemName}</p>
+            {systemConfig?.system?.description && (
+              <p className="show-detail-grid-note">
+                {systemConfig.system.description}
+              </p>
+            )}
+          </div>
         </div>
-        <div>
-          <h3>System</h3>
-          <p>{show.systemId}</p>
-          {systemConfig?.system?.description && (
-            <p className="show-detail-grid-note">
-              {systemConfig.system.description}
-            </p>
-          )}
-        </div>
-        <div>
-          <h3>Audience interactions</h3>
-          <p>{show.enabledInteractions.length} enabled</p>
-        </div>
-      </div>
+      )}
 
       {era !== 'past' && (
-        <details className="show-detail-interactions">
+        <details className="show-detail-interactions" open={era === 'upcoming' || era === 'live'}>
           <summary>What you can do as the audience</summary>
           <ul>
             {show.enabledInteractions.map((i) => (
@@ -158,7 +169,7 @@ export default function ShowPage() {
               rel="noopener noreferrer"
               className="btn-primary btn-lg"
             >
-              {recapLabel} ↗
+              {recapLabel} →
             </a>
           ) : (
             <Link to={recapHref} className="btn-primary btn-lg">
@@ -171,7 +182,6 @@ export default function ShowPage() {
           </Link>
         ) : null}
 
-        {/* Secondary YouTube link when a Firestore recap is the primary CTA. */}
         {era === 'past' && show.recap?.kind === 'firestore' && show.youtubeUrl && (
           <a
             href={show.youtubeUrl}
@@ -179,7 +189,7 @@ export default function ShowPage() {
             rel="noopener noreferrer"
             className="btn-secondary btn-lg"
           >
-            Watch on YouTube ↗
+            Watch on YouTube →
           </a>
         )}
       </div>

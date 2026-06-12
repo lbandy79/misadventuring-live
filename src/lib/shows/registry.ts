@@ -14,10 +14,12 @@ import type { Show } from '../types/show.types';
 import { beastOfRidgefallShow } from './beast-of-ridgefall.show';
 import { betawaveTapesShow } from './betawave-tapes.show';
 import { madLibsHoneyHeistShow } from './mad-libs-honey-heist.show';
+import { monsterOfTheWeekShow } from './monster-of-the-week.show';
 import { mysteryOfIpIsleShow } from './mystery-of-ip-isle.show';
 import { soggyBottomPiratesShow } from './soggy-bottom-pirates.show';
 
 export const shows: Show[] = [
+  monsterOfTheWeekShow,
   madLibsHoneyHeistShow,
   betawaveTapesShow,
   mysteryOfIpIsleShow,

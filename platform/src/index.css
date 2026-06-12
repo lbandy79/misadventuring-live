@@ -360,6 +360,7 @@ textarea:focus-visible {
 
 /* ── Hero / Landing ──────────────────────────────────────────────── */
 .hero {
+  position: relative;
   padding: 2rem 0.5rem 2rem;
   text-align: center;
 }
@@ -669,6 +670,12 @@ textarea:focus-visible {
   background: var(--paper-warm);
   color: var(--ink-black);
   border: 1.5px solid var(--ink-black);
+}
+.upcoming-badge.upcoming,
+.upcoming-badge.live {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: var(--accent);
 }
 .upcoming-badge.draft {
   background: rgba(0, 0, 0, 0.06);

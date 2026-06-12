@@ -79,6 +79,7 @@ export const recapConfigs: Record<string, RecapConfig> = {
     venue: 'Lucky Straws, Winter Garden, FL',
     systemName: 'Kids on Bikes 2E',
     costume: 'betawave-vhs',
+    fullEpisodeYoutubeId: 'G0Hbj8YJrr8?start=3559',
     // Banana Wamama Bamama 🍌🍌🍌 — got the 15-minute spotlight at the show.
     featuredReservationId: 'NgC92SQZfJdwIuiLmNFf',
     monsterStatus: 'lost',

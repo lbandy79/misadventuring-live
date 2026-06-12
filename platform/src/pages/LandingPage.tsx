@@ -11,6 +11,7 @@ import { Link } from 'react-router-dom';
 import type { CSSProperties } from 'react';
 import { useShow, getShowEra, type Show } from '@mtp/lib';
 import { recapConfigs } from './recap/recapConfig';
+import { Doodle } from '../components/Doodle';
 
 function accentStyleFor(show: Show): CSSProperties | undefined {
   if (!show.accentColor) return undefined;
@@ -39,18 +40,24 @@ const LATEST_RECAP = {
 const NEXT_SHOW = {
   showName: 'Monster of the Week',
   dateLabel: 'June 27',
-  joinHref: '/shows/mad-libs-honey-heist/join',
+  href: '/shows/monster-of-the-week',
 };
 
 export default function LandingPage() {
   const { allShows } = useShow();
-  const featured = allShows
-    .filter((s) => getShowEra(s) !== 'shelved')
+  const upcomingShows = allShows.filter((s) => {
+    const era = getShowEra(s);
+    return era === 'upcoming' || era === 'live';
+  });
+  const pastShows = allShows
+    .filter((s) => getShowEra(s) === 'past')
     .slice(0, 3);
 
   return (
     <>
       <section className="hero">
+        <Doodle name="nat20_dice" top="8px" right="2%" rotation={18} opacity={0.35} width="110px" />
+        <Doodle name="diamonds" bottom="32px" left="1%" rotation={-12} opacity={0.3} width="80px" />
         <p className="hero-eyebrow">
           <span className="rec-badge" aria-hidden="true">REC</span>
           <span>Live tabletop comedy</span>
@@ -70,8 +77,8 @@ export default function LandingPage() {
           </p>
           <p className="hero-now-next-line">
             <strong>Coming {NEXT_SHOW.dateLabel}:</strong> {NEXT_SHOW.showName}.{' '}
-            <Link to={NEXT_SHOW.joinHref} className="hero-inline-cta">
-              Scan in at the show →
+            <Link to={NEXT_SHOW.href} className="hero-inline-cta">
+              See what's coming →
             </Link>
           </p>
         </div>
@@ -116,18 +123,39 @@ export default function LandingPage() {
         </ol>
       </section>
 
+      {upcomingShows.length > 0 && (
+        <section>
+          <h2 className="section-title">Next show</h2>
+          <div className="show-grid">
+            {upcomingShows.map((s) => {
+              const dateLabel = s.nextDate
+                ? new Date(s.nextDate + 'T12:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric' })
+                : null;
+              return (
+                <Link key={s.id} to={`/shows/${s.id}`} className="show-card" style={accentStyleFor(s)}>
+                  <div className="show-card-head">
+                    <span className="name">{s.name}</span>
+                    {dateLabel && <span className="status">{dateLabel}</span>}
+                  </div>
+                  {s.description && <p className="desc">{s.description}</p>}
+                  <span className="show-card-cta">Come play →</span>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
       <section>
-        <h2 className="section-title">Featured shows</h2>
-        {featured.length === 0 ? (
+        <h2 className="section-title">Past shows</h2>
+        {pastShows.length === 0 ? (
           <p className="section-empty">New shows announced soon.</p>
         ) : (
           <div className="show-grid">
-            {featured.map((s) => {
-              const era = getShowEra(s);
+            {pastShows.map((s) => {
               const recap = recapHrefFor(s);
-              const href = era === 'past' && recap ? recap : `/shows/${s.id}`;
-              const isExternal = era === 'past' && s.recap?.kind === 'external';
-              const ctaLabel = era === 'past' ? 'Watch the recap →' : 'View show →';
+              const isExternal = s.recap?.kind === 'external';
+              const href = recap ?? `/shows/${s.id}`;
 
               return isExternal && recap ? (
                 <a
@@ -142,21 +170,17 @@ export default function LandingPage() {
                     <span className="name">{s.name}</span>
                     <span className="status">past</span>
                   </div>
-                  <div className="meta">{s.themeId} · {s.systemId}</div>
                   {s.description && <p className="desc">{s.description}</p>}
-                  <span className="show-card-cta">{ctaLabel} ↗</span>
+                  <span className="show-card-cta">Watch the recap →</span>
                 </a>
               ) : (
                 <Link key={s.id} to={href} className="show-card" style={accentStyleFor(s)}>
                   <div className="show-card-head">
                     <span className="name">{s.name}</span>
-                    <span className={`status ${era === 'past' ? '' : 'draft'}`}>
-                      {era}
-                    </span>
+                    <span className="status">past</span>
                   </div>
-                  <div className="meta">{s.themeId} · {s.systemId}</div>
                   {s.description && <p className="desc">{s.description}</p>}
-                  <span className="show-card-cta">{ctaLabel}</span>
+                  <span className="show-card-cta">Watch the recap →</span>
                 </Link>
               );
             })}

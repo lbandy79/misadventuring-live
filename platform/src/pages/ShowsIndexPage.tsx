@@ -64,7 +64,7 @@ function ShowCard({
         >
           <ShowCardBody show={show} badge={<span className="status">past</span>} />
           <span className="show-card-cta">
-            {show.recap.label ?? 'Watch the recap'} ↗
+            {show.recap.label ?? 'Watch the recap'} →
           </span>
         </a>
       );
@@ -94,7 +94,7 @@ function ShowCard({
         }
       />
       <span className="show-card-cta">
-        {isLive ? 'Enter the live show →' : 'View show →'}
+        {isLive ? 'Enter the live show →' : era === 'upcoming' ? 'Come play →' : 'View show →'}
       </span>
     </Link>
   );
@@ -134,15 +134,23 @@ function ShowCardBody({
   // Use the loaded metadata, or show interactions count as fallback
   const interactionLabel = metadataLabel ?? `${show.enabledInteractions.length} interactions`;
 
+  const era = getShowEra(show);
+  const dateLabel =
+    era === 'upcoming' && show.nextDate
+      ? new Date(show.nextDate + 'T12:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric' })
+      : null;
+
   return (
     <>
       <div className="show-card-head">
         <span className="name">{show.name}</span>
         {badge}
       </div>
-      <div className="meta">
-        {show.themeId} · {show.systemId} · {interactionLabel}
-      </div>
+      {(dateLabel || interactionLabel) && (
+        <div className="meta">
+          {dateLabel ? `${dateLabel} · ` : ''}{interactionLabel}
+        </div>
+      )}
       {show.description && <p className="desc">{show.description}</p>}
     </>
   );

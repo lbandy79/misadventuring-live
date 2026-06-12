@@ -45,7 +45,7 @@ export default function AuthMenu() {
     );
   }
 
-  const initial = (user.displayName || user.email || '?').charAt(0).toUpperCase();
+  const initial = (user.displayName || user.email || 'Me').charAt(0).toUpperCase();
 
   return (
     <div className="auth-menu" ref={wrapperRef}>
@@ -55,6 +55,7 @@ export default function AuthMenu() {
         onClick={() => setOpen((o) => !o)}
         aria-haspopup="menu"
         aria-expanded={open}
+        title="Account"
       >
         {user.photoURL ? (
           <img src={user.photoURL} alt="" className="auth-avatar" />
