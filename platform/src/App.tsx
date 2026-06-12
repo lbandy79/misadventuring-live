@@ -12,6 +12,7 @@
 import { useState } from 'react';
 import { Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 import { upsertAudienceProfile } from '../../src/lib/audience/audienceApi';
+import { useAuth } from '@mtp/lib';
 import LandingPage from './pages/LandingPage';
 import ShowsIndexPage from './pages/ShowsIndexPage';
 import ShowPage from './pages/ShowPage';
@@ -25,11 +26,14 @@ import MadLibsDisplayPage from './pages/MadLibsDisplayPage';
 import NpcCreationPage from './pages/NpcCreationPage';
 import ReturnPage from './pages/ReturnPage';
 import MyCharactersPage from './pages/MyCharactersPage';
+import HunterCreationPage from './pages/HunterCreationPage';
+import HuntersPage from './pages/HuntersPage';
 import AuthMenu from './components/AuthMenu';
 
 export default function App() {
   const location = useLocation();
   const isDisplay = /\/shows\/[^/]+\/display/.test(location.pathname);
+  const { isAdmin, isCast } = useAuth();
 
   return (
     <div className="platform-root">
@@ -48,6 +52,12 @@ export default function App() {
         <nav>
           <Link to="/shows">Shows</Link>
           <Link to="/notebook">Notebook</Link>
+          {(isCast || isAdmin) && (
+            <Link to="/hunters" className="nav-hunters-link">The Party</Link>
+          )}
+          {isAdmin && (
+            <Link to="/admin" className="nav-admin-link">Admin</Link>
+          )}
           <AuthMenu />
         </nav>
       </header>}
@@ -70,6 +80,10 @@ export default function App() {
             <Route path="/recap/:showId" element={<RecapPage />} />
             {/* Audience NPC creation / join flow */}
             <Route path="/shows/:showId/join" element={<NpcCreationPage />} />
+            {/* Cast hunter creation wizard */}
+            <Route path="/shows/monster-of-the-week/create-hunter" element={<HunterCreationPage />} />
+            {/* Cast character portfolio */}
+            <Route path="/hunters" element={<HuntersPage />} />
             {/* Misadventuring Notebook — per-show/NPC URL reserved for future build */}
             <Route path="/shows/:showId/notebook/:npcId" element={<NotebookShowPage />} />
             {/* Notebook concept page — top-level */}

@@ -155,6 +155,40 @@ service cloud.firestore {
       allow update, delete: if isAdmin();
     }
 
+    // ── Cast allowlist (read public, write admin-only) ──────────────
+    // Same shape as config/admins — an { emails: string[] } array.
+    // Public read so AuthProvider can subscribe without sign-in.
+    // Bootstrap: admin creates the doc the first time.
+    match /config/cast {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // ── Hunter sheets (cast character sheets) ──────────────────────
+    // Cast members write their own docs (matched by UID).
+    // Any signed-in user can read all sheets — cast members should
+    // be able to see each other's characters for party planning.
+    // Admins can do anything (for moderation / GM view).
+    match /hunter-sheets/{sheetId} {
+      allow read: if isSignedIn();
+
+      allow create: if
+        isSignedIn()
+        && request.resource.data.castMemberUid == request.auth.uid
+        && request.resource.data.keys().hasAll([
+          'castMemberUid', 'castMemberEmail', 'castMemberName',
+          'showId', 'systemId', 'hunterName', 'playbookId', 'playbookName',
+          'ratingLineIndex', 'selectedMoveIds', 'gear', 'specialMechanics',
+          'createdAt', 'updatedAt'
+        ]);
+
+      allow update: if
+        isAdmin()
+        || (isSignedIn() && resource.data.castMemberUid == request.auth.uid);
+
+      allow delete: if isAdmin();
+    }
+
     // ── Platform config (currently-running show pointer) ───────────
     match /config/platform {
       allow read: if true;

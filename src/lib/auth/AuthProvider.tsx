@@ -42,6 +42,10 @@ export interface AuthContextValue {
   isAdmin: boolean;
   /** True while the admin allowlist doc subscription is initializing. */
   isAdminLoading: boolean;
+  /** True if the signed-in user's email is on the cast allowlist. */
+  isCast: boolean;
+  /** True while the cast allowlist doc subscription is initializing. */
+  isCastLoading: boolean;
   /** Open the Google sign-in popup. */
   signIn: () => Promise<void>;
   /** Sign out the current user. */
@@ -59,6 +63,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [adminEmails, setAdminEmails] = useState<string[]>([]);
   const [isAdminLoading, setIsAdminLoading] = useState(true);
+  const [castEmails, setCastEmails] = useState<string[]>([]);
+  const [isCastLoading, setIsCastLoading] = useState(true);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (next) => {
@@ -89,14 +95,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return unsub;
   }, []);
 
+  useEffect(() => {
+    const unsub = onSnapshot(
+      doc(db, 'config', 'cast'),
+      (snap) => {
+        const data = snap.data() as AdminsDoc | undefined;
+        setCastEmails(
+          Array.isArray(data?.emails)
+            ? data!.emails!.map((e) => e.toLowerCase())
+            : [],
+        );
+        setIsCastLoading(false);
+      },
+      (err) => {
+        console.warn('config/cast read failed (treating as no cast):', err);
+        setCastEmails([]);
+        setIsCastLoading(false);
+      },
+    );
+    return unsub;
+  }, []);
+
   const value = useMemo<AuthContextValue>(() => {
     const isAdmin =
       !!user?.email && adminEmails.includes(user.email.toLowerCase());
+    const isCast =
+      !!user?.email && castEmails.includes(user.email.toLowerCase());
     return {
       user,
       isLoading,
       isAdmin,
       isAdminLoading,
+      isCast,
+      isCastLoading,
       signIn: async () => {
         const provider = new GoogleAuthProvider();
         await signInWithPopup(auth, provider);
@@ -105,7 +136,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await signOut(auth);
       },
     };
-  }, [user, isLoading, adminEmails, isAdminLoading]);
+  }, [user, isLoading, adminEmails, isAdminLoading, castEmails, isCastLoading]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

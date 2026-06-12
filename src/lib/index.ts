@@ -23,3 +23,4 @@ export * from './interactions';
 export * from './components';
 export * from './madlibs';
 export * from './npcs';
+export * from './hunters';

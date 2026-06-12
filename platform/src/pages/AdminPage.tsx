@@ -13,6 +13,7 @@
 import { Link } from 'react-router-dom';
 import { shows, useAuth } from '@mtp/lib';
 import NpcAdminPanel from '../components/admin/NpcAdminPanel';
+import CastAdminPanel from '../components/admin/CastAdminPanel';
 
 export default function AdminPage() {
   const { user, isAdmin, isLoading, isAdminLoading, signIn } = useAuth();
@@ -70,6 +71,8 @@ export default function AdminPage() {
         Signed in as <strong>{user.displayName || user.email}</strong>.
       </p>
 
+      <CastAdminPanel />
+
       {npcShows.map((s) => (
         <NpcAdminPanel
           key={s.id}
@@ -80,7 +83,7 @@ export default function AdminPage() {
       ))}
 
       {npcShows.length === 0 && (
-        <p className="npc-admin-panel__empty">No NPC shows configured.</p>
+        <p className="npc-admin-panel__empty" style={{ marginTop: '2rem' }}>No NPC shows configured.</p>
       )}
     </section>
   );
