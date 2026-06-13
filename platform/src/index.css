@@ -3088,7 +3088,12 @@ textarea:focus-visible {
 .hunter-card__name { font-family: var(--font-marker); font-size: 1.25rem; margin: 0; }
 .hunter-card__playbook { font-family: var(--font-type); font-size: 0.85rem; color: rgba(28,28,28,0.6); margin: 0.15rem 0 0; }
 .hunter-card__player { font-size: 0.75rem; color: rgba(28,28,28,0.45); margin: 0.1rem 0 0; }
+.hunter-card__actions { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
 .hunter-card__toggle { font-size: 0.78rem; white-space: nowrap; }
+.hunter-card__edit-btn { font-size: 0.78rem; white-space: nowrap; }
+.hunter-card__full-sheet { display: flex; flex-direction: column; gap: 1rem; border-top: 1px solid var(--paper-line); padding-top: 0.75rem; }
+.hunter-card__sheet-actions { display: flex; justify-content: flex-end; }
+.hunter-card__print-btn { font-size: 0.75rem; }
 .hunter-card__ratings {
   display: flex;
   flex-wrap: wrap;

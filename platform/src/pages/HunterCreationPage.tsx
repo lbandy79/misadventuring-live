@@ -16,9 +16,13 @@
  */
 
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@mtp/lib';
-import { createHunterSheet } from '../../../src/lib/hunters/hunterApi';
+import {
+  createHunterSheet,
+  getHunterSheet,
+  updateHunterSheet,
+} from '../../../src/lib/hunters/hunterApi';
 import { Doodle } from '../components/Doodle';
 
 // ─── Types (mirroring system JSON shape) ──────────────────────────────────────
@@ -124,9 +128,12 @@ const ACCENT_INK = '#f5f0e3';
 export default function HunterCreationPage() {
   const { user, isLoading, isCast, isCastLoading, signIn } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const editId = searchParams.get('edit');
 
   const [system, setSystem] = useState<MotWSystem | null>(null);
   const [systemError, setSystemError] = useState(false);
+  const [editLoading, setEditLoading] = useState(!!editId);
 
   const [step, setStep] = useState<WizardStep>('welcome');
   const [selectedPlaybookId, setSelectedPlaybookId] = useState<string | null>(null);
@@ -151,6 +158,23 @@ export default function HunterCreationPage() {
       .catch(() => setSystemError(true));
   }, []);
 
+  // Pre-fill state when editing an existing sheet
+  useEffect(() => {
+    if (!editId) return;
+    getHunterSheet(editId)
+      .then((sheet) => {
+        if (!sheet) return;
+        setSelectedPlaybookId(sheet.playbookId);
+        setHunterName(sheet.hunterName);
+        setRatingLineIndex(sheet.ratingLineIndex);
+        setSelectedMoveNames(sheet.selectedMoveIds);
+        setSpecialMechanics(sheet.specialMechanics);
+        setStep('review');
+      })
+      .catch((err) => console.error('Failed to load sheet for edit:', err))
+      .finally(() => setEditLoading(false));
+  }, [editId]);
+
   const playbook = useMemo(
     () => system?.playbooks.find((p) => p.id === selectedPlaybookId) ?? null,
     [system, selectedPlaybookId],
@@ -166,10 +190,10 @@ export default function HunterCreationPage() {
 
   // ── Guard states ──────────────────────────────────────────────────────────────
 
-  if (isLoading || (user && isCastLoading)) {
+  if (isLoading || (user && isCastLoading) || editLoading) {
     return (
       <section className="page-card hunter-page" style={accentStyle}>
-        <p className="join-loading">Checking your cast status…</p>
+        <p className="join-loading">{editLoading ? 'Loading your hunter…' : 'Checking your cast status…'}</p>
       </section>
     );
   }
@@ -252,21 +276,34 @@ export default function HunterCreationPage() {
     setSaving(true);
     setSaveError(null);
     try {
-      const sheet = await createHunterSheet({
-        castMemberUid: user.uid,
-        castMemberEmail: (user.email ?? '').toLowerCase(),
-        castMemberName: user.displayName ?? user.email ?? 'Unknown',
-        showId: 'monster-of-the-week',
-        systemId: 'monster-of-the-week',
-        hunterName: hunterName.trim(),
-        playbookId: playbook.id,
-        playbookName: playbook.name,
-        ratingLineIndex,
-        selectedMoveIds: selectedMoveNames,
-        gear: playbook.gear,
-        specialMechanics,
-      });
-      navigate(`/hunters?created=${sheet.id}`);
+      if (editId) {
+        await updateHunterSheet(editId, {
+          hunterName: hunterName.trim(),
+          playbookId: playbook.id,
+          playbookName: playbook.name,
+          ratingLineIndex,
+          selectedMoveIds: selectedMoveNames,
+          gear: playbook.gear,
+          specialMechanics,
+        });
+        navigate('/hunters');
+      } else {
+        const sheet = await createHunterSheet({
+          castMemberUid: user.uid,
+          castMemberEmail: (user.email ?? '').toLowerCase(),
+          castMemberName: user.displayName ?? user.email ?? 'Unknown',
+          showId: 'monster-of-the-week',
+          systemId: 'monster-of-the-week',
+          hunterName: hunterName.trim(),
+          playbookId: playbook.id,
+          playbookName: playbook.name,
+          ratingLineIndex,
+          selectedMoveIds: selectedMoveNames,
+          gear: playbook.gear,
+          specialMechanics,
+        });
+        navigate(`/hunters?created=${sheet.id}`);
+      }
     } catch (err) {
       console.error('Failed to save hunter sheet:', err);
       setSaveError('Save failed. Check your connection and try again.');
@@ -393,6 +430,7 @@ export default function HunterCreationPage() {
           system={system}
           saving={saving}
           saveError={saveError}
+          isEditing={!!editId}
           onSave={handleSave}
           onBack={goBack}
           onEdit={goTo}
@@ -1509,6 +1547,7 @@ function ReviewStep({
   system,
   saving,
   saveError,
+  isEditing,
   onSave,
   onBack,
   onEdit,
@@ -1521,6 +1560,7 @@ function ReviewStep({
   system: MotWSystem;
   saving: boolean;
   saveError: string | null;
+  isEditing: boolean;
   onSave: () => void;
   onBack: () => void;
   onEdit: (step: WizardStep) => void;
@@ -1710,7 +1750,7 @@ function ReviewStep({
           onClick={onSave}
           disabled={saving}
         >
-          {saving ? 'Saving…' : 'Save my hunter →'}
+          {saving ? 'Saving…' : isEditing ? 'Update my hunter →' : 'Save my hunter →'}
         </button>
       </div>
     </div>
