@@ -158,9 +158,10 @@ export default function HunterCreationPage() {
       .catch(() => setSystemError(true));
   }, []);
 
-  // Pre-fill state when editing an existing sheet
+  // Pre-fill state when editing an existing sheet.
+  // Waits for system to load first so playbook lookup is ready when we jump to 'review'.
   useEffect(() => {
-    if (!editId) return;
+    if (!editId || !system) return;
     getHunterSheet(editId)
       .then((sheet) => {
         if (!sheet) return;
@@ -173,7 +174,7 @@ export default function HunterCreationPage() {
       })
       .catch((err) => console.error('Failed to load sheet for edit:', err))
       .finally(() => setEditLoading(false));
-  }, [editId]);
+  }, [editId, system]);
 
   const playbook = useMemo(
     () => system?.playbooks.find((p) => p.id === selectedPlaybookId) ?? null,
