@@ -17,6 +17,7 @@ export interface ComingNext {
   /** Display name of the system, or undefined for "system reveal coming." */
   systemName?: string;
   rsvpHref?: string;
+  ctaLabel?: string;
   blurb?: string;
 }
 
@@ -68,6 +69,8 @@ export const recapConfigs: Record<string, RecapConfig> = {
       date: '2026-06-27',
       venue: 'Lucky Straws, Winter Garden, FL',
       systemName: 'Monster of the Week',
+      rsvpHref: '/shows/monster-of-the-week',
+      ctaLabel: 'See what\'s coming →',
     },
   },
   'betawave-last-call-2026-04-18': {

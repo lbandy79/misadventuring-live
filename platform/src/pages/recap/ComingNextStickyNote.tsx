@@ -28,6 +28,7 @@ function formatDate(iso?: string): string {
 export default function ComingNextStickyNote({ next }: ComingNextStickyNoteProps) {
   const systemLabel = next.systemName ?? 'system reveal coming';
   const cta = next.rsvpHref ?? '/reserve';
+  const ctaLabel = next.ctaLabel ?? 'Reserve a seat →';
 
   return (
     <aside className="recap-sticky recap-sticky-next" aria-labelledby="recap-next-title">
@@ -44,11 +45,11 @@ export default function ComingNextStickyNote({ next }: ComingNextStickyNoteProps
       {next.blurb && <p className="recap-sticky-body">{next.blurb}</p>}
       {cta.startsWith('/') ? (
         <Link to={cta} className="recap-sticky-cta">
-          Reserve a seat →
+          {ctaLabel}
         </Link>
       ) : (
         <a href={cta} className="recap-sticky-cta">
-          Reserve a seat →
+          {ctaLabel}
         </a>
       )}
     </aside>
