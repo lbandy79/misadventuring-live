@@ -30,6 +30,17 @@ import nat20DiceImg from '../../../src/images/Your paragraph text/nat20_dice.png
 import arcadeImg from '../../../src/images/Your paragraph text/arcade.png';
 import cerealImg from '../../../src/images/Your paragraph text/cereal.png';
 import shipwreckImg from '../../../src/images/Your paragraph text/shipwreck.png';
+import detailedPurpleMonsterImg from '../../../src/images/Your paragraph text/deatiled_purple_monster.png';
+import orangePumpkinDoodleImg from '../../../src/images/Your paragraph text/orange_pumpkin_doodle.png';
+import spiderWebImg from '../../../src/images/Your paragraph text/spicer_web.png';
+import spiderImg from '../../../src/images/Your paragraph text/spider.png';
+import orangeScaryPumpkinImg from '../../../src/images/Your paragraph text/orange_scary_pumpkin.png';
+import orangeJellyMonsterImg from '../../../src/images/Your paragraph text/orange_jelly_monster.png';
+import monsterDoodleImg from '../../../src/images/Your paragraph text/monster_doodle.png';
+import hauntedHouseImg from '../../../src/images/Your paragraph text/haunted_house.png';
+import scarySpecterImg from '../../../src/images/Your paragraph text/scary_specter.png';
+import fullMoonWithBatsImg from '../../../src/images/Your paragraph text/full_moon_with_bats.png';
+import vampireFangsImg from '../../../src/images/Your paragraph text/vampire_fangs.png';
 
 const IMAGES = {
   bear: bearImg,
@@ -47,6 +58,17 @@ const IMAGES = {
   arcade: arcadeImg,
   cereal: cerealImg,
   shipwreck: shipwreckImg,
+  detailed_purple_monster: detailedPurpleMonsterImg,
+  orange_pumpkin_doodle: orangePumpkinDoodleImg,
+  spider_web: spiderWebImg,
+  spider: spiderImg,
+  orange_scary_pumpkin: orangeScaryPumpkinImg,
+  orange_jelly_monster: orangeJellyMonsterImg,
+  monster_doodle: monsterDoodleImg,
+  haunted_house: hauntedHouseImg,
+  scary_specter: scarySpecterImg,
+  full_moon_with_bats: fullMoonWithBatsImg,
+  vampire_fangs: vampireFangsImg,
 } as const;
 
 export type DoodleName = keyof typeof IMAGES;

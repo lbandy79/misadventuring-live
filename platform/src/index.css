@@ -816,6 +816,90 @@ textarea:focus-visible {
   font-family: var(--font-marker);
 }
 
+/* ── Show detail: per-show pitch content ─────────────────────────── */
+.show-detail-hook {
+  font-family: var(--font-marker);
+  font-size: 1.3rem;
+  color: var(--ink-black);
+  margin: 0.25rem 0 1rem;
+  line-height: 1.35;
+}
+.show-detail-genre {
+  margin: 0 0 1.5rem;
+}
+.show-detail-genre-note {
+  font-family: var(--font-hand);
+  font-size: 1rem;
+  color: var(--ink-black);
+  margin: 0 0 0.6rem;
+  line-height: 1.5;
+}
+.show-detail-genre-chips {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.show-detail-genre-chip {
+  font-family: var(--font-type);
+  font-size: 0.75rem;
+  padding: 0.2rem 0.65rem;
+  border: 1.5px solid var(--accent);
+  color: var(--accent);
+  border-radius: 20px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.show-detail-actions { margin: 0 0 1.5rem; }
+.show-detail-actions-label {
+  font-family: var(--font-marker);
+  font-size: 0.8rem;
+  color: var(--ink-blue);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 0 0 0.75rem;
+}
+.show-detail-action-list { display: grid; gap: 0.75rem; }
+.show-detail-action-card {
+  padding: 0.85rem 1rem;
+  background: var(--paper-warm);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 4px 4px 0;
+}
+.show-detail-action-card h4 {
+  margin: 0 0 0.2rem;
+  font-family: var(--font-marker);
+  font-size: 1rem;
+  color: var(--ink-black);
+}
+.show-detail-action-card p {
+  margin: 0;
+  font-family: var(--font-hand);
+  font-size: 0.95rem;
+  color: var(--ink-black);
+  line-height: 1.45;
+}
+.show-detail-friend {
+  margin: 1.75rem 0 0.5rem;
+  padding: 1.1rem 1.25rem;
+  background: var(--accent-soft);
+  border-radius: 4px;
+  text-align: center;
+}
+.show-detail-friend-headline {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  color: var(--ink-black);
+  margin: 0 0 0.35rem;
+  line-height: 1.2;
+}
+.show-detail-friend-note {
+  font-family: var(--font-hand);
+  font-size: 0.9rem;
+  color: var(--ink-black);
+  margin: 0;
+  opacity: 0.8;
+}
+
 /* ── Audience page ───────────────────────────────────────────────── */
 .audience-card { max-width: 520px; margin: 1.5rem auto; }
 .audience-status-row {

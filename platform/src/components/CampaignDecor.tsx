@@ -17,6 +17,9 @@
  */
 
 import type { ReactNode } from 'react';
+import detailedPurpleMonsterImg from '../../../src/images/Your paragraph text/deatiled_purple_monster.png';
+import hauntedHouseImg from '../../../src/images/Your paragraph text/haunted_house.png';
+import orangeScaryPumpkinImg from '../../../src/images/Your paragraph text/orange_scary_pumpkin.png';
 
 export type DecorSlot = 'corners' | 'borders' | 'doodles' | 'all';
 
@@ -42,12 +45,36 @@ const HoneyHeistBundle: CampaignAssetBundle = {
   doodles: [<BeeStamp key="bee-1" />, <WantedPoster key="wanted" />, <BeeStamp key="bee-2" flip />],
 };
 
+const MonsterOfTheWeekBundle: CampaignAssetBundle = {
+  cornerTopLeft: <ClawMark rotate={0} />,
+  cornerTopRight: (
+    <img src={detailedPurpleMonsterImg} alt="" aria-hidden="true" style={{
+      position: 'absolute', right: '6px', top: '10px',
+      width: '115px', opacity: 0.88, transform: 'rotate(-8deg)', pointerEvents: 'none',
+    }} />
+  ),
+  // Haunted house peeks up from the bottom-left corner
+  cornerBottomLeft: (
+    <img src={hauntedHouseImg} alt="" aria-hidden="true" style={{
+      position: 'absolute', left: '6px', bottom: '8px',
+      width: '96px', opacity: 0.72, transform: 'rotate(-3deg)', pointerEvents: 'none',
+    }} />
+  ),
+  cornerBottomRight: (
+    <img src={orangeScaryPumpkinImg} alt="" aria-hidden="true" style={{
+      position: 'absolute', right: '6px', bottom: '10px',
+      width: '84px', opacity: 0.82, transform: 'rotate(-5deg)', pointerEvents: 'none',
+    }} />
+  ),
+};
+
 // ─── Registry ────────────────────────────────────────────────────────────────
 // To add a new show: import or define its bundle above, then add an entry here.
 
 const CAMPAIGN_DECOR_REGISTRY: Record<string, CampaignAssetBundle> = {
   'honey-heist': HoneyHeistBundle,
   'mad-libs-honey-heist': HoneyHeistBundle,
+  'monster-of-the-week': MonsterOfTheWeekBundle,
 };
 
 // ─── Main component ──────────────────────────────────────────────────────────
@@ -208,6 +235,25 @@ function BeeStamp({ flip }: { flip?: boolean }) {
       <line x1="27" y1="7" x2="31" y2="2" stroke="#1c1c1c" strokeWidth="1.5" strokeLinecap="round" />
       <circle cx="17" cy="2" r="1.5" fill="#1c1c1c" />
       <circle cx="31" cy="2" r="1.5" fill="#1c1c1c" />
+    </svg>
+  );
+}
+
+// ─── SVG Assets — Monster of the Week ───────────────────────────────────────
+
+function ClawMark({ rotate }: { rotate: number }) {
+  return (
+    <svg
+      width="72" height="72" viewBox="0 0 72 72"
+      className="campaign-decor__svg campaign-decor__svg--claw"
+      style={{ transform: `rotate(${rotate}deg)` }}
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      {/* Three diagonal claw slashes radiating from the corner */}
+      <line x1="4" y1="28" x2="28" y2="4" stroke="#1d4e3a" strokeWidth="3" strokeLinecap="round" opacity="0.6" />
+      <line x1="4" y1="42" x2="42" y2="4" stroke="#1d4e3a" strokeWidth="3" strokeLinecap="round" opacity="0.5" />
+      <line x1="4" y1="56" x2="56" y2="4" stroke="#1d4e3a" strokeWidth="3" strokeLinecap="round" opacity="0.4" />
     </svg>
   );
 }

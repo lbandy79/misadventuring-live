@@ -77,6 +77,12 @@ export default function ShowPage() {
     : undefined);
 
   const campaignId: string | undefined = systemConfig?.showConfig?.theme?.campaignId;
+  const pitch = systemConfig?.showConfig?.pitch as {
+    hook?: string;
+    genreNote?: string;
+    genreComps?: string[];
+    audienceActions?: { label: string; detail: string }[];
+  } | undefined;
 
   const systemName: string =
     systemConfig?.system?.name ??
@@ -108,6 +114,10 @@ export default function ShowPage() {
         </div>
       </div>
 
+      {pitch?.hook && (
+        <p className="show-detail-hook">{pitch.hook}</p>
+      )}
+
       {era === 'past' && (
         <p className="show-detail-wrapped">
           This show has wrapped. Catch the recap below.
@@ -121,6 +131,40 @@ export default function ShowPage() {
       )}
 
       {show.description && <p className="show-detail-desc">{show.description}</p>}
+
+      {pitch?.genreComps && pitch.genreComps.length > 0 && (
+        <div className="show-detail-genre">
+          {pitch.genreNote && <p className="show-detail-genre-note">{pitch.genreNote}</p>}
+          <div className="show-detail-genre-chips">
+            {pitch.genreComps.map((comp) => (
+              <span key={comp} className="show-detail-genre-chip">{comp}</span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {pitch?.audienceActions && pitch.audienceActions.length > 0 && era !== 'past' ? (
+        <div className="show-detail-actions">
+          <p className="show-detail-actions-label">What you'll do as the audience</p>
+          <div className="show-detail-action-list">
+            {pitch.audienceActions.map((action) => (
+              <div key={action.label} className="show-detail-action-card">
+                <h4>{action.label}</h4>
+                <p>{action.detail}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : era !== 'past' ? (
+        <details className="show-detail-interactions" open={era === 'upcoming' || era === 'live'}>
+          <summary>What you can do as the audience</summary>
+          <ul>
+            {show.enabledInteractions.map((i) => (
+              <li key={i}>{i.replace(/-/g, ' ')}</li>
+            ))}
+          </ul>
+        </details>
+      ) : null}
 
       {(systemConfig?.system?.description || systemName) && (
         <div className="show-detail-grid">
@@ -136,17 +180,6 @@ export default function ShowPage() {
         </div>
       )}
 
-      {era !== 'past' && (
-        <details className="show-detail-interactions" open={era === 'upcoming' || era === 'live'}>
-          <summary>What you can do as the audience</summary>
-          <ul>
-            {show.enabledInteractions.map((i) => (
-              <li key={i}>{i.replace(/-/g, ' ')}</li>
-            ))}
-          </ul>
-        </details>
-      )}
-
       {systemConfig?.showConfig?.npcCreation && era !== 'past' && (
         <section className="show-detail-madlibs">
           <p className="show-detail-madlibs-blurb">
@@ -158,6 +191,13 @@ export default function ShowPage() {
             </Link>
           </div>
         </section>
+      )}
+
+      {era === 'upcoming' && (
+        <div className="show-detail-friend">
+          <p className="show-detail-friend-headline">Walk in free. Bring someone brave.</p>
+          <p className="show-detail-friend-note">No tickets. No app. No rules knowledge required. Just show up at Lucky Straws.</p>
+        </div>
       )}
 
       <div className="show-detail-cta-row">

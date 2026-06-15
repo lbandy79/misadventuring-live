@@ -39,6 +39,7 @@ const LATEST_RECAP = {
 };
 const NEXT_SHOW = {
   showName: 'Monster of the Week',
+  tagline: 'Something is hunting the town. You decide what.',
   dateLabel: 'June 27',
   href: '/shows/monster-of-the-week',
 };
@@ -77,6 +78,7 @@ export default function LandingPage() {
           </p>
           <p className="hero-now-next-line">
             <strong>Coming {NEXT_SHOW.dateLabel}:</strong> {NEXT_SHOW.showName}.{' '}
+            {NEXT_SHOW.tagline && <>{NEXT_SHOW.tagline}{' '}</>}
             <Link to={NEXT_SHOW.href} className="hero-inline-cta">
               See what's coming →
             </Link>

@@ -8,6 +8,31 @@
     "playerCount": { "min": 3, "max": 5 }
   },
 
+  "showConfig": {
+    "theme": {
+      "campaignId": "monster-of-the-week"
+    },
+    "pitch": {
+      "hook": "You build the monster. They have to survive it.",
+      "genreNote": "If you love Supernatural, Buffy, or The X-Files — no rules knowledge needed. Just show up.",
+      "genreComps": ["Supernatural", "Buffy", "The X-Files"],
+      "audienceActions": [
+        {
+          "label": "Name the victims",
+          "detail": "You decide who lives in this town, what they're hiding, and who gets got first."
+        },
+        {
+          "label": "Build the monster",
+          "detail": "Vote on what it looks like, what it hunts, and the one thing that can kill it."
+        },
+        {
+          "label": "Drive every bad call",
+          "detail": "When the hunters face an impossible choice, the room decides. When it gets really bad, everyone rolls together."
+        }
+      ]
+    }
+  },
+
   "ratings": {
     "range": { "min": -1, "max": 3 },
     "scale": {
