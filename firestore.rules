@@ -274,6 +274,13 @@ service cloud.firestore {
       allow write: if true;
     }
 
+    // ── Keeper threats (GM world-building compendium) ──────────────
+    // Admin-only: private Keeper prep — monster/minion/bystander/location
+    // stat blocks and world notes. Not audience-facing.
+    match /keeper-threats/{threatId} {
+      allow read, write: if isAdmin();
+    }
+
     // Default deny — anything not matched above is locked.
     match /{document=**} {
       allow read, write: if false;

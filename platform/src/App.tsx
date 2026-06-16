@@ -28,6 +28,15 @@ import ReturnPage from './pages/ReturnPage';
 import MyCharactersPage from './pages/MyCharactersPage';
 import HunterCreationPage from './pages/HunterCreationPage';
 import HuntersPage from './pages/HuntersPage';
+import KeeperPage from './pages/KeeperPage';
+import MonsterWizardPage from './pages/MonsterWizardPage';
+import MonsterStatPage from './pages/MonsterStatPage';
+import MinionWizardPage from './pages/MinionWizardPage';
+import MinionStatPage from './pages/MinionStatPage';
+import BystanderWizardPage from './pages/BystanderWizardPage';
+import BystanderStatPage from './pages/BystanderStatPage';
+import LocationWizardPage from './pages/LocationWizardPage';
+import LocationStatPage from './pages/LocationStatPage';
 import AuthMenu from './components/AuthMenu';
 
 export default function App() {
@@ -54,6 +63,9 @@ export default function App() {
           <Link to="/notebook">Notebook</Link>
           {(isCast || isAdmin) && (
             <Link to="/hunters" className="nav-hunters-link">The Party</Link>
+          )}
+          {isAdmin && (
+            <Link to="/keeper" className="nav-keeper-link">Keeper</Link>
           )}
           {isAdmin && (
             <Link to="/admin" className="nav-admin-link">Admin</Link>
@@ -84,6 +96,20 @@ export default function App() {
             <Route path="/shows/monster-of-the-week/create-hunter" element={<HunterCreationPage />} />
             {/* Cast character portfolio */}
             <Route path="/hunters" element={<HuntersPage />} />
+            {/* Keeper's Compendium — GM world-building tool, admin-gated */}
+            <Route path="/keeper" element={<KeeperPage />} />
+            <Route path="/keeper/monsters/new" element={<MonsterWizardPage />} />
+            <Route path="/keeper/monsters/:id" element={<MonsterStatPage />} />
+            <Route path="/keeper/monsters/:id/edit" element={<MonsterWizardPage />} />
+            <Route path="/keeper/minions/new" element={<MinionWizardPage />} />
+            <Route path="/keeper/minions/:id" element={<MinionStatPage />} />
+            <Route path="/keeper/minions/:id/edit" element={<MinionWizardPage />} />
+            <Route path="/keeper/bystanders/new" element={<BystanderWizardPage />} />
+            <Route path="/keeper/bystanders/:id" element={<BystanderStatPage />} />
+            <Route path="/keeper/bystanders/:id/edit" element={<BystanderWizardPage />} />
+            <Route path="/keeper/locations/new" element={<LocationWizardPage />} />
+            <Route path="/keeper/locations/:id" element={<LocationStatPage />} />
+            <Route path="/keeper/locations/:id/edit" element={<LocationWizardPage />} />
             {/* Misadventuring Notebook — per-show/NPC URL reserved for future build */}
             <Route path="/shows/:showId/notebook/:npcId" element={<NotebookShowPage />} />
             {/* Notebook concept page — top-level */}

@@ -1,0 +1,2297 @@
+{
+  "system": {
+    "id": "monster-of-the-week",
+    "version": "2.0.0",
+    "name": "Monster of the Week",
+    "edition": "Revised Edition (2015)",
+    "publisher": "Evil Hat Productions / Michael Sands",
+    "description": "A standalone action-horror RPG for 3-5 people. Hunters track down and destroy the monsters that most people don't believe in. Powered by the Apocalypse engine.",
+    "credits": "Author: Michael Sands. Spell-Slinger playbook & layout: Fred Hicks. Editor: Steve Hickey. A hack of Apocalypse World by Vincent Baker.",
+    "playerCount": {
+      "min": 3,
+      "max": 5,
+      "note": "Works with more or fewer, but spotlight time per person changes accordingly."
+    },
+    "sessionLength": "About 2-4 hours per mystery; first session runs longer due to hunter creation.",
+    "versionNotes": "v2.0.0: Surfaced bystander type->motivation in npcCreator; clarified minion-group harm and bystander armament build notes; added mysteryLetters and oneShot blocks."
+  },
+  "ratings": {
+    "_comment": "MotW calls its stats 'ratings'. Range -1 to +3. Added to 2d6 rolls. -1 bad, 0 average, +1 good, +2 really good, +3 phenomenal.",
+    "range": {
+      "min": -1,
+      "max": 3
+    },
+    "scale": {
+      "-1": "Bad",
+      "0": "Average",
+      "1": "Good",
+      "2": "Really good",
+      "3": "Phenomenal"
+    },
+    "list": [
+      {
+        "id": "charm",
+        "name": "Charm",
+        "description": "How pleasant and persuasive you are.",
+        "usedBy": [
+          "manipulate-someone"
+        ]
+      },
+      {
+        "id": "cool",
+        "name": "Cool",
+        "description": "How calm and collected you are.",
+        "usedBy": [
+          "act-under-pressure",
+          "help-out"
+        ]
+      },
+      {
+        "id": "sharp",
+        "name": "Sharp",
+        "description": "How observant you are.",
+        "usedBy": [
+          "investigate-a-mystery",
+          "read-a-bad-situation"
+        ]
+      },
+      {
+        "id": "tough",
+        "name": "Tough",
+        "description": "How strong and mean you are in a fight.",
+        "usedBy": [
+          "kick-some-ass",
+          "protect-someone"
+        ]
+      },
+      {
+        "id": "weird",
+        "name": "Weird",
+        "description": "How attuned to the supernatural you are.",
+        "usedBy": [
+          "use-magic"
+        ]
+      }
+    ]
+  },
+  "dice": {
+    "available": [
+      "d6"
+    ],
+    "mechanic": {
+      "default": "Roll 2d6 and add the relevant rating (or another value a move specifies).",
+      "results": {
+        "10+": "Full success. You do what you set out to do.",
+        "7-9": "Partial success. You succeed with a cost, hard choice, or worse outcome.",
+        "6-": "Miss. The Keeper makes a move against you. Also mark experience.",
+        "12+": "Only matters for advanced (basic) moves; grants an extraordinary result."
+      }
+    },
+    "bonuses": {
+      "forward": "+1 (or stated amount) to your very next roll only.",
+      "ongoing": "+1 (or stated amount) to every relevant roll until the situation no longer applies.",
+      "hold": "A pool of points spent one-for-one for listed effects."
+    }
+  },
+  "luck": {
+    "_comment": "Each hunter starts with 7 Luck boxes (the Divine has a different track layout but same count). One-shot hunters start with 1-3.",
+    "boxes": 7,
+    "spendOptions": [
+      "After you roll, retroactively change the result to a 12.",
+      "Decrease a wound you just suffered to 0-harm, no matter how bad it was."
+    ],
+    "whenSpent": "Some playbooks trigger fate effects when Luck is spent (Chosen, Crooked, Spooky).",
+    "whenEmpty": "The hunter is 'doomed'. The Keeper may make hard moves against them at any time, and any fate/dark-side consequences begin to land."
+  },
+  "harm": {
+    "_comment": "Hunters track harm on a 7-box track; the fourth box marks the 'Unstable' threshold.",
+    "track": 7,
+    "unstableAt": 4,
+    "deathAt": 8,
+    "severity": [
+      {
+        "range": "0",
+        "description": "Minor, short-term effects only."
+      },
+      {
+        "range": "1-3",
+        "description": "Moderate. Improves with rest or first aid (heals 1)."
+      },
+      {
+        "range": "4-7",
+        "description": "Serious and unstable. Worsens until treated."
+      },
+      {
+        "range": "8+",
+        "description": "Kills a normal human, including a hunter."
+      }
+    ],
+    "harmMoves": {
+      "_comment": "The Keeper picks a harm move appropriate to the injury's severity and nature.",
+      "0+": [
+        "Momentarily inhibited",
+        "Drop something",
+        "Take -1 forward"
+      ],
+      "1+": [
+        "Fall down",
+        "Take -1 ongoing",
+        "Pass out",
+        "Intense pain"
+      ],
+      "unstable": [
+        "+1 harm (the wound worsens)"
+      ],
+      "8+": [
+        "Dead"
+      ]
+    },
+    "healing": {
+      "rest": "Stable (1-3 harm) wounds heal 1 per day of rest.",
+      "firstAid": "Heals 1 harm per injury/condition; serious wounds stay unstable until properly treated.",
+      "betweenMysteries": "Full heal if there was time to rest; otherwise heal 1 harm.",
+      "resurrection": "Requires big magic, then roll -Weird (subtract your Weird) to see how strange you come back."
+    }
+  },
+  "basicMoves": [
+    {
+      "id": "act-under-pressure",
+      "name": "Act Under Pressure",
+      "roll": "cool",
+      "trigger": "You try to do something under stress or danger not covered by another move.",
+      "results": {
+        "10+": "You do what you set out to.",
+        "7-9": "The Keeper gives you a worse outcome, hard choice, or price to pay.",
+        "6-": "Things go to hell."
+      },
+      "advanced12+": "Rise above the pressure: do what you wanted plus something extra, or do it to absolute perfection."
+    },
+    {
+      "id": "help-out",
+      "name": "Help Out",
+      "roll": "cool",
+      "trigger": "You help another hunter with a move they are making. Help does not stack.",
+      "results": {
+        "10+": "Your help grants +1 to their roll.",
+        "7-9": "Your help grants +1 to their roll, but you expose yourself to trouble or danger.",
+        "6-": "You expose yourself to trouble or danger without helping."
+      },
+      "advanced12+": "You make the difference: the person you help acts as if they rolled a 12, regardless of their actual roll."
+    },
+    {
+      "id": "investigate-a-mystery",
+      "name": "Investigate a Mystery",
+      "roll": "sharp",
+      "trigger": "You investigate to learn about what's going on (interviews, tracking, research, forensics, etc.).",
+      "results": {
+        "10+": "Hold 2.",
+        "7-9": "Hold 1.",
+        "6-": "You reveal information to the monster or whoever you're talking to; the Keeper may ask you questions."
+      },
+      "holdQuestions": [
+        "What happened here?",
+        "What sort of creature is it?",
+        "What can it do?",
+        "What can hurt it?",
+        "Where did it go?",
+        "What was it going to do?",
+        "What is being concealed here?"
+      ],
+      "advanced12+": "Ask the Keeper any question you want about the mystery, not just the listed ones."
+    },
+    {
+      "id": "kick-some-ass",
+      "name": "Kick Some Ass",
+      "roll": "tough",
+      "trigger": "You get into a fight with something that's fighting back.",
+      "results": {
+        "7+": "You and your enemy inflict harm on each other (as established).",
+        "10+": "As 7-9, plus choose one: gain the advantage (+1 forward to you or an ally); inflict terrible harm (+1 harm); suffer less harm (-1 harm); force them where you want them.",
+        "6-": "You get your ass kicked: suffer harm or get captured, and inflict none back."
+      },
+      "advanced12+": "Devastate the enemy: inflict and suffer harm as normal, then pick one: all hunters get +1 forward; you suffer no harm; double your harm; drive the enemy away in a rout."
+    },
+    {
+      "id": "manipulate-someone",
+      "name": "Manipulate Someone",
+      "roll": "charm",
+      "trigger": "You want someone to do something for you, and you give them a reason.",
+      "results": {
+        "normal_10+": "They'll do it for the reason given (or tell you the minimum it'd take).",
+        "normal_7-9": "They'll do it, but only if you do something right now to show you mean it.",
+        "normal_6-": "Your approach is wrong: you offend or anger them.",
+        "hunter_10+": "If they do it, they mark experience and take +1 forward.",
+        "hunter_7-9": "They mark experience if they do it.",
+        "hunter_6-": "Up to them how badly you offend them; they mark experience if they refuse."
+      },
+      "monsters": "Doesn't work on monsters unless a move (e.g. Dark Negotiator) allows it; even then there's no guarantee they keep their word.",
+      "advanced12+": "You absolutely convince them; a bystander may also become your ally."
+    },
+    {
+      "id": "protect-someone",
+      "name": "Protect Someone",
+      "roll": "tough",
+      "trigger": "Someone is about to suffer harm and you try to prevent it.",
+      "results": {
+        "7+": "You protect them, but you'll suffer some or all of the harm they were going to get.",
+        "10+": "Choose one extra: suffer little harm (-1); all impending danger focuses on you; inflict harm on the enemy; hold the enemy back.",
+        "6-": "You make things worse."
+      },
+      "advanced12+": "Defend them perfectly: both you and the protected character are unharmed and out of danger; a protected bystander becomes your ally."
+    },
+    {
+      "id": "read-a-bad-situation",
+      "name": "Read a Bad Situation",
+      "roll": "sharp",
+      "trigger": "You look around and assess a hostile or dangerous situation.",
+      "results": {
+        "10+": "Hold 3.",
+        "7-9": "Hold 1.",
+        "6-": "You misread it, or reveal tactical details to your enemies."
+      },
+      "holdQuestions": [
+        "What's my best way in?",
+        "What's my best way out?",
+        "Are there any dangers we haven't noticed?",
+        "What's the biggest threat?",
+        "What's most vulnerable to me?",
+        "What's the best way to protect the victims?"
+      ],
+      "bonus": "If you act on the answers, take +1 ongoing while the information is relevant.",
+      "advanced12+": "Ask the Keeper any question you want about the situation, not just the listed ones."
+    },
+    {
+      "id": "use-magic",
+      "name": "Use Magic",
+      "roll": "weird",
+      "trigger": "You cast a spell or use an enchanted item. Say what you're trying to achieve and how.",
+      "results": {
+        "10+": "The magic works without issue: choose your effect.",
+        "7-9": "It works imperfectly: choose your effect and a glitch (Keeper decides the glitch's impact).",
+        "6-": "You lose control of the magic. This never ends well."
+      },
+      "effects": [
+        "Inflict harm (1-harm ignore-armour magic obvious).",
+        "Enchant a weapon (+1 harm and +magic).",
+        "Do one thing beyond human limitations.",
+        "Bar a place or portal to a specific person or type of creature.",
+        "Trap a specific person, minion, or monster.",
+        "Banish a spirit or curse from the person, object, or place it inhabits.",
+        "Summon a monster into the world.",
+        "Communicate with something you don't share a language with.",
+        "Observe another place or time.",
+        "Heal 1-harm, cure a disease, or neutralize a poison."
+      ],
+      "glitches": [
+        "The effect is weakened.",
+        "The effect is of short duration.",
+        "You take 1-harm ignore-armour magic.",
+        "The magic draws immediate, unwelcome attention.",
+        "It has a problematic side effect."
+      ],
+      "keeperRequirements": [
+        "Requires weird materials.",
+        "Takes 10 seconds, 30 seconds, or 1 minute to cast.",
+        "Requires ritual chanting and gestures.",
+        "Requires drawn arcane symbols.",
+        "Needs one or two people to help cast.",
+        "Needs a tome of magic for the details."
+      ],
+      "advanced12+": "You're infused with magical power: what you wanted happens, and the Keeper offers an extra benefit on top."
+    }
+  ],
+  "bigMagic": {
+    "_comment": "For effects beyond the use-magic list (resurrection, dimensional portals, etc.). No roll for the magic itself; you must meet Keeper-set requirements.",
+    "requirements": [
+      "Spend a lot of time (days/weeks) researching the ritual.",
+      "Experiment with the spell (many failures before success).",
+      "Acquire rare and weird ingredients.",
+      "The casting takes a long time (hours/days).",
+      "Need a lot of people (2, 3, 7, 13, or more) to help.",
+      "Must be cast at a particular place and/or time.",
+      "Requires use-magic as part of the ritual.",
+      "Has a specific side effect or danger."
+    ]
+  },
+  "playbooks": [
+    {
+      "id": "the-chosen",
+      "name": "The Chosen",
+      "concept": "A once-ordinary person with a prophesied destiny and the power to fulfill it. Good in a fight, with weird powers.",
+      "examples": [
+        "Buffy (Buffy the Vampire Slayer)"
+      ],
+      "ratingLines": [
+        {
+          "charm": 2,
+          "cool": -1,
+          "sharp": 1,
+          "tough": 2,
+          "weird": -1
+        },
+        {
+          "charm": -1,
+          "cool": 2,
+          "sharp": 1,
+          "tough": 2,
+          "weird": -1
+        },
+        {
+          "charm": 1,
+          "cool": 2,
+          "sharp": 1,
+          "tough": 1,
+          "weird": -1
+        },
+        {
+          "charm": -1,
+          "cool": 1,
+          "sharp": 2,
+          "tough": -1,
+          "weird": 2
+        },
+        {
+          "charm": 1,
+          "cool": 2,
+          "sharp": -1,
+          "tough": -1,
+          "weird": 2
+        }
+      ],
+      "startOfMysteryMove": true,
+      "mandatoryMoves": [
+        "Destiny's Plaything",
+        "I'm Here For A Reason"
+      ],
+      "moves": [
+        {
+          "name": "Destiny's Plaything",
+          "mandatory": true,
+          "description": "At the start of each mystery roll +Weird: 10+ the Keeper reveals a useful detail; 7-9 a vague hint; miss something bad happens to you."
+        },
+        {
+          "name": "I'm Here For A Reason",
+          "mandatory": true,
+          "description": "You're destined to do something; you can't die until it comes to pass (spend Luck if you would die). Once your task is done, all bets are off."
+        },
+        {
+          "name": "The Big Entrance",
+          "description": "Make a showy entrance, roll +Cool to make enemies stop and listen."
+        },
+        {
+          "name": "Devastating",
+          "description": "When you inflict harm, you may inflict +1 harm."
+        },
+        {
+          "name": "Dutiful",
+          "description": "Act in accordance with a fate tag to mark experience; heroic tag also gives +1 forward."
+        },
+        {
+          "name": "Invincible",
+          "description": "Always count as having 2-armour (doesn't stack)."
+        },
+        {
+          "name": "Resilience",
+          "description": "Heal an extra point whenever healed; wounds count as 1-harm less for Keeper harm moves."
+        }
+      ],
+      "specialMechanics": {
+        "fate": {
+          "howYouFoundOut": [
+            "Nightmares and visions",
+            "Some weirdo told you",
+            "An ancient cult found you",
+            "Sought out by your nemesis",
+            "Attacked by monsters",
+            "Trained from birth",
+            "You found the prophecy"
+          ],
+          "heroicTags": [
+            "Sacrifice",
+            "You are the Champion",
+            "Visions",
+            "Secret training",
+            "Magical powers",
+            "Mystical inheritance",
+            "A normal life",
+            "True love",
+            "You can save the world",
+            "Hidden allies",
+            "The end of monsters",
+            "Divine help"
+          ],
+          "doomTags": [
+            "Death",
+            "You can't save everyone",
+            "Impossible love",
+            "Failure",
+            "A nemesis",
+            "No normal life",
+            "Loss of loved ones",
+            "Treachery",
+            "Doubt",
+            "Sympathy with the enemy",
+            "Damnation",
+            "Hosts of monsters",
+            "The end of days",
+            "The source of Evil"
+          ],
+          "pick": "Two heroic and two doom tags."
+        },
+        "specialWeapon": "Choose a form, three business-end options, and a material."
+      },
+      "gear": [
+        "Optional protective gear worth 1-armour",
+        "A special destined weapon (custom-built)"
+      ],
+      "luckSpecial": "When you spend Luck, the Keeper brings your fate into play.",
+      "advancedImprovement": "Delete one doom tag from your fate, and optionally change one heroic tag."
+    },
+    {
+      "id": "the-crooked",
+      "name": "The Crooked",
+      "concept": "A criminal turned monster hunter, haunted by their past and enemies. Good socially, with lots of contacts.",
+      "examples": [
+        "Anna Valmont (The Dresden Files)",
+        "Peter Bishop (Fringe)"
+      ],
+      "ratingLines": [
+        {
+          "charm": 1,
+          "cool": 1,
+          "sharp": 2,
+          "tough": 0,
+          "weird": -1
+        },
+        {
+          "charm": -1,
+          "cool": 1,
+          "sharp": 1,
+          "tough": 2,
+          "weird": 0
+        },
+        {
+          "charm": -1,
+          "cool": 2,
+          "sharp": 2,
+          "tough": 0,
+          "weird": -1
+        },
+        {
+          "charm": 2,
+          "cool": 1,
+          "sharp": 1,
+          "tough": 0,
+          "weird": -1
+        },
+        {
+          "charm": 2,
+          "cool": 0,
+          "sharp": 1,
+          "tough": -1,
+          "weird": 1
+        }
+      ],
+      "moveCount": 2,
+      "moves": [
+        {
+          "name": "Artifact",
+          "description": "You found and kept a magical artifact: protective amulet, lucky charm, grimoire, skeleton key, or imp stone."
+        },
+        {
+          "name": "Crew",
+          "description": "You have a regular crew of three or four who help with anything (counts as a team)."
+        },
+        {
+          "name": "Deal with the Devil",
+          "description": "You sold your soul; pick one or two things you got. Payment is due eventually."
+        },
+        {
+          "name": "Friends on the Force",
+          "description": "Act under pressure to contact cops who'll look the other way (for a cost)."
+        },
+        {
+          "name": "Made",
+          "description": "You're 'made' in a gang; you can call on members but owe loyalty."
+        },
+        {
+          "name": "Driver",
+          "description": "+1 ongoing while driving; can hotwire anything; own two handy vehicles."
+        },
+        {
+          "name": "Home Ground",
+          "description": "In your old neighbourhood you can always find people to hide or help you."
+        },
+        {
+          "name": "Notorious",
+          "description": "Your criminal reputation counts as a reason for people to do what you ask when you reveal who you are."
+        }
+      ],
+      "specialMechanics": {
+        "background": [
+          "Hoodlum",
+          "Burglar",
+          "Grifter",
+          "Fixer",
+          "Assassin",
+          "Charlatan",
+          "Pickpocket"
+        ],
+        "heat": "Pick at least two enemies from your past and name them.",
+        "underworld": "Pick how you discovered the real underworld."
+      },
+      "gear": [
+        "Pick three effective weapons (.22/.38/9mm/shotgun/rifle/knife/bat/SMG/assault rifle)"
+      ],
+      "luckSpecial": "When you spend Luck, someone from your past (heat or underworld) reappears soon.",
+      "advancedImprovement": null
+    },
+    {
+      "id": "the-divine",
+      "name": "The Divine",
+      "concept": "An agent of a higher power with a mission. Very tough, with holy powers.",
+      "examples": [
+        "Castiel (Supernatural)",
+        "Michael Carpenter (The Dresden Files)"
+      ],
+      "ratingLines": [
+        {
+          "charm": 1,
+          "cool": 1,
+          "sharp": -1,
+          "tough": 2,
+          "weird": 0
+        },
+        {
+          "charm": -1,
+          "cool": 2,
+          "sharp": -1,
+          "tough": 2,
+          "weird": 0
+        },
+        {
+          "charm": -1,
+          "cool": 0,
+          "sharp": 1,
+          "tough": 2,
+          "weird": 1
+        },
+        {
+          "charm": 1,
+          "cool": 1,
+          "sharp": 0,
+          "tough": 2,
+          "weird": -1
+        },
+        {
+          "charm": -1,
+          "cool": 1,
+          "sharp": 0,
+          "tough": 2,
+          "weird": 1
+        }
+      ],
+      "moveCount": 3,
+      "moves": [
+        {
+          "name": "Boss from Beyond",
+          "description": "Start of mystery, roll +Weird to receive (and question) orders from your Superiors."
+        },
+        {
+          "name": "Angel Wings",
+          "description": "Teleport to anywhere you've visited or a person you know; roll +Weird to carry others."
+        },
+        {
+          "name": "What I Need, When I Need It",
+          "description": "Store small objects in a magical space and retrieve them at will."
+        },
+        {
+          "name": "Soothe",
+          "description": "Calm someone with a few quiet words, blocking panic, anger, or negative emotions."
+        },
+        {
+          "name": "Lay On Hands",
+          "description": "Roll +Cool to heal injury or disease by touch."
+        },
+        {
+          "name": "Cast Out Evil",
+          "description": "Roll +Tough to banish an unnatural creature from your presence."
+        },
+        {
+          "name": "Smite",
+          "description": "Your body and divine weapon count as a weakness vs monsters; unarmed attacks are 2-harm intimate hand messy."
+        }
+      ],
+      "specialMechanics": {
+        "mission": [
+          "Fight the schemes of an Adversary",
+          "Prevent the End of Days",
+          "Ensure the End of Days comes to pass",
+          "Work for Good in exile, hidden from your kind",
+          "Prepare and protect a specific other hunter"
+        ]
+      },
+      "gear": [
+        "One divine weapon (flaming sword / thunder hammer / razor whip / five demon bag / silver trident, all holy)",
+        "Divine armour (1-armour holy)"
+      ],
+      "luckTrack": "Same 7-box count, displayed differently on the sheet.",
+      "advancedImprovement": "Change your mission."
+    },
+    {
+      "id": "the-expert",
+      "name": "The Expert",
+      "concept": "The hunter who knows all about monsters and magic, with a well-supplied base.",
+      "examples": [
+        "Bobby Singer (Supernatural)",
+        "Rupert Giles (Buffy)"
+      ],
+      "ratingLines": [
+        {
+          "charm": -1,
+          "cool": 1,
+          "sharp": 2,
+          "tough": 1,
+          "weird": 0
+        },
+        {
+          "charm": 0,
+          "cool": 1,
+          "sharp": 2,
+          "tough": -1,
+          "weird": 1
+        },
+        {
+          "charm": 1,
+          "cool": -1,
+          "sharp": 2,
+          "tough": 1,
+          "weird": 0
+        },
+        {
+          "charm": -1,
+          "cool": 1,
+          "sharp": 2,
+          "tough": 0,
+          "weird": 1
+        },
+        {
+          "charm": -1,
+          "cool": 0,
+          "sharp": 2,
+          "tough": -1,
+          "weird": 2
+        }
+      ],
+      "moveCount": 2,
+      "startOfMysteryMove": "optional (The Woman/Man With The Plan, Dark Past)",
+      "moves": [
+        {
+          "name": "I've Read About This Sort Of Thing",
+          "description": "Roll +Sharp instead of +Cool when you act under pressure."
+        },
+        {
+          "name": "Often Right",
+          "description": "Give honest advice; if a hunter follows it they get +1 ongoing and you mark experience."
+        },
+        {
+          "name": "Preparedness",
+          "description": "Roll +Sharp to have an unusual or rare item on hand."
+        },
+        {
+          "name": "It Wasn't As Bad As It Looked",
+          "description": "Once per mystery, roll +Cool to keep going despite injuries."
+        },
+        {
+          "name": "Precise Strike",
+          "description": "Roll +Tough to aim for a weak spot and inflict bonus harm."
+        },
+        {
+          "name": "The Woman (or Man) With The Plan",
+          "description": "Start of mystery, roll +Sharp to hold and spend to be prepared and in the right place."
+        },
+        {
+          "name": "Dark Past",
+          "description": "Roll +Weird to recall relevant black-magic knowledge (with a risk of complicity)."
+        }
+      ],
+      "specialMechanics": {
+        "haven": {
+          "pickCount": 3,
+          "options": [
+            "Lore Library",
+            "Mystical Library",
+            "Protection Spells",
+            "Armory",
+            "Infirmary",
+            "Workshop",
+            "Oubliette",
+            "Panic Room",
+            "Magical Laboratory"
+          ]
+        }
+      },
+      "gear": [
+        "Three monster-slaying weapons (stakes / silver sword / cold iron sword / blessed knife / magical dagger / juju bag / flamethrower / magnum / shotgun)"
+      ],
+      "advancedImprovement": null
+    },
+    {
+      "id": "the-flake",
+      "name": "The Flake",
+      "concept": "A conspiracy theorist, great at finding things out and connecting separate mysteries.",
+      "examples": [
+        "Agent Mulder / The Lone Gunmen (The X-Files)"
+      ],
+      "ratingLines": [
+        {
+          "charm": 1,
+          "cool": 1,
+          "sharp": 2,
+          "tough": -1,
+          "weird": 0
+        },
+        {
+          "charm": 0,
+          "cool": 1,
+          "sharp": 2,
+          "tough": -1,
+          "weird": 1
+        },
+        {
+          "charm": 1,
+          "cool": -1,
+          "sharp": 2,
+          "tough": 1,
+          "weird": 0
+        },
+        {
+          "charm": 1,
+          "cool": -1,
+          "sharp": 2,
+          "tough": 0,
+          "weird": 1
+        },
+        {
+          "charm": -1,
+          "cool": -1,
+          "sharp": 2,
+          "tough": 0,
+          "weird": 2
+        }
+      ],
+      "moveCount": 3,
+      "startOfMysteryMove": "optional (Connect the Dots)",
+      "moves": [
+        {
+          "name": "Connect the Dots",
+          "description": "Start of mystery, roll +Sharp to hold and spend asking how events connect to the bigger picture."
+        },
+        {
+          "name": "Crazy Eyes",
+          "description": "+1 Weird (max +3)."
+        },
+        {
+          "name": "See, It All Fits Together",
+          "description": "Use Sharp instead of Charm when you manipulate someone."
+        },
+        {
+          "name": "Suspicious Mind",
+          "description": "If someone lies to you, you know it."
+        },
+        {
+          "name": "Often Overlooked",
+          "description": "Roll +Weird to act crazy and be regarded as unthreatening/unimportant."
+        },
+        {
+          "name": "Contrary",
+          "description": "Seek honest advice then do something else to mark experience (opposite = +1 ongoing)."
+        },
+        {
+          "name": "Net Friends",
+          "description": "Roll +Charm to get internet contacts to help with a mystery."
+        },
+        {
+          "name": "Sneaky",
+          "description": "Attack from ambush or behind for +2 harm."
+        }
+      ],
+      "gear": [
+        "One normal weapon",
+        "Two hidden weapons"
+      ],
+      "advancedImprovement": null
+    },
+    {
+      "id": "the-initiate",
+      "name": "The Initiate",
+      "concept": "A trained member of an ancient monster-slaying Sect. Good with magic; the Sect provides help and problems.",
+      "examples": [
+        "The Wardens (The Dresden Files)",
+        "Annelise (Twenty Palaces)"
+      ],
+      "ratingLines": [
+        {
+          "charm": -1,
+          "cool": 1,
+          "sharp": 0,
+          "tough": 1,
+          "weird": 2
+        },
+        {
+          "charm": 0,
+          "cool": 1,
+          "sharp": 1,
+          "tough": -1,
+          "weird": 2
+        },
+        {
+          "charm": -1,
+          "cool": 0,
+          "sharp": -1,
+          "tough": 2,
+          "weird": 2
+        },
+        {
+          "charm": 1,
+          "cool": -1,
+          "sharp": 1,
+          "tough": 0,
+          "weird": 2
+        },
+        {
+          "charm": 0,
+          "cool": 0,
+          "sharp": 0,
+          "tough": 1,
+          "weird": 2
+        }
+      ],
+      "moveCount": 4,
+      "startOfMysteryMove": true,
+      "mandatoryMoves": [
+        "Sect Standing (start-of-mystery roll +Charm)"
+      ],
+      "moves": [
+        {
+          "name": "Sect Standing",
+          "mandatory": true,
+          "description": "When in good standing, start of mystery roll +Charm for Sect help; a miss means they ask something bad."
+        },
+        {
+          "name": "Ancient Fighting Arts",
+          "description": "+1 harm and +1 to protect someone with an old-fashioned hand weapon."
+        },
+        {
+          "name": "Mystic",
+          "description": "+1 forward every time you successfully use magic."
+        },
+        {
+          "name": "Fortunes",
+          "description": "Once per mystery roll +Weird to hold and spend on prophecy/divination effects."
+        },
+        {
+          "name": "Sacred Oath",
+          "description": "Bind yourself to a goal and forsake something; mark experience and +1 on goal-related rolls while you keep it."
+        },
+        {
+          "name": "Mentor",
+          "description": "Roll +Sharp to get answers from your named Sect mentor."
+        },
+        {
+          "name": "Apprentice",
+          "description": "You have a named apprentice who counts as a subordinate ally."
+        },
+        {
+          "name": "Helping Hand",
+          "description": "Successful help out gives +2 instead of +1."
+        },
+        {
+          "name": "That Old Black Magic",
+          "description": "Use magic to ask an investigate-a-mystery question as your effect."
+        }
+      ],
+      "specialMechanics": {
+        "sect": {
+          "goodTraditions": [
+            "Knowledgable",
+            "Ancient lore",
+            "Magical lore",
+            "Fighting arts",
+            "Modernised",
+            "Chapters everywhere",
+            "Secular power",
+            "Flexible tactics",
+            "Open hierarchy",
+            "Integrated in society",
+            "Rich",
+            "Nifty gadgets",
+            "Magical items"
+          ],
+          "badTraditions": [
+            "Dubious motives",
+            "Tradition-bound",
+            "Short-sighted",
+            "Paranoid and secretive",
+            "Closed hierarchy",
+            "Factionalised",
+            "Strict laws",
+            "Mystical oaths",
+            "Total obedience",
+            "Tyrannical leaders",
+            "Obsolete gear",
+            "Poor"
+          ],
+          "pick": "Two good traditions and one bad tradition."
+        }
+      },
+      "gear": [
+        "Old-fashioned and/or modern weapons (count depends on Sect traditions)",
+        "Old-fashioned armour (1-armour heavy)"
+      ],
+      "advancedImprovement": "Become the leader, or effective leader, of the whole Sect."
+    },
+    {
+      "id": "the-monstrous",
+      "name": "The Monstrous",
+      "concept": "A monster fighting for the good guys. Very weird, with powers based on its breed.",
+      "examples": [
+        "Angel (Buffy/Angel)",
+        "Bill Compton (True Blood)"
+      ],
+      "ratingLines": [
+        {
+          "charm": -1,
+          "cool": -1,
+          "sharp": 0,
+          "tough": 2,
+          "weird": 3
+        },
+        {
+          "charm": -1,
+          "cool": 1,
+          "sharp": 1,
+          "tough": 0,
+          "weird": 3
+        },
+        {
+          "charm": 2,
+          "cool": 0,
+          "sharp": -1,
+          "tough": -1,
+          "weird": 3
+        },
+        {
+          "charm": -2,
+          "cool": 2,
+          "sharp": 0,
+          "tough": 0,
+          "weird": 3
+        },
+        {
+          "charm": 0,
+          "cool": -1,
+          "sharp": 2,
+          "tough": -1,
+          "weird": 3
+        }
+      ],
+      "moveCount": 2,
+      "moves": [
+        {
+          "name": "Immortal",
+          "description": "You don't age or sicken, and suffer 1-harm less whenever harmed."
+        },
+        {
+          "name": "Unnatural Appeal",
+          "description": "Roll +Weird instead of +Charm when you manipulate someone."
+        },
+        {
+          "name": "Unholy Strength",
+          "description": "Roll +Weird instead of +Tough when you kick some ass."
+        },
+        {
+          "name": "Incorporeal",
+          "description": "Move freely through solid objects (not people)."
+        },
+        {
+          "name": "Preternatural Speed",
+          "description": "+1 ongoing when you chase, flee, or run."
+        },
+        {
+          "name": "Claws of the Beast",
+          "description": "All natural attacks get +1 harm."
+        },
+        {
+          "name": "Mental Dominion",
+          "description": "Roll +Charm to hold and command normal humans."
+        },
+        {
+          "name": "Unquenchable Vitality",
+          "description": "Roll +Cool to heal yourself."
+        },
+        {
+          "name": "Dark Negotiator",
+          "description": "Use manipulate someone on monsters that reason and talk."
+        },
+        {
+          "name": "Flight",
+          "description": "You can fly."
+        },
+        {
+          "name": "Shapeshifter",
+          "description": "Change form; +1 to investigate a mystery using an alternate form's senses."
+        },
+        {
+          "name": "Something Borrowed",
+          "description": "Take a move from a hunter playbook not currently in play."
+        }
+      ],
+      "specialMechanics": {
+        "breedSuggestions": [
+          "Vampire",
+          "Werewolf",
+          "Ghost",
+          "Faerie",
+          "Demon",
+          "Orc",
+          "Zombie"
+        ],
+        "curses": [
+          "Feed",
+          "Vulnerability",
+          "Pure Drive",
+          "Dark Master"
+        ],
+        "naturalAttacks": {
+          "bases": [
+            "teeth (3-harm intimate)",
+            "claws (2-harm hand)",
+            "magical force (1-harm magical close)",
+            "life-drain (1-harm intimate life-drain)"
+          ],
+          "extras": [
+            "+1 harm to a base",
+            "ignore-armour on a base",
+            "an extra range on a base"
+          ]
+        }
+      },
+      "gear": [
+        "Optionally one handy weapon"
+      ],
+      "advancedImprovement": "Free yourself from the curse (lose 1 Weird); or turn evil again (retire as a Keeper threat)."
+    },
+    {
+      "id": "the-mundane",
+      "name": "The Mundane",
+      "concept": "A normal person, great with regular people and at getting captured (more useful than it sounds).",
+      "examples": [
+        "Xander / Cordelia (Buffy)"
+      ],
+      "ratingLines": [
+        {
+          "charm": 2,
+          "cool": 1,
+          "sharp": 0,
+          "tough": 1,
+          "weird": -1
+        },
+        {
+          "charm": 2,
+          "cool": -1,
+          "sharp": 1,
+          "tough": 1,
+          "weird": 0
+        },
+        {
+          "charm": 2,
+          "cool": 0,
+          "sharp": -1,
+          "tough": 1,
+          "weird": 1
+        },
+        {
+          "charm": 2,
+          "cool": 0,
+          "sharp": 1,
+          "tough": 1,
+          "weird": -1
+        },
+        {
+          "charm": 2,
+          "cool": 1,
+          "sharp": 1,
+          "tough": 0,
+          "weird": -1
+        }
+      ],
+      "moveCount": 3,
+      "moves": [
+        {
+          "name": "Always The Victim",
+          "description": "When protected, the protector marks experience; when captured by a monster, you mark experience."
+        },
+        {
+          "name": "Oops!",
+          "description": "Stumble across something important and useful (not necessarily related to your problem)."
+        },
+        {
+          "name": "Let's Get Out Of Here!",
+          "description": "Protect someone by leading them out, rolling +Charm instead of +Tough."
+        },
+        {
+          "name": "Panic Button",
+          "description": "Roll +Sharp to escape via a named route."
+        },
+        {
+          "name": "The Power of Heart",
+          "description": "When you help someone fighting a monster, you automatically help as a 10+."
+        },
+        {
+          "name": "Trust Me",
+          "description": "Roll +Charm to tell a normal person the truth to protect them."
+        },
+        {
+          "name": "What Could Go Wrong?",
+          "description": "Charge into danger to hold 2 for combat effects."
+        },
+        {
+          "name": "Don't Worry, I'll Check It Out",
+          "description": "Go off alone somewhere scary to mark experience."
+        }
+      ],
+      "gear": [
+        "Two Mundane weapons",
+        "A means of transport"
+      ],
+      "advancedImprovement": "Erase a used Luck mark (also a standard improvement option)."
+    },
+    {
+      "id": "the-professional",
+      "name": "The Professional",
+      "concept": "You work for an agency that hunts monsters. Good in a fight and a strong team player.",
+      "examples": [
+        "Riley / the Initiative (Buffy)",
+        "Olivia Dunham (Fringe)"
+      ],
+      "ratingLines": [
+        {
+          "charm": 0,
+          "cool": 2,
+          "sharp": -1,
+          "tough": 2,
+          "weird": -1
+        },
+        {
+          "charm": -1,
+          "cool": 2,
+          "sharp": 1,
+          "tough": 1,
+          "weird": 0
+        },
+        {
+          "charm": 1,
+          "cool": 2,
+          "sharp": 1,
+          "tough": -1,
+          "weird": 0
+        },
+        {
+          "charm": -1,
+          "cool": 2,
+          "sharp": 1,
+          "tough": 0,
+          "weird": 1
+        },
+        {
+          "charm": 0,
+          "cool": 2,
+          "sharp": 2,
+          "tough": -1,
+          "weird": -1
+        }
+      ],
+      "moveCount": 4,
+      "mandatoryMoves": [
+        "Deal with the Agency"
+      ],
+      "moves": [
+        {
+          "name": "Deal with the Agency",
+          "mandatory": true,
+          "description": "Roll +Sharp when requesting help/gear or making excuses to the Agency."
+        },
+        {
+          "name": "Bottle It Up",
+          "description": "Take up to +3 on act under pressure; the Keeper holds 1 per +1 for later penalties."
+        },
+        {
+          "name": "Unfazeable",
+          "description": "+1 Cool (max +3)."
+        },
+        {
+          "name": "Battlefield Awareness",
+          "description": "+1 armour (max 2) on top of gear."
+        },
+        {
+          "name": "Leave No One Behind",
+          "description": "Roll +Sharp to help someone escape combat cleanly."
+        },
+        {
+          "name": "Tactical Genius",
+          "description": "Roll +Cool instead of +Sharp when you read a bad situation."
+        },
+        {
+          "name": "Medic",
+          "description": "Roll +Cool for first aid; replaces regular first aid."
+        },
+        {
+          "name": "Mobility",
+          "description": "A monster-hunting vehicle with two good and one bad trait."
+        }
+      ],
+      "specialMechanics": {
+        "agency": {
+          "resources": [
+            "Well-armed",
+            "Well-financed",
+            "Rigorous training",
+            "Official pull",
+            "Cover identities",
+            "Offices all over the place",
+            "Good intel",
+            "Recognised authority",
+            "Weird tech gadgets",
+            "Support teams"
+          ],
+          "redTape": [
+            "Dubious motives",
+            "Bureaucratic",
+            "Secretive hierarchy",
+            "Cryptic missions",
+            "Hostile superiors",
+            "Inter-departmental rivalry",
+            "Budget cuts",
+            "Take no prisoners policy",
+            "Live capture policy"
+          ],
+          "pick": "Two resource tags and two red tape tags."
+        }
+      },
+      "gear": [
+        "One serious weapon",
+        "Two normal weapons",
+        "Flak vest (1-armour hidden) or combat armour (2-armour heavy)"
+      ],
+      "advancedImprovement": "Get some or all of the other hunters hired by your agency."
+    },
+    {
+      "id": "the-spell-slinger",
+      "name": "The Spell-Slinger",
+      "concept": "A trained wizard wielding powerful combat magic. Arcane training helps with eldritch secrets.",
+      "examples": [
+        "Harry Dresden (The Dresden Files)",
+        "Willow, later seasons (Buffy)"
+      ],
+      "ratingLines": [
+        {
+          "charm": -1,
+          "cool": 1,
+          "sharp": 1,
+          "tough": 0,
+          "weird": 2
+        },
+        {
+          "charm": 0,
+          "cool": -1,
+          "sharp": 1,
+          "tough": 1,
+          "weird": 2
+        },
+        {
+          "charm": -1,
+          "cool": 0,
+          "sharp": 2,
+          "tough": -1,
+          "weird": 2
+        },
+        {
+          "charm": 1,
+          "cool": 0,
+          "sharp": 1,
+          "tough": -1,
+          "weird": 2
+        },
+        {
+          "charm": 0,
+          "cool": 0,
+          "sharp": 1,
+          "tough": 0,
+          "weird": 2
+        }
+      ],
+      "moveCount": 4,
+      "mandatoryMoves": [
+        "Tools and Techniques"
+      ],
+      "moves": [
+        {
+          "name": "Tools and Techniques",
+          "mandatory": true,
+          "description": "Combat magic relies on Consumables, Foci, Gestures, and Incantations. Cross off one; the rest have drawbacks if unavailable."
+        },
+        {
+          "name": "Advanced Arcane Training",
+          "description": "If you have two of three Tools and Techniques ready, ignore the third."
+        },
+        {
+          "name": "Arcane Reputation",
+          "description": "Three supernatural groups respect you; +1 forward to manipulate affected humans."
+        },
+        {
+          "name": "Could've Been Worse",
+          "description": "On a use-magic miss, choose Fizzle or This Is Gonna Suck instead of losing control."
+        },
+        {
+          "name": "Enchanted Clothing",
+          "description": "An enchanted garment gives -1 harm from sources that reach you through it."
+        },
+        {
+          "name": "Forensic Divination",
+          "description": "On a successful investigate, ask 'What magic was done here?' for free."
+        },
+        {
+          "name": "Go Big or Go Home",
+          "description": "+1 ongoing to use-magic rolls required for Big Magic."
+        },
+        {
+          "name": "Not My Fault",
+          "description": "+1 to act under pressure dealing with your own spellcasting consequences."
+        },
+        {
+          "name": "Practitioner",
+          "description": "Choose two use-magic effects; +1 to use magic when choosing them."
+        },
+        {
+          "name": "Shield Spell",
+          "description": "When you protect someone, gain 2-armour against transferred harm."
+        },
+        {
+          "name": "Third Eye",
+          "description": "When you read a bad situation, +1 hold on 7+ and see invisible things (miss exposes you)."
+        }
+      ],
+      "specialMechanics": {
+        "combatMagic": {
+          "pick": "Three options, at least one base.",
+          "bases": [
+            "Blast (2-harm magical close obvious loud)",
+            "Ball (1-harm magical area close obvious loud)",
+            "Missile (1-harm magical far obvious loud)",
+            "Wall (1-harm magical barrier close 1-armour obvious loud)"
+          ],
+          "effects": [
+            "Fire",
+            "Force or Wind",
+            "Lightning or Entropy",
+            "Frost or Ice",
+            "Earth",
+            "Necromantic"
+          ]
+        }
+      },
+      "gear": [
+        "Foci/consumables for magic",
+        "One backup weapon (old revolver / ritual knife / heirloom sword)"
+      ],
+      "advancedImprovement": "Cross off another option from your Tools and Techniques."
+    },
+    {
+      "id": "the-spooky",
+      "name": "The Spooky",
+      "concept": "Has strange, sinister psychic or magical powers not fully under their control.",
+      "examples": [
+        "Sam Winchester (Supernatural)",
+        "Willow, early seasons (Buffy)"
+      ],
+      "ratingLines": [
+        {
+          "charm": 1,
+          "cool": 0,
+          "sharp": 1,
+          "tough": -1,
+          "weird": 2
+        },
+        {
+          "charm": -1,
+          "cool": 1,
+          "sharp": 0,
+          "tough": 1,
+          "weird": 2
+        },
+        {
+          "charm": 2,
+          "cool": 0,
+          "sharp": -1,
+          "tough": -1,
+          "weird": 2
+        },
+        {
+          "charm": 0,
+          "cool": -1,
+          "sharp": 1,
+          "tough": 1,
+          "weird": 2
+        },
+        {
+          "charm": -1,
+          "cool": -1,
+          "sharp": 2,
+          "tough": 0,
+          "weird": 2
+        }
+      ],
+      "moveCount": 3,
+      "startOfMysteryMove": "optional (Premonitions)",
+      "moves": [
+        {
+          "name": "Telepathy",
+          "description": "Read thoughts and project words; investigate, read situations, and manipulate without speaking."
+        },
+        {
+          "name": "Hex",
+          "description": "When you use magic, add a disease, immediate harm, or breakage to the target."
+        },
+        {
+          "name": "The Sight",
+          "description": "See and communicate with the invisible; more clues when you investigate."
+        },
+        {
+          "name": "Premonitions",
+          "description": "Start of mystery roll +Weird for a vision of something bad to come."
+        },
+        {
+          "name": "Hunches",
+          "description": "Roll +Sharp to know where to be when something bad happens elsewhere."
+        },
+        {
+          "name": "Tune In",
+          "description": "Roll +Weird to attune to a monster/minion and hold for questions."
+        },
+        {
+          "name": "The Big Whammy",
+          "description": "Kick some ass with +Weird; 2-harm close obvious ignore-armour (miss = backlash)."
+        },
+        {
+          "name": "Jinx",
+          "description": "Roll +Weird to encourage coincidences and hold for effects."
+        }
+      ],
+      "specialMechanics": {
+        "darkSide": {
+          "pick": "Three dark side tags.",
+          "tags": [
+            "Violence",
+            "Depression",
+            "Secrets",
+            "Lust",
+            "Dark bargain",
+            "Guilt",
+            "Soulless",
+            "Addiction",
+            "Mood swings",
+            "Rage",
+            "Self-destruction",
+            "Greed for power",
+            "Poor impulse control",
+            "Hallucinations",
+            "Pain",
+            "Paranoia"
+          ]
+        }
+      },
+      "gear": [
+        "Two normal weapons",
+        "Magical items/amulets used to invoke powers"
+      ],
+      "luckSpecial": "As you spend Luck, your dark side's demands grow nastier.",
+      "advancedImprovement": "Delete one dark side tag permanently."
+    },
+    {
+      "id": "the-wronged",
+      "name": "The Wronged",
+      "concept": "Revenge-driven and very tough. Focused on killing a specific breed of monster and protecting others.",
+      "examples": [
+        "Dean / John Winchester (Supernatural)"
+      ],
+      "ratingLines": [
+        {
+          "charm": 0,
+          "cool": 1,
+          "sharp": -1,
+          "tough": 2,
+          "weird": 1
+        },
+        {
+          "charm": 0,
+          "cool": 0,
+          "sharp": 1,
+          "tough": 2,
+          "weird": 0
+        },
+        {
+          "charm": 1,
+          "cool": 0,
+          "sharp": 1,
+          "tough": 2,
+          "weird": -1
+        },
+        {
+          "charm": -1,
+          "cool": -1,
+          "sharp": 0,
+          "tough": 2,
+          "weird": 2
+        },
+        {
+          "charm": 1,
+          "cool": -1,
+          "sharp": 0,
+          "tough": 2,
+          "weird": 1
+        }
+      ],
+      "moveCount": 3,
+      "mandatoryMoves": [
+        "I Know My Prey"
+      ],
+      "moves": [
+        {
+          "name": "I Know My Prey",
+          "mandatory": true,
+          "description": "+1 ongoing when knowingly investigating, pursuing, or fighting the breed that caused your loss."
+        },
+        {
+          "name": "Berserk",
+          "description": "Keep going until the fight ends; the Keeper can't use harm moves and you can't die mid-fight (harm lands afterward)."
+        },
+        {
+          "name": "NEVER AGAIN",
+          "description": "Protect someone without rolling as a 10+, but can't choose 'suffer little harm'."
+        },
+        {
+          "name": "What Does Not Kill Me...",
+          "description": "+1 ongoing until the fight ends once you've suffered harm in it."
+        },
+        {
+          "name": "Fervor",
+          "description": "Roll +Tough instead of +Charm to manipulate someone."
+        },
+        {
+          "name": "Safety First",
+          "description": "+1 armour (max 2) from jury-rigged gear."
+        },
+        {
+          "name": "DIY Surgery",
+          "description": "Roll +Cool for quick and dirty first aid on yourself or others."
+        },
+        {
+          "name": "Tools Matter",
+          "description": "+1 to kick some ass with your signature weapon."
+        }
+      ],
+      "specialMechanics": {
+        "loss": {
+          "whoYouLost": [
+            "Parent(s)",
+            "Sibling(s)",
+            "Spouse/partner",
+            "Child(ren)",
+            "Best friend(s)"
+          ],
+          "prey": "Pick the monster breed (with the Keeper).",
+          "whyYouCouldntSave": [
+            "at fault",
+            "selfish",
+            "injured",
+            "weak",
+            "slow",
+            "scared",
+            "in denial",
+            "complicit"
+          ]
+        }
+      },
+      "gear": [
+        "One signature weapon",
+        "Two practical weapons",
+        "Protective wear (1-armour)",
+        "Optional classic vehicle"
+      ],
+      "advancedImprovement": "Track down the specific monster(s) responsible (next mystery is about them); or change the target of I Know My Prey."
+    }
+  ],
+  "extraPlaybooks": {
+    "_comment": "Official and fan playbooks beyond the core twelve; mostly available on the MotW website.",
+    "list": [
+      "The Action Scientist",
+      "The Big Game Hunter",
+      "The Constructed",
+      "The Exile",
+      "The Hard Case",
+      "The Luchador",
+      "The Mad Scientist",
+      "The Meddling Kid",
+      "The Sidekick",
+      "The Snoop",
+      "The Summoned"
+    ]
+  },
+  "teamConcepts": {
+    "_comment": "Optional shared reasons the hunters work together, picked during the first session.",
+    "examples": [
+      {
+        "name": "Slayer and Entourage",
+        "description": "A Chosen at the centre, supported by mentors and friends."
+      },
+      {
+        "name": "The Unexplained Cases Team",
+        "description": "An agency team handling the weird stuff; requires a Professional."
+      },
+      {
+        "name": "The Order",
+        "description": "Members of an ancient order of monster slayers; requires an Initiate."
+      },
+      {
+        "name": "Road-tripping Hunter Family",
+        "description": "A nomadic family trade of hunting monsters."
+      }
+    ]
+  },
+  "improvements": {
+    "standard": [
+      "Get +1 to a rating (up to the playbook max).",
+      "Take another move from your playbook.",
+      "Take a move from another playbook.",
+      "Gain an ally or a team.",
+      "Gain a haven (Expert-style) / add a haven option.",
+      "Playbook-specific options (e.g. Crooked stash, Initiate chapter command)."
+    ],
+    "advanced": [
+      "+1 to any rating (max +3).",
+      "Change your hunter to a new type.",
+      "Create a second hunter to play as well.",
+      "Mark two basic moves as advanced (unlocks 12+ results).",
+      "Retire this hunter to safety.",
+      "Erase / get back one used Luck point.",
+      "Playbook-specific advanced improvements."
+    ],
+    "leveling": "Mark experience on a miss (6-) or when a move says to. Five marks = level up; pick an improvement and reset. After five level-ups, advanced improvements unlock.",
+    "endOfSessionQuestions": [
+      "Did we conclude the current mystery?",
+      "Did we save someone from certain death (or worse)?",
+      "Did we learn something new and important about the world?",
+      "Did we learn something new and important about one of the hunters?"
+    ],
+    "endOfSessionExperience": "1-2 yes answers = mark 1 experience each; 3-4 = mark 2.",
+    "legacyExperienceRules": "First-edition option: don't mark XP on a miss; instead highlight two ratings per session (one chosen by another hunter, one by the Keeper) and mark XP whenever a highlighted rating is rolled."
+  },
+  "allyTypes": [
+    {
+      "id": "subordinate",
+      "motivation": "to follow your exact instructions"
+    },
+    {
+      "id": "lieutenant",
+      "motivation": "to execute the spirit of your instructions"
+    },
+    {
+      "id": "friend",
+      "motivation": "to provide emotional support"
+    },
+    {
+      "id": "bodyguard",
+      "motivation": "to intercept danger"
+    },
+    {
+      "id": "confidante",
+      "motivation": "to give you advice and perspective"
+    },
+    {
+      "id": "backup",
+      "motivation": "to stand with you"
+    }
+  ],
+  "weaponTags": {
+    "_comment": "Every weapon needs a harm tag and a range tag; others are optional descriptors.",
+    "ranges": [
+      "intimate",
+      "hand",
+      "close",
+      "far"
+    ],
+    "harmGuidelines": [
+      "0-harm: hardly more dangerous than a punch.",
+      "1-harm: sharp or heavy improvised object.",
+      "2-harm: a dangerous weapon.",
+      "3-harm: a weapon designed to kill.",
+      "4+ harm: overkill for a person."
+    ],
+    "descriptors": {
+      "area": "Can hit multiple foes; divide harm among targets.",
+      "balanced": "Easy to wield and keep grip on.",
+      "barrier": "Harms anything passing through; counts as armour against attacks through it.",
+      "fire": "Sets things on fire.",
+      "forceful": "Pushes things around; lets you force them where you want.",
+      "heavy": "Heavy and difficult to wield.",
+      "holy": "More effective against monsters weak to holy items.",
+      "ignore-armour": "Armour has no effect (magic armour needs magic + ignore-armour to bypass).",
+      "innocuous": "Doesn't draw suspicion.",
+      "life-drain": "Heals the wielder for harm inflicted.",
+      "loud": "Draws attention.",
+      "magic": "Enchanted; affects creatures/armour proof against normal weapons.",
+      "many": "Small enough to carry a large number.",
+      "messy": "Spreads blood and gore.",
+      "quick": "Fast to prepare/attack; better chance to go first.",
+      "reload": "Limited ammo; may need reloading.",
+      "restraining": "A successful attack entangles or grabs the victim.",
+      "slow": "Slow to prepare/attack.",
+      "small": "Tiny and easy to conceal.",
+      "stun": "Stuns the target.",
+      "unreliable": "Needs maintenance or it may fail.",
+      "useful": "Has non-combat uses.",
+      "valuable": "Antique or made of valuable materials.",
+      "volatile": "Dangerous and unstable."
+    }
+  },
+  "armour": {
+    "1": "Heavy leather jacket, motorcycle armour, bullet/stab-proof vest.",
+    "2": "Military body armour, riot gear, medieval mail.",
+    "note": "Armour reduces harm suffered by its rating. Magic armour ignores normal ignore-armour attacks."
+  },
+  "keeperReference": {
+    "agenda": [
+      "Make the world seem real.",
+      "Play to see what happens.",
+      "Make the hunters' lives dangerous and scary."
+    ],
+    "principles": [
+      "Put horror in everyday situations.",
+      "Address yourself to the hunters, not the players.",
+      "Use the Keeper moves, never use their names.",
+      "Be a fan of the hunters.",
+      "Build up a coherent mythology of the world as you play.",
+      "Nothing is safe. Kill bystanders and minions, burn down buildings, let monsters be slain.",
+      "Name everyone they meet, make them seem like normal folks.",
+      "Ask questions and build on the answers.",
+      "Sometimes give the hunters exactly what they earned, rather than everything they wanted.",
+      "Think about what's happening off-screen.",
+      "You don't always have to decide what happens.",
+      "Everything is a threat."
+    ],
+    "alwaysSay": [
+      "What the principles demand.",
+      "What the rules demand.",
+      "What your prepared mystery and arcs demand.",
+      "What honesty demands."
+    ],
+    "basicKeeperMoves": [
+      "Separate them.",
+      "Reveal future badness.",
+      "Reveal off-screen badness.",
+      "Inflict harm, as established.",
+      "Make them investigate.",
+      "Make them acquire stuff.",
+      "Tell them the possible consequences and ask if they want to go ahead.",
+      "Turn their move back on them.",
+      "Offer an opportunity, maybe with a cost.",
+      "Take away some of the hunters' stuff.",
+      "Put someone in trouble.",
+      "Make a threat move (from a mystery or arc threat).",
+      "After every move, ask what they do next."
+    ],
+    "moveHardness": {
+      "soft": "Threatens danger or pushes the hunters, leaving room to react.",
+      "hard": "No chance to react; used on a golden opportunity, a missed roll (6-), or against a doomed hunter."
+    }
+  },
+  "threats": {
+    "_comment": "Threats make trouble for the hunters. Each has a type and a corresponding motivation, and may have custom moves.",
+    "monster": {
+      "types": [
+        {
+          "id": "beast",
+          "motivation": "to run wild, destroying and killing"
+        },
+        {
+          "id": "breeder",
+          "motivation": "to give birth to, bring forth, or create evil"
+        },
+        {
+          "id": "collector",
+          "motivation": "to steal specific sorts of things"
+        },
+        {
+          "id": "destroyer",
+          "motivation": "to bring about the end of the world"
+        },
+        {
+          "id": "devourer",
+          "motivation": "to consume people"
+        },
+        {
+          "id": "executioner",
+          "motivation": "to punish the guilty"
+        },
+        {
+          "id": "parasite",
+          "motivation": "to infest, control and devour"
+        },
+        {
+          "id": "queen",
+          "motivation": "to possess and control"
+        },
+        {
+          "id": "sorcerer",
+          "motivation": "to usurp unnatural power"
+        },
+        {
+          "id": "tempter",
+          "motivation": "to tempt people into evil deeds"
+        },
+        {
+          "id": "torturer",
+          "motivation": "to hurt and terrify"
+        },
+        {
+          "id": "trickster",
+          "motivation": "to create chaos"
+        }
+      ],
+      "buildSteps": [
+        "Description",
+        "Type & motivation",
+        "Supernatural powers",
+        "Attacks (usually 3-5 harm)",
+        "Armour (0-2 typical)",
+        "Harm capacity (usually 8-12; 7 minimum, 14+ exceptional)",
+        "Weakness(es) — required",
+        "Optional custom moves"
+      ],
+      "weaknessTypes": [
+        "Something that harms it directly (e.g. silver).",
+        "An environment that weakens/harms it (e.g. sunlight).",
+        "A required ritual or action (e.g. an exorcism)."
+      ],
+      "moves": [
+        "Hint at its presence",
+        "Display its full might",
+        "Appear suddenly",
+        "Attack with great force and fury",
+        "Seize someone or something",
+        "Attack with stealth and calculation",
+        "Order underlings to do terrible acts",
+        "Destroy something",
+        "Escape, no matter how well contained it is",
+        "Give chase",
+        "Return to home ground",
+        "Boast and gloat, maybe revealing a secret",
+        "Return from seeming destruction",
+        "Use an unnatural power"
+      ],
+      "killNote": "A monster only truly dies once its weakness is used against it, no matter how much harm it has taken."
+    },
+    "minion": {
+      "types": [
+        {
+          "id": "assassin",
+          "motivation": "to kill the hunters"
+        },
+        {
+          "id": "brute",
+          "motivation": "to intimidate and attack"
+        },
+        {
+          "id": "cultist",
+          "motivation": "to save their own skin at any cost"
+        },
+        {
+          "id": "guardian",
+          "motivation": "to bar a way or protect something"
+        },
+        {
+          "id": "right-hand",
+          "motivation": "to back up the monster"
+        },
+        {
+          "id": "plague",
+          "motivation": "to swarm and destroy"
+        },
+        {
+          "id": "renfield",
+          "motivation": "to push victims towards the monster"
+        },
+        {
+          "id": "scout",
+          "motivation": "to stalk, watch, and report"
+        },
+        {
+          "id": "thief",
+          "motivation": "to steal and deliver to the monster"
+        },
+        {
+          "id": "traitor",
+          "motivation": "to betray people"
+        }
+      ],
+      "buildNote": "Like monsters but usually weaker. Attacks 1-4 harm; harm capacity 5-10; armour rare. A group of nameless minions can share one harm track with a +1 attack boost: the track represents defeating the group as a whole, and each point of harm inflicted removes a chunk of the group (e.g. Damn Dirty Apes: 1 harm = ~3 monkeys out of action).",
+      "moves": [
+        "A burst of sudden, uncontrolled violence",
+        "Make a coordinated attack",
+        "Capture someone, or steal something",
+        "Reveal a secret",
+        "Deliver someone or something to the master",
+        "Give chase",
+        "Make a threat or demand on behalf of the master",
+        "Run away",
+        "Use an unnatural power",
+        "Display a hint of conscience or humanity",
+        "Disobey the master, in some petty way"
+      ]
+    },
+    "bystander": {
+      "types": [
+        {
+          "id": "busybody",
+          "motivation": "to interfere in other people's plans"
+        },
+        {
+          "id": "detective",
+          "motivation": "to rule out explanations"
+        },
+        {
+          "id": "gossip",
+          "motivation": "to pass on rumours"
+        },
+        {
+          "id": "helper",
+          "motivation": "to join the hunt"
+        },
+        {
+          "id": "innocent",
+          "motivation": "to do the right thing"
+        },
+        {
+          "id": "official",
+          "motivation": "to be suspicious"
+        },
+        {
+          "id": "skeptic",
+          "motivation": "to deny supernatural explanations"
+        },
+        {
+          "id": "victim",
+          "motivation": "to put themselves in danger"
+        },
+        {
+          "id": "witness",
+          "motivation": "to reveal information"
+        }
+      ],
+      "buildNote": "Need a name, description, type & motivation. Include at least two so the hunters have people to save. Default unknown people to witness (has clues) or victim (otherwise). Most bystanders default to 7-harm; only stat a weapon if they're likely to fight (helpers especially).",
+      "moves": [
+        "Go off alone",
+        "Argue with the hunters",
+        "Get in the way",
+        "Reveal something",
+        "Confess their fears",
+        "Freak out in terror",
+        "Try to help the hunters",
+        "Try to protect people",
+        "Display inability or incompetence",
+        "Seek help or comfort"
+      ]
+    },
+    "location": {
+      "types": [
+        {
+          "id": "crossroads",
+          "motivation": "to bring people, and things, together"
+        },
+        {
+          "id": "deathtrap",
+          "motivation": "to harm intruders"
+        },
+        {
+          "id": "den",
+          "motivation": "to harbor monsters"
+        },
+        {
+          "id": "fortress",
+          "motivation": "to deny entry"
+        },
+        {
+          "id": "hellgate",
+          "motivation": "to create evil"
+        },
+        {
+          "id": "hub",
+          "motivation": "to reveal information"
+        },
+        {
+          "id": "lab",
+          "motivation": "to create weirdness"
+        },
+        {
+          "id": "maze",
+          "motivation": "to confuse and separate"
+        },
+        {
+          "id": "prison",
+          "motivation": "to constrain and prevent exit"
+        },
+        {
+          "id": "wilds",
+          "motivation": "to contain hidden things"
+        }
+      ],
+      "buildNote": "Pick the type by what the place is emotionally/functionally, not its literal form. Optionally add a map and custom moves.",
+      "moves": [
+        "Present a hazard",
+        "Reveal something",
+        "Hide something",
+        "Close a way",
+        "Open a way",
+        "Reshape itself",
+        "Trap someone",
+        "Offer a guide",
+        "Present a guardian",
+        "Something doesn't work properly",
+        "Create a particular feeling"
+      ]
+    }
+  },
+  "mysteryCreation": {
+    "components": [
+      "Basic concept",
+      "Hook (what drew the hunters in)",
+      "Monster",
+      "Minions, bystanders, and locations",
+      "Countdown",
+      "Optional custom moves"
+    ],
+    "countdownSteps": [
+      "Day",
+      "Shadows",
+      "Sunset",
+      "Dusk",
+      "Nightfall",
+      "Midnight"
+    ],
+    "countdownNote": "Six escalating events that happen if the hunters never interfere. Step names are metaphorical (timing/severity, not literal time of day). Used as a flexible guide once the hunters get involved.",
+    "scope": {
+      "personal": "Each countdown event stays focused on one person or their immediate surroundings.",
+      "epic": "Each event widens in scale, potentially up to a world-ending threat."
+    },
+    "templates": [
+      {
+        "id": "bug-hunt",
+        "name": "A Bug Hunt",
+        "summary": "A straightforward monster hunt. Suits beasts, devourers, torturers, executioners."
+      },
+      {
+        "id": "evil-ritual",
+        "name": "An Evil Ritual",
+        "summary": "A monster or sorcerer plans a terrible ritual to unleash horror."
+      },
+      {
+        "id": "not-what-it-seems",
+        "name": "Not What It Seems",
+        "summary": "Starts looking like one monster, turns out to be something else."
+      }
+    ],
+    "messingWithTheFormula": [
+      "Two monsters at odds",
+      "Revisit a memorable person/place/monster",
+      "No monster at all (weird phenomenon or natural cause)",
+      "Low-powered minion plague",
+      "Off-duty / relationship session",
+      "Flashback mystery",
+      "No bystanders (survival horror)",
+      "Comedy episode",
+      "Arc-driven mystery",
+      "Deadly one-shot-style mystery",
+      "Two hooks, hunters choose"
+    ]
+  },
+  "mysteryLetters": {
+    "_comment": "A tool to hand a hunter info that sets up a mystery and starts in the action. Especially useful for writing a player back in after they miss a session, after a hiatus, for convention/one-shot games, or to open with a roar.",
+    "whenToUse": [
+      "A player missed the last session (bring them and you back up to speed).",
+      "Running a convention or one-shot game.",
+      "There's been a hiatus in your game.",
+      "There's unfinished business from the last session.",
+      "You want to give the hunters clues going in.",
+      "You want to start with the hunters already in the midst of the action."
+    ],
+    "structure": [
+      "Briefly remind the hunter what happened last time and where you left off.",
+      "Include any new info, background, or the hook for this mystery.",
+      "End with a custom move to roll (or a list of options to pick from) that hands over useful info, drops them into action, or both."
+    ],
+    "moveTips": [
+      "An information-finding move can offer questions (10+ pick two, 7-9 pick one, miss ask one but it cost you something).",
+      "An into-the-action move can offer outcomes to pick (10+ pick two, 7-9 pick one, miss the Keeper narrates what's going wrong).",
+      "Phrase one option negatively ('You do NOT have a shard of glass in your leg') so the hunter must pick it to avoid trouble.",
+      "Use options to hint at things beyond the immediate scene (a map that matters, other threats not yet mentioned)."
+    ]
+  },
+  "oneShot": {
+    "_comment": "Running a single self-contained mystery (convention game or a change of pace). Maps onto a live test/one-off show.",
+    "hunters": [
+      "Start with fewer Luck: 1-3 depending on desired lethality.",
+      "Optionally grant a free level-up after creation to offset the reduced Luck.",
+      "Pick a team concept and tell everyone who the team is and how they operate.",
+      "You may make certain playbooks mandatory, suggest fitting ones, and leave others out entirely.",
+      "Still let each player build their own hunter (even from a restricted set) for buy-in.",
+      "You may reduce creation options to suit the mystery (e.g. flag which moves are useful, disallowed, or irrelevant)."
+    ],
+    "mysteryCreation": [
+      "A twist or two works very well (e.g. a hook that looks like a classic monster but is something else).",
+      "Bring a map, a list of names, and a few pre-written bystanders (a suspicious cop and some naive victims always fit).",
+      "Feel free to ramp danger: more powers, more minions/monsters, higher-harm attacks, higher harm capacity, threats targeting hunters or loved ones directly.",
+      "Scale can be huge (epidemics, Hell unleashed, gods from beyond) since there's no continuing game to protect.",
+      "Tie in any central story elements (Chosen's fate, Wronged's nemesis, Professional's Agency, Initiate's Sect) of the playbooks at the table."
+    ],
+    "play": [
+      "Follow first-session structure; give a quick rules intro (moves + ratings) before creation, explain the rest as needed.",
+      "Go easier on world-building questions — you don't need to bank as many answers.",
+      "Go harder in play: push for more horror, don't hold back on danger."
+    ]
+  },
+  "arcCreation": {
+    "_comment": "Arcs are long-term, slow-burning plots running in the background (season-long threats).",
+    "components": [
+      "Basic concept",
+      "Threats",
+      "One or more countdowns",
+      "Optional custom moves"
+    ],
+    "countdownNote": "Like a mystery countdown but each step could be a whole mystery. For player-triggered arcs, it's what happens if the hunters don't stop the plan.",
+    "templates": [
+      {
+        "id": "ancient-evil-rising",
+        "name": "Ancient Evil Rising",
+        "summary": "A dormant/imprisoned monster and the servants working to free it."
+      },
+      {
+        "id": "the-nemesis",
+        "name": "The Nemesis",
+        "summary": "A monster (often an escapee or the Wronged's target) hunts the hunters."
+      },
+      {
+        "id": "end-of-days",
+        "name": "The End of Days",
+        "summary": "The apocalypse; the world is going to end."
+      },
+      {
+        "id": "corruption",
+        "name": "Corruption",
+        "summary": "A trusted organisation has been infiltrated by, or always was, evil."
+      }
+    ]
+  },
+  "customMoves": {
+    "_comment": "Build custom moves for unique threat powers, special situations, or new hunter abilities.",
+    "structure": [
+      "Define when it triggers (a specific condition).",
+      "Choose a type.",
+      "Define the effect."
+    ],
+    "types": [
+      "A roll (usually adding a rating), with 10+/7-9/6- outcomes.",
+      "A bonus or penalty for some circumstance.",
+      "A special effect in certain circumstances."
+    ]
+  },
+  "npcCreator": {
+    "_comment": "Simplified flow for audience-built bystanders at live shows. Maps directly onto the bystander threat structure (name, description, type/motivation). Internal app model uses 'NPC'; audience-facing copy uses 'character'.",
+    "fields": [
+      {
+        "id": "name",
+        "label": "Character Name",
+        "type": "text",
+        "required": true,
+        "placeholder": "First name or nickname.",
+        "helpText": "Evocative names land better — 'Mrs. Henderson' tells a different story than 'Kayla.'"
+      },
+      {
+        "id": "role",
+        "label": "Who are they in town?",
+        "type": "text",
+        "required": true,
+        "placeholder": "Diner waitress, deputy, retired teacher...",
+        "helpText": "How this person fits into the world the hunters are investigating."
+      },
+      {
+        "id": "appearance",
+        "label": "Appearance",
+        "type": "textarea",
+        "required": true,
+        "maxLength": 200,
+        "placeholder": "Describe them in a sentence or two.",
+        "helpText": "What people notice first."
+      },
+      {
+        "id": "knows",
+        "label": "What do they know (or suspect)?",
+        "type": "textarea",
+        "required": true,
+        "maxLength": 200,
+        "placeholder": "A rumor, a thing they saw, a secret...",
+        "helpText": "Every bystander is sitting on something — a clue, a lie, or a fear."
+      },
+      {
+        "id": "bystanderType",
+        "label": "What kind of person are they?",
+        "type": "select",
+        "required": true,
+        "helpText": "Sets their motivation — how they'll make trouble for (or help) the hunters. The motivation IS the type; show it when this is selected.",
+        "optionsFrom": "threats.bystander.types",
+        "optionLabelsFrom": "threats.bystander.types[].id",
+        "optionMotivationFrom": "threats.bystander.types[].motivation",
+        "displayMotivationOnSelect": true
+      }
+    ],
+    "_motivationDisplayNote": "Render each option as 'Type — motivation' (e.g. 'Skeptic — to deny supernatural explanations') so the host knows what the character will do. Source of truth is threats.bystander.types.",
+    "typeMotivations": {
+      "busybody": "to interfere in other people's plans",
+      "detective": "to rule out explanations",
+      "gossip": "to pass on rumours",
+      "helper": "to join the hunt",
+      "innocent": "to do the right thing",
+      "official": "to be suspicious",
+      "skeptic": "to deny supernatural explanations",
+      "victim": "to put themselves in danger",
+      "witness": "to reveal information"
+    }
+  },
+  "showConfig": {
+    "_comment": "Per-show overrides for a Monster of the Week live show at Lucky Straws. Populate when a MotW show is scheduled. Left as a template scaffold for now.",
+    "showId": null,
+    "showName": null,
+    "seriesName": null,
+    "venue": "Lucky Straws",
+    "date": null,
+    "setting": {
+      "era": null,
+      "location": null,
+      "coreLocation": "Mapped to Lucky Straws"
+    },
+    "npcCreatorOverrides": {
+      "roleSuggestions": [],
+      "knowsPrompt": null
+    }
+  }
+}
