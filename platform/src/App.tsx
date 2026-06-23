@@ -38,10 +38,13 @@ import BystanderStatPage from './pages/BystanderStatPage';
 import LocationWizardPage from './pages/LocationWizardPage';
 import LocationStatPage from './pages/LocationStatPage';
 import AuthMenu from './components/AuthMenu';
+import LiveMonsterAudiencePage from './pages/LiveMonsterAudiencePage';
+import LiveMonsterDisplayPage from './pages/LiveMonsterDisplayPage';
 
 export default function App() {
   const location = useLocation();
-  const isDisplay = /\/shows\/[^/]+\/display/.test(location.pathname);
+  // Live-monster routes (audience + projector) skip all marketing chrome.
+  const isDisplay = /\/shows\/[^/]+\/display|\/live-monster(\/|$)/.test(location.pathname);
   const { isAdmin, isCast } = useAuth();
 
   return (
@@ -78,6 +81,8 @@ export default function App() {
       {isDisplay ? (
         <Routes>
           <Route path="/shows/:showId/display" element={<MadLibsDisplayPage />} />
+          <Route path="/live-monster/display" element={<LiveMonsterDisplayPage />} />
+          <Route path="/live-monster" element={<LiveMonsterAudiencePage />} />
         </Routes>
       ) : (
         <main className="platform-main">

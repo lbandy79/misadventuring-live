@@ -281,6 +281,26 @@ service cloud.firestore {
       allow read, write: if isAdmin();
     }
 
+    // ── Live Monster Builder ────────────────────────────────────────
+    // Session (phase/locks/results): public read so audience + projector
+    // track state; admin-only write so only the GM advances phases.
+    // Vote collections: open read+write — audience upserts their own doc
+    // via deterministic docId ({showId}__{voterId}); admin panel tallies;
+    // GM reset deletes all vote docs for the show.
+    match /live-monster-session/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /live-monster-type-votes/{docId} {
+      allow read, write: if true;
+    }
+    match /live-monster-slot-votes/{docId} {
+      allow read, write: if true;
+    }
+    match /live-bystander-submissions/{docId} {
+      allow read, write: if true;
+    }
+
     // Default deny — anything not matched above is locked.
     match /{document=**} {
       allow read, write: if false;

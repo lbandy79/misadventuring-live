@@ -1,8 +1,30 @@
 /**
- * Monster Builder Types - Lucky Straws Feb 15
- * 
- * Audience builds a complete monster by selecting all 4 body parts at once.
- * Results aggregate across all submissions. Winner combo is revealed dramatically.
+ * LEGACY REFERENCE — Quick Monster Builder (Lucky Straws, Feb 15 show)
+ *
+ * ⚠️  This code is NOT actively used in the platform app. It lives here as
+ *     reference for what we shipped and what we learned. The active system
+ *     is `platform/src/components/admin/LiveMonsterAdminPanel.tsx` driven
+ *     by `src/data/liveMonster/` configs.
+ *
+ * What this was:
+ *   Audience selects ALL 4 body parts at once (head / torso / arms / legs) and
+ *   submits a single combined creature. Votes aggregate server-side; the most-
+ *   picked combo is revealed part-by-part with GSAP animation.
+ *
+ * What worked:
+ *   - Emoji labels — scannable on phones in a dark room
+ *   - GSAP sequential reveal built tension ("THE HEAD OF A... RAM!")
+ *   - localStorage voter ID — simple, no auth friction
+ *
+ * What didn't work:
+ *   - Picking 4 things simultaneously is cognitively heavy; engagement dropped
+ *     after the first part because the rest felt like chores
+ *   - Hardcoded body parts — reusing for a different show required code changes
+ *   - No write-ins; audience could only pick from preset options
+ *   - Body-part chimera metaphor doesn't fit MotW's narrative monster style
+ *
+ * Superseded by: sequential phase system in `src/lib/liveMonster/liveMonsterApi.ts`
+ * which is config-driven, GM-paced, and supports write-ins.
  */
 
 // Body part categories

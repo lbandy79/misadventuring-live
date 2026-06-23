@@ -14,6 +14,7 @@ import { Link } from 'react-router-dom';
 import { shows, useAuth } from '@mtp/lib';
 import NpcAdminPanel from '../components/admin/NpcAdminPanel';
 import CastAdminPanel from '../components/admin/CastAdminPanel';
+import LiveMonsterAdminPanel from '../components/admin/LiveMonsterAdminPanel';
 
 export default function AdminPage() {
   const { user, isAdmin, isLoading, isAdminLoading, signIn } = useAuth();
@@ -72,6 +73,8 @@ export default function AdminPage() {
       </p>
 
       <CastAdminPanel />
+
+      <LiveMonsterAdminPanel />
 
       {npcShows.map((s) => (
         <NpcAdminPanel

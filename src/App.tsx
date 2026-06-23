@@ -11,6 +11,8 @@ import BladeRunnerSheetPage from './components/BladeRunnerSheet/BladeRunnerSheet
 import BladeRunnerRoster from './components/BladeRunnerSheet/BladeRunnerRoster';
 import MotWCreationPage from './components/MotWCreator/MotWCreationPage';
 import QRDisplay from './components/QRDisplay';
+import LiveMonsterAudiencePage from './components/LiveMonsterAudiencePage';
+import LiveMonsterDisplayPage from './components/LiveMonsterDisplayPage';
 import FantasyBackground from './components/FantasyBackground';
 import './index.css';
 
@@ -75,6 +77,8 @@ function App() {
           <Route path="/admin" element={<AdminPanel />} />
           <Route path="/display" element={<DisplayView />} />
           <Route path="/qr" element={<QRDisplay />} />
+          <Route path="/live-monster" element={<LiveMonsterAudiencePage />} />
+          <Route path="/live-monster/display" element={<LiveMonsterDisplayPage />} />
         </Routes>
       </div>
     </ErrorBoundary>

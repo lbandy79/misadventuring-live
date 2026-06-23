@@ -15,13 +15,14 @@ import { playSound as playSoundEffect, initAudio } from '../utils/sounds';
 import DecoderRingAdmin from './DecoderRingAdmin';
 import ShipCombatAdmin from './ShipCombatAdmin';
 import NPCReviewPanel from './NPCReviewPanel';
+import LiveMonsterAdminPanel from './LiveMonsterAdminPanel';
 import './AdminPanel.css';
 
 // Auth gate: Firebase Auth + admin allowlist (config/admins.emails).
 // Replaces the legacy VITE_ADMIN_PASSWORD shared password (Phase 9A).
 // Sign in lives in `useAuth().signIn()` and is wired up below.
 
-type AdminTab = 'show' | 'npcs' | 'monsters' | 'villagers' | 'decoder';
+type AdminTab = 'show' | 'npcs' | 'monsters' | 'villagers' | 'decoder' | 'live-monster';
 
 const ADMIN_TABS: { id: AdminTab; label: string; emoji: string }[] = [
   { id: 'show', label: 'Show Controls', emoji: '🎲' },
@@ -29,6 +30,7 @@ const ADMIN_TABS: { id: AdminTab; label: string; emoji: string }[] = [
   { id: 'monsters', label: 'Monster Builder', emoji: '🐲' },
   { id: 'villagers', label: 'Villagers', emoji: '🏘️' },
   { id: 'decoder', label: 'Decoder Ring', emoji: '🔮' },
+  { id: 'live-monster', label: 'Live Monster', emoji: '👹' },
 ];
 
 interface VoteOption {
@@ -852,6 +854,11 @@ export default function AdminPanel() {
         {/* Decoder Ring — Well of Lines */}
         {activeTab === 'decoder' && (
         <DecoderRingAdmin />
+        )}
+
+        {/* Live Monster Builder */}
+        {activeTab === 'live-monster' && (
+        <LiveMonsterAdminPanel />
         )}
 
         {/* Ship Combat — Flyer Defense */}

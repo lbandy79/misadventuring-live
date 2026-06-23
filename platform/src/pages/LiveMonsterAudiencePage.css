@@ -1,0 +1,433 @@
+.lma-container {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #0d0d14 0%, #1a0a0a 100%);
+  padding: 1.5rem 1rem 3rem;
+  color: #eee;
+  display: flex;
+  flex-direction: column;
+}
+
+.lma-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.lma-header h1 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #cc4444;
+  text-shadow: 0 0 12px rgba(200, 60, 60, 0.4);
+  margin: 0;
+}
+
+.lma-section {
+  max-width: 480px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.lma-idle {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.75rem;
+}
+
+.lma-standby {
+  color: #666;
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+}
+
+.lma-done-msg {
+  color: #cc4444;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.lma-prompt {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #ddd;
+  text-align: center;
+  margin: 0;
+}
+
+.lma-slot-round {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #888;
+  text-align: center;
+  margin: 0;
+}
+
+/* Emoji chip grid (2×3) for slot options */
+.lma-chip-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+}
+
+.lma-chip {
+  background: #1a1a2e;
+  border: 2px solid #2a2a3e;
+  border-radius: 14px;
+  padding: 0.85rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+  text-align: center;
+  color: #eee;
+  min-height: 90px;
+  justify-content: center;
+}
+
+.lma-chip:hover {
+  border-color: #cc4444;
+  background: #1f1020;
+}
+
+.lma-chip.selected {
+  border-color: #cc4444;
+  background: #2a1010;
+  box-shadow: 0 0 14px rgba(200, 60, 60, 0.35);
+}
+
+.lma-chip:active {
+  transform: scale(0.97);
+}
+
+.lma-chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.lma-chip-emoji {
+  font-size: 2.2rem;
+  line-height: 1;
+}
+
+.lma-chip-text {
+  font-size: 0.78rem;
+  line-height: 1.3;
+  color: #ccc;
+}
+
+/* Move chips (2×2) for bystander move vote */
+.lma-move-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.lma-move-chip {
+  background: #1a1a2e;
+  border: 2px solid #2a2a3e;
+  border-radius: 14px;
+  padding: 1.1rem 0.75rem;
+  cursor: pointer;
+  color: #ddd;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lma-move-chip:hover {
+  border-color: #cc4444;
+  background: #1f1020;
+}
+
+.lma-move-chip.selected {
+  border-color: #cc4444;
+  background: #2a1010;
+  box-shadow: 0 0 14px rgba(200, 60, 60, 0.35);
+  color: #fff;
+}
+
+.lma-move-chip:active {
+  transform: scale(0.97);
+}
+
+.lma-move-chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Write-in */
+.lma-writein-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.lma-writein-label {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #666;
+}
+
+.lma-writein-input {
+  background: #111;
+  border: 2px solid #2a2a3e;
+  border-radius: 8px;
+  padding: 0.7rem 0.9rem;
+  min-height: 44px;
+  color: #eee;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.lma-writein-input--name {
+  font-size: 1.1rem;
+  padding: 0.85rem 1rem;
+}
+
+.lma-writein-input:focus,
+.lma-writein-input.selected {
+  border-color: #cc4444;
+}
+
+.lma-writein-input::placeholder {
+  color: #444;
+}
+
+/* Submit button */
+.lma-submit-btn {
+  padding: 0.85rem 1.5rem;
+  background: linear-gradient(135deg, #cc4444 0%, #992222 100%);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  letter-spacing: 0.04em;
+}
+
+.lma-submit-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.lma-submit-btn:not(:disabled):hover {
+  opacity: 0.9;
+}
+
+.lma-submit-btn:not(:disabled):active {
+  transform: scale(0.98);
+}
+
+/* Vote-confirmation flash on the section card */
+@keyframes lma-flash {
+  0%   { box-shadow: inset 0 0 0 1.5px transparent; }
+  18%  { box-shadow: inset 0 0 0 1.5px #cc4444; }
+  100% { box-shadow: inset 0 0 0 1.5px transparent; }
+}
+
+.lma-section--flash {
+  animation: lma-flash 0.75s ease-out;
+  border-radius: 12px;
+}
+
+/* Status / locked messages */
+.lma-status {
+  font-size: 0.88rem;
+  color: #aaa;
+  text-align: center;
+  margin: 0;
+}
+
+@keyframes lma-status-rise {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.lma-status--visible {
+  animation: lma-status-rise 0.2s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lma-section--flash  { animation: none; }
+  .lma-status--visible { animation: none; }
+}
+
+.lma-error {
+  font-size: 0.82rem;
+  color: #e74c3c;
+  text-align: center;
+  margin: 0;
+}
+
+.lma-locked-msg {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  color: #888;
+  font-size: 0.9rem;
+}
+
+/* Back / Next navigation */
+.lma-nav {
+  max-width: 480px;
+  width: 100%;
+  margin: 1.5rem auto 0;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+}
+
+.lma-nav-btn {
+  padding: 0.7rem 1.4rem;
+  min-height: 44px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  border: none;
+}
+
+.lma-nav-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.lma-nav-btn:not(:disabled):active {
+  transform: scale(0.97);
+}
+
+.lma-nav-btn--back {
+  background: transparent;
+  border: 2px solid #2a2a3e;
+  color: #888;
+  margin-right: auto;
+}
+
+.lma-nav-btn--back:not(:disabled):hover {
+  border-color: #444;
+  color: #ccc;
+}
+
+.lma-nav-btn--next {
+  background: linear-gradient(135deg, #cc4444 0%, #992222 100%);
+  color: #fff;
+  margin-left: auto;
+}
+
+.lma-nav-btn--next:not(:disabled):hover {
+  opacity: 0.9;
+}
+
+/* ── Bystander form ── */
+
+.lma-bystander-form {
+  gap: 1.4rem;
+}
+
+.lma-prompt--sm {
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: #aaa;
+  text-align: left;
+}
+
+.lma-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Type grid — 3 columns */
+.lma-type-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.lma-type-chip {
+  background: #1a1a2e;
+  border: 2px solid #2a2a3e;
+  border-radius: 10px;
+  padding: 0.6rem 0.4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+  text-align: center;
+  color: #eee;
+}
+
+.lma-type-chip:hover {
+  border-color: #cc4444;
+  background: #1f1020;
+}
+
+.lma-type-chip.selected {
+  border-color: #cc4444;
+  background: #2a1010;
+  box-shadow: 0 0 12px rgba(200, 60, 60, 0.3);
+}
+
+.lma-type-chip:active {
+  transform: scale(0.97);
+}
+
+.lma-type-chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.lma-type-chip-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #eee;
+  line-height: 1.2;
+}
+
+.lma-type-chip-tagline {
+  font-size: 0.62rem;
+  color: #888;
+  line-height: 1.3;
+}
+
+/* Custom move section */
+.lma-custom-move {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+}
+
+.lma-custom-move-or {
+  font-size: 0.72rem;
+  color: #555;
+  text-align: center;
+  margin: 0.25rem 0;
+  letter-spacing: 0.06em;
+}

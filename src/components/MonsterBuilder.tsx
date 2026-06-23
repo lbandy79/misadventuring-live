@@ -1,8 +1,14 @@
 /**
- * MonsterBuilder - Audience component for building creatures
- * 
- * Users select ALL 4 body parts at once and submit their complete creature.
- * This is for Lucky Straws Feb 15 show.
+ * LEGACY REFERENCE — MonsterBuilder audience component (Lucky Straws, Feb 15 show)
+ *
+ * ⚠️  Not used in the platform app. Kept for reference — see monsterBuilder.types.ts
+ *     for notes on what worked and what didn't. The active audience view is
+ *     `platform/src/pages/LiveMonsterAudiencePage.tsx`.
+ *
+ * This component rendered a 4-part grid (head / torso / arms / legs) where the
+ * audience picked all parts simultaneously and submitted as one transaction.
+ * Framer Motion handled selection animations; Firestore `monster-builder/current`
+ * held the aggregate state.
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';

@@ -78,4 +78,4 @@ export function getPastShows(): Show[] {
 }
 
 /** Default show used when no `showId` is set in Firestore. */
-export const defaultShowId = 'beast-of-ridgefall';
+export const defaultShowId = 'monster-of-the-week';

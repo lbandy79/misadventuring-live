@@ -27,6 +27,7 @@ export default defineConfig({
       '@mtp/lib': path.resolve(__dirname, '../src/lib'),
       '@mtp/firebase': path.resolve(__dirname, '../src/firebase.ts'),
       '@mtp/themes': path.resolve(__dirname, '../src/themes'),
+      '@mtp/data': path.resolve(__dirname, '../src/data'),
     },
   },
   build: {

@@ -1,8 +1,34 @@
 /**
- * Monster Assembly Types - Beast of Ridgefall Sprint
- * 
- * Types for the monster building voting system where the audience
- * votes on four body parts to create a unique creature.
+ * LEGACY REFERENCE — Sequential Monster Voter (Beast of Ridgefall)
+ *
+ * ⚠️  This code is NOT actively used in the platform app. It lives here as
+ *     reference for what we shipped and what we learned. The active system
+ *     is `platform/src/components/admin/LiveMonsterAdminPanel.tsx` driven
+ *     by `src/data/liveMonster/` configs.
+ *
+ * What this was:
+ *   Audience votes on one body part at a time (head → torso → arms → legs).
+ *   Each round has a live timer; when it expires the GM sees the tally and
+ *   announces the winner. Firestore state lives under `config/active-interaction`.
+ *
+ * What worked:
+ *   - Sequential voting built tension better than all-at-once (one decision
+ *     per round = real focus on each part)
+ *   - Per-option description strings ("Cunning predator", "All-seeing eyes")
+ *     helped audience imagine the creature before voting
+ *   - Emoji options were readable on phones across a dark venue
+ *
+ * What didn't work:
+ *   - Hardcoded head/torso/arms/legs — reusing for a different show meant
+ *     changing this file and rebuilding
+ *   - Timer-based voting locked the GM out of pacing the show; live performance
+ *     energy doesn't fit a countdown
+ *   - No write-ins — audience can only react, not create
+ *   - Body-part metaphor (chimera assembly) doesn't fit MotW's narrative
+ *     monster descriptions
+ *
+ * Superseded by: sequential phase + slot system in `src/lib/liveMonster/liveMonsterApi.ts`
+ * which is config-driven, GM-paced, and supports write-ins.
  */
 
 // Body part categories
