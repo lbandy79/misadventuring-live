@@ -41,6 +41,14 @@
   gap: 0.75rem;
 }
 
+.lma-idle-logo {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  opacity: 0.85;
+  filter: drop-shadow(0 0 12px rgba(200, 60, 60, 0.25));
+}
+
 .lma-standby {
   color: #666;
   font-size: 1rem;

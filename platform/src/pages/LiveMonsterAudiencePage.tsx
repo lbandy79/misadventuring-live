@@ -1,5 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
+import { Filter as ProfanityFilter } from 'bad-words';
 import { useShow } from '@mtp/lib/shows';
+
+const profanityFilter = new ProfanityFilter({ placeHolder: '*' });
+function hasProfanity(...texts: string[]): boolean {
+  return texts.some(t => t.trim() && profanityFilter.isProfane(t));
+}
 import { saveAnonIdentity } from '@mtp/lib/madlibs/madLibsApi';
 import { getMonsterConfig } from '@mtp/data/liveMonster';
 import type { MonsterBuilderConfig } from '@mtp/data/liveMonster';
@@ -79,6 +85,11 @@ export default function LiveMonsterAudiencePage() {
     if (!sel || (sel.optionIndex === null && !sel.writeIn.trim())) return;
     if (slotResults[slotId] != null) return;
 
+    if (sel.writeIn.trim() && hasProfanity(sel.writeIn)) {
+      setSubmitError('Please keep it clean — this shows on the big screen!');
+      return;
+    }
+
     setSubmitting(true);
     setSubmitError(null);
     try {
@@ -106,6 +117,10 @@ export default function LiveMonsterAudiencePage() {
 
   const handleBystanderSubmit = useCallback(async () => {
     if (!showId || !voterId || submitting || !bystanderValid) return;
+    if (hasProfanity(bystanderName, bystanderCustomTrigger, bystanderCustomEffect)) {
+      setSubmitError('Please keep it clean — this shows on the big screen!');
+      return;
+    }
     setSubmitting(true);
     setSubmitError(null);
     try {
@@ -139,6 +154,7 @@ export default function LiveMonsterAudiencePage() {
     return (
       <div className="lma-container">
         <div className="lma-idle">
+          <img src="/assets/themes/monster-of-the-week/MotW logo.png" alt="The Misadventuring Party" className="lma-idle-logo" />
           <p>{show?.name ?? 'The Misadventuring Party'}</p>
           <p className="lma-standby">Stand by. The creature is coming.</p>
         </div>
@@ -152,6 +168,7 @@ export default function LiveMonsterAudiencePage() {
       <div className="lma-container">
         <header className="lma-header"><h1>{config.showName}</h1></header>
         <div className="lma-idle">
+          <img src="/assets/themes/monster-of-the-week/MotW logo.png" alt="The Misadventuring Party" className="lma-idle-logo" />
           <p className="lma-standby">Stand by. The creature is coming.</p>
         </div>
       </div>
@@ -164,6 +181,7 @@ export default function LiveMonsterAudiencePage() {
       <div className="lma-container">
         <header className="lma-header"><h1>{config.showName}</h1></header>
         <div className="lma-idle">
+          <img src="/assets/themes/monster-of-the-week/MotW logo.png" alt="The Misadventuring Party" className="lma-idle-logo" />
           <p className="lma-standby">Watch the screen.</p>
         </div>
       </div>
