@@ -1,21 +1,21 @@
 /**
  * Bystander submission API — individual audience member submissions.
  *
- * Each audience member creates their own bystander (name + MotW type + move).
- * One doc per (show, voter); re-submitting overwrites.
+ * Each audience member can submit up to MAX_PER_VOTER bystanders per show.
+ * Docs use Firestore auto-generated IDs so multiple submissions per voter
+ * are supported; the voterId field is indexed for per-voter queries.
  *
  * Collection: live-bystander-submissions
- * Doc ID:     {showId}__{voterId}
+ * Composite index required: showId ASC + voterId ASC (see firestore.indexes.json)
  */
 
 import {
+  addDoc,
   collection,
-  doc,
   getDocs,
   onSnapshot,
   query,
   serverTimestamp,
-  setDoc,
   where,
   writeBatch,
   type Timestamp,
@@ -24,6 +24,7 @@ import {
 import { db } from '../../firebase';
 
 const COLLECTION = 'live-bystander-submissions';
+const MAX_PER_VOTER = 5;
 
 export interface BystanderSubmission {
   id: string;
@@ -40,16 +41,26 @@ export interface BystanderSubmission {
   submittedAt: Timestamp | null;
 }
 
-function docId(showId: string, voterId: string): string {
-  return `${showId}__${voterId}`;
-}
-
+/**
+ * Add a new bystander submission for this voter.
+ * Throws 'max-submissions-reached' if the voter already has MAX_PER_VOTER submissions.
+ */
 export async function submitBystander(
   showId: string,
   voterId: string,
   data: Pick<BystanderSubmission, 'name' | 'typeId' | 'movePreset' | 'customTrigger' | 'customEffect'>,
 ): Promise<void> {
-  await setDoc(doc(db, COLLECTION, docId(showId, voterId)), {
+  const existing = await getDocs(
+    query(
+      collection(db, COLLECTION),
+      where('showId', '==', showId),
+      where('voterId', '==', voterId),
+    ),
+  );
+  if (existing.size >= MAX_PER_VOTER) {
+    throw new Error('max-submissions-reached');
+  }
+  await addDoc(collection(db, COLLECTION), {
     showId,
     voterId,
     name: data.name,
@@ -61,11 +72,33 @@ export async function submitBystander(
   });
 }
 
+/** Subscribe to all submissions for a show (GM view). */
 export function subscribeToBystanderSubmissions(
   showId: string,
   onChange: (submissions: BystanderSubmission[]) => void,
 ): Unsubscribe {
   const q = query(collection(db, COLLECTION), where('showId', '==', showId));
+  return onSnapshot(q, (snap) => {
+    onChange(
+      snap.docs.map((d) => ({
+        id: d.id,
+        ...(d.data() as Omit<BystanderSubmission, 'id'>),
+      })),
+    );
+  });
+}
+
+/** Subscribe to a single voter's submissions for a show (audience self-view). */
+export function subscribeToVoterBystanderSubmissions(
+  showId: string,
+  voterId: string,
+  onChange: (submissions: BystanderSubmission[]) => void,
+): Unsubscribe {
+  const q = query(
+    collection(db, COLLECTION),
+    where('showId', '==', showId),
+    where('voterId', '==', voterId),
+  );
   return onSnapshot(q, (snap) => {
     onChange(
       snap.docs.map((d) => ({

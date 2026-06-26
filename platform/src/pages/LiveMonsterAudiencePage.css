@@ -439,3 +439,53 @@
   margin: 0.25rem 0;
   letter-spacing: 0.06em;
 }
+
+/* ── Submitted bystander list ── */
+
+.lma-bystander-submitted-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.lma-bystander-submitted-count {
+  font-size: 0.8rem;
+  color: #888;
+  margin: 0 0 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.lma-bystander-submitted-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0.75rem;
+  background: rgba(255 255 255 / 0.04);
+  border: 1px solid rgba(255 255 255 / 0.08);
+  border-radius: 8px;
+}
+
+.lma-bystander-submitted-name {
+  flex: 1;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #eee;
+}
+
+.lma-bystander-submitted-type {
+  font-size: 0.72rem;
+  color: #cc6644;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.lma-bystander-max-msg {
+  font-size: 0.85rem;
+  color: #888;
+  text-align: center;
+  margin: 0.5rem 0 0;
+  font-style: italic;
+}

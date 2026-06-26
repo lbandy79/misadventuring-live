@@ -51,14 +51,6 @@ function MonsterStrip({
 }
 
 // ─── Slot icon ────────────────────────────────────────────────────────────────
-// Renders a display-quality icon for a winning slot option.
-// `prefer` controls which art system to try first; the other is the fallback.
-// Broken URLs (e.g. a wrong game-icons slug) silently hide the img via onError.
-//
-// game-icons: monochromatic SVG from game-icons.net, tinted in the show's red.
-//   Great for monster slots — stark and horror-appropriate on the dark screen.
-// fluentEmoji: illustrated 3D PNG from Microsoft's open-source Fluent Emoji set.
-//   Great for bystander cards — warmer feel for the "also tonight" moments.
 
 function gameIconUrl(slug: string) {
   return `https://game-icons.net/icons/cc4444/transparent/1x1/${slug}.svg`;
@@ -90,7 +82,7 @@ function SlotIcon({
   const handleError = (e: SyntheticEvent<HTMLImageElement>) => {
     const img = e.currentTarget;
     if (secondaryUrl && img.src !== secondaryUrl) {
-      img.src = secondaryUrl; // fall through to the other system
+      img.src = secondaryUrl;
     } else {
       img.style.display = 'none';
     }
@@ -108,9 +100,6 @@ function SlotIcon({
 }
 
 // ─── Full slot stack (used during active / reveal phases) ────────────────────
-// Slots marked `secret: true` in the config are filtered out here and in
-// MonsterStrip below — they are collected from the audience and visible in the
-// GM admin panel, but intentionally never projected to the room.
 
 function SlotStack({
   config,
@@ -146,27 +135,35 @@ function SlotStack({
   );
 }
 
-// ─── Featured bystander card ──────────────────────────────────────────────────
+// ─── Bystander avatar (shared between living and grave cards) ─────────────────
 
-function BystanderAvatar({ name, typeEmoji }: { name: string; typeEmoji?: string }) {
+function BystanderAvatar({
+  name,
+  typeEmoji,
+  className = 'lmd-bystander-avatar',
+  wrapClass = 'lmd-bystander-avatar-wrap',
+}: {
+  name: string;
+  typeEmoji?: string;
+  className?: string;
+  wrapClass?: string;
+}) {
   const [failed, setFailed] = useState(false);
   const trimmed = name.trim();
   const url = `https://api.dicebear.com/9.x/pixel-art/svg?seed=${encodeURIComponent(trimmed)}`;
 
   return (
-    <div className="lmd-bystander-avatar-wrap">
+    <div className={wrapClass}>
       {!failed && trimmed ? (
         <img
-          className="lmd-bystander-avatar"
+          className={className}
           src={url}
           alt=""
-          width={140}
-          height={140}
           onError={() => setFailed(true)}
           loading="lazy"
         />
       ) : (
-        <div className="lmd-bystander-avatar lmd-bystander-avatar--fallback" aria-hidden="true">
+        <div className={`${className} ${className}--fallback`} aria-hidden="true">
           {trimmed.charAt(0).toUpperCase() || '?'}
         </div>
       )}
@@ -176,6 +173,8 @@ function BystanderAvatar({ name, typeEmoji }: { name: string; typeEmoji?: string
     </div>
   );
 }
+
+// ─── Featured bystander card (living row) ─────────────────────────────────────
 
 function BystanderCard({ sub }: { sub: BystanderSubmission }) {
   const typeInfo = BYSTANDER_TYPES[sub.typeId as keyof typeof BYSTANDER_TYPES];
@@ -194,6 +193,42 @@ function BystanderCard({ sub }: { sub: BystanderSubmission }) {
         </p>
       )}
       <p className="lmd-bystander-card-move">{moveLine}</p>
+    </div>
+  );
+}
+
+// ─── Grave card (graveyard row) ───────────────────────────────────────────────
+
+const GRAVE_X_IMGS = [
+  '/assets/themes/monster-of-the-week/first_x.png',
+  '/assets/themes/monster-of-the-week/second_x.png',
+];
+
+function BystanderGraveCard({ sub, index }: { sub: BystanderSubmission; index: number }) {
+  const [failed, setFailed] = useState(false);
+  const trimmed = sub.name.trim();
+  const avatarUrl = `https://api.dicebear.com/9.x/pixel-art/svg?seed=${encodeURIComponent(trimmed)}`;
+  const xSrc = GRAVE_X_IMGS[index % 2];
+
+  return (
+    <div className="lmd-bystander-grave-card">
+      <div className="lmd-bystander-grave-avatar-wrap">
+        {!failed && trimmed ? (
+          <img
+            className="lmd-bystander-grave-avatar"
+            src={avatarUrl}
+            alt=""
+            onError={() => setFailed(true)}
+            loading="lazy"
+          />
+        ) : (
+          <div className="lmd-bystander-grave-avatar lmd-bystander-grave-avatar--fallback" aria-hidden="true">
+            {trimmed.charAt(0).toUpperCase() || '?'}
+          </div>
+        )}
+        <img src={xSrc} alt="" className="lmd-bystander-grave-x" aria-hidden="true" />
+      </div>
+      <p className="lmd-bystander-grave-name">{sub.name}</p>
     </div>
   );
 }
@@ -234,7 +269,7 @@ export default function LiveMonsterDisplayPage() {
   }, [showId]);
 
   const phase = session?.phase ?? 'idle';
-  const bystanderPhaseActive = phase === 'bystander-name' || phase === 'bystander-move' || phase === 'done';
+  const bystanderPhaseActive = phase === 'bystander-name' || phase === 'bystander-move';
 
   useEffect(() => {
     if (!showId || !bystanderPhaseActive) { setBystanderSubmissions([]); return; }
@@ -244,10 +279,10 @@ export default function LiveMonsterDisplayPage() {
   if (!config) return <IdleScreen showName={show?.name ?? 'The Misadventuring Party'} />;
 
   const slotResults = session?.slotResults ?? {};
-  const featuredId = session?.featuredBystanderId ?? null;
-  const featuredBystander = featuredId
-    ? bystanderSubmissions.find(s => s.id === featuredId) ?? null
-    : null;
+  const bystanderStates = session?.bystanderStates ?? {};
+
+  const featuredBystanders = bystanderSubmissions.filter(s => bystanderStates[s.id] === 'featured');
+  const deadBystanders     = bystanderSubmissions.filter(s => bystanderStates[s.id] === 'dead');
 
   // ── Idle ──────────────────────────────────────────────────────────────────
   if (phase === 'idle') return <IdleScreen showName={config.showName} />;
@@ -284,28 +319,58 @@ export default function LiveMonsterDisplayPage() {
     );
   }
 
-  // ── Bystander phases (name / move) + done ─────────────────────────────────
-  if (phase === 'bystander-name' || phase === 'bystander-move' || phase === 'done') {
+  // ── Bystander phases (name / move) ────────────────────────────────────────
+  if (phase === 'bystander-name' || phase === 'bystander-move') {
     return (
       <div className="lmd-full lmd-bystander-stage">
-        {/* Left: compact monster summary */}
         <MonsterStrip config={config} slotResults={slotResults} />
 
-        {/* Right: featured bystander or open-for-submissions state */}
         <div className="lmd-bystander-stage-right">
-          {featuredBystander ? (
-            <BystanderCard sub={featuredBystander} />
+          {/* Living row — featured bystanders, or waiting placeholder */}
+          {featuredBystanders.length > 0 ? (
+            <div
+              className="lmd-bystander-living-row"
+              data-count={featuredBystanders.length}
+            >
+              {featuredBystanders.map(sub => (
+                <BystanderCard key={sub.id} sub={sub} />
+              ))}
+            </div>
           ) : (
             <div className="lmd-bystander-waiting">
-              <p className="lmd-bystander-waiting-label">
-                {phase === 'done' ? 'Session complete.' : 'Bystander incoming…'}
-              </p>
+              <p className="lmd-bystander-waiting-label">Bystander incoming…</p>
+            </div>
+          )}
+
+          {/* Graveyard row — dead bystanders with red X */}
+          {deadBystanders.length > 0 && (
+            <div className="lmd-bystander-graveyard-row">
+              {deadBystanders.map((sub, i) => (
+                <BystanderGraveCard key={sub.id} sub={sub} index={i} />
+              ))}
             </div>
           )}
         </div>
 
         <CornerQR />
         <CornerLogo />
+      </div>
+    );
+  }
+
+  // ── Done ──────────────────────────────────────────────────────────────────
+  if (phase === 'done') {
+    return (
+      <div className="lmd-full lmd-done-simple">
+        <img
+          src="/assets/themes/monster-of-the-week/MotW logo.png"
+          alt="The Misadventuring Party"
+          className="lmd-done-logo"
+        />
+        <div className="lmd-qr-wrap">
+          <QRCodeSVG value={AUDIENCE_URL} size={160} bgColor="#0d0d14" fgColor="#cc4444" />
+        </div>
+        <p className="lmd-idle-url">{AUDIENCE_URL}</p>
       </div>
     );
   }

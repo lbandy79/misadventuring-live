@@ -470,6 +470,36 @@
   border-color: rgba(100 200 120 / 0.2);
 }
 
+.lm-bystander-row.dead {
+  background: rgba(200 60 60 / 0.07);
+  border-color: rgba(200 60 60 / 0.2);
+  opacity: 0.8;
+}
+
+.lm-bystander-row-name-line {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.lm-bystander-row-actions {
+  display: flex;
+  gap: 0.35rem;
+  flex-shrink: 0;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.lm-bystander-state-badge {
+  font-size: 0.68rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.lm-bystander-state-badge--featured { color: #7dd3a8; }
+.lm-bystander-state-badge--dead     { color: #cc6666; }
+
 .lm-bystander-row-info {
   flex: 1;
   display: flex;

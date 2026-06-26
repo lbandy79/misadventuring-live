@@ -9,7 +9,7 @@ import {
   setMonsterPhase,
   setSlotResult,
   resetMonsterSession,
-  featureBystander,
+  setBystanderState,
   tallySlotVotes,
   type MonsterSession,
   type MonsterSlotVote,
@@ -75,9 +75,7 @@ export default function LiveMonsterAdminPanel() {
   const config = showId ? getMonsterConfig(showId) : null;
 
   const [session, setSession] = useState<MonsterSession | null>(null);
-  // All 4 monster slot votes, keyed by slotId
   const [allSlotVotes, setAllSlotVotes] = useState<Record<string, MonsterSlotVote[]>>({});
-  // Individual bystander submissions (bystander phases)
   const [bystanderSubmissions, setBystanderSubmissions] = useState<BystanderSubmission[]>([]);
   const [busy, setBusy] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
@@ -90,7 +88,6 @@ export default function LiveMonsterAdminPanel() {
 
   const phase = session?.phase ?? 'idle';
 
-  // Subscribe to all 4 monster slot votes simultaneously
   useEffect(() => {
     if (!showId || !config) return;
     const unsubs = config.slots.map((slot) =>
@@ -101,7 +98,6 @@ export default function LiveMonsterAdminPanel() {
     return () => unsubs.forEach((u) => u());
   }, [showId, config]);
 
-  // Subscribe to individual bystander submissions during bystander phases
   const bystanderPhaseActive = phase === 'bystander-name' || phase === 'bystander-move';
 
   useEffect(() => {
@@ -138,17 +134,15 @@ export default function LiveMonsterAdminPanel() {
   }
 
   const slotResults = session?.slotResults ?? {};
-
-  const featuredBystanderId = session?.featuredBystanderId ?? null;
-  const featuredBystander = featuredBystanderId
-    ? bystanderSubmissions.find(s => s.id === featuredBystanderId) ?? null
-    : null;
+  const bystanderStates = session?.bystanderStates ?? {};
 
   const hasAnySlotResult = config.slots.some((s) => slotResults[s.id] != null);
   const typeSuggestions = useMemo(
     () => computeTypeSuggestions(config.slots, slotResults),
     [config.slots, slotResults],
   );
+
+  const featuredBystanders = bystanderSubmissions.filter(s => bystanderStates[s.id] === 'featured');
 
   function nextPhase(): MonsterPhase | null {
     const idx = PHASE_ORDER.indexOf(phase);
@@ -172,7 +166,7 @@ export default function LiveMonsterAdminPanel() {
         <span className="lm-show-badge" title="config/platform.currentShowId">show: {showId}</span>
       </div>
 
-      {/* Phase bar — two labeled groups: Lifecycle | Bystander */}
+      {/* Phase bar */}
       <div className="lm-phase-groups">
         <div className="lm-phase-group">
           <span className="lm-phase-group-label">State</span>
@@ -218,7 +212,6 @@ export default function LiveMonsterAdminPanel() {
 
       {/* Phase controls */}
       <div className="lm-row">
-        {/* Idle: explicit Start button */}
         {phase === 'idle' && (
           <button
             className="lm-btn lm-btn--primary"
@@ -228,8 +221,6 @@ export default function LiveMonsterAdminPanel() {
             ▶ Start
           </button>
         )}
-        {/* Active: no button — click the Reveal tab */}
-        {/* Reveal + bystander phases: advance button */}
         {(phase === 'reveal' || phase === 'bystander-name' || phase === 'bystander-move') && next && (
           <button
             className="lm-btn lm-btn--primary"
@@ -262,8 +253,7 @@ export default function LiveMonsterAdminPanel() {
         </div>
       )}
 
-      {/* ── All 4 monster slot tallies ──
-           active: read-only monitoring; reveal: same tallies + Reveal buttons */}
+      {/* ── Monster slot tallies ── */}
       {(phase === 'active' || phase === 'reveal') && config.slots.map((slot) => {
         const votes = allSlotVotes[slot.id] ?? [];
         const tally = tallySlotVotes(votes, slot.options.length);
@@ -337,30 +327,13 @@ export default function LiveMonsterAdminPanel() {
         );
       })}
 
-      {/* ── Bystander roster (bystander phases) ── */}
-      {(phase === 'bystander-name' || phase === 'bystander-move') && (
+      {/* ── Bystander roster ── */}
+      {bystanderPhaseActive && (
         <div className="lm-section">
           <h3 className="lm-section-title">
             👤 Bystanders
             <span className="lm-count"> ({bystanderSubmissions.length} submitted)</span>
           </h3>
-
-          {featuredBystander && (
-            <div className="lm-bystander-featured">
-              <span className="lm-bystander-featured-badge">● On screen</span>
-              <span className="lm-bystander-name">{featuredBystander.name}</span>
-              <span className="lm-bystander-type">
-                {BYSTANDER_TYPES[featuredBystander.typeId as keyof typeof BYSTANDER_TYPES]?.label ?? featuredBystander.typeId}
-              </span>
-              <button
-                className="lm-btn lm-btn--small"
-                disabled={busy}
-                onClick={() => run(() => featureBystander(showId!, null))}
-              >
-                Clear
-              </button>
-            </div>
-          )}
 
           {bystanderSubmissions.length === 0 ? (
             <p className="lm-hint">Waiting for submissions…</p>
@@ -371,21 +344,52 @@ export default function LiveMonsterAdminPanel() {
                 const moveSummary = sub.movePreset
                   ? sub.movePreset
                   : `${sub.customTrigger} → ${sub.customEffect}`;
-                const isFeatured = sub.id === featuredBystanderId;
+                const state: 'featured' | 'dead' | 'unfeatured' =
+                  (bystanderStates[sub.id] as 'featured' | 'dead') ?? 'unfeatured';
+
                 return (
-                  <div key={sub.id} className={`lm-bystander-row ${isFeatured ? 'featured' : ''}`}>
+                  <div key={sub.id} className={`lm-bystander-row ${state}`}>
                     <div className="lm-bystander-row-info">
-                      <span className="lm-bystander-name">{sub.name}</span>
+                      <div className="lm-bystander-row-name-line">
+                        <span className="lm-bystander-name">{sub.name}</span>
+                        {state !== 'unfeatured' && (
+                          <span className={`lm-bystander-state-badge lm-bystander-state-badge--${state}`}>
+                            {state === 'featured' ? '● Live' : '✕ Dead'}
+                          </span>
+                        )}
+                      </div>
                       <span className="lm-bystander-type">{typeName}</span>
                       <span className="lm-bystander-move-preview">{moveSummary}</span>
                     </div>
-                    <button
-                      className={`lm-btn ${isFeatured ? '' : 'lm-btn--primary'} lm-btn--small`}
-                      disabled={busy || isFeatured}
-                      onClick={() => run(() => featureBystander(showId!, sub.id))}
-                    >
-                      {isFeatured ? '● Live' : 'Feature'}
-                    </button>
+                    <div className="lm-bystander-row-actions">
+                      {state === 'unfeatured' && (
+                        <button
+                          className="lm-btn lm-btn--primary lm-btn--small"
+                          disabled={busy}
+                          onClick={() => run(() => setBystanderState(showId!, sub.id, 'featured'))}
+                        >
+                          Feature
+                        </button>
+                      )}
+                      {state === 'featured' && (
+                        <button
+                          className="lm-btn lm-btn--danger lm-btn--small"
+                          disabled={busy}
+                          onClick={() => run(() => setBystanderState(showId!, sub.id, 'dead'))}
+                        >
+                          Kill
+                        </button>
+                      )}
+                      {state !== 'unfeatured' && (
+                        <button
+                          className="lm-btn lm-btn--small"
+                          disabled={busy}
+                          onClick={() => run(() => setBystanderState(showId!, sub.id, null))}
+                        >
+                          Unfeature
+                        </button>
+                      )}
+                    </div>
                   </div>
                 );
               })}
@@ -430,27 +434,19 @@ export default function LiveMonsterAdminPanel() {
             </div>
           )}
 
-          {featuredBystander && (
+          {featuredBystanders.length > 0 && (
             <div className="lm-gm-bystander">
-              <p className="lm-gm-types-label">👤 Featured Bystander</p>
-              <div className="lm-gm-type-row">
-                <span className="lm-gm-type-id">Name</span>
-                <span className="lm-gm-type-motivation">{featuredBystander.name}</span>
-              </div>
-              <div className="lm-gm-type-row">
-                <span className="lm-gm-type-id">Type</span>
-                <span className="lm-gm-type-motivation">
-                  {BYSTANDER_TYPES[featuredBystander.typeId as keyof typeof BYSTANDER_TYPES]?.label ?? featuredBystander.typeId}
-                </span>
-              </div>
-              <div className="lm-gm-type-row">
-                <span className="lm-gm-type-id">Move</span>
-                <span className="lm-gm-type-motivation">
-                  {featuredBystander.movePreset
-                    ? featuredBystander.movePreset
-                    : `${featuredBystander.customTrigger} → ${featuredBystander.customEffect}`}
-                </span>
-              </div>
+              <p className="lm-gm-types-label">👤 Featured Bystanders</p>
+              {featuredBystanders.map((sub) => (
+                <div key={sub.id} className="lm-gm-type-row">
+                  <span className="lm-gm-type-id">{sub.name}</span>
+                  <span className="lm-gm-type-motivation">
+                    {BYSTANDER_TYPES[sub.typeId as keyof typeof BYSTANDER_TYPES]?.label ?? sub.typeId}
+                    {' — '}
+                    {sub.movePreset ?? `${sub.customTrigger} → ${sub.customEffect}`}
+                  </span>
+                </div>
+              ))}
               <p className="lm-hint" style={{ marginTop: '0.5rem' }}>
                 Fill weapon, harm, and tags in the Keeper wizard.
               </p>

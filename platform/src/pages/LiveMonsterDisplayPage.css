@@ -364,33 +364,19 @@
   font-size: clamp(0.8rem, 1.3vw, 1.1rem);
 }
 
-/* ── Done screen ── */
-.lmd-done-screen {
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 4rem 6vw;
-  gap: 5vw;
-  text-align: left;
-}
-
-.lmd-done-monster,
-.lmd-done-bystander {
-  flex: 1;
-  display: flex;
+/* ── Done screen (logo + QR only) ── */
+.lmd-done-simple {
   flex-direction: column;
-  gap: 1rem;
-  max-width: 520px;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5rem;
 }
 
-.lmd-done-section-label {
-  font-size: clamp(1rem, 1.8vw, 1.8rem);
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: #cc4444;
-  text-shadow: 0 0 18px rgba(200, 60, 60, 0.3);
-  margin: 0;
+.lmd-done-logo {
+  width: clamp(200px, 30vw, 440px);
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 0 20px rgba(200, 60, 60, 0.3));
 }
 
 /* ── Bystander stage (name/move/done phases) ── */
@@ -477,9 +463,130 @@
 .lmd-bystander-stage-right {
   flex: 1;
   display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 1.5rem;
+  min-width: 0;
+}
+
+/* ── Living row (featured bystanders) ── */
+
+.lmd-bystander-living-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  justify-content: center;
+  gap: clamp(0.75rem, 2vw, 2rem);
+  width: 100%;
+}
+
+.lmd-bystander-living-row .lmd-bystander-card {
+  flex: 1 1 0;
+  min-width: 0;
+  width: auto;
+  max-width: 480px;
+}
+
+/* Avatar + text size scaling by card count */
+
+.lmd-bystander-living-row[data-count="1"] .lmd-bystander-avatar-wrap { width: 140px; height: 140px; }
+.lmd-bystander-living-row[data-count="1"] .lmd-bystander-avatar      { width: 140px; height: 140px; }
+.lmd-bystander-living-row[data-count="1"] .lmd-bystander-card-name   { font-size: clamp(2.5rem, 5vw, 6rem); }
+
+.lmd-bystander-living-row[data-count="2"] .lmd-bystander-avatar-wrap { width: 100px; height: 100px; }
+.lmd-bystander-living-row[data-count="2"] .lmd-bystander-avatar      { width: 100px; height: 100px; }
+.lmd-bystander-living-row[data-count="2"] .lmd-bystander-card-name   { font-size: clamp(1.8rem, 3.5vw, 4rem); }
+
+.lmd-bystander-living-row[data-count="3"] .lmd-bystander-avatar-wrap { width: 80px; height: 80px; }
+.lmd-bystander-living-row[data-count="3"] .lmd-bystander-avatar      { width: 80px; height: 80px; }
+.lmd-bystander-living-row[data-count="3"] .lmd-bystander-card-name   { font-size: clamp(1.4rem, 2.8vw, 3rem); }
+.lmd-bystander-living-row[data-count="3"] .lmd-bystander-card-type   { font-size: clamp(0.75rem, 1.2vw, 1.1rem); }
+.lmd-bystander-living-row[data-count="3"] .lmd-bystander-type-badge  { font-size: 1.1rem; padding: 3px; bottom: -6px; right: -6px; }
+
+.lmd-bystander-living-row[data-count="4"] .lmd-bystander-avatar-wrap { width: 64px; height: 64px; }
+.lmd-bystander-living-row[data-count="4"] .lmd-bystander-avatar      { width: 64px; height: 64px; }
+.lmd-bystander-living-row[data-count="4"] .lmd-bystander-card-name   { font-size: clamp(1.1rem, 2.2vw, 2.4rem); }
+.lmd-bystander-living-row[data-count="4"] .lmd-bystander-card-type   { font-size: clamp(0.7rem, 1.1vw, 1rem); }
+.lmd-bystander-living-row[data-count="4"] .lmd-bystander-card-move   { font-size: clamp(0.7rem, 1.1vw, 0.95rem); }
+.lmd-bystander-living-row[data-count="4"] .lmd-bystander-type-badge  { font-size: 1rem; padding: 3px; bottom: -5px; right: -5px; }
+
+.lmd-bystander-living-row[data-count="5"] .lmd-bystander-avatar-wrap { width: 56px; height: 56px; }
+.lmd-bystander-living-row[data-count="5"] .lmd-bystander-avatar      { width: 56px; height: 56px; }
+.lmd-bystander-living-row[data-count="5"] .lmd-bystander-card-name   { font-size: clamp(0.95rem, 1.8vw, 2rem); }
+.lmd-bystander-living-row[data-count="5"] .lmd-bystander-card-type   { font-size: clamp(0.65rem, 1vw, 0.9rem); }
+.lmd-bystander-living-row[data-count="5"] .lmd-bystander-card-move   { font-size: clamp(0.65rem, 1vw, 0.9rem); }
+.lmd-bystander-living-row[data-count="5"] .lmd-bystander-type-badge  { font-size: 0.9rem; padding: 2px; bottom: -5px; right: -5px; }
+
+/* ── Graveyard row (dead bystanders) ── */
+
+.lmd-bystander-graveyard-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: center;
-  min-width: 0;
+  gap: clamp(0.75rem, 2vw, 1.5rem);
+  padding-top: 1.25rem;
+  border-top: 1px solid #222;
+}
+
+.lmd-bystander-grave-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  flex: 0 0 auto;
+  opacity: 0.55;
+  animation: lmd-fade-in 0.5s ease both;
+}
+
+.lmd-bystander-grave-avatar-wrap {
+  position: relative;
+  width: 72px;
+  height: 72px;
+}
+
+.lmd-bystander-grave-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 8px;
+  image-rendering: pixelated;
+  display: block;
+  filter: grayscale(60%) brightness(0.65);
+}
+
+.lmd-bystander-grave-avatar--fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1a0a0a;
+  color: #cc4444;
+  font-size: 1.75rem;
+  font-weight: 800;
+  border-radius: 8px;
+}
+
+/* Graphic X image stamped over the avatar */
+.lmd-bystander-grave-x {
+  position: absolute;
+  inset: -8px;
+  pointer-events: none;
+  object-fit: contain;
+}
+
+.lmd-bystander-grave-name {
+  font-size: clamp(0.6rem, 1vw, 0.8rem);
+  font-weight: 600;
+  color: #888;
+  margin: 0;
+  text-align: center;
+  font-style: italic;
+  max-width: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* ── Bystander avatar ── */

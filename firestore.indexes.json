@@ -70,6 +70,14 @@
         { "fieldPath": "status", "order": "ASCENDING" },
         { "fieldPath": "moderatedAt", "order": "DESCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "live-bystander-submissions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "showId", "order": "ASCENDING" },
+        { "fieldPath": "voterId", "order": "ASCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

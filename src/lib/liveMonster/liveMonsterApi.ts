@@ -12,6 +12,7 @@
 
 import {
   collection,
+  deleteField,
   doc,
   getDocs,
   onSnapshot,
@@ -50,10 +51,12 @@ export interface MonsterSession {
   /** Admin toggle: display renders emoji-only labels (true) vs emoji + text (false). */
   emojiMode: boolean;
   /**
-   * Doc ID of the bystander submission currently featured on the display.
-   * Null / undefined means no bystander is featured yet.
+   * Map of bystander submission ID → display state.
+   * Absent key = unfeatured (not on screen).
+   * 'featured' = shown in the living row on the projector.
+   * 'dead' = shown in the graveyard row with a red X.
    */
-  featuredBystanderId?: string | null;
+  bystanderStates?: Record<string, 'featured' | 'dead'>;
   updatedAt: Timestamp | null;
 }
 
@@ -124,16 +127,26 @@ export async function setBystanderResult(
   return setSlotResult(showId, field, value);
 }
 
-/** Push a bystander submission to the display, or pass null to clear it. */
-export async function featureBystander(
+/**
+ * Set the display state for a bystander submission on the projector.
+ * Pass null to remove the bystander from the display entirely.
+ */
+export async function setBystanderState(
   showId: string,
-  submissionId: string | null,
+  submissionId: string,
+  state: 'featured' | 'dead' | null,
 ): Promise<void> {
-  await setDoc(
-    doc(db, SESSION_COLLECTION, showId),
-    { featuredBystanderId: submissionId, updatedAt: serverTimestamp() },
-    { merge: true },
-  );
+  if (state === null) {
+    await updateDoc(doc(db, SESSION_COLLECTION, showId), {
+      [`bystanderStates.${submissionId}`]: deleteField(),
+      updatedAt: serverTimestamp(),
+    });
+  } else {
+    await updateDoc(doc(db, SESSION_COLLECTION, showId), {
+      [`bystanderStates.${submissionId}`]: state,
+      updatedAt: serverTimestamp(),
+    });
+  }
 }
 
 export async function setEmojiMode(showId: string, emojiMode: boolean): Promise<void> {
@@ -149,7 +162,7 @@ export async function resetMonsterSession(showId: string): Promise<void> {
     phase: 'idle',
     slotResults: {},
     emojiMode: false,
-    featuredBystanderId: null,
+    bystanderStates: {},
     updatedAt: serverTimestamp(),
   });
 
@@ -234,4 +247,3 @@ export function tallySlotVotes(votes: MonsterSlotVote[], optionCount: number): S
 
   return { optionCounts, writeIns, totalPreset, totalWriteIn, winnerIndex };
 }
-
