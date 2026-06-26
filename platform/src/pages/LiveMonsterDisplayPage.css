@@ -546,8 +546,6 @@
   position: relative;
   width: 72px;
   height: 72px;
-  background: #fff; /* white base so multiply blend makes the X white bg disappear */
-  border-radius: 8px;
 }
 
 .lmd-bystander-grave-avatar {
@@ -570,9 +568,8 @@
   border-radius: 8px;
 }
 
-/* Graphic X image stamped over the avatar.
-   mix-blend-mode: multiply makes the white PNG background disappear against
-   the white wrapper, leaving only the red X visible over the avatar. */
+/* Graphic X stamped over the avatar. z-index ensures it renders above the
+   avatar's CSS filter compositing layer. Transparent PNG from Canva. */
 .lmd-bystander-grave-x {
   position: absolute;
   top: -10px;
@@ -582,7 +579,6 @@
   object-fit: contain;
   pointer-events: none;
   z-index: 1;
-  mix-blend-mode: multiply;
 }
 
 .lmd-bystander-grave-name {
