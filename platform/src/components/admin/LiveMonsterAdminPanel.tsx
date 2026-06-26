@@ -117,6 +117,9 @@ export default function LiveMonsterAdminPanel() {
       await fn();
       setPushStatus('pushed');
       setTimeout(() => setPushStatus('idle'), 2200);
+    } catch (err) {
+      console.error('LiveMonsterAdminPanel action failed:', err);
+      setPushStatus('idle');
     } finally {
       setBusy(false);
     }
@@ -126,7 +129,10 @@ export default function LiveMonsterAdminPanel() {
     return (
       <div className="lm-panel">
         <h2 className="lm-panel-title">👹 Live Monster Builder</h2>
-        <p className="lm-hint">No config registered for showId <code>{showId}</code>.</p>
+        <p className="lm-hint">
+          No monster config registered for showId <code>{showId ?? '(none)'}</code>.
+          Set <code>config/platform.currentShowId</code> in Firestore to <code>monster-of-the-week</code>.
+        </p>
       </div>
     );
   }
@@ -151,15 +157,19 @@ export default function LiveMonsterAdminPanel() {
   }
 
   const next = nextPhase();
+  const lockedSlotCount = config.slots.filter((s) => slotResults[s.id] != null).length;
   const nextLabel =
     next === null ? null :
     next === 'done' ? '✓ Done' :
-    `→ ${PHASE_LABELS[next]}`;
+    next === 'reveal' && lockedSlotCount < config.slots.length
+      ? `→ Reveal (${lockedSlotCount}/${config.slots.length} locked)`
+      : `→ ${PHASE_LABELS[next]}`;
 
   return (
     <div className="lm-panel">
       <div className="lm-panel-header">
         <h2 className="lm-panel-title">👹 Live Monster Builder</h2>
+        <span className="lm-show-badge" title="config/platform.currentShowId">show: {showId}</span>
       </div>
 
       {/* Phase bar — two labeled groups: Lifecycle | Bystander */}

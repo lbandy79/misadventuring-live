@@ -65,6 +65,7 @@ function CastListTab() {
       })
       .catch((err) => {
         console.error('Failed to load cast list:', err);
+        setError('Failed to load cast list. Check your admin permissions.');
         setLoading(false);
       });
   }, []);

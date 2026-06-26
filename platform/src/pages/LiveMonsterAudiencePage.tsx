@@ -235,7 +235,7 @@ export default function LiveMonsterAudiencePage() {
                 disabled={submitting || !canSubmitSlot}
                 onClick={() => handleSlotSubmit(slot.id)}
               >
-                {hasSubmittedThisSlot ? '✓ Update Answer' : 'Submit'}
+                {hasSubmittedThisSlot ? '✓ Change My Choice' : 'Submit'}
               </button>
 
               {hasSubmittedThisSlot && !submitting && (

@@ -33,5 +33,5 @@ export type {
   MonsterSlotConfig,
   MonsterSlotOption,
   BystanderConfig,
-  BystanderMoveOption,
+  BystanderMovePreset,
 } from './types';

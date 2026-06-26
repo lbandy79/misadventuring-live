@@ -190,6 +190,43 @@
   gap: 0.3rem;
 }
 
+/* When an icon is present, switch to a row layout with icon on the left */
+.lmd-stack-card.with-icon {
+  flex-direction: row;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.lmd-stack-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.lmd-slot-icon {
+  flex-shrink: 0;
+  object-fit: contain;
+  animation: lmd-icon-pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+}
+
+.lmd-slot-emoji {
+  flex-shrink: 0;
+  font-size: 3rem;
+  line-height: 1;
+  animation: lmd-icon-pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+}
+
+.lmd-reveal-screen .lmd-slot-emoji {
+  font-size: 4.5rem;
+}
+
+@keyframes lmd-icon-pop {
+  0%   { opacity: 0; transform: scale(0.6); }
+  60%  { transform: scale(1.12); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
 .lmd-stack-card.locked {
   background: #1a1a1a;
   border-left: 4px solid #cc4444;
@@ -418,6 +455,15 @@
   color: #eee;
   font-style: italic;
   animation: lmd-token-stamp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+  display: flex;
+  align-items: center;
+  gap: 0.35em;
+}
+
+.lmd-strip-emoji {
+  font-size: 1.1em;
+  line-height: 1;
+  flex-shrink: 0;
 }
 
 .lmd-strip-pending {
@@ -434,6 +480,45 @@
   align-items: center;
   justify-content: center;
   min-width: 0;
+}
+
+/* ── Bystander avatar ── */
+
+.lmd-bystander-avatar-wrap {
+  position: relative;
+  width: 140px;
+  height: 140px;
+}
+
+.lmd-bystander-avatar {
+  width: 140px;
+  height: 140px;
+  border-radius: 12px;
+  image-rendering: pixelated;
+  display: block;
+}
+
+.lmd-bystander-avatar--fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1a0a0a;
+  color: #cc4444;
+  font-size: 3.5rem;
+  font-weight: 800;
+  border-radius: 12px;
+}
+
+.lmd-bystander-type-badge {
+  position: absolute;
+  bottom: -10px;
+  right: -10px;
+  font-size: 1.6rem;
+  line-height: 1;
+  background: #0d0d14;
+  border-radius: 50%;
+  padding: 5px;
+  border: 1px solid #2a2a3e;
 }
 
 /* ── Featured bystander card ── */
@@ -521,6 +606,23 @@
   font-family: monospace;
   margin: 0;
   text-align: center;
+}
+
+/* ── Corner Logo (pinned, always visible) ── */
+
+.lmd-corner-logo {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 1.5rem;
+  z-index: 10;
+  opacity: 0.7;
+}
+
+.lmd-corner-logo-img {
+  width: 140px;
+  height: 140px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.8));
 }
 
 /* ── Animations ── */

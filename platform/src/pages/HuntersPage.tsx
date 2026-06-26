@@ -9,7 +9,7 @@
  * Own hunters get an Edit button that returns to the creation wizard.
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@mtp/lib';
 import {
@@ -70,13 +70,14 @@ export default function HuntersPage() {
   const [sheets, setSheets] = useState<HunterSheet[]>([]);
   const [sheetsLoading, setSheetsLoading] = useState(true);
   const [system, setSystem] = useState<MotWSystem | null>(null);
+  const [systemError, setSystemError] = useState(false);
 
   const accentStyle = { '--accent': ACCENT, '--accent-ink': ACCENT_INK } as React.CSSProperties;
 
   useEffect(() => {
     import('../../../src/systems/monster-of-the-week.system.json')
       .then((mod) => setSystem((mod.default ?? mod) as unknown as MotWSystem))
-      .catch(() => null);
+      .catch(() => setSystemError(true));
   }, []);
 
   useEffect(() => {
@@ -134,6 +135,12 @@ export default function HuntersPage() {
         <p className="join-eyebrow">Monster of the Week · June 27, 2026</p>
         <h1 className="join-title">The party.</h1>
       </header>
+
+      {systemError && (
+        <p className="npc-admin-panel__error" role="alert">
+          Could not load character data — move descriptions and basic moves won't display. Refresh to try again.
+        </p>
+      )}
 
       {justCreated && (
         <div className="hunters-created-banner" role="status">
@@ -221,12 +228,21 @@ function HunterCard({
   isOwn: boolean;
 }) {
   const [expanded, setExpanded] = useState(false);
+  const articleRef = useRef<HTMLDivElement>(null);
+
+  function handlePrint() {
+    const el = articleRef.current;
+    if (!el) { window.print(); return; }
+    el.setAttribute('data-printing', 'true');
+    window.print();
+    window.addEventListener('afterprint', () => el.removeAttribute('data-printing'), { once: true });
+  }
 
   const line = (playbook?.ratingLines[sheet.ratingLineIndex] ?? null) as Record<string, number> | null;
   const selectedMoves = playbook?.moves.filter((m) => sheet.selectedMoveIds.includes(m.name)) ?? [];
 
   return (
-    <article className="hunter-card">
+    <article className="hunter-card" ref={articleRef}>
       {/* ── Card header — always visible ── */}
       <div className="hunter-card__header">
         <div>
@@ -281,7 +297,7 @@ function HunterCard({
             <button
               type="button"
               className="btn-ghost hunter-card__print-btn"
-              onClick={() => window.print()}
+              onClick={handlePrint}
             >
               Print / Save as PDF
             </button>

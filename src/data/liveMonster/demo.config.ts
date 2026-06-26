@@ -25,6 +25,8 @@ export const demoMonsterConfig: MonsterBuilderConfig = {
   showId: 'monster-of-the-week',
   showName: 'Monster of the Week — Live',
 
+  // Icon slugs for game-icons: verify/browse at https://game-icons.net
+  // Fluent Emoji names: verify/browse at https://github.com/microsoft/fluentui-emoji/tree/main/assets
   slots: [
     {
       id: 'appearance',
@@ -32,12 +34,12 @@ export const demoMonsterConfig: MonsterBuilderConfig = {
       revealPrefix: 'It appears as',
       allowWriteIn: true,
       options: [
-        { text: 'Too Many',      emoji: '🕷️', typeHints: ['beast', 'devourer'] },
-        { text: 'Wrong Skin',    emoji: '🩸', typeHints: ['parasite', 'queen'] },
-        { text: 'Almost Human',  emoji: '👤', typeHints: ['trickster', 'parasite'] },
-        { text: 'All Teeth',     emoji: '🦷', typeHints: ['beast', 'devourer'] },
-        { text: 'Living Shadow', emoji: '🌑', typeHints: ['sorcerer', 'devourer'] },
-        { text: 'Stolen Faces',  emoji: '🪞', typeHints: ['collector', 'trickster'] },
+        { text: 'Too Many',      emoji: '🕷️', typeHints: ['beast', 'devourer'],     gameIcon: 'lorc/spider-face',       fluentEmoji: 'Spider' },
+        { text: 'Wrong Skin',    emoji: '🩸', typeHints: ['parasite', 'queen'],      gameIcon: 'lorc/dripping-goo',      fluentEmoji: 'Drop of Blood' },
+        { text: 'Almost Human',  emoji: '👤', typeHints: ['trickster', 'parasite'],  gameIcon: 'delapouite/person',       fluentEmoji: 'Bust in Silhouette' },
+        { text: 'All Teeth',     emoji: '🦷', typeHints: ['beast', 'devourer'],      gameIcon: 'lorc/fangs',             fluentEmoji: 'Tooth' },
+        { text: 'Living Shadow', emoji: '🌑', typeHints: ['sorcerer', 'devourer'],   gameIcon: 'lorc/shadow-follower',   fluentEmoji: 'New Moon' },
+        { text: 'Stolen Faces',  emoji: '🪞', typeHints: ['collector', 'trickster'], gameIcon: 'lorc/cracked-glass',     fluentEmoji: 'Mirror' },
       ],
     },
     {
@@ -46,12 +48,12 @@ export const demoMonsterConfig: MonsterBuilderConfig = {
       revealPrefix: 'It lurks in',
       allowWriteIn: true,
       options: [
-        { text: 'Empty Houses',   emoji: '🚪', typeHints: ['executioner', 'torturer'] },
-        { text: 'Still Water',    emoji: '🌊', typeHints: ['destroyer', 'beast'] },
-        { text: 'Deep Woods',     emoji: '🌲', typeHints: ['beast', 'torturer'] },
-        { text: 'Your Walls',     emoji: '🛏️', typeHints: ['parasite', 'queen'] },
-        { text: 'Holy Ground',    emoji: '⛪', typeHints: ['sorcerer', 'destroyer'] },
-        { text: 'The Underneath', emoji: '🕳️', typeHints: ['devourer', 'beast'] },
+        { text: 'Empty Houses',   emoji: '🚪', typeHints: ['executioner', 'torturer'], gameIcon: 'delapouite/house',        fluentEmoji: 'House' },
+        { text: 'Still Water',    emoji: '🌊', typeHints: ['destroyer', 'beast'],      gameIcon: 'lorc/water-drop',         fluentEmoji: 'Water Wave' },
+        { text: 'Deep Woods',     emoji: '🌲', typeHints: ['beast', 'torturer'],       gameIcon: 'delapouite/pine-tree',    fluentEmoji: 'Evergreen Tree' },
+        { text: 'Your Walls',     emoji: '🛏️', typeHints: ['parasite', 'queen'],      gameIcon: 'delapouite/door',         fluentEmoji: 'Bed' },
+        { text: 'Holy Ground',    emoji: '⛪', typeHints: ['sorcerer', 'destroyer'],   gameIcon: 'delapouite/church',       fluentEmoji: 'Church' },
+        { text: 'The Underneath', emoji: '🕳️', typeHints: ['devourer', 'beast'],      gameIcon: 'delapouite/tunnel',       fluentEmoji: 'Hole' },
       ],
     },
     {
@@ -60,12 +62,12 @@ export const demoMonsterConfig: MonsterBuilderConfig = {
       revealPrefix: 'When it hunts, it',
       allowWriteIn: true,
       options: [
-        { text: 'Wears Faces',    emoji: '🎭', typeHints: ['trickster', 'queen'] },
-        { text: 'Sings First',    emoji: '🎵', typeHints: ['sorcerer', 'trickster'] },
-        { text: 'Never Blinks',   emoji: '👁️', typeHints: ['executioner', 'torturer'] },
-        { text: 'Whispers Names', emoji: '🤫', typeHints: ['sorcerer', 'parasite'] },
-        { text: 'Hollows Them',   emoji: '🩻', typeHints: ['devourer', 'parasite'] },
-        { text: 'Snuffs Light',   emoji: '🕯️', typeHints: ['destroyer', 'executioner'] },
+        { text: 'Wears Faces',    emoji: '🎭', typeHints: ['trickster', 'queen'],      gameIcon: 'lorc/drama-masks',        fluentEmoji: 'Performing Arts' },
+        { text: 'Sings First',    emoji: '🎵', typeHints: ['sorcerer', 'trickster'],   gameIcon: 'delapouite/musical-notes', fluentEmoji: 'Musical Notes' },
+        { text: 'Never Blinks',   emoji: '👁️', typeHints: ['executioner', 'torturer'], gameIcon: 'lorc/eye',                fluentEmoji: 'Eye' },
+        { text: 'Whispers Names', emoji: '🤫', typeHints: ['sorcerer', 'parasite'],    gameIcon: 'lorc/whistle',            fluentEmoji: 'Shushing Face' },
+        { text: 'Hollows Them',   emoji: '🩻', typeHints: ['devourer', 'parasite'],    gameIcon: 'lorc/skeleton',           fluentEmoji: 'Anatomical Heart' },
+        { text: 'Snuffs Light',   emoji: '🕯️', typeHints: ['destroyer', 'executioner'], gameIcon: 'lorc/candle-light',     fluentEmoji: 'Candle' },
       ],
     },
     {
@@ -73,13 +75,17 @@ export const demoMonsterConfig: MonsterBuilderConfig = {
       label: "What's the only way to stop it?",
       revealPrefix: 'The only way to stop it:',
       allowWriteIn: true,
+      // secret: audience votes on this, but the result never appears on the
+      // projector — GM-only via admin panel. Hunters must discover the weakness
+      // during play; showing it on screen would give the game away.
+      secret: true,
       options: [
-        { text: 'Burn It',        emoji: '🔥', typeHints: ['destroyer', 'beast'] },
-        { text: 'True Name',      emoji: '⚙️', typeHints: ['sorcerer', 'trickster'] },
-        { text: 'Its Reflection', emoji: '🪞', typeHints: ['trickster', 'queen'] },
-        { text: 'Salt Circle',    emoji: '🧂', typeHints: ['sorcerer', 'destroyer'] },
-        { text: 'Old Blood',      emoji: '🩸', typeHints: ['parasite', 'sorcerer'] },
-        { text: 'First Light',    emoji: '🌅', typeHints: ['devourer', 'torturer'] },
+        { text: 'Burn It',        emoji: '🔥', typeHints: ['destroyer', 'beast'],     gameIcon: 'lorc/fire-ray',           fluentEmoji: 'Fire' },
+        { text: 'True Name',      emoji: '⚙️', typeHints: ['sorcerer', 'trickster'],  gameIcon: 'lorc/book',               fluentEmoji: 'Open Book' },
+        { text: 'Its Reflection', emoji: '🪞', typeHints: ['trickster', 'queen'],     gameIcon: 'lorc/cracked-glass',      fluentEmoji: 'Mirror' },
+        { text: 'Salt Circle',    emoji: '🧂', typeHints: ['sorcerer', 'destroyer'],  gameIcon: 'lorc/ringed-planet',      fluentEmoji: 'Salt' },
+        { text: 'Old Blood',      emoji: '🩸', typeHints: ['parasite', 'sorcerer'],   gameIcon: 'lorc/dripping-goo',       fluentEmoji: 'Drop of Blood' },
+        { text: 'First Light',    emoji: '🌅', typeHints: ['devourer', 'torturer'],   gameIcon: 'lorc/sun-rise',           fluentEmoji: 'Sunrise' },
       ],
     },
   ],

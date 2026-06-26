@@ -4310,4 +4310,24 @@ details[open] .helper-footer__summary::before { content: '▾ '; }
   .motw-sheet__print-btn { display: none !important; }
   .motw-jump-btn { display: none !important; }
   body { background: white !important; font-size: 11px; }
+
+  /* ── Hunter card isolation (HuntersPage) ──────────────────────────────────
+     Only the card that set data-printing="true" is shown. All other cards,
+     section headings, and nav are hidden so the sheet prints cleanly. */
+  .hunters-section__title,
+  .hunters-create-another,
+  .hunters-created-banner,
+  .hunter-card__actions,
+  .hunter-card__print-btn,
+  .hunters-empty { display: none !important; }
+
+  .hunter-card { display: none !important; }
+  .hunter-card[data-printing] {
+    display: block !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+  /* Force the full sheet open even if the card was collapsed */
+  .hunter-card[data-printing] .hunter-card__full-sheet { display: flex !important; }
 }
