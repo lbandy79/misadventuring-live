@@ -546,6 +546,8 @@
   position: relative;
   width: 72px;
   height: 72px;
+  background: #fff; /* white base so multiply blend makes the X white bg disappear */
+  border-radius: 8px;
 }
 
 .lmd-bystander-grave-avatar {
@@ -568,12 +570,19 @@
   border-radius: 8px;
 }
 
-/* Graphic X image stamped over the avatar */
+/* Graphic X image stamped over the avatar.
+   mix-blend-mode: multiply makes the white PNG background disappear against
+   the white wrapper, leaving only the red X visible over the avatar. */
 .lmd-bystander-grave-x {
   position: absolute;
-  inset: -8px;
-  pointer-events: none;
+  top: -10px;
+  left: -10px;
+  width: calc(100% + 20px);
+  height: calc(100% + 20px);
   object-fit: contain;
+  pointer-events: none;
+  z-index: 1;
+  mix-blend-mode: multiply;
 }
 
 .lmd-bystander-grave-name {
