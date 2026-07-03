@@ -34,13 +34,13 @@ function recapHrefFor(show: Show): string | null {
 }
 
 const LATEST_RECAP = {
-  showName: 'Mad Libs Honey Heist',
-  href: 'https://www.youtube.com/watch?v=7qH6W5Nfy6Q',
+  showName: 'Monster of the Week — Episode One',
+  href: 'https://www.youtube.com/watch?v=7T4dgK0Xg2w&t=156s',
 };
 const NEXT_SHOW = {
   showName: 'Monster of the Week',
-  tagline: 'Something is hunting the town. You decide what.',
-  dateLabel: 'June 27',
+  tagline: 'The case isn\'t closed. Come back and see where it goes.',
+  dateLabel: 'July 25',
   href: '/shows/monster-of-the-week',
 };
 

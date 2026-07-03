@@ -4,20 +4,33 @@ import HeroSection from './recap/HeroSection';
 import FeaturedCharacter from './recap/FeaturedCharacter';
 import NpcDisplayRow from '../components/display/NpcDisplayRow';
 import MonsterStickyNote from './recap/MonsterStickyNote';
+import MonsterRevealCard from './recap/MonsterRevealCard';
 import ComingNextStickyNote from './recap/ComingNextStickyNote';
 import AboutPageFooter from './recap/AboutPageFooter';
 import { getRecapConfig } from './recap/recapConfig';
+import { getMonsterConfig } from '@mtp/data/liveMonster';
+import { BYSTANDER_TYPES } from '@mtp/data/liveMonster/bystanderTypes';
 import {
   fetchRecapData,
   fetchHighlightBeats,
+  fetchMonsterSession,
+  fetchBystanderSubmissions,
   type RecapData,
   type Beat,
+  type MonsterSession,
+  type BystanderSubmission,
 } from './recap/recapApi';
 import './recap/recap.css';
 
 type LoadState =
   | { status: 'loading' }
-  | { status: 'ready'; data: RecapData; stingerHighlights: Beat[] }
+  | {
+      status: 'ready';
+      data: RecapData;
+      stingerHighlights: Beat[];
+      monsterSession: MonsterSession | null;
+      bystanders: BystanderSubmission[];
+    }
   | { status: 'error'; message: string };
 
 export default function RecapPage() {
@@ -34,9 +47,15 @@ export default function RecapPage() {
     setLoad({ status: 'loading' });
 
     const beatIds = config?.stingerHighlights ?? [];
-    Promise.all([fetchRecapData(showId), fetchHighlightBeats(beatIds)])
-      .then(([data, stingerHighlights]) => {
-        if (!cancelled) setLoad({ status: 'ready', data, stingerHighlights });
+    const wantMonster = config?.monsterStatus === 'available';
+    Promise.all([
+      fetchRecapData(showId),
+      fetchHighlightBeats(beatIds),
+      wantMonster ? fetchMonsterSession(showId) : Promise.resolve(null),
+      wantMonster ? fetchBystanderSubmissions(showId) : Promise.resolve([]),
+    ])
+      .then(([data, stingerHighlights, monsterSession, bystanders]) => {
+        if (!cancelled) setLoad({ status: 'ready', data, stingerHighlights, monsterSession, bystanders });
       })
       .catch((err) => {
         console.error('[recap] fetch failed:', err);
@@ -82,10 +101,11 @@ export default function RecapPage() {
     );
   }
 
-  const { data, stingerHighlights } = load;
+  const { data, stingerHighlights, monsterSession, bystanders } = load;
   const featured = config.featuredReservationId
     ? data.npcs.find((n) => n.reservationId === config.featuredReservationId) ?? null
     : null;
+  const monsterConfig = config.monsterStatus === 'available' ? getMonsterConfig(showId) : null;
 
   const npcCount = data.npcCount;
   const hasFunnel = data.reservationCount > 0 || npcCount > 0;
@@ -170,6 +190,39 @@ export default function RecapPage() {
           <NpcDisplayRow
             npcs={featured ? data.npcs.filter((n) => n.id !== featured.id) : data.npcs}
           />
+        </section>
+      )}
+
+      {bystanders.length > 0 && (
+        <section className="recap-section">
+          <h2 className="recap-section-heading">Who Was in Town</h2>
+          <p className="recap-funnel">
+            <strong>{bystanders.length}</strong> {bystanders.length === 1 ? 'bystander' : 'bystanders'} submitted by the audience.
+          </p>
+          <ul className="recap-bystander-list">
+            {bystanders.map((b) => {
+              const typeInfo = BYSTANDER_TYPES[b.typeId as keyof typeof BYSTANDER_TYPES];
+              const move = b.movePreset
+                ?? (b.customTrigger && b.customEffect ? `When ${b.customTrigger}, ${b.customEffect}` : null);
+              return (
+                <li key={b.id} className="recap-bystander-item">
+                  <span className="recap-bystander-name">{b.name}</span>
+                  {typeInfo && (
+                    <span className="recap-bystander-type">
+                      {typeInfo.emoji} {typeInfo.label}
+                    </span>
+                  )}
+                  {move && <span className="recap-bystander-move">{move}</span>}
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+
+      {config.monsterStatus === 'available' && monsterSession && monsterConfig && (
+        <section className="recap-section">
+          <MonsterRevealCard session={monsterSession} config={monsterConfig} />
         </section>
       )}
 

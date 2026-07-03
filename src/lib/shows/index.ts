@@ -16,6 +16,7 @@ export {
   type PlatformConfig,
 } from './ShowProvider';
 export { beastOfRidgefallShow } from './beast-of-ridgefall.show';
+export { monsterOfTheWeekEp1Show } from './monster-of-the-week-ep1.show';
 export { betawaveTapesShow } from './betawave-tapes.show';
 export { madLibsHoneyHeistShow } from './mad-libs-honey-heist.show';
 export { mysteryOfIpIsleShow } from './mystery-of-ip-isle.show';

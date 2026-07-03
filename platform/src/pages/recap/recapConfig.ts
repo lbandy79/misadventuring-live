@@ -53,7 +53,45 @@ export interface RecapConfig {
   next?: ComingNext;
 }
 
+/**
+ * POST-SHOW CHECKLIST — do this after every show:
+ *
+ * 1. Add an entry here keyed by the Firestore episode showId.
+ *    - monsterStatus: 'available' for MotW (fetches live monster + bystanders automatically)
+ *    - monsterStatus: 'lost' if the builder wasn't run or data is gone
+ *    - fullEpisodeYoutubeId: add once the recording is up
+ *    - next: point at the upcoming show
+ *
+ * 2. Flip the previous show's `era` to 'past' in src/lib/shows/<series>.show.ts
+ *    and update `nextDate` to the new show's date.
+ *
+ * 3. Update LATEST_RECAP + NEXT_SHOW in platform/src/pages/LandingPage.tsx.
+ *
+ * 4. Set Firestore config/platform.currentShowId to the new episode showId on show day.
+ *    For MotW: also ensure a new episode config exists in src/data/liveMonster/
+ *    and is registered in src/data/liveMonster/index.ts.
+ */
 export const recapConfigs: Record<string, RecapConfig> = {
+  'monster-of-the-week-2026-06-27': {
+    showId: 'monster-of-the-week-2026-06-27',
+    seriesName: 'Monster of the Week',
+    episodeTitle: 'Episode One',
+    chapter: 'Episode One',
+    date: '2026-06-27',
+    venue: 'Lucky Straws, Winter Garden, FL',
+    systemName: 'Monster of the Week',
+    costume: 'paper-base',
+    fullEpisodeYoutubeId: '7T4dgK0Xg2w?start=156',
+    monsterStatus: 'lost',
+    next: {
+      date: '2026-07-25',
+      venue: 'Lucky Straws, Winter Garden, FL',
+      systemName: 'Monster of the Week',
+      rsvpHref: '/shows/monster-of-the-week',
+      ctaLabel: 'The story continues →',
+      blurb: 'The case isn\'t closed. Come back July 25 to see where it goes.',
+    },
+  },
   'honey-heist-madlibs-2026-05-23': {
     showId: 'honey-heist-madlibs-2026-05-23',
     seriesName: 'Mad Libs Honey Heist',
@@ -66,7 +104,7 @@ export const recapConfigs: Record<string, RecapConfig> = {
     fullEpisodeYoutubeId: '7qH6W5Nfy6Q',
     monsterStatus: 'available',
     next: {
-      date: '2026-06-27',
+      date: '2026-07-25',
       venue: 'Lucky Straws, Winter Garden, FL',
       systemName: 'Monster of the Week',
       rsvpHref: '/shows/monster-of-the-week',

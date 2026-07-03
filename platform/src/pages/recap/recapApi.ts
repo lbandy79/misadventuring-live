@@ -15,6 +15,10 @@ import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firesto
 import { db } from '@mtp/firebase';
 import type { Reservation } from '@mtp/lib';
 import { BEATS_COLLECTION, type Beat } from '../../../../src/lib/npcs/npcApi';
+import type { MonsterSession } from '@mtp/lib/liveMonster/liveMonsterApi';
+import type { BystanderSubmission } from '@mtp/lib/liveMonster/bystanderSubmissionsApi';
+
+export type { MonsterSession, BystanderSubmission };
 
 export type { Beat };
 
@@ -62,6 +66,20 @@ function isPublicEligible(raw: any): boolean {
   const displayStr: string = raw.displayName ?? raw.name ?? '';
   if (TEST_NAME_PATTERN.test(displayStr)) return false;
   return true;
+}
+
+/** Fetch the live monster session for a show (used on recap when monsterStatus === 'available'). */
+export async function fetchMonsterSession(showId: string): Promise<MonsterSession | null> {
+  const snap = await getDoc(doc(db, 'live-monster-session', showId));
+  return snap.exists() ? (snap.data() as MonsterSession) : null;
+}
+
+/** Fetch all bystander submissions for a show (used on recap for the NPC grid). */
+export async function fetchBystanderSubmissions(showId: string): Promise<BystanderSubmission[]> {
+  const snap = await getDocs(
+    query(collection(db, 'live-bystander-submissions'), where('showId', '==', showId)),
+  );
+  return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<BystanderSubmission, 'id'>) }));
 }
 
 /** Fetch specific Beat documents by ID for Stinger highlight display. */

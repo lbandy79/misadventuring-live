@@ -103,6 +103,33 @@ The system JSON is loaded dynamically at runtime: `` import(`../../../src/system
 
 ---
 
+## Show lifecycle checklist
+
+### After every show
+
+1. **Flip `config/platform.currentShowId` in Firestore** to the new episode's showId (e.g. `monster-of-the-week-2026-07-25`). Do this on show day before doors open. Flip it back to `idle` or the next show's id after the show ends.
+
+2. **Add a recap config entry** in [platform/src/pages/recap/recapConfig.ts](platform/src/pages/recap/recapConfig.ts):
+   - Set `showId` to the episode id (same value used in Firestore — must match exactly)
+   - Set `monsterStatus: 'available'` for MotW shows (pulls live monster + bystanders automatically)
+   - Set `monsterStatus: 'lost'` if the builder wasn't run or data is gone
+   - Fill in `fullEpisodeYoutubeId` once the recording is live
+   - Set `next` to point at the upcoming show
+
+3. **Archive the show** in [src/lib/shows/<series>.show.ts](src/lib/shows/):
+   - Change `era` to `'past'` once it has aired and the next show's file is in place
+   - Update `nextDate` on the active show to the new date
+
+4. **Update LandingPage constants** in [platform/src/pages/LandingPage.tsx](platform/src/pages/LandingPage.tsx):
+   - `LATEST_RECAP` → new show name + YouTube URL
+   - `NEXT_SHOW` → next show name + date label + href
+
+### Before each MotW show specifically
+
+5. **New episode config** — copy `src/data/liveMonster/monster-of-the-week-ep2.config.ts`, increment the episode number and `showId` to match the new date, register in `src/data/liveMonster/index.ts`.
+
+---
+
 ## Responsive breakpoints
 
 | px | Usage |

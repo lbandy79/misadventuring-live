@@ -525,6 +525,78 @@
 }
 .recap-sticky-monster .recap-sticky-body { color: var(--ink-red); font-style: italic; }
 
+/* Monster reveal card — when data is available */
+.recap-monster-traits {
+  margin: 0.75rem 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.recap-monster-trait {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.4rem;
+  align-items: baseline;
+}
+.recap-monster-trait-prefix {
+  font-family: 'Special Elite', monospace;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-blue);
+  flex-shrink: 0;
+}
+.recap-monster-trait-value {
+  font-family: 'Permanent Marker', cursive;
+  font-size: 1.1rem;
+  color: var(--ink-black);
+  margin: 0;
+}
+.recap-monster-secret-note {
+  margin: 1rem 0 0;
+  font-size: 0.9rem;
+  color: var(--ink-red);
+  font-style: italic;
+}
+
+/* Bystander list */
+.recap-bystander-list {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0;
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+.recap-bystander-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.75rem 1rem;
+  background: var(--paper-warm);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
+  font-family: 'Kalam', sans-serif;
+}
+.recap-bystander-name {
+  font-family: 'Permanent Marker', cursive;
+  font-size: 1.05rem;
+  color: var(--ink-black);
+}
+.recap-bystander-type {
+  font-family: 'Special Elite', monospace;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-blue);
+}
+.recap-bystander-move {
+  font-size: 0.9rem;
+  color: var(--ink-black);
+  font-style: italic;
+  margin-top: 0.2rem;
+}
+
 .recap-sticky-next {
   background: #e6f4ff;
   border-color: rgba(26, 58, 122, 0.2);
