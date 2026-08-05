@@ -12,6 +12,7 @@
 
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
+import { archiveSingleton } from '../archive';
 import type { VoteOption } from '../types/interaction.types';
 
 export interface LaunchVoteInput {
@@ -32,6 +33,8 @@ function makeVoteSessionId(): string {
 
 export async function launchVote(input: LaunchVoteInput): Promise<LaunchedVote> {
   const sessionId = makeVoteSessionId();
+
+  await archiveSingleton('votes', 'current-vote', input.showId);
 
   await setDoc(doc(db, 'config', 'active-interaction'), {
     type: 'vote',
@@ -67,6 +70,8 @@ export async function resetVoteCounts(input: {
   activeInteraction: Record<string, unknown>;
 }): Promise<LaunchedVote> {
   const sessionId = makeVoteSessionId();
+
+  await archiveSingleton('votes', 'current-vote', input.showId);
 
   const initialCounts: Record<string, number> = {};
   input.options.forEach((opt) => {

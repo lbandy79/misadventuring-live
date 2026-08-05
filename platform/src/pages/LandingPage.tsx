@@ -34,13 +34,87 @@ function recapHrefFor(show: Show): string | null {
 }
 
 const LATEST_RECAP = {
-  showName: 'Monster of the Week — Episode One',
-  href: 'https://www.youtube.com/watch?v=7T4dgK0Xg2w&t=156s',
+  showName: 'Monster of the Week — Episode Two',
+  href: 'https://www.youtube.com/watch?v=UwHhy-TuFss&t=12s',
 };
+
+const SOCIAL_LINKS: Array<{
+  name: string;
+  handle: string;
+  href: string;
+  icon: 'instagram' | 'youtube' | 'facebook' | 'tiktok';
+}> = [
+  {
+    name: 'Instagram',
+    handle: '@themisadventuringparty',
+    href: 'https://www.instagram.com/themisadventuringparty',
+    icon: 'instagram',
+  },
+  {
+    name: 'YouTube',
+    handle: '@TheMisadventuringParty',
+    href: 'https://www.youtube.com/@TheMisadventuringParty',
+    icon: 'youtube',
+  },
+  {
+    name: 'TikTok',
+    handle: '@themisadventuringparty',
+    href: 'https://www.tiktok.com/@themisadventuringparty',
+    icon: 'tiktok',
+  },
+  {
+    name: 'Facebook',
+    handle: 'The Misadventuring Party',
+    href: 'https://www.facebook.com/profile.php?id=100094097430762',
+    icon: 'facebook',
+  },
+];
+
+/** Hand-drawn-style outline icons — kept as strokes so they read like doodles. */
+function SocialIcon({ icon }: { icon: (typeof SOCIAL_LINKS)[number]['icon'] }) {
+  const strokeProps = {
+    fill: 'none',
+    stroke: 'currentColor',
+    strokeWidth: 1.8,
+    strokeLinecap: 'round' as const,
+    strokeLinejoin: 'round' as const,
+  };
+  switch (icon) {
+    case 'instagram':
+      return (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="3" y="3" width="18" height="18" rx="5" {...strokeProps} />
+          <circle cx="12" cy="12" r="4" {...strokeProps} />
+          <circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none" />
+        </svg>
+      );
+    case 'youtube':
+      return (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="2.5" y="5.5" width="19" height="13" rx="3.5" {...strokeProps} />
+          <path d="M10 9.2 15 12l-5 2.8z" fill="currentColor" stroke="none" />
+        </svg>
+      );
+    case 'tiktok':
+      return (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M14 4v10.5a3.8 3.8 0 1 1-3.8-3.8" {...strokeProps} />
+          <path d="M14 4c.4 2.6 2.4 4.6 5 5" {...strokeProps} />
+        </svg>
+      );
+    case 'facebook':
+      return (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M13.5 21V9.5c0-2.2 1.3-3.5 3.5-3.5h1.5" {...strokeProps} />
+          <path d="M10.5 12.5h6" {...strokeProps} />
+        </svg>
+      );
+  }
+}
 const NEXT_SHOW = {
   showName: 'Monster of the Week',
-  tagline: 'The case isn\'t closed. Come back and see where it goes.',
-  dateLabel: 'July 25',
+  tagline: 'The case isn\'t closed.',
+  dateLabel: 'September 19',
   href: '/shows/monster-of-the-week',
 };
 
@@ -188,6 +262,31 @@ export default function LandingPage() {
             })}
           </div>
         )}
+      </section>
+
+      <section className="follow-party">
+        <h2 className="section-title">Follow the party</h2>
+        <p className="follow-party-lede">
+          The next show date drops here first — plus clips, recaps, and
+          behind-the-screen chaos.
+        </p>
+        <div className="social-row">
+          {SOCIAL_LINKS.map((s) => (
+            <a
+              key={s.name}
+              href={s.href}
+              className="social-sticker"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <SocialIcon icon={s.icon} />
+              <span className="social-sticker-text">
+                <span className="social-name">{s.name}</span>
+                <span className="social-handle">{s.handle}</span>
+              </span>
+            </a>
+          ))}
+        </div>
       </section>
     </>
   );
