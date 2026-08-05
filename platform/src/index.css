@@ -491,6 +491,63 @@ textarea:focus-visible {
   color: var(--ink-blue);
 }
 
+/* ── Follow the party (social links) ────────────────────────────── */
+.follow-party {
+  margin-bottom: 2.5rem;
+}
+.follow-party-lede {
+  font-family: var(--font-hand);
+  font-size: 1.05rem;
+  color: var(--ink-blue);
+  margin: -0.25rem 0 1rem;
+  padding-left: 0.25rem;
+}
+.social-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+}
+.social-sticker {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0.95rem;
+  background: var(--paper-warm);
+  border: 1.5px solid var(--ink-black);
+  border-radius: 10px;
+  box-shadow: 2px 3px 0 rgba(0, 0, 0, 0.14);
+  color: var(--ink-black);
+  text-decoration: none;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, color 0.12s ease;
+}
+.social-row .social-sticker:nth-child(odd) { transform: rotate(-1.2deg); }
+.social-row .social-sticker:nth-child(even) { transform: rotate(1deg); }
+.social-row .social-sticker:hover {
+  transform: rotate(0deg) translateY(-2px);
+  box-shadow: 3px 5px 0 rgba(0, 0, 0, 0.18);
+  color: var(--ink-red);
+}
+.social-sticker svg {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+.social-sticker-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+.social-name {
+  font-family: var(--font-marker);
+  font-size: 0.95rem;
+}
+.social-handle {
+  font-family: var(--font-type);
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  color: var(--ink-blue);
+}
+
 .show-grid {
   display: grid;
   gap: 1rem;
