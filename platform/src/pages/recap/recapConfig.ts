@@ -71,24 +71,9 @@ export interface RecapConfig {
  *    For MotW: also ensure a new episode config exists in src/data/liveMonster/
  *    and is registered in src/data/liveMonster/index.ts.
  */
+// TODO after Sept 19 show: add 'monster-of-the-week-2026-09-19' entry here (see POST-SHOW CHECKLIST above).
+// Also set config/platform.currentShowId = 'monster-of-the-week-2026-09-19' in Firestore console.
 export const recapConfigs: Record<string, RecapConfig> = {
-  // TODO before Sept 19: set config/platform.currentShowId = 'monster-of-the-week-2026-09-19' in Firestore console.
-  'monster-of-the-week-2026-09-19': {
-    showId: 'monster-of-the-week-2026-09-19',
-    seriesName: 'Monster of the Week',
-    episodeTitle: 'Episode Three',
-    chapter: 'Episode Three',
-    date: '2026-09-19',
-    venue: 'Lucky Straws, Winter Garden, FL',
-    systemName: 'Monster of the Week',
-    costume: 'paper-base',
-    monsterStatus: 'available',
-    next: {
-      rsvpHref: '/shows/monster-of-the-week',
-      ctaLabel: 'The story continues →',
-      blurb: 'The next case hasn\'t hit the board yet. Watch this space.',
-    },
-  },
   'monster-of-the-week-2026-07-25': {
     showId: 'monster-of-the-week-2026-07-25',
     seriesName: 'Monster of the Week',
