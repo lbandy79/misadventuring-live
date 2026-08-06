@@ -16,11 +16,13 @@ import { betawaveTapesShow } from './betawave-tapes.show';
 import { madLibsHoneyHeistShow } from './mad-libs-honey-heist.show';
 import { monsterOfTheWeekShow } from './monster-of-the-week.show';
 import { monsterOfTheWeekEp1Show } from './monster-of-the-week-ep1.show';
+import { monsterOfTheWeekEp2Show } from './monster-of-the-week-ep2.show';
 import { mysteryOfIpIsleShow } from './mystery-of-ip-isle.show';
 import { soggyBottomPiratesShow } from './soggy-bottom-pirates.show';
 
 export const shows: Show[] = [
   monsterOfTheWeekShow,
+  monsterOfTheWeekEp2Show,
   monsterOfTheWeekEp1Show,
   madLibsHoneyHeistShow,
   betawaveTapesShow,
