@@ -14,6 +14,7 @@ import {
   collection,
   deleteField,
   doc,
+  getDoc,
   getDocs,
   onSnapshot,
   query,
@@ -157,7 +158,51 @@ export async function setEmojiMode(showId: string, emojiMode: boolean): Promise<
   );
 }
 
-export async function resetMonsterSession(showId: string): Promise<void> {
+/**
+ * Snapshot everything a reset is about to destroy into a single doc:
+ * `archives/{showId}/snapshots/live-monster-reset__<timestamp>`.
+ *
+ * Returns the archive doc path, or null when there was nothing to save.
+ * Restoration is manual (Firestore console) — same philosophy as
+ * `src/lib/archive`: never lose anything by accident.
+ */
+export async function archiveMonsterShowData(showId: string): Promise<string | null> {
+  const [sessionSnap, votesSnap, bystandersSnap] = await Promise.all([
+    getDoc(doc(db, SESSION_COLLECTION, showId)),
+    getDocs(query(collection(db, SLOT_VOTES_COLLECTION), where('showId', '==', showId))),
+    getDocs(query(collection(db, 'live-bystander-submissions'), where('showId', '==', showId))),
+  ]);
+
+  if (!sessionSnap.exists() && votesSnap.empty && bystandersSnap.empty) return null;
+
+  const archiveId = `live-monster-reset__${new Date().toISOString().replace(/[:.]/g, '-')}`;
+  const archiveRef = doc(db, 'archives', showId, 'snapshots', archiveId);
+  await setDoc(archiveRef, {
+    session: sessionSnap.exists() ? sessionSnap.data() : null,
+    slotVotes: votesSnap.docs.map((d) => ({ id: d.id, ...d.data() })),
+    bystanderSubmissions: bystandersSnap.docs.map((d) => ({ id: d.id, ...d.data() })),
+    counts: {
+      slotVotes: votesSnap.size,
+      bystanderSubmissions: bystandersSnap.size,
+    },
+    __showId: showId,
+    __archivedAt: serverTimestamp(),
+    __archiveReason: 'pre-reset-snapshot',
+  });
+
+  return `archives/${showId}/snapshots/${archiveId}`;
+}
+
+/**
+ * Wipe the show's session and delete its votes + bystander submissions —
+ * but only after `archiveMonsterShowData` has written a backup snapshot.
+ * If the snapshot write fails, the error propagates and NOTHING is deleted.
+ *
+ * Returns the archive doc path (null when the show had no data to back up).
+ */
+export async function resetMonsterSession(showId: string): Promise<string | null> {
+  const archivePath = await archiveMonsterShowData(showId);
+
   await setDoc(doc(db, SESSION_COLLECTION, showId), {
     phase: 'idle',
     slotResults: {},
@@ -168,6 +213,8 @@ export async function resetMonsterSession(showId: string): Promise<void> {
 
   await _batchDeleteByShowId(SLOT_VOTES_COLLECTION, showId);
   await _batchDeleteByShowId('live-bystander-submissions', showId);
+
+  return archivePath;
 }
 
 async function _batchDeleteByShowId(collectionName: string, showId: string): Promise<void> {

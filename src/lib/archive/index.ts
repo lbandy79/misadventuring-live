@@ -89,9 +89,11 @@ export async function archiveSingleton(
     return { archived: false, archiveRef: null };
   }
 
-  const folder = showId ? `archives/${showId}` : 'archives/_unscoped';
+  // Path must have an even segment count to be a document:
+  // archives/<showId>/snapshots/<archiveDocId>
+  const showFolder = showId ?? '_unscoped';
   const archiveDocId = `${collectionName}__${docId}__${tsForId()}`;
-  const archiveRef = doc(database, folder, archiveDocId);
+  const archiveRef = doc(database, 'archives', showFolder, 'snapshots', archiveDocId);
 
   await setDoc(archiveRef, {
     ...snap.data(),
@@ -102,5 +104,5 @@ export async function archiveSingleton(
     __archiveReason: 'pre-reset-snapshot',
   });
 
-  return { archived: true, archiveRef: `${folder}/${archiveDocId}` };
+  return { archived: true, archiveRef: `archives/${showFolder}/snapshots/${archiveDocId}` };
 }

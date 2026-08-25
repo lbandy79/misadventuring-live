@@ -79,6 +79,7 @@ export default function LiveMonsterAdminPanel() {
   const [bystanderSubmissions, setBystanderSubmissions] = useState<BystanderSubmission[]>([]);
   const [busy, setBusy] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
+  const [lastBackupPath, setLastBackupPath] = useState<string | null>(null);
   const [pushStatus, setPushStatus] = useState<'idle' | 'pushing' | 'pushed'>('idle');
 
   useEffect(() => {
@@ -241,16 +242,30 @@ export default function LiveMonsterAdminPanel() {
 
       {confirmReset && (
         <div className="lm-confirm">
-          <p>Reset clears all votes and returns to idle.</p>
+          <p>
+            Reset wipes <strong>{showId}</strong>: every vote, bystander, and
+            revealed slot, back to idle. If this show already has a recap page,
+            its monster section reads this data — resetting an old show breaks
+            its recap. A backup snapshot is written to Firestore first
+            (restore is manual, via the console).
+          </p>
           <button
             className="lm-btn lm-btn--danger"
             disabled={busy}
-            onClick={() => run(async () => { await resetMonsterSession(showId!); setConfirmReset(false); })}
+            onClick={() => run(async () => {
+              const backupPath = await resetMonsterSession(showId!);
+              setLastBackupPath(backupPath);
+              setConfirmReset(false);
+            })}
           >
-            Yes, Reset
+            Yes, Reset {showId}
           </button>
           <button className="lm-btn" onClick={() => setConfirmReset(false)}>Cancel</button>
         </div>
+      )}
+
+      {lastBackupPath && (
+        <p className="lm-hint">Backup saved before reset: {lastBackupPath}</p>
       )}
 
       {/* ── Monster slot tallies ── */}
