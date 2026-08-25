@@ -417,6 +417,92 @@ textarea:focus-visible {
 }
 .hero-inline-cta:hover { color: var(--ink-black); border-bottom-color: var(--ink-black); }
 
+/* ── Studio feature ("From the Studio") ──────────────────────────── */
+.studio-feature {
+  display: grid;
+  gap: 1.5rem;
+  align-items: center;
+  max-width: 880px;
+  margin: 1rem auto 2.5rem;
+  text-align: center;
+}
+@media (min-width: 720px) {
+  .studio-feature {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    gap: 2.25rem;
+    text-align: left;
+  }
+}
+.studio-feature-card {
+  padding: 0.7rem 0.7rem 0.35rem;
+}
+.studio-thumb {
+  position: relative;
+  display: block;
+  border-radius: 3px;
+  overflow: hidden;
+  background: var(--ink-black);
+}
+.studio-thumb img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+.studio-play {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--ink-black) 70%, transparent);
+  border: 2px solid var(--paper-warm);
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+.studio-play::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-40%, -50%);
+  border-style: solid;
+  border-width: 11px 0 11px 18px;
+  border-color: transparent transparent transparent var(--paper-warm);
+}
+.studio-thumb:hover .studio-play,
+.studio-thumb:focus-visible .studio-play {
+  background: var(--accent);
+  transform: scale(1.08);
+}
+.studio-caption {
+  margin: 0.6rem 0.2rem 0.25rem;
+  text-align: center;
+}
+.studio-eyebrow {
+  margin: 0 0 0.5rem;
+  color: var(--brand-purple);
+}
+.studio-title {
+  font-family: var(--font-marker);
+  font-weight: 400;
+  font-size: clamp(1.7rem, 4.5vw, 2.2rem);
+  line-height: 1.1;
+  margin: 0 0 0.4rem;
+  color: var(--ink-black);
+}
+.studio-format {
+  font-family: var(--font-script);
+  font-size: 1.3rem;
+  margin: 0 0 0.5rem;
+  color: var(--ink-blue);
+}
+.studio-blurb {
+  font-family: var(--font-hand);
+  margin: 0 0 1rem;
+  color: var(--ink-black);
+}
+
 .how-it-works {
   margin: 2.5rem 0 2rem;
 }

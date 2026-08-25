@@ -38,6 +38,23 @@ const LATEST_RECAP = {
   href: 'https://www.youtube.com/watch?v=UwHhy-TuFss&t=12s',
 };
 
+/**
+ * Studio productions — recorded at the MTP studio, hosted on YouTube.
+ * One feature for now; when studio sessions become regular this becomes
+ * a list. Swapping this object swaps the face of the page.
+ */
+const STUDIO_FEATURE = {
+  title: 'The Vesper Job',
+  format: 'A magepunk train heist, played in real time.',
+  runtime: '65 min',
+  youtubeId: 'Gdr4PCF-0-s',
+  href: 'https://www.youtube.com/watch?v=Gdr4PCF-0-s',
+  blurb:
+    'Our first full studio production: one train, one crew, and a plan that '
+    + 'comes apart on schedule. No rules knowledge required — just watch the '
+    + 'party fail beautifully.',
+};
+
 const SOCIAL_LINKS: Array<{
   name: string;
   handle: string;
@@ -169,6 +186,48 @@ export default function LandingPage() {
           <Link to="/shows" className="btn-primary btn-lg">
             Browse shows
           </Link>
+        </div>
+      </section>
+
+      <section className="studio-feature" aria-labelledby="studio-feature-title">
+        <div className="studio-feature-card paper-card tape-strip tilt-l">
+          <a
+            className="studio-thumb"
+            href={STUDIO_FEATURE.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`Watch ${STUDIO_FEATURE.title} on YouTube`}
+          >
+            <img
+              src={`https://i.ytimg.com/vi/${STUDIO_FEATURE.youtubeId}/maxresdefault.jpg`}
+              alt={`${STUDIO_FEATURE.title} title card`}
+              onError={(e) => {
+                const img = e.currentTarget;
+                if (!img.dataset.fallback) {
+                  img.dataset.fallback = '1';
+                  img.src = `https://i.ytimg.com/vi/${STUDIO_FEATURE.youtubeId}/hqdefault.jpg`;
+                }
+              }}
+            />
+            <span className="studio-play" aria-hidden="true" />
+          </a>
+          <p className="studio-caption typewriter-label">
+            Recorded at the MTP studio · {STUDIO_FEATURE.runtime}
+          </p>
+        </div>
+        <div className="studio-feature-copy">
+          <p className="studio-eyebrow typewriter-label">From the studio</p>
+          <h2 id="studio-feature-title" className="studio-title">{STUDIO_FEATURE.title}</h2>
+          <p className="studio-format">{STUDIO_FEATURE.format}</p>
+          <p className="studio-blurb">{STUDIO_FEATURE.blurb}</p>
+          <a
+            href={STUDIO_FEATURE.href}
+            className="hero-inline-cta"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Watch the full show →
+          </a>
         </div>
       </section>
 
