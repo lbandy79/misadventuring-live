@@ -1,6 +1,12 @@
 /**
  * "Coming Next" — paper-clipped tape card at the bottom of the recap.
  *
+ * Two modes, decided by the calendar:
+ *   - Upcoming: the pointed-at show hasn't happened yet → promo card.
+ *   - Happened: the show date has passed → the card flips into a
+ *     "What happened next" archive link chaining to that show's recap
+ *     (via `next.recapId`), so old recaps never advertise expired shows.
+ *
  * Tolerates partial data: a missing system shows "system reveal coming",
  * a missing date shows "TBA". The whole component returns null only if
  * the recap config has no `next` block at all.
@@ -13,7 +19,7 @@ interface ComingNextStickyNoteProps {
   next: ComingNext;
 }
 
-function formatDate(iso?: string): string {
+function formatDate(iso: string | undefined, withYear: boolean): string {
   if (!iso) return 'Date TBA';
   const [y, m, d] = iso.split('-').map(Number);
   if (!y || !m || !d) return iso;
@@ -22,20 +28,40 @@ function formatDate(iso?: string): string {
     weekday: 'long',
     month: 'long',
     day: 'numeric',
+    ...(withYear ? { year: 'numeric' } : {}),
   });
 }
 
+/** True once the show day itself is over (local time). */
+function hasHappened(iso?: string): boolean {
+  if (!iso) return false;
+  const [y, m, d] = iso.split('-').map(Number);
+  if (!y || !m || !d) return false;
+  return Date.now() >= new Date(y, m - 1, d + 1).getTime();
+}
+
 export default function ComingNextStickyNote({ next }: ComingNextStickyNoteProps) {
+  const happened = hasHappened(next.date);
   const systemLabel = next.systemName ?? 'system reveal coming';
-  const cta = next.rsvpHref ?? '/reserve';
-  const ctaLabel = next.ctaLabel ?? 'Reserve a seat →';
+
+  const eyebrow = happened ? 'What Happened Next' : 'Coming Next';
+  const cta = happened
+    ? next.recapId
+      ? `/shows/${next.recapId}/recap`
+      : '/shows'
+    : next.rsvpHref ?? '/shows';
+  const ctaLabel = happened
+    ? next.recapId
+      ? 'Watch the recap →'
+      : 'Browse the shows →'
+    : next.ctaLabel ?? 'See what\'s coming →';
 
   return (
     <aside className="recap-sticky recap-sticky-next" aria-labelledby="recap-next-title">
       <div className="recap-sticky-clip recap-sticky-clip-right" aria-hidden />
-      <p className="recap-sticky-eyebrow">Coming Next</p>
+      <p className="recap-sticky-eyebrow">{eyebrow}</p>
       <h2 id="recap-next-title" className="recap-sticky-heading">
-        {formatDate(next.date)}
+        {formatDate(next.date, happened)}
       </h2>
       {next.venue && <p className="recap-sticky-meta">{next.venue}</p>}
       <p className="recap-sticky-meta">

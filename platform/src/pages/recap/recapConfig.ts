@@ -19,6 +19,12 @@ export interface ComingNext {
   rsvpHref?: string;
   ctaLabel?: string;
   blurb?: string;
+  /**
+   * Episode showId of the pointed-at show, once its recap exists.
+   * After the show date passes, the card flips from a promo into a
+   * "What happened next" link chaining to `/shows/{recapId}/recap`.
+   */
+  recapId?: string;
 }
 
 export interface RecapClip {
@@ -61,6 +67,8 @@ export interface RecapConfig {
  *    - monsterStatus: 'lost' if the builder wasn't run or data is gone
  *    - fullEpisodeYoutubeId: add once the recording is up
  *    - next: point at the upcoming show
+ *    - set the PREVIOUS entry's `next.recapId` to this new showId so its
+ *      "Coming Next" card converts into a "What happened next" recap link
  *
  * 2. Flip the previous show's `era` to 'past' in src/lib/shows/<series>.show.ts
  *    and update `nextDate` to the new show's date.
@@ -109,9 +117,8 @@ export const recapConfigs: Record<string, RecapConfig> = {
       date: '2026-07-25',
       venue: 'Lucky Straws, Winter Garden, FL',
       systemName: 'Monster of the Week',
-      rsvpHref: '/shows/monster-of-the-week',
-      ctaLabel: 'The story continues →',
-      blurb: 'The case isn\'t closed. Come back July 25 to see where it goes.',
+      recapId: 'monster-of-the-week-2026-07-25',
+      blurb: 'The case wasn\'t closed. Episode Two picks up the trail.',
     },
   },
   'honey-heist-madlibs-2026-05-23': {
@@ -126,11 +133,11 @@ export const recapConfigs: Record<string, RecapConfig> = {
     fullEpisodeYoutubeId: '7qH6W5Nfy6Q',
     monsterStatus: 'available',
     next: {
-      date: '2026-07-25',
+      date: '2026-06-27',
       venue: 'Lucky Straws, Winter Garden, FL',
       systemName: 'Monster of the Week',
-      rsvpHref: '/shows/monster-of-the-week',
-      ctaLabel: 'See what\'s coming →',
+      recapId: 'monster-of-the-week-2026-06-27',
+      blurb: 'A new series began: Monster of the Week, Episode One.',
     },
   },
   'betawave-last-call-2026-04-18': {
@@ -147,13 +154,12 @@ export const recapConfigs: Record<string, RecapConfig> = {
     featuredReservationId: 'NgC92SQZfJdwIuiLmNFf',
     monsterStatus: 'lost',
     next: {
-      date: '2026-05-23',
+      date: '2026-05-31',
       venue: 'Lucky Straws, Winter Garden, FL',
-      // System is being decided between Honey Heist and Lasers & Feelings.
-      systemName: undefined,
-      rsvpHref: '/shows/mad-libs-honey-heist/join',
+      systemName: 'Honey Heist',
+      recapId: 'honey-heist-madlibs-2026-05-23',
       blurb:
-        'Mad Libs format. The audience writes the prompts. The cast plays it live.',
+        'Mad Libs format. The audience wrote the prompts. The cast played it live.',
     },
   },
 };
