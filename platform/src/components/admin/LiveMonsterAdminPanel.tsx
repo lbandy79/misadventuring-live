@@ -267,6 +267,9 @@ export default function LiveMonsterAdminPanel() {
             <h3 className="lm-section-title">
               {slot.revealPrefix}
               <span className="lm-count"> ({total} response{total !== 1 ? 's' : ''})</span>
+              {!locked && tally.totalWriteIn > 0 && (
+                <span className="lm-writein-badge">✎ {tally.totalWriteIn} write-in{tally.totalWriteIn !== 1 ? 's' : ''}</span>
+              )}
             </h3>
 
             {locked ? (
@@ -294,6 +297,28 @@ export default function LiveMonsterAdminPanel() {
                   })}
                 </div>
 
+                {/* Write-ins render in both active and reveal phases, ABOVE the
+                    reveal button, so the GM reads them before locking a preset. */}
+                {tally.writeIns.length > 0 && (
+                  <div className="lm-writeins">
+                    <h4 className="lm-writeins-title">✎ Audience write-ins ({tally.totalWriteIn})</h4>
+                    {tally.writeIns.map((v) => (
+                      <div key={v.id} className="lm-writein-row">
+                        <span className="lm-writein-text">&ldquo;{v.writeIn}&rdquo;</span>
+                        {canReveal && (
+                          <button
+                            className="lm-btn lm-btn--small"
+                            disabled={busy}
+                            onClick={() => run(() => setSlotResult(showId!, slot.id, v.writeIn!))}
+                          >
+                            Reveal this
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
                 {canReveal && tally.totalPreset > 0 && (
                   <button
                     className="lm-btn lm-btn--primary"
@@ -302,24 +327,6 @@ export default function LiveMonsterAdminPanel() {
                   >
                     Reveal: {winner.emoji} {winner.text}
                   </button>
-                )}
-
-                {canReveal && tally.writeIns.length > 0 && (
-                  <div className="lm-writeins">
-                    <h4 className="lm-writeins-title">Write-ins ({tally.totalWriteIn})</h4>
-                    {tally.writeIns.map((v) => (
-                      <div key={v.id} className="lm-writein-row">
-                        <span className="lm-writein-text">&ldquo;{v.writeIn}&rdquo;</span>
-                        <button
-                          className="lm-btn lm-btn--small"
-                          disabled={busy}
-                          onClick={() => run(() => setSlotResult(showId!, slot.id, v.writeIn!))}
-                        >
-                          Reveal this
-                        </button>
-                      </div>
-                    ))}
-                  </div>
                 )}
               </>
             )}
