@@ -128,7 +128,9 @@ export default function LiveMonsterAdminPanel() {
         <h2 className="lm-panel-title">👹 Live Monster Builder</h2>
         <p className="lm-hint">
           No monster config registered for showId <code>{showId ?? '(none)'}</code>.
-          Set <code>config/platform.currentShowId</code> in Firestore to <code>monster-of-the-week</code>.
+          Set <code>config/platform.currentShowId</code> in Firestore to a dated
+          episode id registered in <code>src/data/liveMonster/index.ts</code>
+          (e.g. <code>monster-of-the-week-2026-09-19</code>).
         </p>
       </div>
     );
