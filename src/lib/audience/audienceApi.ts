@@ -168,3 +168,87 @@ export async function getAudienceProfileByCode(
   if (snap.empty) return null;
   return snap.docs[0].data() as AudienceProfile;
 }
+
+// ─── Admin reads ──────────────────────────────────────────────────────────────
+
+/** One row of the admin audience list — flattened for display and CSV export. */
+export interface AudienceProfileRow {
+  email: string;
+  createdAt: Date | null;
+  updatedAt: Date | null;
+  /** Number of characters this person has saved across all shows. */
+  npcCount: number;
+  /** Show names they've saved a character in, most recent first. */
+  shows: string[];
+  optedInForNotebook: boolean;
+  optedInForAnnouncements: boolean;
+  /** True when they can follow a magic link back to their characters. */
+  hasMagicLink: boolean;
+  /**
+   * How the address arrived: 'character' if they saved a character,
+   * 'footer' if it came from the site's notify-me form.
+   */
+  source: 'character' | 'footer';
+}
+
+function toDate(value: unknown): Date | null {
+  if (!value) return null;
+  const ts = value as { toDate?: () => Date };
+  return typeof ts.toDate === 'function' ? ts.toDate() : null;
+}
+
+/**
+ * List every audience profile, newest first.
+ *
+ * Requires an admin session — `audience-profiles` is admin-read-only in
+ * firestore.rules, so this throws a permission error for anyone else.
+ */
+export async function listAudienceProfiles(): Promise<AudienceProfileRow[]> {
+  const snap = await getDocs(collection(db, AUDIENCE_PROFILES_COLLECTION));
+
+  const rows = snap.docs.map((d) => {
+    const p = d.data() as Partial<AudienceProfile>;
+    const npcs = (p.npcs ?? []) as AudienceNpcRef[];
+    const shows = [...npcs]
+      .sort((a, b) => (b.savedAt ?? '').localeCompare(a.savedAt ?? ''))
+      .map((n) => n.showName ?? n.showId)
+      .filter((v, i, arr) => arr.indexOf(v) === i);
+
+    return {
+      email: (p.email as string) ?? d.id,
+      createdAt: toDate(p.createdAt),
+      updatedAt: toDate(p.updatedAt),
+      npcCount: npcs.length,
+      shows,
+      optedInForNotebook: p.optedInForNotebook === true,
+      optedInForAnnouncements: p.optedInForAnnouncements === true,
+      hasMagicLink: typeof p.magicToken === 'string' && p.magicToken.length > 0,
+      source: npcs.length > 0 ? ('character' as const) : ('footer' as const),
+    };
+  });
+
+  return rows.sort((a, b) => {
+    const at = a.createdAt?.getTime() ?? 0;
+    const bt = b.createdAt?.getTime() ?? 0;
+    return bt - at;
+  });
+}
+
+/** Serialize rows to CSV (RFC 4180 quoting) for download from the admin panel. */
+export function audienceRowsToCsv(rows: AudienceProfileRow[]): string {
+  const header = [
+    'email', 'source', 'characters', 'shows',
+    'optedInForNotebook', 'optedInForAnnouncements', 'hasMagicLink',
+    'createdAt', 'updatedAt',
+  ];
+  const esc = (v: unknown) => {
+    const s = v === null || v === undefined ? '' : String(v);
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+  const lines = rows.map((r) => [
+    r.email, r.source, r.npcCount, r.shows.join('; '),
+    r.optedInForNotebook, r.optedInForAnnouncements, r.hasMagicLink,
+    r.createdAt?.toISOString() ?? '', r.updatedAt?.toISOString() ?? '',
+  ].map(esc).join(','));
+  return [header.join(','), ...lines].join('\n');
+}

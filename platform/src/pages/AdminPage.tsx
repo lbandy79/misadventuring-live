@@ -15,6 +15,7 @@ import { shows, useAuth } from '@mtp/lib';
 import NpcAdminPanel from '../components/admin/NpcAdminPanel';
 import CastAdminPanel from '../components/admin/CastAdminPanel';
 import LiveMonsterAdminPanel from '../components/admin/LiveMonsterAdminPanel';
+import AudienceAdminPanel from '../components/admin/AudienceAdminPanel';
 
 export default function AdminPage() {
   const { user, isAdmin, isLoading, isAdminLoading, signIn } = useAuth();
@@ -75,6 +76,8 @@ export default function AdminPage() {
       <CastAdminPanel />
 
       <LiveMonsterAdminPanel />
+
+      <AudienceAdminPanel />
 
       {npcShows.map((s) => (
         <NpcAdminPanel
