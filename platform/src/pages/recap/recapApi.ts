@@ -82,6 +82,13 @@ export async function fetchBystanderSubmissions(showId: string): Promise<Bystand
   return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<BystanderSubmission, 'id'>) }));
 }
 
+/**
+ * Re-exported so recap surfaces import their data rules from one place.
+ * The rule itself lives in the shared lib, dependency-free and unit-tested —
+ * see `src/lib/liveMonster/visibleBystanders.ts` for why it exists.
+ */
+export { visibleBystanders } from '@mtp/lib/liveMonster/visibleBystanders';
+
 /** Fetch specific Beat documents by ID for Stinger highlight display. */
 export async function fetchHighlightBeats(beatIds: string[]): Promise<Beat[]> {
   if (beatIds.length === 0) return [];

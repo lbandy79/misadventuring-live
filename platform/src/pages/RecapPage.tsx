@@ -17,6 +17,7 @@ import {
   fetchHighlightBeats,
   fetchMonsterSession,
   fetchBystanderSubmissions,
+  visibleBystanders,
   type RecapData,
   type Beat,
   type MonsterSession,
@@ -106,6 +107,8 @@ export default function RecapPage() {
   }
 
   const { data, stingerHighlights, monsterSession, bystanders } = load;
+  // Only publish bystanders the GM actually put on screen — see visibleBystanders().
+  const shownBystanders = visibleBystanders(bystanders, monsterSession);
   const featured = config.featuredReservationId
     ? data.npcs.find((n) => n.reservationId === config.featuredReservationId) ?? null
     : null;
@@ -197,14 +200,15 @@ export default function RecapPage() {
         </section>
       )}
 
-      {bystanders.length > 0 && (
+      {shownBystanders.length > 0 && (
         <section className="recap-section">
           <h2 className="recap-section-heading">Who Was in Town</h2>
           <p className="recap-funnel">
-            <strong>{bystanders.length}</strong> {bystanders.length === 1 ? 'bystander' : 'bystanders'} submitted by the audience.
+            <strong>{shownBystanders.length}</strong> of <strong>{bystanders.length}</strong>{' '}
+            audience {bystanders.length === 1 ? 'bystander' : 'bystanders'} made it into the story.
           </p>
           <ul className="recap-bystander-list">
-            {bystanders.map((b) => {
+            {shownBystanders.map((b) => {
               const typeInfo = BYSTANDER_TYPES[b.typeId as keyof typeof BYSTANDER_TYPES];
               const move = b.movePreset
                 ?? (b.customTrigger && b.customEffect ? `When ${b.customTrigger}, ${b.customEffect}` : null);
