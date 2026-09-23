@@ -27,3 +27,6 @@ dist-platform
 
 # One-shot script outputs (audit dumps, etc.) — never commit
 tmp/
+
+# TypeScript incremental build cache
+*.tsbuildinfo
