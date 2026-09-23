@@ -10,20 +10,23 @@
 
 export type RecapCostume = 'betawave-vhs' | 'paper-base';
 
+/**
+ * The episode that historically followed this one — pure archive chaining,
+ * rendered by `WhatHappenedNextStickyNote`.
+ *
+ * Add this only once the next show has actually aired. It is NOT how the site
+ * advertises the upcoming show: that comes from `getUpcomingShow()` in the
+ * show registry, so it stays correct on every recap page without edits here.
+ */
 export interface ComingNext {
-  /** ISO date string (YYYY-MM-DD). Optional — falls back to "TBA". */
+  /** ISO date string (YYYY-MM-DD) of the show that followed. */
   date?: string;
   venue?: string;
   /** Display name of the system, or undefined for "system reveal coming." */
   systemName?: string;
-  rsvpHref?: string;
-  ctaLabel?: string;
+  /** Past-tense one-liner — this card only ever renders after the fact. */
   blurb?: string;
-  /**
-   * Episode showId of the pointed-at show, once its recap exists.
-   * After the show date passes, the card flips from a promo into a
-   * "What happened next" link chaining to `/shows/{recapId}/recap`.
-   */
+  /** Episode showId of the show that followed, linking to its recap. */
   recapId?: string;
 }
 
@@ -66,12 +69,16 @@ export interface RecapConfig {
  *    - monsterStatus: 'available' for MotW (fetches live monster + bystanders automatically)
  *    - monsterStatus: 'lost' if the builder wasn't run or data is gone
  *    - fullEpisodeYoutubeId: add once the recording is up
- *    - next: point at the upcoming show
- *    - set the PREVIOUS entry's `next.recapId` to this new showId so its
- *      "Coming Next" card converts into a "What happened next" recap link
+ *    - do NOT add `next` — nothing has followed this show yet
+ *    - on the PREVIOUS entry, add `next` pointing here (date, venue, system,
+ *      recapId + a PAST-TENSE blurb) so its recap chains forward to this one
  *
- * 2. Flip the previous show's `era` to 'past' in src/lib/shows/<series>.show.ts
- *    and update `nextDate` to the new show's date.
+ * 2. Give the show that just aired its own src/lib/shows/<series>-epN.show.ts
+ *    with era: 'past' and a recap pointer, and register it in registry.ts.
+ *    Then repoint the rolling upcoming entry (monster-of-the-week.show.ts) at
+ *    the next date + venue. That entry drives the "Coming Next" sticky on
+ *    EVERY recap page via getUpcomingShow() — there is no per-recap copy of
+ *    the upcoming show to update.
  *
  * 3. Update LATEST_RECAP + NEXT_SHOW in platform/src/pages/LandingPage.tsx.
  *
@@ -79,9 +86,23 @@ export interface RecapConfig {
  *    For MotW: also ensure a new episode config exists in src/data/liveMonster/
  *    and is registered in src/data/liveMonster/index.ts.
  */
-// TODO after Sept 19 show: add 'monster-of-the-week-2026-09-19' entry here (see POST-SHOW CHECKLIST above).
-// Also set config/platform.currentShowId = 'monster-of-the-week-2026-09-19' in Firestore console.
 export const recapConfigs: Record<string, RecapConfig> = {
+  'monster-of-the-week-2026-09-19': {
+    showId: 'monster-of-the-week-2026-09-19',
+    seriesName: 'Monster of the Week',
+    episodeTitle: 'Episode Three',
+    chapter: 'Episode Three',
+    date: '2026-09-19',
+    venue: 'Lucky Straws, Winter Garden, FL',
+    systemName: 'Monster of the Week',
+    costume: 'paper-base',
+    fullEpisodeYoutubeId: 'r4tdPibl0QA',
+    summary:
+      'We gave the room six options per slot. The room used none of them. Every trait that made it onto the board was a write-in, and what they built was a Toyota Tacoma that haunts the pork section at Winn Dixie and crawls into your ear to drive you from the inside.',
+    monsterStatus: 'available',
+    // No `next` yet — nothing has followed this show. The upcoming-show
+    // pitch comes from the registry; add `next` here once Episode Four airs.
+  },
   'monster-of-the-week-2026-07-25': {
     showId: 'monster-of-the-week-2026-07-25',
     seriesName: 'Monster of the Week',
@@ -97,9 +118,8 @@ export const recapConfigs: Record<string, RecapConfig> = {
       date: '2026-09-19',
       venue: 'Lucky Straws, Winter Garden, FL',
       systemName: 'Monster of the Week',
-      rsvpHref: '/shows/monster-of-the-week',
-      ctaLabel: 'The story continues →',
-      blurb: 'The case isn\'t closed. Come back September 19 to see where it goes.',
+      recapId: 'monster-of-the-week-2026-09-19',
+      blurb: 'The case stayed open. Episode Three picked up the trail — and the audience wrote their own monster.',
     },
   },
   'monster-of-the-week-2026-06-27': {

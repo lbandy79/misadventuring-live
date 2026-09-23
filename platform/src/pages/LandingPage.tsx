@@ -34,8 +34,8 @@ function recapHrefFor(show: Show): string | null {
 }
 
 const LATEST_RECAP = {
-  showName: 'Monster of the Week — Episode Two',
-  href: 'https://www.youtube.com/watch?v=UwHhy-TuFss&t=12s',
+  showName: 'Monster of the Week — Episode Three',
+  href: 'https://www.youtube.com/watch?v=r4tdPibl0QA',
 };
 
 /**
@@ -130,8 +130,8 @@ function SocialIcon({ icon }: { icon: (typeof SOCIAL_LINKS)[number]['icon'] }) {
 }
 const NEXT_SHOW = {
   showName: 'Monster of the Week',
-  tagline: 'The case isn\'t closed.',
-  dateLabel: 'September 19',
+  tagline: 'The truck is still out there.',
+  dateLabel: 'October 24',
   href: '/shows/monster-of-the-week',
 };
 

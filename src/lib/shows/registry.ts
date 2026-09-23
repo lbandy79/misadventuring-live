@@ -17,11 +17,13 @@ import { madLibsHoneyHeistShow } from './mad-libs-honey-heist.show';
 import { monsterOfTheWeekShow } from './monster-of-the-week.show';
 import { monsterOfTheWeekEp1Show } from './monster-of-the-week-ep1.show';
 import { monsterOfTheWeekEp2Show } from './monster-of-the-week-ep2.show';
+import { monsterOfTheWeekEp3Show } from './monster-of-the-week-ep3.show';
 import { mysteryOfIpIsleShow } from './mystery-of-ip-isle.show';
 import { soggyBottomPiratesShow } from './soggy-bottom-pirates.show';
 
 export const shows: Show[] = [
   monsterOfTheWeekShow,
+  monsterOfTheWeekEp3Show,
   monsterOfTheWeekEp2Show,
   monsterOfTheWeekEp1Show,
   madLibsHoneyHeistShow,
@@ -79,6 +81,25 @@ export function getReservableShows(): Show[] {
 /** Past shows with a recap surface. */
 export function getPastShows(): Show[] {
   return shows.filter((s) => getShowEra(s) === 'past');
+}
+
+/**
+ * The next show on the calendar — the one every marketing surface should
+ * point at, however old the page doing the pointing is.
+ *
+ * Soonest `nextDate` wins; entries without a date sort last so a scheduled
+ * show always beats an undated one. Returns null when nothing is scheduled,
+ * in which case callers should render no "coming next" pitch at all.
+ *
+ * This is the single source of truth: update `nextDate` on the rolling show
+ * entry and every recap page follows automatically.
+ */
+export function getUpcomingShow(): Show | null {
+  const UNDATED = '9999-12-31';
+  const [soonest] = getReservableShows()
+    .slice()
+    .sort((a, b) => (a.nextDate ?? UNDATED).localeCompare(b.nextDate ?? UNDATED));
+  return soonest ?? null;
 }
 
 /** Default show used when no `showId` is set in Firestore. */

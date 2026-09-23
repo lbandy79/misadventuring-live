@@ -54,6 +54,14 @@ export interface Show {
   nextDate?: string;
 
   /**
+   * Where the show happens (e.g. "Lucky Straws, Winter Garden, FL").
+   * Used by the "coming next" pitch on recap pages. Past episodes carry
+   * their venue in `recapConfigs` instead — this is for the upcoming show,
+   * which has no recap entry yet.
+   */
+  venue?: string;
+
+  /**
    * Per-show accent color (CSS color, typically hex). Drives `--accent` on
    * marketing surfaces (show detail, voting, reservation, recap pointer).
    * Body text never sits on this color directly; pair with `accentInk` if

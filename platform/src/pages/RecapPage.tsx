@@ -5,8 +5,10 @@ import FeaturedCharacter from './recap/FeaturedCharacter';
 import NpcDisplayRow from '../components/display/NpcDisplayRow';
 import MonsterStickyNote from './recap/MonsterStickyNote';
 import MonsterRevealCard from './recap/MonsterRevealCard';
-import ComingNextStickyNote from './recap/ComingNextStickyNote';
+import WhatHappenedNextStickyNote from './recap/WhatHappenedNextStickyNote';
+import UpcomingShowStickyNote from './recap/UpcomingShowStickyNote';
 import AboutPageFooter from './recap/AboutPageFooter';
+import { getUpcomingShow } from '@mtp/lib';
 import { getRecapConfig } from './recap/recapConfig';
 import { getMonsterConfig } from '@mtp/data/liveMonster';
 import { BYSTANDER_TYPES } from '@mtp/data/liveMonster/bystanderTypes';
@@ -36,6 +38,8 @@ type LoadState =
 export default function RecapPage() {
   const { showId = '' } = useParams<{ showId: string }>();
   const config = useMemo(() => getRecapConfig(showId), [showId]);
+  // Registry-derived, so every recap points at the real next show.
+  const upcomingShow = useMemo(() => getUpcomingShow(), []);
   const [load, setLoad] = useState<LoadState>({ status: 'loading' });
 
   useEffect(() => {
@@ -232,11 +236,13 @@ export default function RecapPage() {
         </section>
       )}
 
-      {config.next && (
-        <section className="recap-section recap-next-section">
-          <ComingNextStickyNote next={config.next} />
-        </section>
-      )}
+      {/* Two stickies, two jobs: where the story went, and when to show up
+          next. The chain is hand-recorded history; the pitch is derived from
+          the registry so even the oldest recap advertises the real next show. */}
+      <section className="recap-section recap-next-section">
+        {config.next && <WhatHappenedNextStickyNote next={config.next} />}
+        {upcomingShow && <UpcomingShowStickyNote show={upcomingShow} />}
+      </section>
 
       <AboutPageFooter />
     </div>

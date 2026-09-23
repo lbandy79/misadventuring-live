@@ -602,6 +602,22 @@
   border-color: rgba(26, 58, 122, 0.2);
 }
 
+/* The upcoming-show pitch. Warm yellow against the chain card's cool blue so
+   "where the story went" and "when to turn up next" read as different things,
+   and tilted the other way so a stacked pair looks hand-placed. */
+.recap-sticky-upcoming {
+  background: #fff6c9;
+  border-color: rgba(122, 94, 26, 0.22);
+  transform: rotate(1.5deg);
+}
+.recap-sticky-upcoming .recap-sticky-eyebrow { color: var(--ink-red); }
+
+/* Stacked stickies need breathing room; .recap-sticky's own auto margins
+   collapse them together. */
+.recap-next-section .recap-sticky + .recap-sticky {
+  margin-top: 2.75rem;
+}
+
 .recap-tape-label {
   display: inline-block;
   font-family: 'Special Elite', monospace;
