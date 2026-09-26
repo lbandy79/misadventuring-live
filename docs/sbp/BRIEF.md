@@ -99,10 +99,15 @@ Deploying rules is `firebase deploy --only firestore:rules` — Luke approves it
 `firebase deploy --only firestore:rules --dry-run` compiles without deploying.
 Never test by writing to production.
 
-**For SBP phase 1, set up real rules tests.** The Firestore emulator needs
-Java (not installed as of this writing); with it, use
-`@firebase/rules-unit-testing`. SBP's rules will be more involved than these,
-and the whole team-only model rests on them.
+**Rules tests exist as of phase 1** — `npm run test:rules` starts the
+Firestore emulator (needs a JDK; Temurin 21 is installed on the dev machine)
+and runs `src/test/rules/**` via `vitest.rules.config.ts`. They are excluded
+from `npm test` on purpose. They cover every SBP collection with the full
+identity matrix (signed out, anonymous, verified outsider, unverified
+impostor claiming a cast email, cast, admin) plus regression checks for the
+Step 0 fixes. Add a case there for every new rule. Note the library is
+pinned to `@firebase/rules-unit-testing@3` — it's the release that peers on
+`firebase@10`, which this repo uses.
 
 ---
 
@@ -174,7 +179,7 @@ system id. Low priority for the wizard itself, but don't build on `dnd-5e`.
 | `sbp-rules/classes` | `sbp_classes.json` verbatim | cast, admin | admin |
 | `sbp-rules/origins` | `sbp_origins.json` verbatim | cast, admin | admin |
 | `sbp-rules-history/{ts}` | previous version on every upload | admin | admin |
-| `sbp-characters/{id}` | one character | cast, admin | owner (cast) + admin |
+| `sbp-characters/{id}` | one character | cast, admin | owner (cast) + admin; owner may also delete (playtest builds are disposable — decided 2026-09-26) |
 
 ### Getting rules data in: admin upload
 
@@ -247,8 +252,18 @@ should split steps into components from the start.
 Each phase ships and is verified before the next starts.
 
 0. ~~**Rules hardening** (§3 Step 0).~~ ✅ Done 2026-09-26.
-1. **Data layer.** Set up the rules emulator + tests first (§3). `isCast()`-gated `sbp-rules` + `sbp-characters` rules; the
-   admin upload with validation and history; seed both files.
+1. ✅ **Data layer** — built 2026-09-26, pending rules deploy + seed.
+   Rules for `sbp-rules`, `sbp-rules-history`, `sbp-characters`
+   (`firestore.rules`, tested in `src/test/rules/sbp.rules.test.ts`);
+   `src/lib/sbp/` (`types.ts`, `validateRules.ts`, `rulesApi.ts`); the
+   "SBP Labs — rules data" panel in `/admin`
+   (`platform/src/components/admin/SbpRulesAdminPanel.tsx`). Rules docs are
+   `{ meta, data }` — `data` is the file verbatim, `meta.uploadedAt` is the
+   version token characters will record. Upload + history archive happen in
+   one transaction. Seeding is done by Luke through the panel, never by
+   script. To go live: `firebase deploy --only firestore:rules` (and
+   `--only firestore:indexes` for the history query), then promote the
+   platform build.
 2. **Derivation layer.** Pure functions: rules + choices → character at level
    N. Tested against synthetic fixtures. No UI.
 3. **Wizard**, level 1. Species → background → class → archetype (if entry
@@ -271,20 +286,34 @@ Each phase ships and is verified before the next starts.
 
 ---
 
-## 8. Open questions for Luke
+## 8. Open questions — answered 2026-09-26
 
-1. **Ability score method** — standard array, point buy, rolled, or a choice?
-   Not specified in the data.
-2. **Level down** — discard choices above the new level, or keep them dormant
-   for when the character levels back up?
-3. **Visibility** — can the crew see each other's characters (like "The Party"),
-   or only their own?
-4. **Look** — SBP's theme is dark cereal-punk
-   (`src/themes/soggyBottomPirates.theme.ts`); the platform is paper/notebook.
-   Do Labs pages wear SBP's look or the platform's?
-5. **`$open_decisions`** — especially background/class name collisions and
-   fixed vs. flexible ability increases. Needed before the wizard's
-   background step is final.
+1. **Ability score method** — **player picks** per character: standard array,
+   point buy, or rolled. Standard array is the default for quick playtest
+   builds. The character records `abilityScores.method`. Array values and
+   point-buy costs live in the rules data, not code.
+2. **Level down** — **keep choices dormant.** Choices above the current level
+   are hidden and excluded from derivation, and reappear on level-up. The
+   sheet offers an explicit "clear choices above this level" action for
+   deliberate discards.
+3. **Visibility** — **all cast read, owner edits.** Same model as
+   `hunter-sheets` / "The Party": any cast member can view any character;
+   only the owner (or an admin) can change it.
+4. **Look** — **platform paper + SBP accent.** Paper tokens, SBP's
+   `accentColor`/`accentInk`, `data-show="soggy-bottom-pirates"` on the
+   wrapper for show-specific overrides. No second token layer.
+5. **`$open_decisions`**
+   - Background/class name collisions — **Luke renames backgrounds first**
+     (option b: world-grounded origins). The wizard reads `collides_with`
+     only to show an informational note; it never blocks a pairing. The
+     rename is a data upload, not a code change.
+   - Background ability increases — **support both modes, data decides.**
+     `ability_score_increase.mode` is already in the data (`"fixed"`
+     today). A `"flexible"` background lists three abilities and the player
+     spreads +2/+1 or +1/+1/+1. The wizard branches on `mode`.
+   - The other four (`background_starting_equipment`, `tigris_species_feat`,
+     `honeykin_bastion_mismatch`, `background_languages`) are content
+     decisions that resolve as data uploads; no wizard dependency.
 
 ---
 

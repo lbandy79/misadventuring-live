@@ -330,6 +330,60 @@ service cloud.firestore {
       allow read, write: if true;
     }
 
+    // ── Soggy Bottom Pirates: team-only sourcebook (Misadventuring Labs) ─
+    // The rules content is unpublished IP. It lives ONLY here — never in
+    // the repo or the JS bundle — so these rules are the whole access
+    // model. Everything uses isCast()/isAdmin(): the audience join pages
+    // sign visitors in anonymously, so isSignedIn() is not a gate.
+    //
+    // sbp-rules/{docId}: one doc per rules file (classes, origins, later
+    // spells), shaped { meta: {...}, data: <file verbatim> }. Admin uploads
+    // through /admin after validation; cast reads to build characters.
+    match /sbp-rules/{docId} {
+      allow read: if isCast() || isAdmin();
+      allow write: if isAdmin()
+        && request.resource.data.keys().hasAll(['meta', 'data'])
+        && request.resource.data.meta.uploadedBy == request.auth.uid;
+    }
+
+    // Previous version of a rules doc, copied before every upload. Append-
+    // only: no update or delete, even for admins, so history can't be
+    // rewritten and a bad upload is always recoverable.
+    match /sbp-rules-history/{entryId} {
+      allow read, create: if isAdmin();
+    }
+
+    // Player characters. Any cast member can read any character (the crew
+    // builds playtest parties together); only the owner or an admin edits.
+    // Owners may delete their own — playtest builds are disposable and
+    // shouldn't need an admin to clean up.
+    match /sbp-characters/{characterId} {
+      allow read: if isCast() || isAdmin();
+
+      allow create: if
+        (isCast() || isAdmin())
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.keys().hasAll([
+          'ownerUid', 'ownerEmail', 'name', 'level',
+          'speciesId', 'backgroundId', 'classId',
+          'abilityScores', 'choices', 'rulesVersion',
+          'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.level is int
+        && request.resource.data.level >= 1
+        && request.resource.data.level <= 20;
+
+      allow update: if
+        isAdmin()
+        || (isCast()
+            && resource.data.ownerUid == request.auth.uid
+            && request.resource.data.ownerUid == resource.data.ownerUid);
+
+      allow delete: if
+        isAdmin()
+        || (isCast() && resource.data.ownerUid == request.auth.uid);
+    }
+
     // Default deny — anything not matched above is locked.
     match /{document=**} {
       allow read, write: if false;

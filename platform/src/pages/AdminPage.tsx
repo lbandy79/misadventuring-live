@@ -16,6 +16,7 @@ import NpcAdminPanel from '../components/admin/NpcAdminPanel';
 import CastAdminPanel from '../components/admin/CastAdminPanel';
 import LiveMonsterAdminPanel from '../components/admin/LiveMonsterAdminPanel';
 import AudienceAdminPanel from '../components/admin/AudienceAdminPanel';
+import SbpRulesAdminPanel from '../components/admin/SbpRulesAdminPanel';
 
 export default function AdminPage() {
   const { user, isAdmin, isLoading, isAdminLoading, signIn } = useAuth();
@@ -74,6 +75,8 @@ export default function AdminPage() {
       </p>
 
       <CastAdminPanel />
+
+      <SbpRulesAdminPanel />
 
       <LiveMonsterAdminPanel />
 

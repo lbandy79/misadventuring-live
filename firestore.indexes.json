@@ -72,6 +72,14 @@
       ]
     },
     {
+      "collectionGroup": "sbp-rules-history",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "kind", "order": "ASCENDING" },
+        { "fieldPath": "replacedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "live-bystander-submissions",
       "queryScope": "COLLECTION",
       "fields": [

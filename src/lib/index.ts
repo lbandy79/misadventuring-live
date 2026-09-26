@@ -24,3 +24,4 @@ export * from './components';
 export * from './madlibs';
 export * from './npcs';
 export * from './hunters';
+export * from './sbp';

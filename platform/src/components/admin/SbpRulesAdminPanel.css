@@ -1,0 +1,148 @@
+.sbp-rules__current {
+  display: grid;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+@media (min-width: 640px) {
+  .sbp-rules__current {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.sbp-rules__card,
+.sbp-rules__review {
+  padding: 1rem;
+  border: 1px solid var(--paper-line, rgba(28, 28, 28, 0.15));
+  border-radius: 6px;
+  background: var(--paper-warm, transparent);
+}
+
+.sbp-rules__review--blocked {
+  border-color: var(--ink-red, #b23a3a);
+}
+
+.sbp-rules__card-title {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-type, monospace);
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.sbp-rules__card-title small {
+  text-transform: none;
+  letter-spacing: 0;
+  opacity: 0.7;
+}
+
+.sbp-rules__meta {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.15rem 0.75rem;
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+}
+
+.sbp-rules__meta dt {
+  opacity: 0.6;
+}
+
+.sbp-rules__meta dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.sbp-rules__link {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-size: 0.85rem;
+  color: var(--ink-blue, #1f4e9c);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.sbp-rules__link:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.sbp-rules__history {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  font-size: 0.85rem;
+}
+
+.sbp-rules__history li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0;
+  border-top: 1px dashed var(--paper-line, rgba(28, 28, 28, 0.15));
+}
+
+.sbp-rules__upload {
+  margin: 1rem 0;
+}
+
+.sbp-rules__pick {
+  display: inline-block;
+  cursor: pointer;
+}
+
+.sbp-rules__notice {
+  margin: 0.5rem 0 0;
+  font-family: var(--font-hand, inherit);
+}
+
+.sbp-rules__counts {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+}
+
+.sbp-rules__issues,
+.sbp-rules__diff {
+  margin: 0.5rem 0;
+  font-size: 0.85rem;
+}
+
+.sbp-rules__issues summary,
+.sbp-rules__diff summary {
+  cursor: pointer;
+}
+
+.sbp-rules__issues--error summary {
+  color: var(--ink-red, #b23a3a);
+  font-weight: 700;
+}
+
+.sbp-rules__issues ul,
+.sbp-rules__diff-list {
+  margin: 0.25rem 0 0;
+  padding-left: 1.2rem;
+  max-height: 16rem;
+  overflow: auto;
+}
+
+.sbp-rules__diff h4 {
+  margin: 0.5rem 0 0.15rem;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.7;
+}
+
+.sbp-rules__diff-list--removed code {
+  text-decoration: line-through;
+}
+
+.sbp-rules__actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 0.75rem;
+}
