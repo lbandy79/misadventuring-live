@@ -265,8 +265,29 @@ Each phase ships and is verified before the next starts.
    script. To go live: `firebase deploy --only firestore:rules` (and
    `--only firestore:indexes` for the history query), then promote the
    platform build.
-2. **Derivation layer.** Pure functions: rules + choices → character at level
-   N. Tested against synthetic fixtures. No UI.
+2. ✅ **Derivation layer** — built 2026-09-26, `src/lib/sbp/`:
+   - `character.ts` — stored shape + `setLevel` / `clearChoicesAbove` /
+     `withChoices`. **Every level-gated choice lives under its level in
+     `choices[level]`** (archetype at `entry_level`, ASI-or-feat at each
+     `asi_or_feat` level, class skills / species size / background tools /
+     flexible background ASI at level 1). Derivation reads only levels ≤
+     current, which is what makes level-down "dormant" for free. This
+     supersedes the top-level `archetypeId` sketched in §5.
+   - `derive.ts` — `deriveCharacter(character, {classes, origins})` →
+     abilities, PB, HP (fixed average: die + CON at 1st, die/2+1 + CON per
+     level), saves/skills/tools/armor/weapons, speed, size, features with
+     resolved `uses` and evaluated `formula`, spellcasting numbers with
+     `listLoaded: false`, `levelExtras` (e.g. per-level dice on a row),
+     `otherGrants` for the sheet, **`pendingChoices`** (what the rules ask
+     for at ≤ current level that isn't chosen — drives the wizard and the
+     sheet), `dormantLevels`, `rulesOutdated`, and `issues` instead of
+     throwing.
+   - `abilityScores.ts` — standard array / point buy / rolled. Numbers
+     default in code but an optional `$ability_scores` block in the origins
+     file overrides them.
+   - `formula.ts` — safe evaluator for `level`, `proficiency_bonus`, ability
+     modifiers, `+ - * /` and parentheses. Returns null, never throws.
+   - Tests: `src/test/lib/sbp/` against `fixtures.ts` (synthetic).
 3. **Wizard**, level 1. Species → background → class → archetype (if entry
    level 1) → ability scores → choices → name → save.
 4. **Sheet** + **level up/down**.
