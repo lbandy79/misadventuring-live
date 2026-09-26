@@ -252,7 +252,8 @@ should split steps into components from the start.
 Each phase ships and is verified before the next starts.
 
 0. ~~**Rules hardening** (§3 Step 0).~~ ✅ Done 2026-09-26.
-1. ✅ **Data layer** — built 2026-09-26, pending rules deploy + seed.
+1. ✅ **Data layer** — live 2026-09-26: rules + indexes deployed, both
+   files seeded through /admin, live probe confirms outsiders are denied.
    Rules for `sbp-rules`, `sbp-rules-history`, `sbp-characters`
    (`firestore.rules`, tested in `src/test/rules/sbp.rules.test.ts`);
    `src/lib/sbp/` (`types.ts`, `validateRules.ts`, `rulesApi.ts`); the
