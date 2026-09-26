@@ -1,90 +1,123 @@
 {
   "indexes": [
     {
-      "collectionGroup": "audience-profiles",
+      "collectionGroup": "npcs",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "magicToken", "order": "ASCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "audience-profiles",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "accessCode", "order": "ASCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "audience-profiles",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "optedInForNotebook", "order": "ASCENDING" }
+        {
+          "fieldPath": "showId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "isActive",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "npcs",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "showId", "order": "ASCENDING" },
-        { "fieldPath": "isActive", "order": "ASCENDING" },
-        { "fieldPath": "createdAt", "order": "ASCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "npcs",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "showId", "order": "ASCENDING" },
-        { "fieldPath": "deviceToken", "order": "ASCENDING" }
+        {
+          "fieldPath": "showId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "deviceToken",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "npc-world-votes",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "showId", "order": "ASCENDING" },
-        { "fieldPath": "deviceToken", "order": "ASCENDING" }
+        {
+          "fieldPath": "showId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "deviceToken",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "beats",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "npcId", "order": "ASCENDING" },
-        { "fieldPath": "triggeredAt", "order": "DESCENDING" }
+        {
+          "fieldPath": "npcId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "triggeredAt",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "beats",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "showId", "order": "ASCENDING" },
-        { "fieldPath": "triggeredAt", "order": "DESCENDING" }
+        {
+          "fieldPath": "showId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "triggeredAt",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "beats",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "showId", "order": "ASCENDING" },
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "moderatedAt", "order": "DESCENDING" }
+        {
+          "fieldPath": "showId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "moderatedAt",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "sbp-rules-history",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "kind", "order": "ASCENDING" },
-        { "fieldPath": "replacedAt", "order": "DESCENDING" }
+        {
+          "fieldPath": "kind",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "replacedAt",
+          "order": "DESCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "live-bystander-submissions",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "showId", "order": "ASCENDING" },
-        { "fieldPath": "voterId", "order": "ASCENDING" }
+        {
+          "fieldPath": "showId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "voterId",
+          "order": "ASCENDING"
+        }
       ]
     }
   ],
