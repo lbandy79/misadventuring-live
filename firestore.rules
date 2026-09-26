@@ -28,12 +28,30 @@ service cloud.firestore {
     function isSignedIn() {
       return request.auth != null;
     }
-    function isAdmin() {
+    // Every allowlist check must go through this. An unverified token can
+    // carry any email address (a self-registered email/password account,
+    // for instance), which would let someone claim an allowlisted address.
+    // Google sign-in — the only provider the app uses for admin and cast —
+    // always sets email_verified. Anonymous users have no email and fail
+    // the first clause.
+    function hasVerifiedEmail() {
       return isSignedIn()
         && request.auth.token.email != null
+        && request.auth.token.email_verified == true;
+    }
+    function isAdmin() {
+      return hasVerifiedEmail()
         && exists(/databases/$(database)/documents/config/admins)
         && (request.auth.token.email.lower()
             in get(/databases/$(database)/documents/config/admins).data.emails);
+    }
+    // Cast (the crew) — same allowlist shape as admins, in config/cast.
+    // Mirrors AuthProvider's client-side isCast so pages and data agree.
+    function isCast() {
+      return hasVerifiedEmail()
+        && exists(/databases/$(database)/documents/config/cast)
+        && (request.auth.token.email.lower()
+            in get(/databases/$(database)/documents/config/cast).data.emails);
     }
 
     // ── Reservations ───────────────────────────────────────────────
@@ -166,14 +184,17 @@ service cloud.firestore {
 
     // ── Hunter sheets (cast character sheets) ──────────────────────
     // Cast members write their own docs (matched by UID).
-    // Any signed-in user can read all sheets — cast members should
-    // be able to see each other's characters for party planning.
-    // Admins can do anything (for moderation / GM view).
+    // Cast can read all sheets — the crew sees each other's characters
+    // for party planning. Admins can do anything (moderation / GM view).
+    //
+    // Was `read: if isSignedIn()` until Sept 2026. That let anyone read
+    // and create sheets: the audience join pages sign visitors in
+    // anonymously, and an anonymous user counts as signed in.
     match /hunter-sheets/{sheetId} {
-      allow read: if isSignedIn();
+      allow read: if isCast() || isAdmin();
 
       allow create: if
-        isSignedIn()
+        (isCast() || isAdmin())
         && request.resource.data.castMemberUid == request.auth.uid
         && request.resource.data.keys().hasAll([
           'castMemberUid', 'castMemberEmail', 'castMemberName',
@@ -184,7 +205,7 @@ service cloud.firestore {
 
       allow update: if
         isAdmin()
-        || (isSignedIn() && resource.data.castMemberUid == request.auth.uid);
+        || (isCast() && resource.data.castMemberUid == request.auth.uid);
 
       allow delete: if isAdmin();
     }
@@ -198,8 +219,16 @@ service cloud.firestore {
     // ── Live show interaction state (legacy admin panel still
     //    password-gated; tightening this requires migrating the
     //    legacy panel to Firebase Auth — own follow-up phase). ─────
+    //
+    // IMPORTANT: Firestore grants access if ANY matching rule allows it,
+    // so this catch-all also matches every config doc that has its own
+    // stricter rule above. Each of those MUST be excluded here, or the
+    // catch-all silently overrides it. `cast` was missing until Sept 2026,
+    // which left the cast allowlist publicly writable.
     match /config/{docId} {
-      allow read, write: if docId != 'admins' && docId != 'platform';
+      allow read, write: if docId != 'admins'
+                         && docId != 'platform'
+                         && docId != 'cast';
     }
     match /votes/{docId} { allow read, write: if true; }
     match /group-roll/{docId} { allow read, write: if true; }
