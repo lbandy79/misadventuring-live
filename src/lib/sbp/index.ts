@@ -5,3 +5,4 @@ export * from './character';
 export * from './abilityScores';
 export * from './formula';
 export * from './derive';
+export * from './characterApi';

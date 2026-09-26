@@ -40,6 +40,8 @@ import LocationStatPage from './pages/LocationStatPage';
 import AuthMenu from './components/AuthMenu';
 import LiveMonsterAudiencePage from './pages/LiveMonsterAudiencePage';
 import LiveMonsterDisplayPage from './pages/LiveMonsterDisplayPage';
+import SbpLabsPage from './pages/labs/SbpLabsPage';
+import SbpCharacterWizardPage from './pages/labs/SbpCharacterWizardPage';
 
 export default function App() {
   const location = useLocation();
@@ -66,6 +68,9 @@ export default function App() {
           <Link to="/notebook">Notebook</Link>
           {(isCast || isAdmin) && (
             <Link to="/hunters" className="nav-hunters-link">The Party</Link>
+          )}
+          {(isCast || isAdmin) && (
+            <Link to="/labs/sbp" className="nav-labs-link">Labs</Link>
           )}
           {isAdmin && (
             <Link to="/keeper" className="nav-keeper-link">Keeper</Link>
@@ -101,6 +106,9 @@ export default function App() {
             <Route path="/shows/monster-of-the-week/create-hunter" element={<HunterCreationPage />} />
             {/* Cast character portfolio */}
             <Route path="/hunters" element={<HuntersPage />} />
+            {/* Misadventuring Labs — SBP team-only sourcebook, cast-gated (docs/sbp/BRIEF.md) */}
+            <Route path="/labs/sbp" element={<SbpLabsPage />} />
+            <Route path="/labs/sbp/characters/new" element={<SbpCharacterWizardPage />} />
             {/* Keeper's Compendium — GM world-building tool, admin-gated */}
             <Route path="/keeper" element={<KeeperPage />} />
             <Route path="/keeper/monsters/new" element={<MonsterWizardPage />} />

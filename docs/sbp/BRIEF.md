@@ -288,8 +288,19 @@ Each phase ships and is verified before the next starts.
    - `formula.ts` — safe evaluator for `level`, `proficiency_bonus`, ability
      modifiers, `+ - * /` and parentheses. Returns null, never throws.
    - Tests: `src/test/lib/sbp/` against `fixtures.ts` (synthetic).
-3. **Wizard**, level 1. Species → background → class → archetype (if entry
-   level 1) → ability scores → choices → name → save.
+3. ✅ **Wizard**, level 1 — built 2026-09-26. `/labs/sbp/characters/new`
+   (`platform/src/pages/labs/SbpCharacterWizardPage.tsx`), one component
+   per step in `platform/src/components/sbp/wizard/`: species → background
+   → class (+ archetype when `entry_level` is 1) → ability scores (method
+   picker) → picks (class skills, size, tools, flexible increase — rendered
+   from the data) → name + review → save. "Next" is enabled when
+   `deriveCharacter` reports nothing pending for that step. Shared pieces
+   in `platform/src/components/sbp/`: `SbpPage` (paper + SBP accent +
+   `useSbpGate` cast gate), `useSbpRules`, `OptionCard`, `ContentFlags`
+   (playtest/maturity badges; `swap` never rendered), `DerivedSummary`.
+   `src/lib/sbp/characterApi.ts` is the Firestore CRUD. `/labs/sbp`
+   (`SbpLabsPage.tsx`) lists your own characters with a compact derived
+   summary and delete; the nav shows "Labs" to cast/admin.
 4. **Sheet** + **level up/down**.
 5. **My characters** page + nav link.
 6. Later: rules browser, random tables, spells when the file exists.
