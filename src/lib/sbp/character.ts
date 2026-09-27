@@ -27,7 +27,7 @@ export interface AsiChoice {
 export interface FeatChoice {
   type: 'feat';
   featId: string;
-  /** For feats whose `grants.skills_choose` asks the player to pick. */
+  /** Legacy slot for this feat's `skills_choose`; new picks go in `grantPicks`. */
   skills?: string[];
 }
 
@@ -45,6 +45,12 @@ export interface LevelChoices {
   backgroundTools?: string[];
   /** Level 1, only when `background.ability_score_increase.mode` is `flexible`. */
   backgroundAsi?: Partial<Record<AbilityKey, number>>;
+  /**
+   * Picks a `grants` block asks for (`skills_choose`, `origin_feat_choose`…),
+   * keyed by the `sourceKey` derive reports for that request. Stored at the
+   * level the granting feature was gained.
+   */
+  grantPicks?: Record<string, string[]>;
 }
 
 export interface SbpCharacter {

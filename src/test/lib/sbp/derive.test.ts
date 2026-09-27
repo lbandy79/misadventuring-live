@@ -97,7 +97,7 @@ describe('deriveCharacter — levelling', () => {
     let d = deriveCharacter(c, rules);
     expect(names(d)).toContain('Tongue Lash');
     expect(d.pendingChoices).toEqual([
-      expect.objectContaining({ kind: 'feat_skills', featId: 'feat.tongue_lash', choose: 1 }),
+      expect.objectContaining({ kind: 'grant_skills', level: 4, sourceKey: 'feat.tongue_lash@4', choose: 1 }),
     ]);
 
     c = withChoices(c, 4, { asiOrFeat: { type: 'feat', featId: 'feat.tongue_lash', skills: ['Acrobatics'] } });
@@ -207,6 +207,59 @@ describe('deriveCharacter — level-1 choices the rules demand', () => {
   it('rejects class skills the class does not offer', () => {
     const d = deriveCharacter(withChoices(scooper(), 1, { classSkills: ['Arcana', 'Athletics'] }), rules);
     expect(d.issues.some((i) => i.includes('does not offer'))).toBe(true);
+  });
+});
+
+describe('deriveCharacter — grant-driven picks', () => {
+  // Everyfolk: a skill from "any" (written as `count`) and an extra origin feat.
+  const everyfolk = () => scooper({
+    speciesId: 'species.everyfolk',
+    choices: { '1': { archetypeId: 'archetype.scooper.mint', classSkills: ['Arcana', 'Performance'] } },
+  });
+
+  it('asks for a skill from any skill, reading `count` as well as `choose`', () => {
+    const d = deriveCharacter(everyfolk(), rules);
+    const knack = d.grantChoices.find((g) => g.sourceKey === 'species.everyfolk/knack')!;
+    expect(knack).toMatchObject({ kind: 'grant_skills', level: 1, choose: 1, chosen: [] });
+    expect(knack.options).toEqual(expect.arrayContaining(['Arcana', 'Athletics', 'History', 'Acrobatics', 'Sleight of Hand']));
+    expect(d.pendingChoices.some((p) => p.sourceKey === 'species.everyfolk/knack')).toBe(true);
+  });
+
+  it('offers origin feats except the background\'s own and species-gated ones', () => {
+    const d = deriveCharacter(everyfolk(), rules);
+    const extra = d.grantChoices.find((g) => g.kind === 'grant_origin_feat')!;
+    expect(extra.options.sort()).toEqual(['feat.bookish', 'feat.tough_crust']);
+  });
+
+  it('applies the chosen origin feat and asks for that feat\'s own pick', () => {
+    const extraKey = 'species.everyfolk/extra_origin';
+    let c = withChoices(everyfolk(), 1, { grantPicks: { 'species.everyfolk/knack': ['Stealth'], [extraKey]: ['feat.bookish'] } });
+    let d = deriveCharacter(c, rules);
+    expect(names(d)).toContain('Bookish');
+    expect(d.skills).toContain('Stealth');
+    const nested = `${extraKey}>feat.bookish`;
+    expect(d.pendingChoices.map((p) => p.sourceKey)).toEqual([nested]);
+
+    c = withChoices(c, 1, { grantPicks: { ...c.choices['1'].grantPicks, [nested]: ['History'] } });
+    d = deriveCharacter(c, rules);
+    expect(d.pendingChoices).toEqual([]);
+    expect(d.ok).toBe(true);
+    expect(d.skills).toEqual(expect.arrayContaining(['History', 'Stealth']));
+  });
+
+  it('asks for the background origin feat\'s skill pick at level 1', () => {
+    const o = rulesDocs();
+    o.origins.data.backgrounds[0].origin_feat = 'feat.bookish';
+    const d = deriveCharacter(scooper(), o);
+    expect(d.pendingChoices).toEqual([
+      expect.objectContaining({ kind: 'grant_skills', level: 1, sourceKey: 'background.deckhand/feat.bookish', options: ['History', 'Religion'] }),
+    ]);
+  });
+
+  it('flags a saved pick that is no longer an option', () => {
+    const c = withChoices(everyfolk(), 1, { grantPicks: { 'species.everyfolk/extra_origin': ['feat.sea_legs'] } });
+    const d = deriveCharacter(c, rules);
+    expect(d.issues.some((i) => i.includes('no longer an option'))).toBe(true);
   });
 });
 

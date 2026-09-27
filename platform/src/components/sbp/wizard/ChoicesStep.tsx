@@ -39,7 +39,14 @@ export function ChoicesStep({ draft, rules, onChange }: StepProps) {
     if (total <= 3) onChange(withChoices(draft, 1, { backgroundAsi: patch }));
   }
 
-  const nothingToChoose = !skillRule?.choose && !sizeOptions && !toolRule?.choose && !flexAsi;
+  const grantRequests = derived.grantChoices.filter((g) => g.level === 1);
+  const featName = (id: string) => rules.origins.feats.find((f) => f.id === id);
+
+  function setGrantPick(sourceKey: string, picks: string[]) {
+    onChange(withChoices(draft, 1, { grantPicks: { ...(c1.grantPicks ?? {}), [sourceKey]: picks } }));
+  }
+
+  const nothingToChoose = !skillRule?.choose && !sizeOptions && !toolRule?.choose && !flexAsi && grantRequests.length === 0;
 
   return (
     <div className="wizard-step">
@@ -130,6 +137,56 @@ export function ChoicesStep({ draft, rules, onChange }: StepProps) {
           </div>
         </fieldset>
       )}
+
+      {grantRequests.map((g) => {
+        // Skills this request didn't grant, so the player can avoid doubling up.
+        const known = new Set(derived.skills.filter((s) => !g.chosen.includes(s)));
+        return (
+          <fieldset key={g.sourceKey} className="sbp-fieldset">
+            <legend className="wizard-label">
+              {g.sourceName} <span className="wizard-label-hint">— choose {g.choose} {g.kind === 'grant_skills' ? (g.choose === 1 ? 'skill' : 'skills') : (g.choose === 1 ? 'origin feat' : 'origin feats')}</span>
+            </legend>
+            {g.kind === 'grant_skills' ? (
+              <div className="tag-grid">
+                {g.options.map((s) => {
+                  const on = g.chosen.includes(s);
+                  return (
+                    <button
+                      key={s}
+                      type="button"
+                      className={`tag-pill ${on ? 'tag-pill--active' : ''}`}
+                      aria-pressed={on}
+                      title={known.has(s) ? 'You already have this skill' : undefined}
+                      onClick={() => setGrantPick(g.sourceKey, toggle(g.chosen, s, g.choose))}
+                    >
+                      {s}{known.has(s) ? ' ·have' : ''}
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="type-grid">
+                {g.options.map((id) => {
+                  const f = featName(id);
+                  const on = g.chosen.includes(id);
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      className={`type-card ${on ? 'type-card--selected' : ''}`}
+                      aria-pressed={on}
+                      onClick={() => setGrantPick(g.sourceKey, g.choose === 1 ? [id] : toggle(g.chosen, id, g.choose))}
+                    >
+                      <span className="type-card-id" style={{ textTransform: 'none' }}>{on ? '✓ ' : ''}{f?.name ?? id}</span>
+                      {f?.text && <span className="type-card-motivation">{f.text}</span>}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </fieldset>
+        );
+      })}
 
       {pendingHere.length > 0 && (
         <p className="wizard-derived-notice">Still to pick: {pendingHere.map((p) => p.label).join(' · ')}</p>

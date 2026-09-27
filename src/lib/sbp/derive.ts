@@ -84,7 +84,8 @@ export type PendingChoiceKind =
   | 'species_size'
   | 'background_tools'
   | 'background_asi'
-  | 'feat_skills';
+  | 'grant_skills'
+  | 'grant_origin_feat';
 
 export interface PendingChoice {
   level: number;
@@ -93,8 +94,25 @@ export interface PendingChoice {
   /** Ids or names to choose from, when the rules enumerate them. */
   options?: string[];
   choose?: number;
-  /** For `feat_skills`: which feat is asking. */
-  featId?: string;
+  /** For grant picks: where the answer is stored in `choices[level].grantPicks`. */
+  sourceKey?: string;
+}
+
+/**
+ * A pick that a `grants` block asks for. Reported whether or not it has
+ * been answered, so a UI can keep showing the picker after it's filled.
+ */
+export interface GrantChoiceRequest {
+  level: number;
+  kind: 'grant_skills' | 'grant_origin_feat';
+  /** Key into `choices[level].grantPicks`. */
+  sourceKey: string;
+  /** Display name of the trait/feat/feature asking. */
+  sourceName: string;
+  choose: number;
+  /** Skill names, or feat ids for `grant_origin_feat`. */
+  options: string[];
+  chosen: string[];
 }
 
 export interface DerivedSpellcasting {
@@ -148,6 +166,8 @@ export interface DerivedCharacter {
   otherGrants: Array<{ source: string; key: string; value: unknown }>;
 
   pendingChoices: PendingChoice[];
+  /** Every grant-driven pick at ≤ current level, answered or not. */
+  grantChoices: GrantChoiceRequest[];
   dormantLevels: number[];
   rulesOutdated: { classes: boolean; origins: boolean };
 }
@@ -190,6 +210,40 @@ function resolveUses(uses: Uses | string | undefined, pb: number): DerivedUses |
 
 const unique = (xs: string[]) => Array.from(new Set(xs));
 
+/**
+ * Every skill name the rules mention, for `from: "any"`. An optional
+ * `$skills` array in the origins file overrides it.
+ */
+export function allSkillNames(classes: SbpClassesFile, origins: SbpOriginsFile): string[] {
+  const explicit = (origins as unknown as { $skills?: unknown }).$skills;
+  if (Array.isArray(explicit) && explicit.every((s) => typeof s === 'string')) return [...explicit].sort();
+  const found = new Set<string>();
+  for (const k of classes.classes) {
+    const from = (k.proficiencies?.skills as { from?: unknown } | undefined)?.from;
+    if (Array.isArray(from)) from.forEach((s) => typeof s === 'string' && found.add(s));
+  }
+  for (const b of origins.backgrounds) (b.skill_proficiencies ?? []).forEach((s) => found.add(s));
+  const visit = (v: unknown) => {
+    if (Array.isArray(v)) v.forEach(visit);
+    else if (v && typeof v === 'object') {
+      const g = (v as { grants?: Record<string, unknown> }).grants;
+      if (g) {
+        if (Array.isArray(g.skills)) g.skills.forEach((s) => typeof s === 'string' && found.add(s));
+        const from = (g.skills_choose as { from?: unknown } | undefined)?.from;
+        if (Array.isArray(from)) from.forEach((s) => typeof s === 'string' && found.add(s));
+      }
+      Object.values(v).forEach(visit);
+    }
+  };
+  visit(origins.species);
+  visit(origins.feats);
+  return [...found].sort();
+}
+
+/** `choose` and `count` both appear in the data for "how many". */
+const howMany = (rule: { choose?: unknown; count?: unknown }): number =>
+  typeof rule.choose === 'number' ? rule.choose : typeof rule.count === 'number' ? rule.count : 1;
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 export function deriveCharacter(character: SbpCharacter, rules: RulesInput): DerivedCharacter {
@@ -226,6 +280,7 @@ export function deriveCharacter(character: SbpCharacter, rules: RulesInput): Der
     levelExtras: {},
     otherGrants: [],
     pendingChoices: pending,
+    grantChoices: [],
     dormantLevels: dormantLevels(character),
     rulesOutdated: {
       classes: rules.classes ? rules.classes.meta.uploadedAt !== character.rulesVersion.classes : false,
@@ -392,22 +447,64 @@ export function deriveCharacter(character: SbpCharacter, rules: RulesInput): Der
     CHA: abilities.CHA.modifier,
   };
 
-  const applyGrants = (grants: Record<string, unknown> | undefined, source: string, featChoice?: FeatChoice) => {
+  const grantChoices: GrantChoiceRequest[] = [];
+  const skillUniverse = allSkillNames(classesFile, originsFile);
+
+  interface GrantSource {
+    name: string;
+    /** Stable key for this grant's picks in `choices[level].grantPicks`. */
+    key: string;
+    level: number;
+    featChoice?: FeatChoice;
+    depth?: number;
+  }
+
+  /** Record a pick request and return the valid answers so far. */
+  const requestPick = (
+    src: GrantSource,
+    kind: GrantChoiceRequest['kind'],
+    choose: number,
+    options: string[],
+    legacy?: string[],
+  ): string[] => {
+    const stored = choicesAt(character, src.level).grantPicks?.[src.key] ?? legacy ?? [];
+    const valid = unique(stored.filter((x) => options.includes(x))).slice(0, choose);
+    if (valid.length !== stored.length) issues.push(`${src.name}: a saved pick is no longer an option.`);
+    grantChoices.push({ level: src.level, kind, sourceKey: src.key, sourceName: src.name, choose, options, chosen: valid });
+    if (valid.length < choose) {
+      const what = kind === 'grant_skills' ? `skill${choose === 1 ? '' : 's'}` : `origin feat${choose === 1 ? '' : 's'}`;
+      pending.push({ level: src.level, kind, label: `${src.name}: choose ${choose} ${what}`, options, choose, sourceKey: src.key });
+    }
+    return valid;
+  };
+
+  const applyGrants = (grants: Record<string, unknown> | undefined, src: GrantSource) => {
     if (!grants) return;
+    const source = src.name;
     for (const [key, value] of Object.entries(grants)) {
       if (key === 'skills' && Array.isArray(value)) {
         skills.push(...(value as string[]));
       } else if (key === 'skills_choose' && value && typeof value === 'object') {
-        const rule = value as { choose?: number; from?: string[] };
-        const chosen = featChoice?.skills ?? [];
-        const valid = rule.from ? chosen.filter((s) => rule.from!.includes(s)) : chosen;
-        if (valid.length < (rule.choose ?? 1)) {
-          pending.push({
-            level: 1, kind: 'feat_skills', label: `Choose ${rule.choose ?? 1} skill(s) from ${source}`,
-            options: rule.from, choose: rule.choose ?? 1, featId: featChoice?.featId,
+        const rule = value as { choose?: number; count?: number; from?: string[] | string };
+        const options = Array.isArray(rule.from) ? rule.from : skillUniverse;
+        skills.push(...requestPick(src, 'grant_skills', howMany(rule), options, src.featChoice?.skills));
+      } else if (key === 'origin_feat_choose' && value && typeof value === 'object') {
+        const rule = value as { choose?: number; count?: number; category?: string; exclude?: string };
+        const options = originsFile.feats
+          .filter((f) => !rule.category || f.category === rule.category)
+          .filter((f) => !(rule.exclude === 'background_origin_feat' && f.id === background.origin_feat))
+          .filter((f) => !f.prerequisite?.species || f.prerequisite.species === species.id)
+          .map((f) => f.id);
+        const picked = requestPick(src, 'grant_origin_feat', howMany(rule), options);
+        if ((src.depth ?? 0) >= 2) continue;
+        for (const id of picked) {
+          const feat = featById.get(id)!;
+          pushFeature({
+            id: `${src.key}>${feat.id}`, name: feat.name, text: feat.text, source: 'feat', sourceId: feat.id,
+            level: src.level, grants: feat.grants, flags: flagsOf(feat), uses: feat.uses,
           });
+          applyGrants(feat.grants, { name: feat.name, key: `${src.key}>${feat.id}`, level: src.level, depth: (src.depth ?? 0) + 1 });
         }
-        skills.push(...valid);
       } else if (key === 'speed' && value && typeof value === 'object') {
         for (const [mode, v] of Object.entries(value as Record<string, unknown>)) {
           if (typeof v === 'number') speed[mode] = Math.max(speed[mode] ?? 0, v);
@@ -438,7 +535,7 @@ export function deriveCharacter(character: SbpCharacter, rules: RulesInput): Der
       id: `${species.id}/${trait.id}`, name: trait.name, text: trait.text, source: 'species', sourceId: species.id,
       level: unlock, grants: trait.grants, flags: flagsOf(trait), uses: trait.uses, formula: trait.formula,
     });
-    applyGrants(trait.grants, trait.name);
+    applyGrants(trait.grants, { name: trait.name, key: `${species.id}/${trait.id}`, level: unlock });
   }
 
   // Background origin feat.
@@ -448,7 +545,7 @@ export function deriveCharacter(character: SbpCharacter, rules: RulesInput): Der
       id: originFeat.id, name: originFeat.name, text: originFeat.text, source: 'background', sourceId: background.id,
       level: 1, grants: originFeat.grants, flags: flagsOf(originFeat), uses: originFeat.uses,
     });
-    applyGrants(originFeat.grants, originFeat.name);
+    applyGrants(originFeat.grants, { name: originFeat.name, key: `${background.id}/${originFeat.id}`, level: 1 });
   } else {
     issues.push(`Origin feat "${background.origin_feat}" not found.`);
   }
@@ -467,7 +564,7 @@ export function deriveCharacter(character: SbpCharacter, rules: RulesInput): Der
         id: `${klass.id}/${fid}`, name: body.name, text: body.text, source: 'class', sourceId: klass.id,
         level: n, grants: body.grants, flags: flagsOf(body), uses: body.uses, formula: body.formula,
       });
-      applyGrants(body.grants, body.name);
+      applyGrants(body.grants, { name: body.name, key: `${klass.id}/${fid}`, level: n });
     }
   }
 
@@ -498,7 +595,7 @@ export function deriveCharacter(character: SbpCharacter, rules: RulesInput): Der
             level: n, grants: feat.grants as Record<string, unknown> | undefined, flags: flagsOf(feat as never),
             uses: feat.uses as Uses | undefined, formula: feat.formula as string | undefined,
           });
-          applyGrants(feat.grants as Record<string, unknown> | undefined, feat.name);
+          applyGrants(feat.grants as Record<string, unknown> | undefined, { name: feat.name, key: `${option.id}/${lvlKey}`, level: n });
         }
       }
     }
@@ -510,12 +607,13 @@ export function deriveCharacter(character: SbpCharacter, rules: RulesInput): Der
       id: feat.id, name: feat.name, text: feat.text, source: 'feat', sourceId: feat.id,
       level: n, grants: feat.grants, flags: flagsOf(feat), uses: feat.uses,
     });
-    applyGrants(feat.grants, feat.name, choice);
+    applyGrants(feat.grants, { name: feat.name, key: `${feat.id}@${n}`, level: n, featChoice: choice });
   }
 
   features.sort((a, b) => a.level - b.level);
   result.features = features;
   result.otherGrants = otherGrants;
+  result.grantChoices = grantChoices.sort((a, b) => a.level - b.level);
   result.skills = unique(skills).sort();
   result.tools = unique(tools);
   result.armor = unique((klass.proficiencies?.armor as string[] | undefined) ?? []);

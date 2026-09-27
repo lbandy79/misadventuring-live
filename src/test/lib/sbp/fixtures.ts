@@ -106,6 +106,19 @@ export function originsFixture(): SbpOriginsFile {
         species_feats: ['feat.tongue_lash'],
       },
       {
+        id: 'species.everyfolk',
+        name: 'Everyfolk',
+        size: 'medium',
+        speed: { walk: 30 },
+        traits: [
+          { id: 'knack', name: 'Knack', text: 'Any skill.', grants: { skills_choose: { count: 1, from: 'any' } } },
+          {
+            id: 'extra_origin', name: 'Extra Origin', text: 'Another origin feat.',
+            grants: { origin_feat_choose: { count: 1, category: 'origin', exclude: 'background_origin_feat' } },
+          },
+        ],
+      },
+      {
         id: 'species.pebble',
         name: 'Pebble',
         size: 'small',
@@ -141,6 +154,10 @@ export function originsFixture(): SbpOriginsFile {
         text: 'Lash.', grants: { skills_choose: { choose: 1, from: ['Acrobatics', 'Sleight of Hand'] } },
       },
       { id: 'feat.tough_crust', name: 'Tough Crust', category: 'origin', prerequisite: null, text: 'Crusty.' },
+      {
+        id: 'feat.bookish', name: 'Bookish', category: 'origin', prerequisite: null, text: 'Reads.',
+        grants: { skills_choose: { count: 1, from: ['History', 'Religion'] } },
+      },
     ],
   };
 }
