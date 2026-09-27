@@ -353,6 +353,40 @@ service cloud.firestore {
       allow read, create: if isAdmin();
     }
 
+    // Draft art for classes/species/backgrounds (unpublished IP, same lock
+    // as the rules). Split so pages load small thumbs for every entity and
+    // fetch a full image only when one is shown:
+    //   sbp-art/{entityId}       { thumb: data URL, meta }   (~20 KB)
+    //   sbp-art-full/{entityId}  { full: data URL }          (~150–300 KB)
+    //   sbp-art-history/{id}     previous version on replace; append-only
+    // Size caps keep every doc (history included) under Firestore's 1 MiB.
+    function validArtThumb() {
+      return request.resource.data.keys().hasAll(['thumb', 'meta'])
+        && request.resource.data.thumb is string
+        && request.resource.data.thumb.size() < 120000;
+    }
+    match /sbp-art/{entityId} {
+      allow read: if isCast() || isAdmin();
+      // A new image is attributed to whoever uploads it; an edit that keeps
+      // the image (e.g. draft → final) may keep the original uploader.
+      allow create: if isAdmin() && validArtThumb()
+        && request.resource.data.meta.uploadedBy == request.auth.uid;
+      allow update: if isAdmin() && validArtThumb()
+        && (request.resource.data.meta.uploadedBy == request.auth.uid
+            || request.resource.data.meta.uploadedBy == resource.data.meta.uploadedBy);
+      allow delete: if isAdmin();
+    }
+    match /sbp-art-full/{entityId} {
+      allow read: if isCast() || isAdmin();
+      allow create, update: if isAdmin()
+        && request.resource.data.full is string
+        && request.resource.data.full.size() < 750000;
+      allow delete: if isAdmin();
+    }
+    match /sbp-art-history/{entryId} {
+      allow read, create: if isAdmin();
+    }
+
     // Player characters. Any cast member can read any character (the crew
     // builds playtest parties together); only the owner or an admin edits.
     // Owners may delete their own — playtest builds are disposable and

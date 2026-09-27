@@ -175,6 +175,60 @@
 .sbp-character-card__name a { color: inherit; text-decoration: none; }
 .sbp-character-card__name a:hover { color: var(--accent); }
 
+/* Draft art */
+.sbp-art__thumb { display: block; }
+.sbp-option__art {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  object-position: top;
+  border-radius: 2px;
+  margin-bottom: 0.35rem;
+}
+.sbp-art__figure { position: relative; margin: 0; }
+.sbp-art__full {
+  display: block;
+  width: 100%;
+  max-height: 460px;
+  object-fit: contain;
+  border-radius: 3px;
+  background: rgba(28, 28, 28, 0.04);
+  transition: filter 200ms ease;
+}
+.sbp-art__full--loading { filter: blur(6px); }
+.sbp-art__badge {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  font-family: var(--font-type);
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.1rem 0.45rem;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(28, 28, 28, 0.4);
+  border-radius: 2px;
+}
+.sbp-flavor--large {
+  font-size: 1.2rem;
+  line-height: 1.6;
+  padding: 1.25rem 1.4rem;
+  background: var(--paper);
+  border: 2px dashed var(--accent);
+  border-radius: 3px;
+}
+.sbp-art-strip { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+.sbp-art-strip:empty { display: none; }
+.sbp-art-strip__item { margin: 0; width: 128px; text-align: center; font-family: var(--font-type); font-size: 0.7rem; }
+.sbp-art-strip__item img { width: 128px; aspect-ratio: 1; object-fit: cover; object-position: top; border-radius: 3px; border: 2px solid var(--ink-black); }
+@media (max-width: 560px) {
+  .sbp-art-strip__item, .sbp-art-strip__item img { width: 92px; }
+}
+.sbp-character-card__art { width: 48px; height: 48px; object-fit: cover; object-position: top; border-radius: 50%; border: 2px solid var(--ink-black); flex-shrink: 0; }
+.sbp-character-card__head { align-items: center; }
+.sbp-character-card__name { flex: 1; }
+.sbp-crew__art { width: 36px; height: 36px; object-fit: cover; object-position: top; border-radius: 50%; align-self: center; }
+
 /* Crew view */
 .sbp-crew__heading { margin-top: 2rem; }
 .sbp-crew { display: flex; flex-direction: column; gap: 1.25rem; }

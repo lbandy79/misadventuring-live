@@ -35,6 +35,7 @@ import { Doodle } from '../../components/Doodle';
 import { SbpHeader, SbpPage, useSbpGate } from '../../components/sbp/SbpPage';
 import { useSbpRules } from '../../components/sbp/useSbpRules';
 import { DerivedSummary } from '../../components/sbp/DerivedSummary';
+import { ArtStrip } from '../../components/sbp/art/ArtStrip';
 import { ArchetypePicker, AsiOrFeatPicker, GrantPickPicker, eligibleFeats } from '../../components/sbp/pickers';
 import type { WizardRules } from '../../components/sbp/wizard/types';
 
@@ -238,6 +239,7 @@ function Sheet({ initial, rules, canEdit }: { initial: SbpCharacter; rules: Wiza
         </p>
       )}
 
+      <ArtStrip d={derived} />
       <DerivedSummary d={derived} />
 
       {canEdit && levelSlots.length > 0 && (

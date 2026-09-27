@@ -1,6 +1,7 @@
 import { withChoices } from '@mtp/lib';
 import type { SbpClass } from '@mtp/lib';
 import { OptionCard } from '../OptionCard';
+import { ArtOrText } from '../art/Art';
 import type { StepProps } from './types';
 
 const primary = (k: SbpClass) => (Array.isArray(k.primary_ability) ? k.primary_ability.join(' / ') : k.primary_ability);
@@ -43,13 +44,14 @@ export function ClassStep({ draft, rules, onChange }: StepProps) {
             playtest={k.playtest}
             maturity={k.maturity}
             note={background?.collides_with === k.id ? 'Shares its name with your background.' : undefined}
+            artId={k.id}
           />
         ))}
       </div>
 
       {klass && (
         <div className="sbp-detail">
-          {klass.flavor && <p className="sbp-flavor">{klass.flavor}</p>}
+          <ArtOrText entityId={klass.id} alt={klass.name} text={klass.flavor} />
           <ul className="sbp-list">
             <li><strong>Saving throws</strong> — {(klass.saving_throws ?? []).join(', ')}</li>
             {klass.spellcasting && (

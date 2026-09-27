@@ -140,6 +140,27 @@
   text-decoration: line-through;
 }
 
+/* ── Art admin ──────────────────────────────────────────────────────────── */
+.sbp-art-admin__pickers { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+.sbp-art-admin__rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6rem; }
+.sbp-art-admin__row { display: flex; gap: 0.75rem; align-items: flex-start; padding-bottom: 0.6rem; border-bottom: 1px dashed var(--paper-line, rgba(28, 28, 28, 0.15)); }
+.sbp-art-admin__row--uploaded { opacity: 0.6; }
+.sbp-art-admin__preview { width: 64px; height: 64px; object-fit: cover; border-radius: 3px; flex-shrink: 0; background: var(--paper-line, #ddd); }
+.sbp-art-admin__preview--empty { display: inline-block; }
+.sbp-art-admin__row-body { display: flex; flex-direction: column; gap: 0.3rem; min-width: 0; flex: 1; font-size: 0.85rem; }
+.sbp-art-admin__file { font-family: var(--font-type, monospace); overflow-wrap: anywhere; }
+.sbp-art-admin__controls { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.sbp-art-admin__controls .wizard-input { width: auto; padding: 0.35rem 0.5rem; font-size: 0.9rem; }
+.sbp-art-admin__coverage { margin-top: 1rem; }
+.sbp-art-admin__grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 0.6rem; }
+.sbp-art-admin__tile { display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.75rem; }
+.sbp-art-admin__tile img, .sbp-art-admin__none { width: 100%; aspect-ratio: 1; object-fit: cover; object-position: top; border-radius: 3px; }
+.sbp-art-admin__none { display: flex; align-items: center; justify-content: center; border: 1.5px dashed var(--paper-line, rgba(28, 28, 28, 0.25)); color: rgba(28, 28, 28, 0.45); }
+.sbp-art-admin__tile-name { font-weight: 700; }
+.sbp-art-admin__tile-actions { display: flex; gap: 0.5rem; }
+.sbp-art-admin__tile-actions .sbp-rules__link { font-size: 0.75rem; }
+.sbp-danger { color: var(--ink-red, #b23a3a); }
+
 .sbp-rules__actions {
   display: flex;
   gap: 1rem;

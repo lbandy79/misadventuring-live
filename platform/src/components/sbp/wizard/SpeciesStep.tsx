@@ -1,5 +1,6 @@
 import { withChoices } from '@mtp/lib';
 import { OptionCard } from '../OptionCard';
+import { ArtOrText } from '../art/Art';
 import type { StepProps } from './types';
 
 export function SpeciesStep({ draft, rules, onChange }: StepProps) {
@@ -25,11 +26,13 @@ export function SpeciesStep({ draft, rules, onChange }: StepProps) {
             onSelect={() => pick(s.id)}
             playtest={s.playtest}
             maturity={s.maturity}
+            artId={s.id}
           />
         ))}
       </div>
       {selected && (
         <div className="sbp-detail">
+          <ArtOrText entityId={selected.id} alt={selected.name} text={selected.flavor} />
           <h3 className="wizard-subheading">{selected.name} traits</h3>
           <ul className="sbp-list">
             {selected.traits.map((t) => (

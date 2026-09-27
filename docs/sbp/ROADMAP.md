@@ -13,7 +13,19 @@ Order is a suggestion; playtest feedback wins.
 
 ---
 
-## 1. Draft art on classes, species, backgrounds  ← next
+## 1. Draft art on classes, species, backgrounds  ✅ built 2026-09-27
+
+**Decided: option A (Firestore).** Built as `sbp-art/{entityId}` (thumb +
+meta, ~20–110 KB), `sbp-art-full/{entityId}` (≈1024 px WebP, < 700 KB,
+fetched on demand and cached per upload), and `sbp-art-history` (append-only).
+Rules and tests are in `firestore.rules` / `src/test/rules/sbp.rules.test.ts`.
+Matching is in `src/lib/sbp/artMatch.ts` (tested); the admin panel is
+`platform/src/components/admin/SbpArtAdminPanel.tsx`; display is in
+`platform/src/components/sbp/art/` (one session-wide thumb subscription).
+An entry with no art shows its description in a larger text box instead
+(e.g. the species that has no draft image, by design).
+
+Original plan, kept for reference:
 
 Midjourney drafts, app-only, the blueprint an artist will later replace.
 Source: OneDrive `Soggy Bottom Pirates/2026 Campaign/Player Packet Art/`

@@ -1,6 +1,7 @@
 import { withChoices } from '@mtp/lib';
 import type { Background } from '@mtp/lib';
 import { OptionCard } from '../OptionCard';
+import { ArtOrText } from '../art/Art';
 import type { StepProps } from './types';
 
 export function describeIncrease(b: Background): string {
@@ -33,12 +34,13 @@ export function BackgroundStep({ draft, rules, onChange }: StepProps) {
             playtest={b.playtest}
             maturity={b.maturity}
             note={b.collides_with && b.collides_with === draft.classId ? 'Shares its name with your class.' : undefined}
+            artId={b.id}
           />
         ))}
       </div>
       {selected && (
         <div className="sbp-detail">
-          {selected.flavor && <p className="sbp-flavor">{selected.flavor}</p>}
+          <ArtOrText entityId={selected.id} alt={selected.name} text={selected.flavor} />
           <ul className="sbp-list">
             <li><strong>Skills</strong> — {(selected.skill_proficiencies ?? []).join(', ') || 'none'}</li>
             <li>

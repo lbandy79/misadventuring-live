@@ -98,6 +98,9 @@ beforeEach(async () => {
       kind: 'classes', replacedAt: 1, replacedBy: ADMIN.uid, previous: rulesDoc(ADMIN.uid),
     });
     await setDoc(doc(db, 'sbp-characters', 'char-a'), character(CAST_A.uid));
+    await setDoc(doc(db, 'sbp-art', 'class.test'), { thumb: 'data:image/webp;base64,AA', meta: { uploadedBy: ADMIN.uid } });
+    await setDoc(doc(db, 'sbp-art-full', 'class.test'), { full: 'data:image/webp;base64,AA' });
+    await setDoc(doc(db, 'sbp-art-history', 'a1'), { entityId: 'class.test', replacedAt: 1 });
     await setDoc(doc(db, 'hunter-sheets', 'sheet-1'), { castMemberUid: CAST_A.uid, hunterName: 'H' });
   });
 });
@@ -187,6 +190,64 @@ describe('sbp-rules-history (append-only backups)', () => {
     await assertFails(
       setDoc(doc(asCastA(), 'sbp-rules-history', 'h3'), { kind: 'classes', replacedAt: 3 }),
     );
+  });
+});
+
+// ─── sbp-art ──────────────────────────────────────────────────────────────────
+
+describe('sbp-art (draft art, same lock as the rules)', () => {
+  const thumbDoc = (uploadedBy: string, size = 100) => ({
+    thumb: `data:image/webp;base64,${'A'.repeat(size)}`,
+    meta: { entityId: 'class.test', uploadedBy, uploadedAt: 1, status: 'draft' },
+  });
+
+  it('thumbs and full images are unreadable to outsiders, anonymous and impostors', async () => {
+    for (const db of [asNobody(), asAnonymous(), asOutsider(), asImpostor()]) {
+      await assertFails(getDoc(doc(db, 'sbp-art', 'class.test')));
+      await assertFails(getDoc(doc(db, 'sbp-art-full', 'class.test')));
+    }
+  });
+
+  it('cast can read thumbs and full images', async () => {
+    await assertSucceeds(getDoc(doc(asCastA(), 'sbp-art', 'class.test')));
+    await assertSucceeds(getDoc(doc(asCastA(), 'sbp-art-full', 'class.test')));
+  });
+
+  it('only admins write, with the envelope and their own uid', async () => {
+    await assertFails(setDoc(doc(asCastA(), 'sbp-art', 'class.test'), thumbDoc(CAST_A.uid)));
+    await assertFails(setDoc(doc(asCastA(), 'sbp-art-full', 'class.test'), { full: 'data:image/webp;base64,AA' }));
+    await assertSucceeds(setDoc(doc(asAdmin(), 'sbp-art', 'class.test'), thumbDoc(ADMIN.uid)));
+    await assertSucceeds(setDoc(doc(asAdmin(), 'sbp-art-full', 'class.test'), { full: 'data:image/webp;base64,AA' }));
+    await assertFails(setDoc(doc(asAdmin(), 'sbp-art', 'class.test'), thumbDoc(CAST_A.uid)));
+    await assertFails(setDoc(doc(asAdmin(), 'sbp-art', 'class.test'), { thumb: 'x' }));
+  });
+
+  it('lets another admin flip status while keeping the original uploader, but not forge one', async () => {
+    // Seeded doc was uploaded by ADMIN; a second admin edits it.
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), 'config', 'admins'), { emails: [ADMIN.email, CAST_B.email] });
+    });
+    await assertSucceeds(setDoc(doc(asCastB(), 'sbp-art', 'class.test'), { ...thumbDoc(ADMIN.uid), meta: { ...thumbDoc(ADMIN.uid).meta, status: 'final' } }));
+    await assertFails(setDoc(doc(asCastB(), 'sbp-art', 'class.test'), thumbDoc(CAST_A.uid)));
+  });
+
+  it('rejects oversized images so docs stay under the 1 MiB limit', async () => {
+    await assertFails(setDoc(doc(asAdmin(), 'sbp-art', 'class.test'), thumbDoc(ADMIN.uid, 130000)));
+    await assertFails(setDoc(doc(asAdmin(), 'sbp-art-full', 'class.test'), { full: 'A'.repeat(760000) }));
+  });
+
+  it('admins can remove art; cast cannot', async () => {
+    await assertFails(deleteDoc(doc(asCastA(), 'sbp-art', 'class.test')));
+    await assertSucceeds(deleteDoc(doc(asAdmin(), 'sbp-art', 'class.test')));
+    await assertSucceeds(deleteDoc(doc(asAdmin(), 'sbp-art-full', 'class.test')));
+  });
+
+  it('history is admin-only and append-only', async () => {
+    await assertFails(getDoc(doc(asCastA(), 'sbp-art-history', 'a1')));
+    await assertSucceeds(getDoc(doc(asAdmin(), 'sbp-art-history', 'a1')));
+    await assertSucceeds(setDoc(doc(asAdmin(), 'sbp-art-history', 'a2'), { entityId: 'class.test', replacedAt: 2 }));
+    await assertFails(updateDoc(doc(asAdmin(), 'sbp-art-history', 'a1'), { replacedAt: 9 }));
+    await assertFails(deleteDoc(doc(asAdmin(), 'sbp-art-history', 'a1')));
   });
 });
 

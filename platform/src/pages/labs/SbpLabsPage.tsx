@@ -24,6 +24,7 @@ import { Doodle } from '../../components/Doodle';
 import { SbpHeader, SbpPage, useSbpGate } from '../../components/sbp/SbpPage';
 import { useSbpRules } from '../../components/sbp/useSbpRules';
 import { DerivedSummary } from '../../components/sbp/DerivedSummary';
+import { ArtThumb } from '../../components/sbp/art/Art';
 
 const ownerLabel = (c: SbpCharacter) => c.ownerName?.trim() || c.ownerEmail || 'Unknown player';
 
@@ -150,6 +151,7 @@ function MyCharacterCard({ c, rules, rulesReady, busy, onDelete }: {
   return (
     <li className="sbp-character-card">
       <div className="sbp-character-card__head">
+        <ArtThumb entityId={c.classId} alt="" className="sbp-character-card__art" />
         <h3 className="sbp-character-card__name">
           <Link to={`/labs/sbp/characters/${c.id}`}>{c.name}</Link>
         </h3>
@@ -194,6 +196,7 @@ function CrewRow({ c, derived: d, canDelete, busy, onDelete }: {
   return (
     <li className="sbp-crew__row">
       <div className="sbp-crew__row-main">
+        <ArtThumb entityId={c.classId} alt="" className="sbp-crew__art" />
         <Link to={`/labs/sbp/characters/${c.id}`} className="sbp-crew__row-name">{c.name}</Link>
         <span className="sbp-crew__row-line">{line}</span>
         {d && !d.ok && <span className="sbp-flag sbp-flag--playtest" title={d.issues.join(' ')}>needs fixing</span>}
