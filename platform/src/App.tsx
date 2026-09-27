@@ -109,6 +109,7 @@ export default function App() {
             {/* Misadventuring Labs — SBP team-only sourcebook, cast-gated (docs/sbp/BRIEF.md) */}
             <Route path="/labs/sbp" element={<SbpLabsPage />} />
             <Route path="/labs/sbp/characters/new" element={<SbpCharacterWizardPage />} />
+            <Route path="/labs/sbp/characters/:id/edit" element={<SbpCharacterWizardPage />} />
             {/* Keeper's Compendium — GM world-building tool, admin-gated */}
             <Route path="/keeper" element={<KeeperPage />} />
             <Route path="/keeper/monsters/new" element={<MonsterWizardPage />} />

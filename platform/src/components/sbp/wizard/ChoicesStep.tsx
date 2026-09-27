@@ -59,7 +59,7 @@ export function ChoicesStep({ draft, rules, onChange }: StepProps) {
                 <button
                   key={s}
                   type="button"
-                  className={`tag-pill ${on ? 'tag-pill--selected' : ''}`}
+                  className={`tag-pill ${on ? 'tag-pill--active' : ''}`}
                   aria-pressed={on}
                   title={fromBg ? 'Already granted by your background' : undefined}
                   onClick={() => onChange(withChoices(draft, 1, { classSkills: toggle(c1.classSkills ?? [], s, skillRule.choose!) }))}
@@ -80,7 +80,7 @@ export function ChoicesStep({ draft, rules, onChange }: StepProps) {
               <button
                 key={s}
                 type="button"
-                className={`tag-pill ${c1.speciesSize === s ? 'tag-pill--selected' : ''}`}
+                className={`tag-pill ${c1.speciesSize === s ? 'tag-pill--active' : ''}`}
                 aria-pressed={c1.speciesSize === s}
                 onClick={() => onChange(withChoices(draft, 1, { speciesSize: s }))}
               >
@@ -101,7 +101,7 @@ export function ChoicesStep({ draft, rules, onChange }: StepProps) {
                 <button
                   key={t}
                   type="button"
-                  className={`tag-pill ${on ? 'tag-pill--selected' : ''}`}
+                  className={`tag-pill ${on ? 'tag-pill--active' : ''}`}
                   aria-pressed={on}
                   onClick={() => onChange(withChoices(draft, 1, { backgroundTools: toggle(c1.backgroundTools ?? [], t, toolRule.choose!) }))}
                 >
@@ -121,7 +121,7 @@ export function ChoicesStep({ draft, rules, onChange }: StepProps) {
               <button
                 key={k}
                 type="button"
-                className={`tag-pill ${asi[k] ? 'tag-pill--selected' : ''}`}
+                className={`tag-pill ${asi[k] ? 'tag-pill--active' : ''}`}
                 onClick={() => cycleAsi(k)}
               >
                 {k}{asi[k] ? ` +${asi[k]}` : ''}

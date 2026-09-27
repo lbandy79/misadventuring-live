@@ -87,6 +87,7 @@ export default function SbpLabsPage() {
                 <div className="sbp-character-card__head">
                   <h3 className="sbp-character-card__name">{c.name}</h3>
                   <div className="sbp-character-card__actions">
+                    <Link to={`/labs/sbp/characters/${c.id}/edit`} className="btn-secondary sbp-edit">Edit</Link>
                     <button type="button" className="btn-ghost sbp-danger" onClick={() => remove(c)} disabled={busy === c.id}>
                       {busy === c.id ? '…' : 'Delete'}
                     </button>
@@ -94,6 +95,11 @@ export default function SbpLabsPage() {
                 </div>
                 {d ? (
                   <>
+                    {!d.ok && (
+                      <p className="wizard-warning">
+                        This character needs fixing — something it uses has changed in the rules. Open Edit to re-pick it.
+                      </p>
+                    )}
                     {(d.rulesOutdated.classes || d.rulesOutdated.origins) && (
                       <p className="wizard-derived-notice">Rules updated since this character was built.</p>
                     )}
