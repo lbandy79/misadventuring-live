@@ -343,7 +343,8 @@ Each phase ships and is verified before the next starts.
    creation, falling back to email), each opening a read-only sheet.
    Admins get Delete on crew rows. One `subscribeToAllSbpCharacters`
    feeds both sections. Nav "Labs" link for cast/admin since phase 3.
-6. Later: rules browser, random tables, spells when the file exists.
+6. Later: see [ROADMAP.md](ROADMAP.md) — draft art, rules browser, spells,
+   random tables, world content (monsters, NPCs, ships, items).
 
 ---
 
