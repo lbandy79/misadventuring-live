@@ -58,6 +58,8 @@ export interface SbpCharacter {
   id?: string;
   ownerUid: string;
   ownerEmail: string;
+  /** Google display name at creation; what the crew view shows. */
+  ownerName?: string;
   name: string;
   level: number;
   speciesId: string;

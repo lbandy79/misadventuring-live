@@ -337,7 +337,12 @@ Each phase ships and is verified before the next starts.
    higher choices dormant with a **Discard choices above level N** button.
    Owner/admin edit; other cast read-only. Pickers are shared with the
    wizard (`platform/src/components/sbp/pickers.tsx`).
-5. **My characters** page + nav link.
+5. ✅ **Labs home + crew view** — built 2026-09-27. `/labs/sbp`
+   (`SbpLabsPage.tsx`): your characters in full, then "The crew" — every
+   other player's characters grouped by player (`ownerName`, recorded at
+   creation, falling back to email), each opening a read-only sheet.
+   Admins get Delete on crew rows. One `subscribeToAllSbpCharacters`
+   feeds both sections. Nav "Labs" link for cast/admin since phase 3.
 6. Later: rules browser, random tables, spells when the file exists.
 
 ---

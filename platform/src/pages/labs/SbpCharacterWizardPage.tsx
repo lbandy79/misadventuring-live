@@ -109,7 +109,7 @@ export default function SbpCharacterWizardPage() {
     <Wizard
       key={existing?.id ?? 'new'}
       rules={{ classes: rules.classes.data, origins: rules.origins.data, loaded: rules }}
-      owner={{ uid: user!.uid, email: user!.email ?? '' }}
+      owner={{ uid: user!.uid, email: user!.email ?? '', name: user!.displayName ?? '' }}
       existing={existing}
     />
   );
@@ -121,7 +121,7 @@ function Wizard({
   rules, owner, existing,
 }: {
   rules: WizardRules;
-  owner: { uid: string; email: string };
+  owner: { uid: string; email: string; name: string };
   existing: SbpCharacter | null;
 }) {
   const navigate = useNavigate();
@@ -133,6 +133,7 @@ function Wizard({
   const [draft, setDraft] = useState<SbpCharacter>(() => existing ?? {
     ownerUid: owner.uid,
     ownerEmail: owner.email,
+    ownerName: owner.name || undefined,
     name: '',
     level: 1,
     speciesId: '',
