@@ -72,8 +72,8 @@ describe('deriveCharacter — levelling', () => {
     expect(d.ok).toBe(true);
     expect(d.proficiencyBonus).toBe(3);
     expect(d.abilities.CHA).toMatchObject({ score: 17, modifier: 3 });
-    // 8 + 2 at 1st, then (5 + 2) × 4
-    expect(d.hitPoints.max).toBe(10 + 7 * 4);
+    // 8 + 2 at 1st, then (5 + 2) × 4, plus Double Scoop's +1 HP per level
+    expect(d.hitPoints.max).toBe(10 + 7 * 4 + 5);
     // Sorted by level gained; within a level, species → background → class → archetype → feats.
     expect(names(d)).toEqual([
       'Amphibious', 'Sea Legs', 'Stir', 'Spellcasting', 'Sprinkle', 'Big Leap', 'Cool Breath', 'Double Scoop',
@@ -83,12 +83,12 @@ describe('deriveCharacter — levelling', () => {
     expect(d.features.find((f) => f.name === 'Stir')!.uses?.count).toBe(3);
     expect(d.levelExtras).toEqual({ scoops: '2d6' });
     expect(d.spellcasting?.slots).toEqual([4, 2, 0, 0, 0, 0, 0, 0, 0]);
-    expect(d.spellcasting?.saveDC).toBe(8 + 3 + 3);
+    expect(d.spellcasting?.saveDC).toBe(8 + 3 + 3 + 1);
   });
 
   it('asks for the ASI-or-feat choice at each unmade ASI level', () => {
     const d = deriveCharacter(setLevel(scooper(), 8), rules);
-    expect(d.pendingChoices.map((p) => [p.level, p.kind])).toEqual([[4, 'asi_or_feat'], [8, 'asi_or_feat']]);
+    expect(d.pendingChoices.filter((p) => p.kind === 'asi_or_feat').map((p) => p.level)).toEqual([4, 8]);
   });
 
   it('accepts a species feat at an ASI level and asks for its skill pick', () => {
@@ -149,7 +149,7 @@ describe('deriveCharacter — level down keeps choices dormant', () => {
     const cleared = clearChoicesAbove(setLevel(at8, 3), 3);
     expect(Object.keys(cleared.choices)).toEqual(['1']);
     const d = deriveCharacter(setLevel(cleared, 8), rules);
-    expect(d.pendingChoices.map((p) => p.level)).toEqual([4, 8]);
+    expect(d.pendingChoices.filter((p) => p.kind === 'asi_or_feat').map((p) => p.level)).toEqual([4, 8]);
   });
 });
 
@@ -260,6 +260,41 @@ describe('deriveCharacter — grant-driven picks', () => {
     const c = withChoices(everyfolk(), 1, { grantPicks: { 'species.everyfolk/extra_origin': ['feat.sea_legs'] } });
     const d = deriveCharacter(c, rules);
     expect(d.issues.some((i) => i.includes('no longer an option'))).toBe(true);
+  });
+});
+
+describe('deriveCharacter — sheet-level grants', () => {
+  // Double Scoop (level 5) carries every numeric/list grant in the fixture.
+  const at5 = () => withChoices(setLevel(scooper(), 5), 4, { asiOrFeat: { type: 'asi', increases: { CHA: 2 } } });
+
+  it('does nothing below the granting level', () => {
+    const d = deriveCharacter(setLevel(scooper(), 4), rules);
+    expect(d.savingThrows).toEqual(['WIS', 'CHA']);
+    expect(d.hitPoints.max).toBe(10 + 7 * 3);
+    expect(d.spellcasting?.saveDC).toBe(8 + 2 + 2);
+    expect(d.grantChoices.some((g) => g.kind === 'grant_expertise')).toBe(false);
+  });
+
+  it('adds saving throws, per-level HP (retroactive) and spell bonuses', () => {
+    const d = deriveCharacter(at5(), rules);
+    expect(d.savingThrows).toEqual(['WIS', 'CHA', 'CON']);
+    expect(d.hitPoints.max).toBe(10 + 7 * 4 + 5);
+    expect(d.hitPoints.note).toContain('+ 5 from features');
+    expect(d.spellcasting?.saveDC).toBe(8 + 3 + 3 + 1);
+    expect(d.spellcasting?.attackBonus).toBe(3 + 3 + 1);
+  });
+
+  it('offers expertise only in skills the character actually has, then applies it', () => {
+    let c = at5();
+    let d = deriveCharacter(c, rules);
+    const req = d.grantChoices.find((g) => g.kind === 'grant_expertise')!;
+    expect(req.options).toEqual(['Arcana']);
+    expect(d.pendingChoices.map((p) => [p.level, p.kind])).toEqual([[5, 'grant_expertise']]);
+
+    c = withChoices(c, 5, { grantPicks: { [req.sourceKey]: ['Arcana'] } });
+    d = deriveCharacter(c, rules);
+    expect(d.expertise).toEqual(['Arcana']);
+    expect(d.pendingChoices).toEqual([]);
   });
 });
 

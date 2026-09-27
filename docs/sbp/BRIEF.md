@@ -152,6 +152,31 @@ consumer. The load-bearing ones:
   levels, gated by species prerequisite.
 - **`playtest`, `maturity`, `swap` flags** — see §7.
 
+### `grants` keys the app understands
+
+Anything a feature changes mechanically must be in `grants`; prose is
+displayed, never parsed. Keys the derivation applies (any other key is
+listed on the sheet as-is under "other grants"):
+
+| Key | Shape | Effect |
+|---|---|---|
+| `skills` | `["Perception"]` | proficiency |
+| `skills_choose` | `{count\|choose, from: [..] \| "any"}` | player picks; `"any"` = every skill named in the rules (or an optional `$skills` list in origins) |
+| `expertise` | `["Arcana"]` | double proficiency |
+| `expertise_choose` | `{count\|choose, from?}` | player picks from skills they're proficient in |
+| `saving_throws` | `["CON"]` | extra save proficiency |
+| `hp_per_level` | `1` | bonus HP × character level (retroactive) |
+| `hp_bonus` | `5` | flat bonus HP |
+| `spell_save_dc` / `spell_attack_bonus` | `1` | added to the derived numbers |
+| `speed` | `{swim: "walk"}` or `{walk: 35}` | set a mode, or copy another mode |
+| `origin_feat_choose` | `{count, category, exclude: "background_origin_feat"}` | player picks an extra origin feat; its own grants apply |
+
+Known prose-only mechanics in the current files that need a `grants` entry
+before the sheet reflects them: T-Brawler *Tough as Nails* (`saving_throws`
++ `hp_per_level`), Oatseeker *Oatwise* (`spell_save_dc` + `spell_attack_bonus`)
+and *Fragment Lore* (`expertise_choose`), Crunch Sailor *Ship's Resilience*
+and Crumber *Slippery Mind* (`saving_throws`).
+
 ### Known gaps
 
 - **Spells file doesn't exist.** Three caster classes reference spell lists by
@@ -301,7 +326,17 @@ Each phase ships and is verified before the next starts.
    `src/lib/sbp/characterApi.ts` is the Firestore CRUD. `/labs/sbp`
    (`SbpLabsPage.tsx`) lists your own characters with a compact derived
    summary and delete; the nav shows "Labs" to cast/admin.
-4. **Sheet** + **level up/down**.
+4. ✅ **Sheet** + **level up/down** — built 2026-09-27.
+   `/labs/sbp/characters/:id` (`platform/src/pages/labs/SbpCharacterSheetPage.tsx`).
+   Level −/+ (1–20), full derived sheet, and a level-by-level panel with
+   pickers for whatever each level ≤ current asks for: archetype at its
+   entry level, ability increase or feat at ASI levels (feats filtered by
+   species prerequisite and no repeats unless `repeatable`), and any
+   grant-driven pick. Changes are local until **Save**, which also stamps
+   `rulesVersion` (clears the "rules updated" notice). Level-down leaves
+   higher choices dormant with a **Discard choices above level N** button.
+   Owner/admin edit; other cast read-only. Pickers are shared with the
+   wizard (`platform/src/components/sbp/pickers.tsx`).
 5. **My characters** page + nav link.
 6. Later: rules browser, random tables, spells when the file exists.
 

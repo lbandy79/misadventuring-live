@@ -37,7 +37,12 @@ export function DerivedSummary({ d, compact = false }: { d: DerivedCharacter; co
       </div>
 
       <dl className="sbp-proficiencies">
-        <dt>Skills</dt><dd>{d.skills.join(', ') || '—'}</dd>
+        <dt>Skills</dt>
+        <dd>
+          {d.skills.length === 0 ? '—' : d.skills.map((s, i) => (
+            <span key={s}>{i > 0 ? ', ' : ''}{s}{d.expertise.includes(s) ? <strong title="Expertise (double proficiency)"> ★</strong> : null}</span>
+          ))}
+        </dd>
         <dt>Tools</dt><dd>{d.tools.map((t) => t.replace(/_/g, ' ')).join(', ') || '—'}</dd>
         <dt>Armor</dt><dd>{d.armor.join(', ') || '—'}</dd>
         <dt>Weapons</dt><dd>{d.weapons.join(', ') || '—'}</dd>

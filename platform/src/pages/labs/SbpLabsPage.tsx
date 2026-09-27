@@ -85,9 +85,12 @@ export default function SbpLabsPage() {
             return (
               <li key={c.id} className="sbp-character-card">
                 <div className="sbp-character-card__head">
-                  <h3 className="sbp-character-card__name">{c.name}</h3>
+                  <h3 className="sbp-character-card__name">
+                    <Link to={`/labs/sbp/characters/${c.id}`}>{c.name}</Link>
+                  </h3>
                   <div className="sbp-character-card__actions">
-                    <Link to={`/labs/sbp/characters/${c.id}/edit`} className="btn-secondary sbp-edit">Edit</Link>
+                    <Link to={`/labs/sbp/characters/${c.id}`} className="btn-primary sbp-edit">Open sheet</Link>
+                    <Link to={`/labs/sbp/characters/${c.id}/edit`} className="btn-secondary sbp-edit">Edit build</Link>
                     <button type="button" className="btn-ghost sbp-danger" onClick={() => remove(c)} disabled={busy === c.id}>
                       {busy === c.id ? '…' : 'Delete'}
                     </button>

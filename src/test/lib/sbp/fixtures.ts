@@ -51,7 +51,10 @@ export function classesFixture(): SbpClassesFile {
           stir: { name: 'Stir', level: 1, text: 'Stir it.', uses: { count: 'proficiency_bonus', recharge: 'long_rest' } },
           spellcasting: { name: 'Spellcasting', level: 1, text: 'Cast.' },
           sprinkle: { name: 'Sprinkle', level: 2, text: 'Sprinkle.', formula: 'level + CHA', playtest: { status: 'watching' } },
-          double_scoop: { name: 'Double Scoop', level: 5, text: 'Two.', maturity: 'draft' },
+          double_scoop: {
+            name: 'Double Scoop', level: 5, text: 'Two.', maturity: 'draft',
+            grants: { saving_throws: ['CON'], hp_per_level: 1, spell_save_dc: 1, spell_attack_bonus: 1, expertise_choose: { count: 1, from: ['Arcana', 'Nature'] } },
+          },
         },
         levels,
       },

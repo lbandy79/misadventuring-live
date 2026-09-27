@@ -42,6 +42,7 @@ import LiveMonsterAudiencePage from './pages/LiveMonsterAudiencePage';
 import LiveMonsterDisplayPage from './pages/LiveMonsterDisplayPage';
 import SbpLabsPage from './pages/labs/SbpLabsPage';
 import SbpCharacterWizardPage from './pages/labs/SbpCharacterWizardPage';
+import SbpCharacterSheetPage from './pages/labs/SbpCharacterSheetPage';
 
 export default function App() {
   const location = useLocation();
@@ -110,6 +111,7 @@ export default function App() {
             <Route path="/labs/sbp" element={<SbpLabsPage />} />
             <Route path="/labs/sbp/characters/new" element={<SbpCharacterWizardPage />} />
             <Route path="/labs/sbp/characters/:id/edit" element={<SbpCharacterWizardPage />} />
+            <Route path="/labs/sbp/characters/:id" element={<SbpCharacterSheetPage />} />
             {/* Keeper's Compendium — GM world-building tool, admin-gated */}
             <Route path="/keeper" element={<KeeperPage />} />
             <Route path="/keeper/monsters/new" element={<MonsterWizardPage />} />

@@ -85,7 +85,8 @@ export type PendingChoiceKind =
   | 'background_tools'
   | 'background_asi'
   | 'grant_skills'
-  | 'grant_origin_feat';
+  | 'grant_origin_feat'
+  | 'grant_expertise';
 
 export interface PendingChoice {
   level: number;
@@ -104,7 +105,7 @@ export interface PendingChoice {
  */
 export interface GrantChoiceRequest {
   level: number;
-  kind: 'grant_skills' | 'grant_origin_feat';
+  kind: 'grant_skills' | 'grant_origin_feat' | 'grant_expertise';
   /** Key into `choices[level].grantPicks`. */
   sourceKey: string;
   /** Display name of the trait/feat/feature asking. */
@@ -152,6 +153,8 @@ export interface DerivedCharacter {
   hitPoints: { max: number; hitDie: number | null; note: string };
   savingThrows: AbilityKey[];
   skills: string[];
+  /** Skills with doubled proficiency. */
+  expertise: string[];
   armor: string[];
   weapons: string[];
   tools: string[];
@@ -270,6 +273,7 @@ export function deriveCharacter(character: SbpCharacter, rules: RulesInput): Der
     hitPoints: { max: 0, hitDie: null, note: '' },
     savingThrows: [],
     skills: [],
+    expertise: [],
     armor: [],
     weapons: [],
     tools: [],
@@ -450,6 +454,14 @@ export function deriveCharacter(character: SbpCharacter, rules: RulesInput): Der
   const grantChoices: GrantChoiceRequest[] = [];
   const skillUniverse = allSkillNames(classesFile, originsFile);
 
+  // Numeric / list grants that land on the sheet rather than as features.
+  const extraSaves: AbilityKey[] = [];
+  const expertise: string[] = [];
+  let hpPerLevelBonus = 0;
+  let hpFlatBonus = 0;
+  let spellDcBonus = 0;
+  let spellAttackBonus = 0;
+
   interface GrantSource {
     name: string;
     /** Stable key for this grant's picks in `choices[level].grantPicks`. */
@@ -472,11 +484,15 @@ export function deriveCharacter(character: SbpCharacter, rules: RulesInput): Der
     if (valid.length !== stored.length) issues.push(`${src.name}: a saved pick is no longer an option.`);
     grantChoices.push({ level: src.level, kind, sourceKey: src.key, sourceName: src.name, choose, options, chosen: valid });
     if (valid.length < choose) {
-      const what = kind === 'grant_skills' ? `skill${choose === 1 ? '' : 's'}` : `origin feat${choose === 1 ? '' : 's'}`;
+      const noun = kind === 'grant_skills' ? 'skill' : kind === 'grant_expertise' ? 'skill to double' : 'origin feat';
+      const what = choose === 1 ? noun : noun.replace(/^skill/, 'skills').replace(/feat$/, 'feats');
       pending.push({ level: src.level, kind, label: `${src.name}: choose ${choose} ${what}`, options, choose, sourceKey: src.key });
     }
     return valid;
   };
+
+  const isAbilityKey = (k: unknown): k is AbilityKey => ABILITY_KEYS.includes(k as AbilityKey);
+  const asNumber = (v: unknown): number => (typeof v === 'number' && Number.isFinite(v) ? v : 0);
 
   const applyGrants = (grants: Record<string, unknown> | undefined, src: GrantSource) => {
     if (!grants) return;
@@ -505,6 +521,24 @@ export function deriveCharacter(character: SbpCharacter, rules: RulesInput): Der
           });
           applyGrants(feat.grants, { name: feat.name, key: `${src.key}>${feat.id}`, level: src.level, depth: (src.depth ?? 0) + 1 });
         }
+      } else if (key === 'saving_throws' && Array.isArray(value)) {
+        value.forEach((k) => { if (isAbilityKey(k)) extraSaves.push(k); });
+      } else if (key === 'expertise' && Array.isArray(value)) {
+        value.forEach((s) => typeof s === 'string' && expertise.push(s));
+      } else if (key === 'expertise_choose' && value && typeof value === 'object') {
+        // Options are limited to skills the character is proficient in so far.
+        const rule = value as { choose?: number; count?: number; from?: string[] | string };
+        const pool = Array.isArray(rule.from) ? rule.from : skillUniverse;
+        const options = pool.filter((s) => skills.includes(s));
+        expertise.push(...requestPick(src, 'grant_expertise', howMany(rule), options));
+      } else if (key === 'hp_per_level') {
+        hpPerLevelBonus += asNumber(value);
+      } else if (key === 'hp_bonus') {
+        hpFlatBonus += asNumber(value);
+      } else if (key === 'spell_save_dc') {
+        spellDcBonus += asNumber(value);
+      } else if (key === 'spell_attack_bonus') {
+        spellAttackBonus += asNumber(value);
       } else if (key === 'speed' && value && typeof value === 'object') {
         for (const [mode, v] of Object.entries(value as Record<string, unknown>)) {
           if (typeof v === 'number') speed[mode] = Math.max(speed[mode] ?? 0, v);
@@ -618,7 +652,8 @@ export function deriveCharacter(character: SbpCharacter, rules: RulesInput): Der
   result.tools = unique(tools);
   result.armor = unique((klass.proficiencies?.armor as string[] | undefined) ?? []);
   result.weapons = unique((klass.proficiencies?.weapons as string[] | undefined) ?? []);
-  result.savingThrows = klass.saving_throws ?? [];
+  result.savingThrows = unique([...(klass.saving_throws ?? []), ...extraSaves]) as AbilityKey[];
+  result.expertise = unique(expertise).filter((s) => result.skills.includes(s)).sort();
   result.speed = speed;
 
   // ── Hit points (fixed average) ──────────────────────────────────────────
@@ -628,13 +663,15 @@ export function deriveCharacter(character: SbpCharacter, rules: RulesInput): Der
   } else {
     const con = abilities.CON.modifier;
     const perLevel = die / 2 + 1 + con;
-    const max = die + con + (level - 1) * perLevel;
+    const bonus = hpPerLevelBonus * level + hpFlatBonus;
+    const max = die + con + (level - 1) * perLevel + bonus;
+    const bonusNote = bonus ? ` + ${bonus} from features` : '';
     result.hitPoints = {
       max: Math.max(1, max),
       hitDie: die,
-      note: level === 1
+      note: (level === 1
         ? `${die} + CON (${con})`
-        : `${die} + CON (${con}) at 1st, then ${die / 2 + 1} + CON per level × ${level - 1}`,
+        : `${die} + CON (${con}) at 1st, then ${die / 2 + 1} + CON per level × ${level - 1}`) + bonusNote,
     };
   }
 
@@ -648,8 +685,8 @@ export function deriveCharacter(character: SbpCharacter, rules: RulesInput): Der
     result.spellcasting = {
       ability: sc.ability,
       modifier: mod,
-      saveDC: 8 + pb + mod,
-      attackBonus: pb + mod,
+      saveDC: 8 + pb + mod + spellDcBonus,
+      attackBonus: pb + mod + spellAttackBonus,
       slots: Array.isArray(slots) ? slots : [],
       cantripsKnown: typeof currentRow?.cantrips_known === 'number' ? currentRow.cantrips_known : null,
       spellsKnown: typeof currentRow?.spells_known === 'number' ? currentRow.spells_known : null,
