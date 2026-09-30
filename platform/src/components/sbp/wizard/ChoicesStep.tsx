@@ -5,7 +5,7 @@
  * here without a code change.
  */
 
-import { ABILITY_KEYS, deriveCharacter, withChoices, type AbilityKey } from '@mtp/lib';
+import { ABILITY_KEYS, backgroundToolChoice, deriveCharacter, withChoices, type AbilityKey } from '@mtp/lib';
 import { GrantPickPicker } from '../pickers';
 import type { StepProps } from './types';
 
@@ -24,8 +24,9 @@ export function ChoicesStep({ draft, rules, onChange }: StepProps) {
 
   const skillRule = klass?.proficiencies?.skills as { choose?: number; from?: string[] } | undefined;
   const sizeOptions = species && typeof species.size !== 'string' ? species.size?.choose_one : undefined;
-  const toolRule = background?.tool_proficiencies;
-  const flexAsi = background?.ability_score_increase.mode === 'flexible' ? background.ability_score_increase : null;
+  const toolRule = backgroundToolChoice(background);
+  const toolWhat = toolRule?.category ? toolRule.category.replace(/_/g, ' ') : 'tool';
+  const flexAsi = background?.ability_score_increase?.mode === 'flexible' ? background.ability_score_increase : null;
 
   const bgSkills = background?.skill_proficiencies ?? [];
   const asi = c1.backgroundAsi ?? {};
@@ -46,7 +47,12 @@ export function ChoicesStep({ draft, rules, onChange }: StepProps) {
     onChange(withChoices(draft, 1, { grantPicks: { ...(c1.grantPicks ?? {}), [sourceKey]: picks } }));
   }
 
-  const nothingToChoose = !skillRule?.choose && !sizeOptions && !toolRule?.choose && !flexAsi && grantRequests.length === 0;
+  function setToolText(i: number, text: string) {
+    const next = Array.from({ length: toolRule!.count }, (_, j) => (j === i ? text : c1.backgroundTools?.[j] ?? ''));
+    onChange(withChoices(draft, 1, { backgroundTools: next }));
+  }
+
+  const nothingToChoose = !skillRule?.choose && !sizeOptions && !toolRule && !flexAsi && grantRequests.length === 0;
 
   return (
     <div className="wizard-step">
@@ -98,11 +104,29 @@ export function ChoicesStep({ draft, rules, onChange }: StepProps) {
         </fieldset>
       )}
 
-      {toolRule?.choose && (
+      {toolRule && toolRule.from.length === 0 && (
         <fieldset className="sbp-fieldset">
-          <legend className="wizard-label">Tools <span className="wizard-label-hint">— choose {toolRule.choose}</span></legend>
+          <legend className="wizard-label">Tools <span className="wizard-label-hint">— write in {toolRule.count} {toolWhat}{toolRule.count === 1 ? '' : 's'}</span></legend>
+          {Array.from({ length: toolRule.count }, (_, i) => (
+            <input
+              key={i}
+              className="wizard-input"
+              aria-label={`${toolWhat} ${i + 1}`}
+              value={c1.backgroundTools?.[i] ?? ''}
+              maxLength={60}
+              placeholder={toolRule.category === 'musical_instrument' ? 'e.g. fiddle' : `any ${toolWhat}`}
+              onChange={(e) => setToolText(i, e.target.value)}
+              autoComplete="off"
+            />
+          ))}
+        </fieldset>
+      )}
+
+      {toolRule && toolRule.from.length > 0 && (
+        <fieldset className="sbp-fieldset">
+          <legend className="wizard-label">Tools <span className="wizard-label-hint">— choose {toolRule.count}</span></legend>
           <div className="tag-grid">
-            {(toolRule.from ?? []).map((t) => {
+            {toolRule.from.map((t) => {
               const on = (c1.backgroundTools ?? []).includes(t);
               return (
                 <button
@@ -110,7 +134,7 @@ export function ChoicesStep({ draft, rules, onChange }: StepProps) {
                   type="button"
                   className={`tag-pill ${on ? 'tag-pill--active' : ''}`}
                   aria-pressed={on}
-                  onClick={() => onChange(withChoices(draft, 1, { backgroundTools: toggle(c1.backgroundTools ?? [], t, toolRule.choose!) }))}
+                  onClick={() => onChange(withChoices(draft, 1, { backgroundTools: toggle(c1.backgroundTools ?? [], t, toolRule.count) }))}
                 >
                   {t.replace(/_/g, ' ')}
                 </button>

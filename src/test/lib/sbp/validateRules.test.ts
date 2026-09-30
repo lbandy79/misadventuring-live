@@ -223,6 +223,20 @@ describe('validateOriginsFile', () => {
     unknown.backgrounds[0].ability_score_increase = { mode: 'random' } as never;
     expect(errors(validateOriginsFile(unknown))).toContain('backgrounds[0].ability_score_increase.mode');
   });
+
+  it('accepts both tool-pick shapes and rejects malformed ones', () => {
+    const ok = (tools: unknown) => {
+      const o = originsFixture();
+      (o.backgrounds[0] as Record<string, unknown>).tool_proficiencies = tools;
+      return errors(validateOriginsFile(o, classesFixture()));
+    };
+    expect(ok({ fixed: ['rope'] })).toEqual([]);
+    expect(ok({ choose: 1, from: ['lute', 'drum'] })).toEqual([]);
+    expect(ok({ choose: { count: 1, category: 'musical_instrument' } })).toEqual([]);
+    expect(ok({ choose: 'one' })).toContain('backgrounds[0].tool_proficiencies.choose');
+    expect(ok({ choose: { count: 0 } })).toContain('backgrounds[0].tool_proficiencies.choose.count');
+    expect(ok({ fixed: 'rope' })).toContain('backgrounds[0].tool_proficiencies.fixed');
+  });
 });
 
 describe('validateRulesFile', () => {

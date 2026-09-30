@@ -146,6 +146,15 @@ export function originsFixture(): SbpOriginsFile {
         tool_proficiencies: { fixed: [], choose: 1, from: ['tinker_tools', 'lockpicks'] },
         origin_feat: 'feat.sea_legs',
       },
+      {
+        // The shape the real data uses: a category, no list.
+        id: 'background.busker',
+        name: 'Busker',
+        ability_score_increase: { mode: 'fixed', values: { CHA: 2, STR: 1 } },
+        skill_proficiencies: ['Investigation'],
+        tool_proficiencies: { choose: { count: 1, category: 'musical_instrument' } },
+        origin_feat: 'feat.sea_legs',
+      },
     ],
     feats: [
       {

@@ -160,6 +160,31 @@ export function validateOriginsFile(
     } else {
       c.error(`${p}.ability_score_increase.mode`, `Unknown mode "${String(asi.mode)}" (fixed | flexible).`);
     }
+    const tools = b.tool_proficiencies;
+    if (tools !== undefined) {
+      const isStrings = (v: unknown) => Array.isArray(v) && v.every((s) => typeof s === 'string');
+      if (!isRecord(tools)) {
+        c.error(`${p}.tool_proficiencies`, 'tool_proficiencies must be an object.');
+      } else {
+        if (tools.fixed !== undefined && !isStrings(tools.fixed)) {
+          c.error(`${p}.tool_proficiencies.fixed`, 'fixed must be a list of tool names.');
+        }
+        if (tools.from !== undefined && !isStrings(tools.from)) {
+          c.error(`${p}.tool_proficiencies.from`, 'from must be a list of tool names.');
+        }
+        const ch = tools.choose;
+        if (isRecord(ch)) {
+          if (ch.count !== undefined && (typeof ch.count !== 'number' || ch.count < 1)) {
+            c.error(`${p}.tool_proficiencies.choose.count`, 'count must be a number of at least 1.');
+          }
+          if (ch.category !== undefined && typeof ch.category !== 'string') {
+            c.error(`${p}.tool_proficiencies.choose.category`, 'category must be a string.');
+          }
+        } else if (ch !== undefined && (typeof ch !== 'number' || ch < 1)) {
+          c.error(`${p}.tool_proficiencies.choose`, 'choose must be a number, or { count, category }.');
+        }
+      }
+    }
     if (typeof b.collides_with === 'string') {
       if (classIds && !classIds.has(b.collides_with)) {
         c.error(`${p}.collides_with`, `Class "${b.collides_with}" not found in the loaded classes file.`);

@@ -204,6 +204,22 @@ describe('deriveCharacter — level-1 choices the rules demand', () => {
     expect(d.issues.some((i) => i.includes('must total +3'))).toBe(true);
   });
 
+  it('reads a `{ count, category }` tool pick and takes a written-in answer', () => {
+    let c = scooper({ backgroundId: 'background.busker', choices: {} });
+    let d = deriveCharacter(c, rules);
+    const pick = d.pendingChoices.find((p) => p.kind === 'background_tools');
+    expect(pick).toMatchObject({ label: 'Choose 1 musical instrument', choose: 1, options: [] });
+
+    c = withChoices(c, 1, { backgroundTools: ['  fiddle '] });
+    d = deriveCharacter(c, rules);
+    expect(d.pendingChoices.some((p) => p.kind === 'background_tools')).toBe(false);
+    expect(d.tools).toContain('fiddle');
+
+    c = withChoices(c, 1, { backgroundTools: ['   '] });
+    d = deriveCharacter(c, rules);
+    expect(d.pendingChoices.some((p) => p.kind === 'background_tools')).toBe(true);
+  });
+
   it('rejects class skills the class does not offer', () => {
     const d = deriveCharacter(withChoices(scooper(), 1, { classSkills: ['Arcana', 'Athletics'] }), rules);
     expect(d.issues.some((i) => i.includes('does not offer'))).toBe(true);

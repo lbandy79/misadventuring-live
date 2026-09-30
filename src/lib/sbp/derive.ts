@@ -247,6 +247,30 @@ export function allSkillNames(classes: SbpClassesFile, origins: SbpOriginsFile):
 const howMany = (rule: { choose?: unknown; count?: unknown }): number =>
   typeof rule.choose === 'number' ? rule.choose : typeof rule.count === 'number' ? rule.count : 1;
 
+export interface ToolChoiceRule {
+  count: number;
+  category: string | null;
+  /** Empty when the data only names a category: the player writes their pick. */
+  from: string[];
+}
+
+/**
+ * A background's tool pick, whichever shape the data uses:
+ * `{ choose: 1, from: [...] }` or `{ choose: { count: 1, category: "gaming_set" } }`.
+ */
+export function backgroundToolChoice(background: Background | undefined): ToolChoiceRule | null {
+  const rule = background?.tool_proficiencies;
+  const choose = rule?.choose;
+  if (!rule || !choose) return null;
+  if (typeof choose === 'number') return { count: choose, category: null, from: rule.from ?? [] };
+  if (typeof choose !== 'object') return null;
+  return {
+    count: howMany(choose),
+    category: typeof choose.category === 'string' ? choose.category : null,
+    from: Array.isArray(choose.from) ? choose.from : rule.from ?? [],
+  };
+}
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 export function deriveCharacter(character: SbpCharacter, rules: RulesInput): DerivedCharacter {
@@ -386,15 +410,17 @@ export function deriveCharacter(character: SbpCharacter, rules: RulesInput): Der
     ...((klass.proficiencies?.tools as string[] | undefined) ?? []),
     ...(background.tool_proficiencies?.fixed ?? []),
   ];
-  const toolChoose = background.tool_proficiencies?.choose;
-  if (toolChoose) {
-    const from = background.tool_proficiencies?.from ?? [];
-    const chosen = c1.backgroundTools ?? [];
+  const toolRule = backgroundToolChoice(background);
+  if (toolRule) {
+    const { count, category, from } = toolRule;
+    const chosen = (c1.backgroundTools ?? []).map((t) => t.trim()).filter(Boolean);
     const valid = from.length ? chosen.filter((t) => from.includes(t)) : chosen;
-    if (valid.length < toolChoose) {
-      pending.push({ level: 1, kind: 'background_tools', label: `Choose ${toolChoose} tool proficiencies`, options: from, choose: toolChoose });
+    if (valid.length < count) {
+      const what = category ? category.replace(/_/g, ' ') : 'tool proficiency';
+      const plural = count === 1 ? what : category ? `${what}s` : 'tool proficiencies';
+      pending.push({ level: 1, kind: 'background_tools', label: `Choose ${count} ${plural}`, options: from, choose: count });
     }
-    tools.push(...valid);
+    tools.push(...valid.slice(0, count));
   }
 
   // Speed from species.

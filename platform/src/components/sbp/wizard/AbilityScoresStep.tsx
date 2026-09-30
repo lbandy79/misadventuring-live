@@ -35,7 +35,7 @@ export function AbilityScoresStep({ draft, rules, onChange }: StepProps) {
   const { method, base } = draft.abilityScores;
   const klass = rules.classes.classes.find((k) => k.id === draft.classId);
   const background = rules.origins.backgrounds.find((b) => b.id === draft.backgroundId);
-  const bgIncrease = background?.ability_score_increase.mode === 'fixed' ? background.ability_score_increase.values ?? {} : {};
+  const bgIncrease = background?.ability_score_increase?.mode === 'fixed' ? background.ability_score_increase.values ?? {} : {};
   const issues = validateBaseScores(method, base, config);
 
   const set = (next: Partial<typeof draft.abilityScores>) =>

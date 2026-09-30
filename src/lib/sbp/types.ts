@@ -70,13 +70,24 @@ export interface AbilityScoreIncrease {
   options?: AbilityKey[];
 }
 
+export interface ToolChoose {
+  count?: number;
+  /** e.g. `musical_instrument`, `gaming_set`. */
+  category?: string;
+  from?: string[];
+}
+
 export interface Background extends Flagged {
   id: string;
   name: string;
   flavor?: string;
   ability_score_increase: AbilityScoreIncrease;
   skill_proficiencies?: string[];
-  tool_proficiencies?: { fixed?: string[]; choose?: number; from?: string[] };
+  /**
+   * `choose` is either a count (with `from`), or `{ count, category }` with no
+   * list, e.g. "one musical instrument". Read it through `backgroundToolChoice`.
+   */
+  tool_proficiencies?: { fixed?: string[]; choose?: number | ToolChoose; from?: string[] };
   origin_feat: string;
   /** Class id whose display name this background shares. UI shows a note; never blocks. */
   collides_with?: string;

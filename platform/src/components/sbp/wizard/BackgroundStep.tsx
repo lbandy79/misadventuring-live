@@ -1,4 +1,4 @@
-import { withChoices } from '@mtp/lib';
+import { backgroundToolChoice, withChoices } from '@mtp/lib';
 import type { Background } from '@mtp/lib';
 import { OptionCard } from '../OptionCard';
 import { ArtOrText } from '../art/Art';
@@ -13,6 +13,7 @@ export function describeIncrease(b: Background): string {
 export function BackgroundStep({ draft, rules, onChange }: StepProps) {
   const selected = rules.origins.backgrounds.find((b) => b.id === draft.backgroundId);
   const feat = selected ? rules.origins.feats.find((f) => f.id === selected.origin_feat) : undefined;
+  const toolChoice = backgroundToolChoice(selected);
 
   function pick(id: string) {
     // Tool picks and the flexible increase belong to the old background.
@@ -45,7 +46,7 @@ export function BackgroundStep({ draft, rules, onChange }: StepProps) {
             <li><strong>Skills</strong> — {(selected.skill_proficiencies ?? []).join(', ') || 'none'}</li>
             <li>
               <strong>Tools</strong> — {(selected.tool_proficiencies?.fixed ?? []).join(', ') || 'none'}
-              {selected.tool_proficiencies?.choose ? ` (+ choose ${selected.tool_proficiencies.choose})` : ''}
+              {toolChoice ? ` (+ choose ${toolChoice.count}${toolChoice.category ? ` ${toolChoice.category.replace(/_/g, ' ')}` : ''})` : ''}
             </li>
             {feat && <li><strong>{feat.name}</strong> — {feat.text}</li>}
           </ul>
