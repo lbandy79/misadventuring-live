@@ -16,6 +16,7 @@ import {
   isSafeImageDataUrl,
   removeSbpArt,
   setSbpArtStatus,
+  EMPTY_SBP_RULES,
   subscribeToAllSbpRules,
   suggestArtMatches,
   uploadSbpArt,
@@ -51,7 +52,7 @@ interface PendingRow {
 
 export default function SbpArtAdminPanel() {
   const { user, isAdmin } = useAuth();
-  const [rules, setRules] = useState<LoadedSbpRules>({ classes: null, origins: null });
+  const [rules, setRules] = useState<LoadedSbpRules>(EMPTY_SBP_RULES);
   const { thumbs, loaded } = useSbpArt(isAdmin);
   const [rows, setRows] = useState<PendingRow[]>([]);
   const [busy, setBusy] = useState(false);

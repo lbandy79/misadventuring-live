@@ -12,6 +12,7 @@
 import { useEffect, useState, type ChangeEvent } from 'react';
 import {
   useAuth,
+  EMPTY_SBP_RULES,
   diffRules,
   getSbpRulesHistory,
   restoreSbpRulesFromHistory,
@@ -27,11 +28,15 @@ import {
 } from '@mtp/lib';
 import './SbpRulesAdminPanel.css';
 
-/** The kinds that exist today; `spells` joins when that file does. */
-type LoadedKind = keyof LoadedSbpRules;
-const KINDS: LoadedKind[] = ['classes', 'origins'];
+/** Upload order matters for cross-checks: SRD spells, spells, classes, origins. */
+const KINDS: SbpRulesKind[] = ['srd_spells', 'spells', 'classes', 'origins'];
 
-const isLoadedKind = (k: SbpRulesKind | null): k is LoadedKind => k === 'classes' || k === 'origins';
+const KIND_LABELS: Record<SbpRulesKind, string> = {
+  srd_spells: 'SRD spells',
+  spells: 'spells',
+  classes: 'classes',
+  origins: 'origins',
+};
 
 interface Candidate {
   fileName: string;
@@ -44,14 +49,14 @@ const fmtDate = (ms: number) => new Date(ms).toLocaleString();
 
 export default function SbpRulesAdminPanel() {
   const { user } = useAuth();
-  const [loaded, setLoaded] = useState<LoadedSbpRules>({ classes: null, origins: null });
+  const [loaded, setLoaded] = useState<LoadedSbpRules>(EMPTY_SBP_RULES);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [candidate, setCandidate] = useState<Candidate | null>(null);
   const [parseError, setParseError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [history, setHistory] = useState<Record<SbpRulesKind, SbpRulesHistoryRow[]>>({
-    classes: [], origins: [], spells: [],
+    classes: [], origins: [], spells: [], srd_spells: [],
   });
   const [historyOpen, setHistoryOpen] = useState<SbpRulesKind | null>(null);
 
@@ -88,8 +93,13 @@ export default function SbpRulesAdminPanel() {
         setParseError(`Not valid JSON: ${(err as Error).message}`);
         return;
       }
-      const result = validateRulesFile(data, { classes: loaded.classes?.data ?? null });
-      const current = isLoadedKind(result.kind) ? loaded[result.kind]?.data : undefined;
+      const result = validateRulesFile(data, {
+        classes: loaded.classes?.data ?? null,
+        origins: loaded.origins?.data ?? null,
+        spells: loaded.spells?.data ?? null,
+        srd_spells: loaded.srd_spells?.data ?? null,
+      });
+      const current = result.kind ? loaded[result.kind]?.data : undefined;
       const diff = result.kind ? diffRules(result.kind, current, data) : null;
       setCandidate({ fileName: file.name, data, result, diff });
     };
@@ -98,13 +108,13 @@ export default function SbpRulesAdminPanel() {
   }
 
   async function onUpload() {
-    if (!candidate || !candidate.result.ok || !isLoadedKind(candidate.result.kind) || !user) return;
+    if (!candidate || !candidate.result.ok || !candidate.result.kind || !user) return;
     const { schemaVersion, counts } = candidate.result;
     const kind = candidate.result.kind;
     const replacing = loaded[kind];
     const msg = replacing
-      ? `Replace the current ${kind} doc (uploaded ${fmtDate(replacing.meta.uploadedAt)})? The old version is kept in history.`
-      : `Upload ${candidate.fileName} as the first ${kind} doc?`;
+      ? `Replace the current ${KIND_LABELS[kind]} doc (uploaded ${fmtDate(replacing.meta.uploadedAt)})? The old version is kept in history.`
+      : `Upload ${candidate.fileName} as the first ${KIND_LABELS[kind]} doc?`;
     if (!confirm(msg)) return;
 
     setBusy(true);
@@ -118,7 +128,7 @@ export default function SbpRulesAdminPanel() {
         sourceFileName: candidate.fileName,
         user: { uid: user.uid, email: user.email },
       });
-      setNotice(`Uploaded ${kind} at ${fmtDate(meta.uploadedAt)}.`);
+      setNotice(`Uploaded ${KIND_LABELS[kind]} at ${fmtDate(meta.uploadedAt)}.`);
       setCandidate(null);
       void refreshHistory(kind);
     } catch (err) {
@@ -155,9 +165,10 @@ export default function SbpRulesAdminPanel() {
     <div className="npc-admin-panel sbp-rules">
       <h2 className="npc-admin-panel__heading">SBP Labs — rules data</h2>
       <p className="cast-admin-list__hint">
-        Upload <code>sbp_classes.json</code> and <code>sbp_origins.json</code> here. Files are read in
-        your browser and written straight to Firestore; they never touch the repo. Upload classes
-        first so origins can be checked against it.
+        Upload <code>sbp_srd_spells.json</code>, <code>sbp_spells.json</code>,{' '}
+        <code>sbp_classes.json</code> and <code>sbp_origins.json</code> here. Files are read in your
+        browser and written straight to Firestore; they never touch the repo. Each file is checked
+        against the ones already uploaded, so go in that order the first time.
       </p>
 
       {loadError && <p className="npc-admin-panel__error" role="alert">{loadError}</p>}
@@ -198,7 +209,7 @@ export default function SbpRulesAdminPanel() {
 function CurrentDocCard({
   kind, meta, history, historyOpen, busy, onToggleHistory, onRestore,
 }: {
-  kind: LoadedKind;
+  kind: SbpRulesKind;
   meta: SbpRulesMeta | null;
   history: SbpRulesHistoryRow[];
   historyOpen: boolean;
@@ -208,7 +219,7 @@ function CurrentDocCard({
 }) {
   return (
     <div className="sbp-rules__card">
-      <h3 className="sbp-rules__card-title">{kind}</h3>
+      <h3 className="sbp-rules__card-title">{KIND_LABELS[kind]}</h3>
       {meta ? (
         <dl className="sbp-rules__meta">
           <dt>Uploaded</dt><dd>{fmtDate(meta.uploadedAt)}</dd>
@@ -264,7 +275,7 @@ function CandidateReview({
   return (
     <div className={`sbp-rules__review ${result.ok ? '' : 'sbp-rules__review--blocked'}`}>
       <h3 className="sbp-rules__card-title">
-        {fileName} → <strong>{result.kind ?? 'unrecognised'}</strong>
+        {fileName} → <strong>{result.kind ? KIND_LABELS[result.kind] : 'unrecognised'}</strong>
         {result.schemaVersion && <small> · schema {result.schemaVersion}</small>}
       </h3>
 
@@ -285,7 +296,7 @@ function CandidateReview({
 
       <div className="sbp-rules__actions">
         <button type="button" className="btn-primary" onClick={onUpload} disabled={!result.ok || busy}>
-          {busy ? 'Uploading…' : `Upload ${result.kind ?? ''}`}
+          {busy ? 'Uploading…' : `Upload ${result.kind ? KIND_LABELS[result.kind] : ''}`}
         </button>
         <button type="button" className="sbp-rules__link" onClick={onDiscard} disabled={busy}>
           Discard

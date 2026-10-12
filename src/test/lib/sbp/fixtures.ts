@@ -3,7 +3,14 @@
  * files are unpublished IP and never enter the repo (BRIEF §3).
  */
 
-import type { SbpClassesFile, SbpOriginsFile, SbpRulesDoc } from '../../../lib/sbp/types';
+import type {
+  SbpClassesFile,
+  SbpOriginsFile,
+  SbpRulesDoc,
+  SbpSpell,
+  SbpSpellsFile,
+  SbpSrdSpellsFile,
+} from '../../../lib/sbp/types';
 import type { SbpCharacter } from '../../../lib/sbp/character';
 
 const ASI_LEVELS = [4, 8, 12, 16, 19];
@@ -207,3 +214,56 @@ export function scooper(overrides: Partial<SbpCharacter> = {}): SbpCharacter {
     ...overrides,
   };
 }
+
+// ─── Spells ───────────────────────────────────────────────────────────────────
+
+const spell = (id: string, name: string, level: number, extra: Partial<SbpSpell> = {}): SbpSpell => ({
+  id, name, level, school: 'Evocation', source: 'srd_5.2.1',
+  casting_time: { unit: 'action', amount: 1, trigger: null },
+  range: { type: 'ranged', feet: 60 },
+  area: null,
+  components: { v: true, s: false, m: null },
+  duration: { type: 'instantaneous' },
+  concentration: false, ritual: false, attack: null, save: null, damage: [],
+  text: `${name} happens.`, higher_levels: null, cantrip_upgrade: null, tags: [],
+  ...extra,
+});
+
+export function srdSpellsFixture(): SbpSrdSpellsFile {
+  return {
+    $schema_version: '1.0.0',
+    spells: [
+      spell('spell.spark', 'Spark', 0),
+      spell('spell.big_bang', 'Big Bang', 1),
+      spell('spell.wardens_wall', "Warden's Wall", 2),
+    ],
+  };
+}
+
+export function spellsFixture(): SbpSpellsFile {
+  return {
+    $schema_version: '0.1.0',
+    spells: [
+      spell('spell.sprinkles', 'Sprinkles', 0, {
+        source: 'sbp', lists: ['spell_list.scooper'],
+        damage: [{ dice: '1d6', type: 'strain', fallback: 'cold' }],
+      }),
+    ],
+    spell_lists: { 'spell_list.scooper': { srd: ['spell.spark', 'spell.big_bang'] } },
+    reskins: [{ spell: 'spell.big_bang', list: 'spell_list.scooper', name: 'Brain Freeze' }],
+  };
+}
+
+export const spellDocs = (): {
+  spells: SbpRulesDoc<SbpSpellsFile>;
+  srd_spells: SbpRulesDoc<SbpSrdSpellsFile>;
+} => ({
+  spells: {
+    meta: { kind: 'spells', schemaVersion: 'test', uploadedBy: 'u', uploadedByEmail: '', uploadedAt: 300, sourceFileName: 's.json', counts: {} },
+    data: spellsFixture(),
+  },
+  srd_spells: {
+    meta: { kind: 'srd_spells', schemaVersion: 'test', uploadedBy: 'u', uploadedByEmail: '', uploadedAt: 400, sourceFileName: 'srd.json', counts: {} },
+    data: srdSpellsFixture(),
+  },
+});

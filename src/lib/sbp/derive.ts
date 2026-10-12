@@ -26,6 +26,8 @@ import type {
   SbpClassesFile,
   SbpOriginsFile,
   SbpRulesDoc,
+  SbpSpellsFile,
+  SbpSrdSpellsFile,
   Species,
   SwapFlag,
   Uses,
@@ -34,6 +36,7 @@ import type { AsiChoice, FeatChoice, LevelChoices, SbpCharacter } from './charac
 import { activeLevels, choicesAt, dormantLevels } from './character';
 import { ABILITY_KEYS, abilityModifier, abilityScoreConfigFrom, validateBaseScores } from './abilityScores';
 import { evaluateFormula, type FormulaContext } from './formula';
+import { buildSpellIndex, spellDisplayName, spellListIds } from './spells';
 
 // ─── Output types ─────────────────────────────────────────────────────────────
 
@@ -127,8 +130,28 @@ export interface DerivedSpellcasting {
   spellsKnown: number | null;
   preparesOrKnows: string | null;
   spellListId: string;
-  /** Always false until a spells file exists and is loaded. */
-  listLoaded: false;
+  /** True once the spells doc is loaded and defines this class's list. */
+  listLoaded: boolean;
+  /** Every spell id on the class list (signature + SRD); empty until loaded. */
+  listSpellIds: string[];
+  /** Feature id of the class's spellbook, if it has one. */
+  spellbook: string | null;
+  /** Spells the spellbook holds at this level (`journal_spells` on the level row). */
+  spellbookSize: number | null;
+  /** Resolved `strain` damage type from the character's archetype, if it has one. */
+  strainDamageType: string | null;
+}
+
+/** A spell a feature grants outright (`grants.spells`): always known, outside the list counts. */
+export interface GrantedSpell {
+  id: string;
+  /** Reskin name if the caster's list reskins it, else the spell name; the id if the spell isn't loaded. */
+  name: string;
+  level: number | null;
+  /** Feature that grants it. */
+  source: string;
+  /** Character level it was gained at. */
+  gainedAt: number;
 }
 
 export interface NamedRef {
@@ -163,6 +186,8 @@ export interface DerivedCharacter {
 
   features: DerivedFeature[];
   spellcasting: DerivedSpellcasting | null;
+  /** From `grants.spells`. Listed even for non-casters (a granted spell can come from anywhere). */
+  grantedSpells: GrantedSpell[];
   /** Non-standard per-level values from the class row, e.g. sneak_attack. */
   levelExtras: Record<string, unknown>;
   /** Grants that aren't features/skills/speed — for the sheet to list. */
@@ -178,13 +203,16 @@ export interface DerivedCharacter {
 export interface RulesInput {
   classes: SbpRulesDoc<SbpClassesFile> | null | undefined;
   origins: SbpRulesDoc<SbpOriginsFile> | null | undefined;
+  /** Optional: spell features degrade to ids and counts without them. */
+  spells?: SbpRulesDoc<SbpSpellsFile> | null;
+  srd_spells?: SbpRulesDoc<SbpSrdSpellsFile> | null;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const STANDARD_LEVEL_KEYS = new Set([
   'level', 'proficiency_bonus', 'features', 'asi_or_feat', 'archetype_choice',
-  'archetype_features', 'cantrips_known', 'spells_known', 'maturity', 'playtest',
+  'archetype_features', 'cantrips_known', 'spells_known', 'journal_spells', 'maturity', 'playtest',
 ]);
 
 const flagsOf = (x: { playtest?: PlaytestFlag; maturity?: Maturity; swap?: SwapFlag } | null | undefined): ContentFlags => {
@@ -305,6 +333,7 @@ export function deriveCharacter(character: SbpCharacter, rules: RulesInput): Der
     size: null,
     features: [],
     spellcasting: null,
+    grantedSpells: [],
     levelExtras: {},
     otherGrants: [],
     pendingChoices: pending,
@@ -487,6 +516,10 @@ export function deriveCharacter(character: SbpCharacter, rules: RulesInput): Der
   let hpFlatBonus = 0;
   let spellDcBonus = 0;
   let spellAttackBonus = 0;
+  const grantedSpells: GrantedSpell[] = [];
+  const spellsFile = rules.spells?.data ?? null;
+  const spellIndex = buildSpellIndex(spellsFile, rules.srd_spells?.data);
+  const listId = klass.spellcasting?.spell_list ?? null;
 
   interface GrantSource {
     name: string;
@@ -565,6 +598,19 @@ export function deriveCharacter(character: SbpCharacter, rules: RulesInput): Der
         spellDcBonus += asNumber(value);
       } else if (key === 'spell_attack_bonus') {
         spellAttackBonus += asNumber(value);
+      } else if (key === 'spells' && Array.isArray(value)) {
+        for (const id of value) {
+          if (typeof id !== 'string') continue;
+          const spell = spellIndex.get(id);
+          if (!spell && spellIndex.size > 0) issues.push(`${source}: spell "${id}" not found.`);
+          grantedSpells.push({
+            id,
+            name: spell ? spellDisplayName(spell, listId, spellsFile) : id,
+            level: spell?.level ?? null,
+            source,
+            gainedAt: src.level,
+          });
+        }
       } else if (key === 'speed' && value && typeof value === 'object') {
         for (const [mode, v] of Object.entries(value as Record<string, unknown>)) {
           if (typeof v === 'number') speed[mode] = Math.max(speed[mode] ?? 0, v);
@@ -629,6 +675,7 @@ export function deriveCharacter(character: SbpCharacter, rules: RulesInput): Der
   }
 
   // Archetype.
+  let archetypeOption: ArchetypeOption | undefined;
   const archRule = klass.archetype;
   if (archRule && level >= archRule.entry_level) {
     const archetypeId = choicesAt(character, archRule.entry_level).archetypeId;
@@ -643,6 +690,7 @@ export function deriveCharacter(character: SbpCharacter, rules: RulesInput): Der
       });
     } else {
       const option: ArchetypeOption | undefined = group.options.find((o) => o.id === archetypeId);
+      archetypeOption = option;
       if (!option) {
         issues.push(`${archRule.label} "${archetypeId}" not found.`);
       } else {
@@ -672,6 +720,7 @@ export function deriveCharacter(character: SbpCharacter, rules: RulesInput): Der
 
   features.sort((a, b) => a.level - b.level);
   result.features = features;
+  result.grantedSpells = grantedSpells.sort((a, b) => a.gainedAt - b.gainedAt);
   result.otherGrants = otherGrants;
   result.grantChoices = grantChoices.sort((a, b) => a.level - b.level);
   result.skills = unique(skills).sort();
@@ -708,6 +757,8 @@ export function deriveCharacter(character: SbpCharacter, rules: RulesInput): Der
     const slots = table?.[String(level)];
     if (!Array.isArray(slots)) issues.push(`Slot table "${sc.slot_progression}" has no level ${level} row.`);
     const mod = abilities[sc.ability]?.modifier ?? 0;
+    const listLoaded = !!spellsFile && sc.spell_list in spellsFile.spell_lists;
+    const strain = (result.archetype && archetypeOption?.resistance_type) || null;
     result.spellcasting = {
       ability: sc.ability,
       modifier: mod,
@@ -718,7 +769,11 @@ export function deriveCharacter(character: SbpCharacter, rules: RulesInput): Der
       spellsKnown: typeof currentRow?.spells_known === 'number' ? currentRow.spells_known : null,
       preparesOrKnows: sc.prepares_or_knows ?? null,
       spellListId: sc.spell_list,
-      listLoaded: false,
+      listLoaded,
+      listSpellIds: listLoaded ? spellListIds(sc.spell_list, spellsFile) : [],
+      spellbook: sc.spellbook ?? null,
+      spellbookSize: typeof currentRow?.journal_spells === 'number' ? currentRow.journal_spells : null,
+      strainDamageType: typeof strain === 'string' ? strain : null,
     };
   }
 

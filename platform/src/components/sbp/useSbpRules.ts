@@ -4,17 +4,17 @@
  */
 
 import { useEffect, useState } from 'react';
-import { subscribeToAllSbpRules, type LoadedSbpRules } from '@mtp/lib';
+import { EMPTY_SBP_RULES, subscribeToAllSbpRules, type LoadedSbpRules } from '@mtp/lib';
 
 export interface SbpRulesState {
   rules: LoadedSbpRules;
-  /** True until both docs have reported (present or absent). */
+  /** True until every rules doc has reported (present or absent). */
   loading: boolean;
   error: string | null;
 }
 
 export function useSbpRules(enabled: boolean): SbpRulesState {
-  const [rules, setRules] = useState<LoadedSbpRules>({ classes: null, origins: null });
+  const [rules, setRules] = useState<LoadedSbpRules>(EMPTY_SBP_RULES);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,7 +25,7 @@ export function useSbpRules(enabled: boolean): SbpRulesState {
       (next) => {
         setRules(next);
         reports += 1;
-        if (reports >= 2) setLoading(false);
+        if (reports >= Object.keys(EMPTY_SBP_RULES).length) setLoading(false);
       },
       (err) => {
         console.error('sbp-rules subscription failed:', err);

@@ -1,4 +1,4 @@
-import { withChoices } from '@mtp/lib';
+import { spellListIds, withChoices } from '@mtp/lib';
 import type { SbpClass } from '@mtp/lib';
 import { OptionCard } from '../OptionCard';
 import { ArtOrText } from '../art/Art';
@@ -14,6 +14,9 @@ export function ClassStep({ draft, rules, onChange }: StepProps) {
   const asksArchetypeNow = !!arch && arch.entry_level === 1 && !!group;
   const chosenArchetype = arch ? draft.choices[String(arch.entry_level)]?.archetypeId : undefined;
   const level1 = klass?.levels.find((L) => L.level === 1) ?? klass?.levels[0];
+  const spellCount = klass?.spellcasting
+    ? spellListIds(klass.spellcasting.spell_list, rules.loaded.spells?.data).length
+    : 0;
 
   function pickClass(id: string) {
     const prevArch = klass?.archetype?.entry_level;
@@ -55,7 +58,10 @@ export function ClassStep({ draft, rules, onChange }: StepProps) {
           <ul className="sbp-list">
             <li><strong>Saving throws</strong> — {(klass.saving_throws ?? []).join(', ')}</li>
             {klass.spellcasting && (
-              <li><strong>Spellcasting</strong> — {klass.spellcasting.ability}; spell list not loaded yet</li>
+              <li>
+                <strong>Spellcasting</strong> — {klass.spellcasting.ability};{' '}
+                {spellCount > 0 ? `${spellCount} spells on the list` : 'spell list not uploaded yet'}
+              </li>
             )}
             {arch && (
               <li>

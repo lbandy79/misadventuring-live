@@ -30,6 +30,8 @@ import type {
   SbpRulesHistoryEntry,
   SbpRulesKind,
   SbpRulesMeta,
+  SbpSpellsFile,
+  SbpSrdSpellsFile,
 } from './types';
 
 const RULES = 'sbp-rules';
@@ -43,7 +45,13 @@ export interface SbpRulesHistoryRow extends SbpRulesHistoryEntry {
 export interface LoadedSbpRules {
   classes: SbpRulesDoc<SbpClassesFile> | null;
   origins: SbpRulesDoc<SbpOriginsFile> | null;
+  /** sbp_spells.json: signature spells, spell_lists, reskins. */
+  spells: SbpRulesDoc<SbpSpellsFile> | null;
+  /** sbp_srd_spells.json: generated SRD 5.2.1 spells. */
+  srd_spells: SbpRulesDoc<SbpSrdSpellsFile> | null;
 }
+
+export const EMPTY_SBP_RULES: LoadedSbpRules = { classes: null, origins: null, spells: null, srd_spells: null };
 
 // ─── Read ─────────────────────────────────────────────────────────────────────
 
@@ -64,15 +72,17 @@ export function subscribeToSbpRules<T = unknown>(
   );
 }
 
-/** Subscribe to both current rules docs at once. */
+/** Subscribe to every current rules doc at once. */
 export function subscribeToAllSbpRules(
   callback: (rules: LoadedSbpRules) => void,
   onError?: (err: Error) => void,
 ): Unsubscribe {
-  const state: LoadedSbpRules = { classes: null, origins: null };
+  const state: LoadedSbpRules = { ...EMPTY_SBP_RULES };
   const unsubs = [
     subscribeToSbpRules<SbpClassesFile>('classes', (d) => { state.classes = d; callback({ ...state }); }, onError),
     subscribeToSbpRules<SbpOriginsFile>('origins', (d) => { state.origins = d; callback({ ...state }); }, onError),
+    subscribeToSbpRules<SbpSpellsFile>('spells', (d) => { state.spells = d; callback({ ...state }); }, onError),
+    subscribeToSbpRules<SbpSrdSpellsFile>('srd_spells', (d) => { state.srd_spells = d; callback({ ...state }); }, onError),
   ];
   return () => unsubs.forEach((u) => u());
 }

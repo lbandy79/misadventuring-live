@@ -53,7 +53,24 @@ export function DerivedSummary({ d, compact = false }: { d: DerivedCharacter; co
           <strong>Spellcasting ({d.spellcasting.ability})</strong> — slots {d.spellcasting.slots.filter((n) => n > 0).map((n, i) => `${n}×L${i + 1}`).join(', ') || 'none'}
           {d.spellcasting.cantripsKnown != null ? ` · ${d.spellcasting.cantripsKnown} cantrips` : ''}
           {d.spellcasting.spellsKnown != null ? ` · ${d.spellcasting.spellsKnown} spells ${d.spellcasting.preparesOrKnows ?? 'known'}` : ''}
-          <em className="sbp-muted"> · spell list not loaded yet</em>
+          {d.spellcasting.spellbookSize != null ? ` · ${d.spellcasting.spellbookSize} in spellbook` : ''}
+          {d.spellcasting.strainDamageType ? ` · Strain damage: ${d.spellcasting.strainDamageType}` : ''}
+          <em className="sbp-muted">
+            {d.spellcasting.listLoaded
+              ? ` · ${d.spellcasting.listSpellIds.length} spells on the list (picking spells is coming)`
+              : ' · spell list not uploaded yet'}
+          </em>
+        </p>
+      )}
+
+      {d.grantedSpells.length > 0 && (
+        <p className="sbp-spells">
+          <strong>Always known</strong> —{' '}
+          {d.grantedSpells.map((g, i) => (
+            <span key={`${g.id}@${g.gainedAt}`} title={`From ${g.source}`}>
+              {i > 0 ? ', ' : ''}{g.name}{g.level === 0 ? ' (cantrip)' : g.level != null ? ` (L${g.level})` : ''}
+            </span>
+          ))}
         </p>
       )}
 

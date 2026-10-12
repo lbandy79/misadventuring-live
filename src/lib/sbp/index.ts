@@ -4,6 +4,7 @@ export * from './rulesApi';
 export * from './character';
 export * from './abilityScores';
 export * from './formula';
+export * from './spells';
 export * from './derive';
 export * from './characterApi';
 export * from './artMatch';

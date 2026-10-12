@@ -160,11 +160,13 @@ export interface ClassArchetypeRef {
 
 export interface ClassSpellcasting {
   ability: AbilityKey;
-  /** `spell_list.*` — lives in a spells file that does not exist yet. */
+  /** `spell_list.*` — a key of `SbpSpellsFile.spell_lists`. */
   spell_list: string;
   /** Key into `$slot_tables`. */
   slot_progression: string;
   prepares_or_knows?: 'prepares' | 'knows';
+  /** Feature id of the class's spellbook. Prepares from the book, not the whole list. */
+  spellbook?: string;
   [key: string]: unknown;
 }
 
@@ -209,10 +211,93 @@ export interface SbpClassesFile {
   archetypes: Record<string, ArchetypeGroup>;
 }
 
+// ─── Spells files ─────────────────────────────────────────────────────────────
+
+export interface SpellDamage {
+  dice: string;
+  /** A damage type, or `strain`: the caster archetype's resistance_type, else `fallback`. */
+  type: string;
+  fallback?: string;
+  [key: string]: unknown;
+}
+
+export interface SpellSave {
+  ability: AbilityKey;
+  on_success: 'half' | 'none' | 'half_initial_only' | string;
+  applies_to?: 'rider' | 'secondary_target';
+}
+
+/**
+ * One spell, from either file. SRD spells (`source: 'srd_5.2.1'`) carry a
+ * `text` on casting_time / range / components / duration; signature spells
+ * mostly don't, so display code should format from the structured fields.
+ */
+export interface SbpSpell extends Flagged {
+  id: string;
+  name: string;
+  level: number;
+  school: string;
+  source: 'sbp' | 'srd_5.2.1' | string;
+  casting_time: { unit: string; amount: number; trigger: string | null; text?: string };
+  range: { type: string; feet?: number; text?: string };
+  area: { shape: string; feet: number } | null;
+  components: {
+    v: boolean;
+    s: boolean;
+    m: { text: string; cost_gp: number | null; consumed: boolean } | null;
+    text?: string;
+  };
+  duration: { type: string; text?: string };
+  concentration: boolean;
+  ritual: boolean;
+  attack: 'melee' | 'ranged' | null;
+  save: SpellSave | null;
+  damage: SpellDamage[];
+  text: string;
+  higher_levels: string | null;
+  cantrip_upgrade: string | null;
+  tags: string[];
+  /** Signature spells only: which `spell_list.*` ids include it. */
+  lists?: string[];
+  flavor?: string;
+  affinity?: string[];
+  granted_by?: string[];
+  references?: string[];
+  [key: string]: unknown;
+}
+
+export interface SpellReskin {
+  spell: string;
+  list: string;
+  name: string;
+  flavor?: string;
+  mechanical_changes?: string[];
+  note?: string;
+}
+
+/** `sbp_spells.json` — hand-edited: signature spells, list membership, reskins. */
+export interface SbpSpellsFile {
+  $schema_version: string;
+  $doc?: string;
+  $conventions?: Record<string, string>;
+  spells: SbpSpell[];
+  reskins: SpellReskin[];
+  /** A class's full list is its signature spells plus `spell_lists[id].srd`. */
+  spell_lists: Record<string, { srd: string[] }>;
+}
+
+/** `sbp_srd_spells.json` — generated from SRD 5.2.1, read-only. */
+export interface SbpSrdSpellsFile {
+  $schema_version: string;
+  $doc?: string;
+  $attribution?: string;
+  spells: SbpSpell[];
+}
+
 // ─── Firestore documents ──────────────────────────────────────────────────────
 
-/** Doc ids in `sbp-rules`. `spells` is reserved for the file that doesn't exist yet. */
-export type SbpRulesKind = 'classes' | 'origins' | 'spells';
+/** Doc ids in `sbp-rules`. `spells` = sbp_spells.json; `srd_spells` = the generated SRD file. */
+export type SbpRulesKind = 'classes' | 'origins' | 'spells' | 'srd_spells';
 
 export interface SbpRulesMeta {
   kind: SbpRulesKind;
@@ -227,7 +312,7 @@ export interface SbpRulesMeta {
 }
 
 /** Shape of `sbp-rules/{kind}`. `data` is the uploaded file, verbatim. */
-export interface SbpRulesDoc<T = SbpClassesFile | SbpOriginsFile> {
+export interface SbpRulesDoc<T = SbpClassesFile | SbpOriginsFile | SbpSpellsFile | SbpSrdSpellsFile> {
   meta: SbpRulesMeta;
   data: T;
 }

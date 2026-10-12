@@ -14,6 +14,8 @@ import type {
   SbpClassesFile,
   SbpOriginsFile,
   SbpRulesKind,
+  SbpSpellsFile,
+  SbpSrdSpellsFile,
 } from './types';
 
 export interface ValidationIssue {
@@ -44,7 +46,14 @@ const ID_NAMESPACES: Record<SbpRulesKind, string[]> = {
   origins: ['species.', 'background.', 'feat.'],
   classes: ['class.', 'archetype.'],
   spells: ['spell.', 'spell_list.'],
+  srd_spells: ['spell.'],
 };
+
+/**
+ * Firestore caps a document at 1 MiB. The SRD file is ~600 KB, so warn well
+ * before the cap rather than let the upload transaction fail.
+ */
+const DOC_SIZE_WARN_BYTES = 900_000;
 
 const isRecord = (v: unknown): v is Record<string, unknown> =>
   typeof v === 'object' && v !== null && !Array.isArray(v);
@@ -59,7 +68,9 @@ export function detectRulesKind(input: unknown): SbpRulesKind | null {
   if (Array.isArray(input.species) && Array.isArray(input.backgrounds) && Array.isArray(input.feats)) {
     return 'origins';
   }
-  if (Array.isArray(input.spells) || isRecord(input.spell_lists)) return 'spells';
+  // Both spell files have spells[]; only the hand-edited one has spell_lists.
+  if (isRecord(input.spell_lists)) return 'spells';
+  if (Array.isArray(input.spells)) return 'srd_spells';
   return null;
 }
 
@@ -232,7 +243,15 @@ export function validateOriginsFile(
 
 // ─── Classes ──────────────────────────────────────────────────────────────────
 
-export function validateClassesFile(input: unknown): ValidationResult {
+/**
+ * Validate a classes file. Pass the loaded spell files so `spell_list` and
+ * `grants.spells` can be resolved; without them those checks downgrade to
+ * warnings (the spell docs may simply not be uploaded yet).
+ */
+export function validateClassesFile(
+  input: unknown,
+  spellFiles: { spells?: SbpSpellsFile | null; srd_spells?: SbpSrdSpellsFile | null } = {},
+): ValidationResult {
   const c = new Collector();
   const fail = (): ValidationResult => ({
     ok: false, kind: 'classes', schemaVersion: null, issues: c.issues, counts: {},
@@ -252,6 +271,10 @@ export function validateClassesFile(input: unknown): ValidationResult {
 
   const seen = new Set<string>();
   checkIds(classes, 'classes', 'class.', c, seen);
+
+  const knownSpells = spellFiles.spells && spellFiles.srd_spells
+    ? new Set([...spellFiles.spells.spells, ...spellFiles.srd_spells.spells].map((s) => s.id))
+    : null;
 
   let archetypeCount = 0;
   for (const [key, group] of Object.entries(archetypes)) {
@@ -319,11 +342,51 @@ export function validateClassesFile(input: unknown): ValidationResult {
       if (typeof sc.slot_progression !== 'string' || !(sc.slot_progression in slotTables)) {
         c.error(`${p}.spellcasting.slot_progression`, `"${String(sc.slot_progression)}" not in $slot_tables.`);
       }
-      if (typeof sc.spell_list === 'string') {
-        c.warn(`${p}.spellcasting.spell_list`, `"${sc.spell_list}" lives in the spells file, which isn't loaded yet.`);
+      if (typeof sc.spell_list !== 'string') {
+        c.error(`${p}.spellcasting.spell_list`, 'Missing spell_list.');
+      } else if (!spellFiles.spells) {
+        c.warn(`${p}.spellcasting.spell_list`, `Could not check "${sc.spell_list}": no spells file loaded.`);
+      } else if (!(sc.spell_list in spellFiles.spells.spell_lists)) {
+        c.error(`${p}.spellcasting.spell_list`, `"${sc.spell_list}" not in the loaded spells file's spell_lists.`);
+      }
+      if (typeof sc.spellbook === 'string' && !(sc.spellbook in features)) {
+        c.error(`${p}.spellcasting.spellbook`, `Feature "${sc.spellbook}" not in ${p}.features.`);
       }
     }
+    for (const [fid, body] of Object.entries(features)) {
+      checkSpellGrants(isRecord(body) ? body.grants : undefined, `${p}.features.${fid}.grants.spells`);
+    }
   });
+
+  for (const [key, group] of Object.entries(archetypes)) {
+    if (!isRecord(group) || !Array.isArray(group.options)) continue;
+    (group.options as unknown[]).forEach((o, i) => {
+      if (!isRecord(o) || !isRecord(o.features)) return;
+      for (const [lvl, body] of Object.entries(o.features)) {
+        checkSpellGrants(
+          isRecord(body) ? body.grants : undefined,
+          `archetypes.${key}.options[${i}].features.${lvl}.grants.spells`,
+        );
+      }
+    });
+  }
+
+  function checkSpellGrants(grants: unknown, path: string) {
+    if (!isRecord(grants) || grants.spells === undefined) return;
+    if (!Array.isArray(grants.spells)) {
+      c.error(path, 'grants.spells must be a list of spell ids.');
+      return;
+    }
+    grants.spells.forEach((id, j) => {
+      if (typeof id !== 'string' || !id.startsWith('spell.')) {
+        c.error(`${path}[${j}]`, `"${String(id)}" is not a spell id.`);
+      } else if (!knownSpells) {
+        c.warn(`${path}[${j}]`, `Could not check "${id}": both spell files must be loaded.`);
+      } else if (!knownSpells.has(id)) {
+        c.error(`${path}[${j}]`, `Spell "${id}" not found in either spell file.`);
+      }
+    });
+  }
 
   const ok = !c.issues.some((i) => i.level === 'error');
   return {
@@ -340,11 +403,247 @@ export function validateClassesFile(input: unknown): ValidationResult {
   };
 }
 
+// ─── Spells ───────────────────────────────────────────────────────────────────
+
+/**
+ * The SRD id rule from the spells files' `$conventions.srd_ids`: lowercase,
+ * drop apostrophes, every other run of non-alphanumerics becomes `_`.
+ */
+export function srdSpellId(name: string): string {
+  return 'spell.' + name
+    .toLowerCase()
+    .replace(/['’]/g, '')
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '');
+}
+
+const SAVE_OUTCOMES = new Set(['half', 'none', 'half_initial_only']);
+
+/** Shape checks shared by both spell files. */
+function checkSpell(s: Record<string, unknown>, p: string, c: Collector): void {
+  if (typeof s.name !== 'string' || !s.name) c.error(`${p}.name`, 'Missing name.');
+  if (typeof s.level !== 'number' || !Number.isInteger(s.level) || s.level < 0 || s.level > 9) {
+    c.error(`${p}.level`, `Level must be a whole number 0–9, found ${String(s.level)}.`);
+  }
+  if (typeof s.text !== 'string' || !s.text) c.error(`${p}.text`, 'Missing text.');
+  if (!isRecord(s.casting_time)) c.error(`${p}.casting_time`, 'Missing casting_time.');
+  if (!isRecord(s.range)) c.error(`${p}.range`, 'Missing range.');
+  if (!isRecord(s.components)) c.error(`${p}.components`, 'Missing components.');
+  if (!isRecord(s.duration)) c.error(`${p}.duration`, 'Missing duration.');
+  if (s.tags !== undefined && !(Array.isArray(s.tags) && s.tags.every((t) => typeof t === 'string'))) {
+    c.error(`${p}.tags`, 'tags must be a list of strings.');
+  }
+  if (isRecord(s.save) && typeof s.save.on_success === 'string' && !SAVE_OUTCOMES.has(s.save.on_success)) {
+    c.warn(`${p}.save.on_success`, `Unknown outcome "${s.save.on_success}" (half | none | half_initial_only).`);
+  }
+  if (!Array.isArray(s.damage)) {
+    c.error(`${p}.damage`, 'damage must be a list (empty if none).');
+  } else {
+    s.damage.forEach((d, j) => {
+      if (!isRecord(d) || typeof d.dice !== 'string' || typeof d.type !== 'string') {
+        c.error(`${p}.damage[${j}]`, 'Each damage entry needs dice and type.');
+      } else if (d.type === 'strain' && typeof d.fallback !== 'string') {
+        c.error(`${p}.damage[${j}].fallback`, 'Strain damage needs a fallback type for casters without a Strain.');
+      }
+    });
+  }
+}
+
+const fileTooBig = (input: unknown, c: Collector) => {
+  const bytes = new TextEncoder().encode(JSON.stringify(input)).length;
+  if (bytes > DOC_SIZE_WARN_BYTES) {
+    c.warn('', `File is ${Math.round(bytes / 1000)} KB; Firestore rejects documents over ~1,000 KB.`);
+  }
+};
+
+/** Validate the generated SRD spells file (`sbp_srd_spells.json`). */
+export function validateSrdSpellsFile(
+  input: unknown,
+  loaded: { spells?: SbpSpellsFile | null } = {},
+): ValidationResult {
+  const c = new Collector();
+  if (!isRecord(input)) {
+    c.error('', 'Not a JSON object.');
+    return { ok: false, kind: 'srd_spells', schemaVersion: null, issues: c.issues, counts: {} };
+  }
+  const schemaVersion = checkCommonHeader(input, c);
+  const spells = input.spells as Array<Record<string, unknown>>;
+  const seen = new Set<string>();
+  checkIds(spells, 'spells', 'spell.', c, seen);
+  spells.forEach((s, i) => {
+    const p = `spells[${i}]`;
+    if (!isRecord(s)) return;
+    checkSpell(s, p, c);
+    if (typeof s.name === 'string' && typeof s.id === 'string' && srdSpellId(s.name) !== s.id) {
+      c.warn(`${p}.id`, `Id "${s.id}" doesn't follow the SRD id rule (expected "${srdSpellId(s.name)}").`);
+    }
+  });
+  fileTooBig(input, c);
+
+  // Reverse check: would the current spells file still resolve against this one?
+  const sp = loaded.spells;
+  if (sp) {
+    const dropped = new Set<string>();
+    for (const list of Object.values(sp.spell_lists)) list.srd.forEach((id) => !seen.has(id) && dropped.add(id));
+    sp.reskins.forEach((r) => !seen.has(r.spell) && dropped.add(r.spell));
+    for (const id of dropped) {
+      c.warn('spells', `"${id}" is used by the current spells file but isn't in this one.`);
+    }
+  }
+
+  return {
+    ok: !c.issues.some((i) => i.level === 'error'),
+    kind: 'srd_spells',
+    schemaVersion,
+    issues: c.issues,
+    counts: { spells: spells.length, cantrips: spells.filter((s) => s.level === 0).length },
+  };
+}
+
+/**
+ * Validate the hand-edited spells file (`sbp_spells.json`): signature spells,
+ * `spell_lists`, and `reskins`. SRD references are only checked when the SRD
+ * file is loaded; class/archetype references only when classes are.
+ */
+export function validateSpellsFile(
+  input: unknown,
+  loaded: { srd_spells?: SbpSrdSpellsFile | null; classes?: SbpClassesFile | null } = {},
+): ValidationResult {
+  const c = new Collector();
+  const fail = (): ValidationResult => ({
+    ok: false, kind: 'spells', schemaVersion: null, issues: c.issues, counts: {},
+  });
+  if (!isRecord(input)) {
+    c.error('', 'Not a JSON object.');
+    return fail();
+  }
+  const schemaVersion = checkCommonHeader(input, c);
+  const spells = Array.isArray(input.spells) ? (input.spells as Array<Record<string, unknown>>) : null;
+  const lists = isRecord(input.spell_lists) ? input.spell_lists : null;
+  const reskins = Array.isArray(input.reskins) ? (input.reskins as Array<Record<string, unknown>>) : [];
+  if (!spells) c.error('spells', 'Missing spells[] (use [] if there are no signature spells).');
+  if (!lists) c.error('spell_lists', 'Missing spell_lists{}.');
+  if (input.reskins !== undefined && !Array.isArray(input.reskins)) c.error('reskins', 'reskins must be a list.');
+  if (!spells || !lists) return fail();
+
+  const srdIds = loaded.srd_spells ? new Set(loaded.srd_spells.spells.map((s) => s.id)) : null;
+  const classes = loaded.classes ?? null;
+  const ownerIds = classes
+    ? new Set([
+      ...classes.classes.map((k) => k.id),
+      ...Object.values(classes.archetypes).flatMap((g) => g.options.map((o) => o.id)),
+    ])
+    : null;
+
+  // Signature spells.
+  const seen = new Set<string>();
+  checkIds(spells, 'spells', 'spell.', c, seen);
+  spells.forEach((s, i) => {
+    const p = `spells[${i}]`;
+    if (!isRecord(s)) return;
+    checkSpell(s, p, c);
+    if (typeof s.id === 'string' && srdIds?.has(s.id)) {
+      c.error(`${p}.id`, `"${s.id}" is also an SRD spell id. Signature ids must be unique across both files.`);
+    }
+    if (!Array.isArray(s.lists) || s.lists.length === 0) {
+      c.warn(`${p}.lists`, 'Not on any spell list (only reachable through grants).');
+    } else {
+      s.lists.forEach((l, j) => {
+        if (typeof l !== 'string' || !(l in lists)) c.error(`${p}.lists[${j}]`, `"${String(l)}" not in spell_lists.`);
+      });
+    }
+    if (ownerIds) {
+      (Array.isArray(s.granted_by) ? s.granted_by : []).forEach((g, j) => {
+        if (typeof g !== 'string' || !ownerIds.has(g)) {
+          c.error(`${p}.granted_by[${j}]`, `"${String(g)}" is not a class or archetype in the loaded classes file.`);
+        }
+      });
+      (Array.isArray(s.affinity) ? s.affinity : []).forEach((g, j) => {
+        if (typeof g !== 'string' || !ownerIds.has(g)) {
+          c.warn(`${p}.affinity[${j}]`, `"${String(g)}" is not an archetype in the loaded classes file.`);
+        }
+      });
+    }
+  });
+
+  // Lists.
+  let unresolved = 0;
+  for (const [listId, list] of Object.entries(lists)) {
+    const p = `spell_lists.${listId}`;
+    if (!listId.startsWith('spell_list.')) c.error(p, `List id "${listId}" must start with "spell_list.".`);
+    if (!isRecord(list) || !Array.isArray(list.srd)) {
+      c.error(p, 'Each list needs srd: [spell ids].');
+      continue;
+    }
+    const inList = new Set<string>();
+    list.srd.forEach((id, j) => {
+      if (typeof id !== 'string') {
+        c.error(`${p}.srd[${j}]`, 'Not a spell id.');
+        return;
+      }
+      if (inList.has(id)) c.warn(`${p}.srd[${j}]`, `"${id}" is listed twice.`);
+      inList.add(id);
+      if (seen.has(id)) {
+        c.error(`${p}.srd[${j}]`, `"${id}" is a signature spell; give it to the list with its own lists[] instead.`);
+      } else if (srdIds && !srdIds.has(id)) {
+        c.error(`${p}.srd[${j}]`, `"${id}" not found in the loaded SRD spells file.`);
+      } else if (!srdIds) {
+        unresolved += 1;
+      }
+    });
+  }
+  if (unresolved > 0) {
+    c.warn('spell_lists', `Could not check ${unresolved} SRD references: no SRD spells file loaded.`);
+  }
+
+  // Reskins: a reskin renames a spell already on the list; it never adds one.
+  const pairs = new Set<string>();
+  reskins.forEach((r, i) => {
+    const p = `reskins[${i}]`;
+    const spell = typeof r.spell === 'string' ? r.spell : '';
+    const listId = typeof r.list === 'string' ? r.list : '';
+    if (typeof r.name !== 'string' || !r.name) c.error(`${p}.name`, 'Missing name.');
+    const list = lists[listId];
+    if (!isRecord(list)) {
+      c.error(`${p}.list`, `"${listId}" not in spell_lists.`);
+    } else if (!Array.isArray(list.srd) || !list.srd.includes(spell)) {
+      c.error(`${p}.spell`, `"${spell}" isn't on ${listId}. Add it to that list's srd first.`);
+    }
+    if (pairs.has(`${spell}@${listId}`)) c.error(p, `Second reskin of "${spell}" on ${listId}.`);
+    pairs.add(`${spell}@${listId}`);
+  });
+
+  // Reverse checks against the classes that use these lists.
+  if (classes) {
+    classes.classes.forEach((k, i) => {
+      const listId = k.spellcasting?.spell_list;
+      if (listId && !(listId in lists)) {
+        c.error('spell_lists', `classes[${i}] (${k.id}) uses "${listId}", which this file doesn't define.`);
+      }
+    });
+  }
+
+  fileTooBig(input, c);
+  return {
+    ok: !c.issues.some((i) => i.level === 'error'),
+    kind: 'spells',
+    schemaVersion,
+    issues: c.issues,
+    counts: {
+      signature_spells: spells.length,
+      spell_lists: Object.keys(lists).length,
+      reskins: reskins.length,
+    },
+  };
+}
+
 // ─── Entry point ──────────────────────────────────────────────────────────────
 
 export interface LoadedRules {
   classes?: SbpClassesFile | null;
   origins?: SbpOriginsFile | null;
+  spells?: SbpSpellsFile | null;
+  srd_spells?: SbpSrdSpellsFile | null;
 }
 
 /** Validate a parsed file of any kind against whatever is already loaded. */
@@ -352,21 +651,21 @@ export function validateRulesFile(input: unknown, loaded: LoadedRules = {}): Val
   const kind = detectRulesKind(input);
   switch (kind) {
     case 'classes':
-      return validateClassesFile(input);
+      return validateClassesFile(input, loaded);
     case 'origins':
       return validateOriginsFile(input, loaded.classes);
     case 'spells':
-      return {
-        ok: false, kind, schemaVersion: null, counts: {},
-        issues: [{ level: 'error', path: '', message: 'Spells files are not supported yet.' }],
-      };
+      return validateSpellsFile(input, loaded);
+    case 'srd_spells':
+      return validateSrdSpellsFile(input, loaded);
     default:
       return {
         ok: false, kind: null, schemaVersion: null, counts: {},
         issues: [{
           level: 'error',
           path: '',
-          message: 'Unrecognised file: expected classes[] + archetypes{} or species[] + backgrounds[] + feats[].',
+          message: 'Unrecognised file: expected classes[] + archetypes{}, species[] + backgrounds[] + feats[], '
+            + 'spells[] + spell_lists{}, or spells[] alone (SRD).',
         }],
       };
   }
@@ -397,6 +696,18 @@ export function indexRulesEntities(kind: SbpRulesKind, data: unknown): Record<st
     }
     if (isRecord(data.$slot_tables)) {
       for (const [key, table] of Object.entries(data.$slot_tables)) out[`slot_table.${key}`] = table;
+    }
+  } else if (kind === 'srd_spells') {
+    collect(data.spells);
+  } else if (kind === 'spells') {
+    collect(data.spells);
+    if (isRecord(data.spell_lists)) {
+      for (const [key, list] of Object.entries(data.spell_lists)) out[key] = list;
+    }
+    if (Array.isArray(data.reskins)) {
+      for (const r of data.reskins) {
+        if (isRecord(r)) out[`reskin.${String(r.spell)}@${String(r.list)}`] = r;
+      }
     }
   }
   return out;

@@ -104,7 +104,7 @@ describe('validateClassesFile', () => {
     expect(r.counts).toEqual({ classes: 1, archetypes: 1, features: 2, slot_tables: 1 });
   });
 
-  it('warns (does not fail) about the spell list, since the spells file does not exist', () => {
+  it('warns (does not fail) about the spell list when no spells file is loaded', () => {
     const r = validateClassesFile(classesFixture());
     const warn = r.issues.find((i) => i.path.endsWith('spell_list'));
     expect(warn?.level).toBe('warning');
