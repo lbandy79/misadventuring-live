@@ -57,7 +57,7 @@ export function DerivedSummary({ d, compact = false }: { d: DerivedCharacter; co
           {d.spellcasting.strainDamageType ? ` · Strain damage: ${d.spellcasting.strainDamageType}` : ''}
           <em className="sbp-muted">
             {d.spellcasting.listLoaded
-              ? ` · ${d.spellcasting.listSpellIds.length} spells on the list (picking spells is coming)`
+              ? ` · ${d.spellcasting.listSpellIds.length} spells on the list`
               : ' · spell list not uploaded yet'}
           </em>
         </p>

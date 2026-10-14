@@ -59,7 +59,7 @@ export async function createSbpCharacter(input: SbpCharacterInput): Promise<SbpC
 /** Save everything a player may change. Owner fields and createdAt are left alone. */
 export async function saveSbpCharacter(
   id: string,
-  changes: Partial<Pick<SbpCharacter, 'name' | 'level' | 'speciesId' | 'backgroundId' | 'classId' | 'abilityScores' | 'choices' | 'rulesVersion'>>,
+  changes: Partial<Pick<SbpCharacter, 'name' | 'level' | 'speciesId' | 'backgroundId' | 'classId' | 'abilityScores' | 'choices' | 'prepared' | 'rulesVersion'>>,
 ): Promise<void> {
   await updateDoc(doc(db, COLLECTION, id), stripUndefined({ ...changes, updatedAt: Date.now() }));
 }

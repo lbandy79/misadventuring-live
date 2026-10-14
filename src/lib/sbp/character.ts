@@ -51,6 +51,16 @@ export interface LevelChoices {
    * level the granting feature was gained.
    */
   grantPicks?: Record<string, string[]>;
+  /** Cantrips learned at this level: as many as `cantrips_known` grew by. */
+  cantrips?: string[];
+  /**
+   * Spells gained at this level. Known casters: as many as `spells_known`
+   * grew by. Spellbook casters: spells written into the book, as many as
+   * `journal_spells` grew by. Casters who prepare from the whole list: unused.
+   */
+  spells?: string[];
+  /** Spellbook casters: spells copied into the book at this level beyond the free ones (found, bought). */
+  journalExtra?: string[];
 }
 
 export interface SbpCharacter {
@@ -72,6 +82,12 @@ export interface SbpCharacter {
   };
   /** Keyed by level as a string (Firestore map keys are strings). */
   choices: Record<string, LevelChoices>;
+  /**
+   * Prepared casters: today's prepared spells. Not level-gated (it changes
+   * every long rest), so it lives outside `choices`; derive drops any that
+   * stop being valid when the level changes.
+   */
+  prepared?: string[];
   /** `meta.uploadedAt` of each rules doc this was last edited against. */
   rulesVersion: { classes: number | null; origins: number | null };
   createdAt: number;

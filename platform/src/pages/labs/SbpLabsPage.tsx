@@ -173,6 +173,9 @@ function MyCharacterCard({ c, rules, rulesReady, busy, onDelete }: {
           {(d.rulesOutdated.classes || d.rulesOutdated.origins) && (
             <p className="wizard-derived-notice">Rules updated since this character was built.</p>
           )}
+          {d.pendingChoices.some((p) => p.kind.startsWith('spell_')) && (
+            <p className="wizard-derived-notice">Has spells to pick. Open the sheet to choose them.</p>
+          )}
           {d.issues.length > 0 && <p className="wizard-warning">{d.issues.join(' ')}</p>}
           <DerivedSummary d={d} compact />
         </>

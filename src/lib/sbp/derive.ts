@@ -89,7 +89,11 @@ export type PendingChoiceKind =
   | 'background_asi'
   | 'grant_skills'
   | 'grant_origin_feat'
-  | 'grant_expertise';
+  | 'grant_expertise'
+  | 'spell_cantrips'
+  | 'spell_spells'
+  | 'spell_journal'
+  | 'spell_prepared';
 
 export interface PendingChoice {
   level: number;
@@ -140,6 +144,41 @@ export interface DerivedSpellcasting {
   spellbookSize: number | null;
   /** Resolved `strain` damage type from the character's archetype, if it has one. */
   strainDamageType: string | null;
+  /** Highest spell level the character can cast now (0 = cantrips only). */
+  maxSpellLevel: number;
+  /** Every spell pick this character has, answered or not, in level order. Empty until the list is loaded. */
+  requests: SpellPickRequest[];
+  /** Valid cantrip picks so far. */
+  cantrips: string[];
+  /** Known casters: spells known (not counting granted ones). */
+  known: string[];
+  /** Spellbook casters: every spell in the book at this level. */
+  spellbookSpells: string[];
+  /** Prepared casters: today's prepared spells that are still valid. */
+  prepared: string[];
+  /** The subset of `issues` about spell picks, so a UI can show them next to the pickers. */
+  issues: string[];
+}
+
+/**
+ * - `cantrips` / `spells` / `journal`: one per level that grows the count,
+ *   stored in `choices[level]`.
+ * - `journal_extra`: spells copied into the book beyond the free ones; no
+ *   cap (`choose` is null). One per level that has some, plus the current level.
+ * - `prepared`: today's preparation, stored in `character.prepared`; its
+ *   `level` is the current level.
+ */
+export interface SpellPickRequest {
+  level: number;
+  kind: 'cantrips' | 'spells' | 'journal' | 'journal_extra' | 'prepared';
+  label: string;
+  /** How many to pick; null = as many as you like. */
+  choose: number | null;
+  chosen: string[];
+  /** Spell ids that may be picked here: right list, castable level, not picked elsewhere. */
+  options: string[];
+  /** Highest spell level allowed at this level (0 for cantrips). */
+  maxSpellLevel: number;
 }
 
 /** A spell a feature grants outright (`grants.spells`): always known, outside the list counts. */
@@ -759,6 +798,14 @@ export function deriveCharacter(character: SbpCharacter, rules: RulesInput): Der
     const mod = abilities[sc.ability]?.modifier ?? 0;
     const listLoaded = !!spellsFile && sc.spell_list in spellsFile.spell_lists;
     const strain = (result.archetype && archetypeOption?.resistance_type) || null;
+    const issuesBefore = issues.length;
+    const picks = listLoaded
+      ? deriveSpellPicks({
+        character, level, levels, levelRow, slotTable: table, spellcasting: sc,
+        listIds: spellListIds(sc.spell_list, spellsFile), spellIndex,
+        granted: new Set(grantedSpells.map((g) => g.id)), issues, pending,
+      })
+      : null;
     result.spellcasting = {
       ability: sc.ability,
       modifier: mod,
@@ -774,6 +821,13 @@ export function deriveCharacter(character: SbpCharacter, rules: RulesInput): Der
       spellbook: sc.spellbook ?? null,
       spellbookSize: typeof currentRow?.journal_spells === 'number' ? currentRow.journal_spells : null,
       strainDamageType: typeof strain === 'string' ? strain : null,
+      maxSpellLevel: maxSpellLevelIn(table, level),
+      requests: picks?.requests ?? [],
+      cantrips: picks?.cantrips ?? [],
+      known: picks?.known ?? [],
+      spellbookSpells: picks?.spellbook ?? [],
+      prepared: picks?.prepared ?? [],
+      issues: issues.slice(issuesBefore),
     };
   }
 
@@ -787,6 +841,151 @@ export function deriveCharacter(character: SbpCharacter, rules: RulesInput): Der
   pending.sort((a, b) => a.level - b.level);
   result.ok = issues.length === 0;
   return result;
+}
+
+// ─── Spell picks ──────────────────────────────────────────────────────────────
+
+type SlotTable = Record<string, number[]> | undefined;
+
+/** Highest spell level with at least one slot at character level `n` (0 = none). */
+function maxSpellLevelIn(table: SlotTable, n: number): number {
+  const row = table?.[String(n)];
+  if (!Array.isArray(row)) return 0;
+  let max = 0;
+  row.forEach((count, i) => { if (count > 0) max = i + 1; });
+  return max;
+}
+
+const countAt = (row: ClassLevel | undefined, key: string): number =>
+  typeof row?.[key] === 'number' ? (row[key] as number) : 0;
+
+type SpellKey = 'cantrips' | 'spells' | 'journalExtra';
+
+interface SpellPickInput {
+  character: SbpCharacter;
+  level: number;
+  levels: number[];
+  levelRow: (n: number) => ClassLevel | undefined;
+  slotTable: SlotTable;
+  spellcasting: NonNullable<SbpClass['spellcasting']>;
+  listIds: string[];
+  spellIndex: Map<string, { level: number; name: string }>;
+  granted: Set<string>;
+  issues: string[];
+  pending: PendingChoice[];
+}
+
+/**
+ * Work out every spell pick the character's levels ask for and check the
+ * stored answers. Counts come from growth in the level table, so each
+ * level owns its own picks and levelling down hides them like any choice.
+ */
+function deriveSpellPicks(input: SpellPickInput) {
+  const {
+    character, level, levels, levelRow, slotTable, spellcasting: sc, listIds, spellIndex, granted, issues, pending,
+  } = input;
+  const usesBook = typeof sc.spellbook === 'string';
+  const knows = sc.prepares_or_knows !== 'prepares';
+
+  const onList = listIds.filter((id) => spellIndex.has(id) && !granted.has(id));
+  const pool = (min: number, max: number) =>
+    onList.filter((id) => { const l = spellIndex.get(id)!.level; return l >= min && l <= max; });
+  const nameOf = (id: string) => spellIndex.get(id)?.name ?? id;
+  const requests: SpellPickRequest[] = [];
+
+  /** Stored picks of one kind at every active level. */
+  const storedByLevel = (key: SpellKey) => new Map(levels.map((n) => [n, choicesAt(character, n)[key] ?? []]));
+
+  const LABELS = {
+    cantrips: 'Learn cantrips',
+    spells: 'Learn spells',
+    journal: 'Write spells into your spellbook',
+    journal_extra: 'Spells copied into your spellbook',
+  } as const;
+  const PENDING_KIND = {
+    cantrips: 'spell_cantrips', spells: 'spell_spells', journal: 'spell_journal', journal_extra: 'spell_journal',
+  } as const;
+
+  const runKind = (
+    kind: keyof typeof LABELS,
+    key: SpellKey,
+    quota: (n: number) => number | null,
+    /** Other stored lists that a pick here must not repeat. */
+    alsoTaken: SpellKey[] = [],
+  ): string[] => {
+    const stored = storedByLevel(key);
+    const others = alsoTaken.map(storedByLevel);
+    const valid: string[] = [];
+    for (const n of levels) {
+      const choose = quota(n);
+      const mine = stored.get(n) ?? [];
+      // Uncapped kinds only show where something is stored, plus the current level.
+      if (choose === 0 || (choose === null && mine.length === 0 && n !== level)) continue;
+      const maxLvl = kind === 'cantrips' ? 0 : maxSpellLevelIn(slotTable, n);
+      const elsewhere = new Set<string>();
+      for (const [m, ids] of stored) if (m !== n) ids.forEach((id) => elsewhere.add(id));
+      for (const other of others) for (const ids of other.values()) ids.forEach((id) => elsewhere.add(id));
+      const candidates = kind === 'cantrips' ? pool(0, 0) : pool(1, maxLvl);
+      const options = candidates.filter((id) => !elsewhere.has(id));
+      const takenOther = new Set<string>();
+      for (const other of others) for (const [m, ids] of other) if (m < n || kind === 'journal_extra') ids.forEach((id) => takenOther.add(id));
+      const allowed = new Set(candidates.filter((id) => !valid.includes(id) && !takenOther.has(id)));
+      const ok = Array.from(new Set(mine.filter((id) => allowed.has(id))));
+      const kept = choose === null ? ok : ok.slice(0, choose);
+      if (kept.length !== mine.length) {
+        const dropped = mine.filter((id) => !kept.includes(id)).map(nameOf).join(', ');
+        issues.push(`Level ${n}, ${LABELS[kind].toLowerCase()}: ${dropped} no longer allowed.`);
+      }
+      valid.push(...kept);
+      requests.push({ level: n, kind, label: LABELS[kind], choose, chosen: kept, options, maxSpellLevel: maxLvl });
+      if (choose !== null && kept.length < choose) {
+        pending.push({ level: n, kind: PENDING_KIND[kind], label: `${LABELS[kind]}: choose ${choose}`, choose, options });
+      }
+    }
+    return valid;
+  };
+
+  const growth = (key: string) => (n: number) => {
+    const before = n > 1 ? countAt(levelRow(n - 1), key) : 0;
+    return Math.max(0, countAt(levelRow(n), key) - before);
+  };
+
+  const cantrips = runKind('cantrips', 'cantrips', growth('cantrips_known'));
+  let known: string[] = [];
+  let spellbook: string[] = [];
+  if (usesBook) {
+    const free = runKind('journal', 'spells', growth('journal_spells'), ['journalExtra']);
+    const extra = runKind('journal_extra', 'journalExtra', () => null, ['spells']);
+    spellbook = [...free, ...extra];
+  } else if (knows) {
+    known = runKind('spells', 'spells', growth('spells_known'));
+  }
+
+  // Prepared: from the book, or from the whole list for casters without one.
+  let prepared: string[] = [];
+  if (!knows) {
+    const choose = countAt(levelRow(level), 'spells_known');
+    const maxLvl = maxSpellLevelIn(slotTable, level);
+    const options = (usesBook ? spellbook : pool(1, maxLvl))
+      .filter((id) => { const l = spellIndex.get(id)?.level ?? 99; return l >= 1 && l <= maxLvl; });
+    const mine = character.prepared ?? [];
+    prepared = Array.from(new Set(mine.filter((id) => options.includes(id)))).slice(0, choose);
+    if (prepared.length !== mine.length) {
+      const dropped = mine.filter((id) => !prepared.includes(id)).map(nameOf).join(', ');
+      issues.push(`Prepared spells: ${dropped} can't be prepared at this level.`);
+    }
+    if (choose > 0) {
+      const label = usesBook ? 'Prepare spells from your spellbook' : 'Prepare spells';
+      requests.push({ level, kind: 'prepared', label, choose, chosen: prepared, options, maxSpellLevel: maxLvl });
+      // Can't prepare more than the book holds; don't nag for the impossible.
+      if (prepared.length < Math.min(choose, options.length)) {
+        pending.push({ level, kind: 'spell_prepared', label: `${label}: choose ${choose}`, choose, options });
+      }
+    }
+  }
+
+  requests.sort((a, b) => a.level - b.level);
+  return { requests, cantrips, known, spellbook, prepared };
 }
 
 /** Which choice kinds a given level asks for, given the rules. Handy for the wizard. */

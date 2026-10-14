@@ -30,6 +30,7 @@ import {
   type FeatChoice,
   type GrantChoiceRequest,
   type SbpCharacter,
+  type SpellPickRequest,
 } from '@mtp/lib';
 import { Doodle } from '../../components/Doodle';
 import { SbpHeader, SbpPage, useSbpGate } from '../../components/sbp/SbpPage';
@@ -38,6 +39,10 @@ import { DerivedSummary } from '../../components/sbp/DerivedSummary';
 import { ArtStrip } from '../../components/sbp/art/ArtStrip';
 import { ArchetypePicker, AsiOrFeatPicker, GrantPickPicker, eligibleFeats } from '../../components/sbp/pickers';
 import type { WizardRules } from '../../components/sbp/wizard/types';
+import { SpellBook } from '../../components/sbp/spells/SpellBook';
+import { SpellPicker } from '../../components/sbp/spells/SpellPicker';
+import { applySpellPick } from '../../components/sbp/spells/applySpellPick';
+import { useSpellLookup } from '../../components/sbp/spells/useSpellLookup';
 
 export default function SbpCharacterSheetPage() {
   const gate = useSbpGate();
@@ -103,13 +108,16 @@ function Sheet({ initial, rules, canEdit }: { initial: SbpCharacter; rules: Wiza
   const derived = useMemo(() => deriveCharacter(draft, rules.loaded), [draft, rules]);
   const dirty = draft !== saved;
   const klass = rules.classes.classes.find((k) => k.id === draft.classId);
+  const sc = derived.spellcasting;
+  const lookup = useSpellLookup(rules.loaded, sc?.spellListId, sc?.strainDamageType);
+  const preparedRequest = sc?.requests.find((r) => r.kind === 'prepared');
 
   // Every choice slot at ≤ current level, grouped by level. Level-1 basics
-  // (skills, size, tools) are edited in the wizard; grant picks show here too.
+  // (skills, size, tools) are edited in the wizard; grant and spell picks show here too.
   const levelSlots = useMemo(() => {
-    const byLevel = new Map<number, { archetype: boolean; asi: boolean; grants: GrantChoiceRequest[] }>();
+    const byLevel = new Map<number, { archetype: boolean; asi: boolean; grants: GrantChoiceRequest[]; spells: SpellPickRequest[] }>();
     const slot = (n: number) => {
-      if (!byLevel.has(n)) byLevel.set(n, { archetype: false, asi: false, grants: [] });
+      if (!byLevel.has(n)) byLevel.set(n, { archetype: false, asi: false, grants: [], spells: [] });
       return byLevel.get(n)!;
     };
     if (klass) {
@@ -120,8 +128,9 @@ function Sheet({ initial, rules, canEdit }: { initial: SbpCharacter; rules: Wiza
       }
     }
     for (const g of derived.grantChoices) slot(g.level).grants.push(g);
+    for (const r of sc?.requests ?? []) if (r.kind !== 'prepared') slot(r.level).spells.push(r);
     return [...byLevel.entries()].sort((a, b) => a[0] - b[0]);
-  }, [klass, draft.level, derived.grantChoices]);
+  }, [klass, draft.level, derived.grantChoices, sc?.requests]);
 
   const archGroup = klass?.archetype
     ? rules.classes.archetypes[klass.archetype.choices_ref.replace(/^archetypes\./, '')]
@@ -166,7 +175,7 @@ function Sheet({ initial, rules, canEdit }: { initial: SbpCharacter; rules: Wiza
       origins: rules.loaded.origins?.meta.uploadedAt ?? null,
     };
     try {
-      await saveSbpCharacter(draft.id, { level: draft.level, choices: draft.choices, rulesVersion });
+      await saveSbpCharacter(draft.id, { level: draft.level, choices: draft.choices, prepared: draft.prepared ?? [], rulesVersion });
       const next = { ...draft, rulesVersion, updatedAt: Date.now() };
       setSaved(next);
       setDraft(next);
@@ -241,6 +250,19 @@ function Sheet({ initial, rules, canEdit }: { initial: SbpCharacter; rules: Wiza
 
       <ArtStrip d={derived} />
       <DerivedSummary d={derived} />
+      <SpellBook d={derived} lookup={lookup} />
+
+      {canEdit && preparedRequest && (
+        <section className="sbp-level-choices">
+          <h2 className="wizard-subheading">Today's prepared spells</h2>
+          <p className="sbp-muted">Change these after a long rest. They don't depend on level, so they aren't kept per level.</p>
+          <SpellPicker
+            request={preparedRequest}
+            lookup={lookup}
+            onChange={(ids) => setDraft((d) => applySpellPick(d, preparedRequest, ids))}
+          />
+        </section>
+      )}
 
       {canEdit && levelSlots.length > 0 && (
         <section className="sbp-level-choices">
@@ -270,6 +292,14 @@ function Sheet({ initial, rules, canEdit }: { initial: SbpCharacter; rules: Wiza
                   onChange={(next) => setAsi(n, next)}
                 />
               )}
+              {s.spells.map((r) => (
+                <SpellPicker
+                  key={`${r.kind}@${r.level}`}
+                  request={r}
+                  lookup={lookup}
+                  onChange={(ids) => setDraft((d) => applySpellPick(d, r, ids))}
+                />
+              ))}
               {s.grants.map((g) => (
                 <GrantPickPicker
                   key={g.sourceKey}

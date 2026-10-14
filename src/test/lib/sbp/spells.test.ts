@@ -8,9 +8,19 @@ import {
   validateSpellsFile,
   validateSrdSpellsFile,
 } from '../../../lib/sbp/validateRules';
-import { buildSpellIndex, resolveDamageType, spellDisplayName, spellListIds } from '../../../lib/sbp/spells';
+import {
+  buildSpellIndex,
+  formatCastingTime,
+  formatComponents,
+  formatDuration,
+  formatRange,
+  resolveDamageType,
+  spellDisplayName,
+  spellLevelLabel,
+  spellListIds,
+} from '../../../lib/sbp/spells';
 import { deriveCharacter } from '../../../lib/sbp/derive';
-import { setLevel } from '../../../lib/sbp/character';
+import { setLevel, withChoices } from '../../../lib/sbp/character';
 import { classesFixture, rulesDocs, scooper, spellDocs, spellsFixture, srdSpellsFixture } from './fixtures';
 
 /** Synthetic spells only; the real spell files are unpublished IP (BRIEF §3). */
@@ -199,9 +209,138 @@ describe('deriveCharacter — spells', () => {
     expect(d.otherGrants.some((g) => g.key === 'spells')).toBe(false);
   });
 
+  it('formats signature spells from structured fields and SRD spells from their text', () => {
+    const sprinkles = buildSpellIndex(spellsFixture(), null).get('spell.sprinkles')!;
+    expect(formatCastingTime(sprinkles)).toBe('Action');
+    expect(formatRange(sprinkles)).toBe('60 feet');
+    expect(formatComponents(sprinkles)).toBe('V');
+    expect(formatDuration(sprinkles)).toBe('Instantaneous');
+    expect(formatRange({ ...sprinkles, range: { type: 'self' }, area: { shape: 'cone', feet: 15 } })).toBe('Self (15-foot cone)');
+    expect(formatCastingTime({ ...sprinkles, casting_time: { unit: 'minute', amount: 10, trigger: null }, ritual: true }))
+      .toBe('10 minutes or Ritual');
+    expect(formatDuration({ ...sprinkles, duration: { type: 'timed', text: '1 hour' } })).toBe('1 hour');
+    expect(spellLevelLabel({ level: 0, school: 'Evocation' })).toBe('Evocation cantrip');
+    expect(spellLevelLabel({ level: 2, school: 'Evocation' })).toBe('2nd-level evocation');
+  });
+
   it('reads the strain damage type from the archetype', () => {
     const rules = { ...rulesDocs(), ...spellDocs() };
     (rules.classes.data.archetypes.flavours.options[0] as Record<string, unknown>).resistance_type = 'cold';
     expect(deriveCharacter(scooper(), rules).spellcasting?.strainDamageType).toBe('cold');
+  });
+});
+
+// ─── Spell picks ──────────────────────────────────────────────────────────────
+
+/** Rules with a level-2 spell on the list, so slot gating has something to gate. */
+function pickRules() {
+  const rules = { ...rulesDocs(), ...spellDocs() };
+  rules.spells.data.spell_lists['spell_list.scooper'].srd.push('spell.wardens_wall');
+  return rules;
+}
+const kinds = (d: ReturnType<typeof deriveCharacter>) =>
+  d.spellcasting!.requests.map((r) => `${r.level}:${r.kind}:${r.choose}`);
+const spellPending = (d: ReturnType<typeof deriveCharacter>) =>
+  d.pendingChoices.filter((p) => p.kind.startsWith('spell_')).map((p) => `${p.level}:${p.kind}`);
+
+describe('deriveCharacter — spell picks (known caster)', () => {
+  it('asks for level-1 cantrips and spells, castable levels only', () => {
+    const d = deriveCharacter(scooper(), pickRules());
+    expect(kinds(d)).toEqual(['1:cantrips:2', '1:spells:2']);
+    const [cantrips, spells] = d.spellcasting!.requests;
+    expect(cantrips.options).toEqual(['spell.sprinkles', 'spell.spark']);
+    expect(spells.options).toEqual(['spell.big_bang']);
+    expect(spells.maxSpellLevel).toBe(1);
+    expect(spellPending(d)).toEqual(['1:spell_cantrips', '1:spell_spells']);
+  });
+
+  it('asks only for the growth at each later level', () => {
+    const d = deriveCharacter(setLevel(scooper(), 4), pickRules());
+    // cantrips_known 2→3 at level 4; spells_known grows by 1 every level.
+    expect(kinds(d)).toEqual(['1:cantrips:2', '1:spells:2', '2:spells:1', '3:spells:1', '4:cantrips:1', '4:spells:1']);
+    expect(d.spellcasting!.requests.find((r) => r.level === 3)!.options).toContain('spell.wardens_wall');
+    expect(d.spellcasting!.requests.find((r) => r.level === 2)!.options).not.toContain('spell.wardens_wall');
+  });
+
+  it('accepts valid picks and clears the pending spell choices', () => {
+    const c = withChoices(scooper(), 1, { cantrips: ['spell.sprinkles', 'spell.spark'], spells: ['spell.big_bang'] });
+    const d = deriveCharacter(c, pickRules());
+    expect(d.spellcasting).toMatchObject({ cantrips: ['spell.sprinkles', 'spell.spark'], known: ['spell.big_bang'] });
+    // Only one level-1 spell exists, so one of the two picks is still open.
+    expect(spellPending(d)).toEqual(['1:spell_spells']);
+    expect(d.spellcasting!.issues).toEqual([]);
+  });
+
+  it('rejects a spell above the slots of the level it was picked at', () => {
+    const c = withChoices(scooper(), 1, { spells: ['spell.wardens_wall'] });
+    const d = deriveCharacter(c, pickRules());
+    expect(d.spellcasting!.known).toEqual([]);
+    expect(d.spellcasting!.issues[0]).toContain("Warden's Wall");
+    expect(d.issues).toEqual(expect.arrayContaining(d.spellcasting!.issues));
+  });
+
+  it('rejects the same spell picked at two levels, keeping the earlier one', () => {
+    let c = setLevel(scooper(), 2);
+    c = withChoices(c, 1, { spells: ['spell.big_bang'] });
+    c = withChoices(c, 2, { spells: ['spell.big_bang'] });
+    const d = deriveCharacter(c, pickRules());
+    expect(d.spellcasting!.known).toEqual(['spell.big_bang']);
+    expect(d.spellcasting!.issues).toHaveLength(1);
+  });
+
+  it('keeps higher-level picks dormant when levelling down', () => {
+    let c = setLevel(scooper(), 3);
+    c = withChoices(c, 3, { spells: ['spell.wardens_wall'] });
+    expect(deriveCharacter(c, pickRules()).spellcasting!.known).toEqual(['spell.wardens_wall']);
+    const down = deriveCharacter(setLevel(c, 2), pickRules());
+    expect(down.spellcasting!.known).toEqual([]);
+    expect(down.issues).toEqual([]);
+    expect(down.dormantLevels).toEqual([3]);
+  });
+
+  it('leaves granted spells out of the options', () => {
+    const rules = pickRules();
+    rules.classes.data.classes[0].features.stir.grants = { spells: ['spell.big_bang'] };
+    const d = deriveCharacter(scooper(), rules);
+    expect(d.spellcasting!.requests[1].options).toEqual([]);
+  });
+
+  it('asks for nothing until the spells doc is loaded', () => {
+    const d = deriveCharacter(scooper(), rulesDocs());
+    expect(d.spellcasting!.requests).toEqual([]);
+    expect(spellPending(d)).toEqual([]);
+  });
+});
+
+describe('deriveCharacter — spell picks (prepared casters)', () => {
+  it('prepares from the whole list when there is no spellbook', () => {
+    const rules = pickRules();
+    rules.classes.data.classes[0].spellcasting!.prepares_or_knows = 'prepares';
+    const c = { ...scooper(), prepared: ['spell.big_bang', 'spell.wardens_wall'] };
+    const d = deriveCharacter(c, rules);
+    expect(kinds(d)).toEqual(['1:cantrips:2', '1:prepared:2']);
+    expect(d.spellcasting!.prepared).toEqual(['spell.big_bang']);
+    expect(d.spellcasting!.issues[0]).toContain("Warden's Wall");
+  });
+
+  it('writes spells into the book per level, copies extras, and prepares from the book', () => {
+    const rules = pickRules();
+    const k = rules.classes.data.classes[0];
+    k.spellcasting = { ...k.spellcasting!, prepares_or_knows: 'prepares', spellbook: 'stir' };
+    k.levels.forEach((row) => { row.journal_spells = 1 + row.level; row.spells_known = 1; });
+    let c = setLevel(scooper(), 3);
+    c = withChoices(c, 1, { spells: ['spell.big_bang'] });
+    c = withChoices(c, 3, { journalExtra: ['spell.wardens_wall'] });
+    c = { ...c, prepared: ['spell.wardens_wall'] };
+    const d = deriveCharacter(c, rules);
+    expect(kinds(d)).toEqual([
+      '1:cantrips:2', '1:journal:2', '2:journal:1', '3:journal:1', '3:journal_extra:null', '3:prepared:1',
+    ]);
+    expect(d.spellcasting!.spellbookSpells).toEqual(['spell.big_bang', 'spell.wardens_wall']);
+    expect(d.spellcasting!.prepared).toEqual(['spell.wardens_wall']);
+    const prep = d.spellcasting!.requests.find((r) => r.kind === 'prepared')!;
+    expect(prep.options).toEqual(['spell.big_bang', 'spell.wardens_wall']);
+    // A spell already in the book can't be copied in again.
+    expect(d.spellcasting!.requests.find((r) => r.kind === 'journal_extra')!.options).not.toContain('spell.big_bang');
   });
 });

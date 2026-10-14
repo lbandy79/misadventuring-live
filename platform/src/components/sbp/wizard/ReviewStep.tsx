@@ -1,9 +1,12 @@
 import { deriveCharacter } from '@mtp/lib';
 import { DerivedSummary } from '../DerivedSummary';
+import { SpellBook } from '../spells/SpellBook';
+import { useSpellLookup } from '../spells/useSpellLookup';
 import type { StepProps } from './types';
 
 export function ReviewStep({ draft, rules, onChange }: StepProps) {
   const derived = deriveCharacter(draft, rules.loaded);
+  const lookup = useSpellLookup(rules.loaded, derived.spellcasting?.spellListId, derived.spellcasting?.strainDamageType);
 
   return (
     <div className="wizard-step">
@@ -23,6 +26,7 @@ export function ReviewStep({ draft, rules, onChange }: StepProps) {
         <p className="wizard-warning">Still to pick: {derived.pendingChoices.map((p) => p.label).join(' · ')}</p>
       )}
       <DerivedSummary d={derived} />
+      <SpellBook d={derived} lookup={lookup} />
     </div>
   );
 }

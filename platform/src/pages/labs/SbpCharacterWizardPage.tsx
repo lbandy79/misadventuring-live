@@ -35,19 +35,29 @@ import { BackgroundStep } from '../../components/sbp/wizard/BackgroundStep';
 import { ClassStep } from '../../components/sbp/wizard/ClassStep';
 import { AbilityScoresStep, defaultScores } from '../../components/sbp/wizard/AbilityScoresStep';
 import { ChoicesStep } from '../../components/sbp/wizard/ChoicesStep';
+import { SpellsStep } from '../../components/sbp/wizard/SpellsStep';
 import { ReviewStep } from '../../components/sbp/wizard/ReviewStep';
 import type { WizardRules } from '../../components/sbp/wizard/types';
 
-type StepId = 'species' | 'background' | 'class' | 'abilities' | 'choices' | 'review';
+type StepId = 'species' | 'background' | 'class' | 'abilities' | 'choices' | 'spells' | 'review';
 
-const STEPS: Array<{ id: StepId; label: string }> = [
+const ALL_STEPS: Array<{ id: StepId; label: string }> = [
   { id: 'species', label: 'Species' },
   { id: 'background', label: 'Background' },
   { id: 'class', label: 'Class' },
   { id: 'abilities', label: 'Abilities' },
   { id: 'choices', label: 'Picks' },
+  { id: 'spells', label: 'Spells' },
   { id: 'review', label: 'Review' },
 ];
+
+/** The Spells step only appears for classes that cast. */
+const stepsFor = (draft: SbpCharacter, rules: WizardRules) => {
+  const casts = !!rules.classes.classes.find((k) => k.id === draft.classId)?.spellcasting;
+  return ALL_STEPS.filter((s) => s.id !== 'spells' || casts);
+};
+
+const isSpellPending = (kind: string) => kind.startsWith('spell_');
 
 export default function SbpCharacterWizardPage() {
   const gate = useSbpGate();
@@ -127,7 +137,7 @@ function Wizard({
   const navigate = useNavigate();
   const editing = !!existing;
   const config = useMemo(() => abilityScoreConfigFrom(rules.origins), [rules.origins]);
-  const [stepIndex, setStepIndex] = useState(editing ? STEPS.length - 1 : 0);
+  const [stepIndex, setStepIndex] = useState(() => (existing ? stepsFor(existing, rules).length - 1 : 0));
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [draft, setDraft] = useState<SbpCharacter>(() => existing ?? {
@@ -146,9 +156,10 @@ function Wizard({
     updatedAt: 0,
   });
 
-  const step = STEPS[stepIndex];
+  const STEPS = useMemo(() => stepsFor(draft, rules), [draft, rules]);
+  const step = STEPS[Math.min(stepIndex, STEPS.length - 1)];
   const completion = useMemo(
-    () => Object.fromEntries(STEPS.map((s) => [s.id, isStepComplete(s.id, draft, rules)])) as Record<StepId, boolean>,
+    () => Object.fromEntries(ALL_STEPS.map((s) => [s.id, isStepComplete(s.id, draft, rules)])) as Record<StepId, boolean>,
     [draft, rules],
   );
   const allComplete = STEPS.every((s) => completion[s.id]);
@@ -174,6 +185,7 @@ function Wizard({
           classId: draft.classId,
           abilityScores: draft.abilityScores,
           choices: draft.choices,
+          prepared: draft.prepared ?? [],
           rulesVersion,
         });
       } else {
@@ -238,6 +250,7 @@ function Wizard({
         {step.id === 'class' && <ClassStep {...stepProps} />}
         {step.id === 'abilities' && <AbilityScoresStep {...stepProps} />}
         {step.id === 'choices' && <ChoicesStep {...stepProps} />}
+        {step.id === 'spells' && <SpellsStep {...stepProps} />}
         {step.id === 'review' && <ReviewStep {...stepProps} />}
       </div>
 
@@ -291,7 +304,14 @@ function isStepComplete(step: StepId, draft: SbpCharacter, rules: WizardRules): 
       ).length === 0;
     case 'choices': {
       const d = deriveCharacter(draft, rules.loaded);
-      return pendingAtLevel1(draft, rules).length === 0 && d.issues.length === 0;
+      const spellIssues = new Set(d.spellcasting?.issues ?? []);
+      return pendingAtLevel1(draft, rules).filter((p) => !isSpellPending(p.kind)).length === 0
+        && d.issues.filter((i) => !spellIssues.has(i)).length === 0;
+    }
+    case 'spells': {
+      const d = deriveCharacter(draft, rules.loaded);
+      return pendingAtLevel1(draft, rules).filter((p) => isSpellPending(p.kind)).length === 0
+        && (d.spellcasting?.issues.length ?? 0) === 0;
     }
     case 'review': {
       const d = deriveCharacter(draft, rules.loaded);

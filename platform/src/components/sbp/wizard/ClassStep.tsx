@@ -1,6 +1,7 @@
 import { spellListIds, withChoices } from '@mtp/lib';
 import type { SbpClass } from '@mtp/lib';
 import { OptionCard } from '../OptionCard';
+import { clearSpellPicks } from '../spells/applySpellPick';
 import { ArtOrText } from '../art/Art';
 import type { StepProps } from './types';
 
@@ -20,7 +21,9 @@ export function ClassStep({ draft, rules, onChange }: StepProps) {
 
   function pickClass(id: string) {
     const prevArch = klass?.archetype?.entry_level;
-    let next = { ...draft, classId: id };
+    if (id === draft.classId) return;
+    // Spell picks are class-specific too: none of them carry over.
+    let next = clearSpellPicks({ ...draft, classId: id });
     // Skills and archetype are class-specific.
     next = withChoices(next, 1, { classSkills: undefined });
     if (prevArch) next = withChoices(next, prevArch, { archetypeId: undefined });

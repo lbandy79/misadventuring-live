@@ -53,6 +53,54 @@ export function spellDisplayName(
   return reskinFor(spell.id, listId, spells)?.name ?? spell.name;
 }
 
+// ─── Display formatting ───────────────────────────────────────────────────────
+// SRD spells carry printed text for these fields; signature spells mostly
+// don't, so fall back to formatting the structured values.
+
+const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+const plural = (n: number, unit: string) => `${n} ${unit}${n === 1 ? '' : 's'}`;
+
+export function spellLevelLabel(spell: Pick<SbpSpell, 'level' | 'school'>): string {
+  if (spell.level === 0) return `${spell.school} cantrip`;
+  const ord = ['', '1st', '2nd', '3rd'][spell.level] ?? `${spell.level}th`;
+  return `${ord}-level ${spell.school.toLowerCase()}`;
+}
+
+export function formatCastingTime(spell: SbpSpell): string {
+  const t = spell.casting_time;
+  if (t.text) return t.text;
+  const unit = t.unit.replace(/_/g, ' ');
+  const base = t.amount === 1 && ['action', 'bonus action', 'reaction'].includes(unit)
+    ? cap(unit)
+    : plural(t.amount, unit);
+  const withTrigger = t.trigger ? `${base}, which you take ${t.trigger}` : base;
+  return spell.ritual ? `${withTrigger} or Ritual` : withTrigger;
+}
+
+export function formatRange(spell: SbpSpell): string {
+  const r = spell.range;
+  if (r.text) return r.text;
+  const area = spell.area ? ` (${spell.area.feet}-foot ${spell.area.shape})` : '';
+  if (r.type === 'self') return `Self${area}`;
+  if (r.type === 'touch') return 'Touch';
+  if (typeof r.feet === 'number') return `${r.feet} feet${area}`;
+  return cap(r.type);
+}
+
+export function formatComponents(spell: SbpSpell): string {
+  const c = spell.components;
+  if (c.text) return c.text;
+  const parts = [c.v && 'V', c.s && 'S', c.m && `M (${c.m.text})`].filter(Boolean);
+  return parts.join(', ') || 'None';
+}
+
+export function formatDuration(spell: SbpSpell): string {
+  const d = spell.duration;
+  if (d.text) return d.text;
+  const base = cap(d.type.replace(/_/g, ' '));
+  return spell.concentration ? `Concentration, ${base.toLowerCase()}` : base;
+}
+
 /**
  * The damage type a caster actually deals. `strain` resolves to the
  * caster archetype's `resistance_type`, else the entry's fallback.
