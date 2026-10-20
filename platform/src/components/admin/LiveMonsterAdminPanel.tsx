@@ -15,6 +15,7 @@ import {
   type MonsterSlotVote,
   type MonsterPhase,
 } from '@mtp/lib/liveMonster/liveMonsterApi';
+import { resolveWriteInState } from '@mtp/lib/liveMonster/writeInQueue';
 import {
   subscribeToBystanderSubmissions,
   type BystanderSubmission,
@@ -185,6 +186,9 @@ export default function LiveMonsterAdminPanel() {
       <div className="lm-panel-header">
         <h2 className="lm-panel-title">👹 Live Monster Builder</h2>
         <span className="lm-show-badge" title="config/platform.currentShowId">show: {showId}</span>
+        <a className="lm-spotlight-link" href="/admin/spotlight" target="_blank" rel="noopener">
+          Open write-in spotlight ↗
+        </a>
       </div>
 
       {/* Phase bar */}
@@ -315,9 +319,16 @@ export default function LiveMonsterAdminPanel() {
                 {tally.writeIns.length > 0 && (
                   <div className="lm-writeins">
                     <h4 className="lm-writeins-title">✎ Audience write-ins ({tally.totalWriteIn})</h4>
-                    {tally.writeIns.map((v) => (
-                      <div key={v.id} className="lm-writein-row">
+                    {tally.writeIns.map((v) => {
+                      const triage = resolveWriteInState(v.id, v.writeIn!.trim(), session?.writeInStates);
+                      return (
+                      <div key={v.id} className={`lm-writein-row lm-writein-row--${triage.status}`}>
                         <span className="lm-writein-text">&ldquo;{v.writeIn}&rdquo;</span>
+                        {triage.status !== 'pending' && (
+                          <span className={`lm-triage-badge lm-triage-badge--${triage.status}`}>
+                            {triage.status === 'hidden' ? 'Hidden in spotlight' : 'Used'}
+                          </span>
+                        )}
                         {canReveal && (
                           <button
                             className="lm-btn lm-btn--small"
@@ -328,7 +339,8 @@ export default function LiveMonsterAdminPanel() {
                           </button>
                         )}
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
 

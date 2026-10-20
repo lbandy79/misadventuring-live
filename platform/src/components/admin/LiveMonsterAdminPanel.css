@@ -404,6 +404,34 @@
   border-bottom: none;
 }
 
+/* Triage state set from /admin/spotlight — read-only here. */
+.lm-writein-row--hidden .lm-writein-text,
+.lm-writein-row--used .lm-writein-text {
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+.lm-triage-badge {
+  flex-shrink: 0;
+  padding: 0.1rem 0.5rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--ink-black, #1c1c1c);
+}
+
+.lm-triage-badge--hidden {
+  color: #a3241b;
+}
+
+.lm-spotlight-link {
+  margin-left: auto;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--ink-blue, #1a3a7a);
+}
+
 .lm-writein-text {
   flex: 1;
   font-style: italic;

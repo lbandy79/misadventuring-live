@@ -40,14 +40,15 @@ import LocationStatPage from './pages/LocationStatPage';
 import AuthMenu from './components/AuthMenu';
 import LiveMonsterAudiencePage from './pages/LiveMonsterAudiencePage';
 import LiveMonsterDisplayPage from './pages/LiveMonsterDisplayPage';
+import WriteInSpotlightPage from './pages/WriteInSpotlightPage';
 import SbpLabsPage from './pages/labs/SbpLabsPage';
 import SbpCharacterWizardPage from './pages/labs/SbpCharacterWizardPage';
 import SbpCharacterSheetPage from './pages/labs/SbpCharacterSheetPage';
 
 export default function App() {
   const location = useLocation();
-  // Live-monster routes (audience + projector) skip all marketing chrome.
-  const isDisplay = /\/shows\/[^/]+\/display|\/live-monster(\/|$)/.test(location.pathname);
+  // Live-monster routes (audience + projector) and the GM spotlight skip all marketing chrome.
+  const isDisplay = /\/shows\/[^/]+\/display|\/live-monster(\/|$)|^\/admin\/spotlight\/?$/.test(location.pathname);
   const { isAdmin, isCast } = useAuth();
 
   return (
@@ -89,6 +90,7 @@ export default function App() {
           <Route path="/shows/:showId/display" element={<MadLibsDisplayPage />} />
           <Route path="/live-monster/display" element={<LiveMonsterDisplayPage />} />
           <Route path="/live-monster" element={<LiveMonsterAudiencePage />} />
+          <Route path="/admin/spotlight" element={<WriteInSpotlightPage />} />
         </Routes>
       ) : (
         <main className="platform-main">
