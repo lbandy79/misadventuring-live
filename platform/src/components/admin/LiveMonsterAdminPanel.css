@@ -119,8 +119,11 @@
 
 .lm-phase-pip {
   padding: 0.25rem 0.6rem;
+  border: 0;
   border-radius: 999px;
+  font: inherit;
   font-size: 0.75rem;
+  line-height: inherit;
   background: rgba(255 255 255 / 0.07);
   color: var(--color-text-muted, #888);
   transition: background 0.2s, color 0.2s;
@@ -134,6 +137,15 @@
 
 .lm-phase-pip.clickable {
   cursor: pointer;
+}
+
+.lm-phase-pip:focus-visible {
+  outline: 2px solid var(--ink-blue, #1a3a7a);
+  outline-offset: 2px;
+}
+
+.lm-phase-pip:disabled {
+  cursor: wait;
 }
 
 .lm-phase-pip.clickable:hover {

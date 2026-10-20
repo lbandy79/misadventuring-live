@@ -23,5 +23,13 @@ export default defineConfig({
     // Security-rules tests need the Firestore emulator: `npm run test:rules`.
     exclude: ['**/node_modules/**', 'src/test/rules/**'],
     css: true,
+    // Test-only: lets specs under src/test import platform/ components, which
+    // use these aliases (see platform/vite.config.ts). Not used by the build.
+    alias: {
+      '@mtp/lib': path.resolve(__dirname, 'src/lib'),
+      '@mtp/firebase': path.resolve(__dirname, 'src/firebase.ts'),
+      '@mtp/themes': path.resolve(__dirname, 'src/themes'),
+      '@mtp/data': path.resolve(__dirname, 'src/data'),
+    },
   },
 })

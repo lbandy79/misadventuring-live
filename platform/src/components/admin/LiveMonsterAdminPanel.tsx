@@ -122,6 +122,14 @@ export default function LiveMonsterAdminPanel() {
     }
   }, [busy, showId]);
 
+  // Must stay above the `!config` early return: hooks have to run in the same
+  // order every render, and config flips null → set when currentShowId changes
+  // while the panel is open.
+  const typeSuggestions = useMemo(
+    () => (config ? computeTypeSuggestions(config.slots, session?.slotResults ?? {}) : []),
+    [config, session?.slotResults],
+  );
+
   if (!config) {
     return (
       <div className="lm-panel">
@@ -140,10 +148,6 @@ export default function LiveMonsterAdminPanel() {
   const bystanderStates = session?.bystanderStates ?? {};
 
   const hasAnySlotResult = config.slots.some((s) => slotResults[s.id] != null);
-  const typeSuggestions = useMemo(
-    () => computeTypeSuggestions(config.slots, slotResults),
-    [config.slots, slotResults],
-  );
 
   const featuredBystanders = bystanderSubmissions.filter(s => bystanderStates[s.id] === 'featured');
 
@@ -162,6 +166,20 @@ export default function LiveMonsterAdminPanel() {
       ? `→ Reveal (${lockedSlotCount}/${config.slots.length} locked)`
       : `→ ${PHASE_LABELS[next]}`;
 
+  // Real <button>s so Space and Enter both work and focus is visible.
+  const renderPhasePip = (p: MonsterPhase) => (
+    <button
+      key={p}
+      type="button"
+      className={`lm-phase-pip ${phase === p ? 'active' : 'clickable'}`}
+      aria-pressed={phase === p}
+      disabled={busy}
+      onClick={() => run(() => setMonsterPhase(showId!, p))}
+    >
+      {phase === p ? '● ' : ''}{PHASE_LABELS[p]}
+    </button>
+  );
+
   return (
     <div className="lm-panel">
       <div className="lm-panel-header">
@@ -173,34 +191,12 @@ export default function LiveMonsterAdminPanel() {
       <div className="lm-phase-groups">
         <div className="lm-phase-group">
           <span className="lm-phase-group-label">State</span>
-          {(['idle', 'active', 'reveal'] as MonsterPhase[]).map((p) => (
-            <span
-              key={p}
-              role="button"
-              tabIndex={0}
-              className={`lm-phase-pip ${phase === p ? 'active' : 'clickable'}`}
-              onClick={() => !busy && run(() => setMonsterPhase(showId!, p))}
-              onKeyDown={(e) => e.key === 'Enter' && !busy && run(() => setMonsterPhase(showId!, p))}
-            >
-              {phase === p ? '● ' : ''}{PHASE_LABELS[p]}
-            </span>
-          ))}
+          {(['idle', 'active', 'reveal'] as MonsterPhase[]).map(renderPhasePip)}
         </div>
         <div className="lm-phase-group-divider" aria-hidden="true" />
         <div className="lm-phase-group">
           <span className="lm-phase-group-label">Bystander</span>
-          {(['bystander-name', 'bystander-move', 'done'] as MonsterPhase[]).map((p) => (
-            <span
-              key={p}
-              role="button"
-              tabIndex={0}
-              className={`lm-phase-pip ${phase === p ? 'active' : 'clickable'}`}
-              onClick={() => !busy && run(() => setMonsterPhase(showId!, p))}
-              onKeyDown={(e) => e.key === 'Enter' && !busy && run(() => setMonsterPhase(showId!, p))}
-            >
-              {phase === p ? '● ' : ''}{PHASE_LABELS[p]}
-            </span>
-          ))}
+          {(['bystander-name', 'bystander-move', 'done'] as MonsterPhase[]).map(renderPhasePip)}
         </div>
         {pushStatus !== 'idle' && (
           <div
@@ -369,7 +365,7 @@ export default function LiveMonsterAdminPanel() {
                   ? sub.movePreset
                   : `${sub.customTrigger} → ${sub.customEffect}`;
                 const state: 'featured' | 'dead' | 'unfeatured' =
-                  (bystanderStates[sub.id] as 'featured' | 'dead') ?? 'unfeatured';
+                  (bystanderStates[sub.id] as 'featured' | 'dead' | undefined) ?? 'unfeatured';
 
                 return (
                   <div key={sub.id} className={`lm-bystander-row ${state}`}>

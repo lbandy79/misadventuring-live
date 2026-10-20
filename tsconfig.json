@@ -24,7 +24,11 @@
     "paths": {
       "@/*": ["./src/*"],
       "@themes/*": ["./src/themes/*"],
-      "@components/*": ["./src/components/*"]
+      "@components/*": ["./src/components/*"],
+      "@mtp/lib/*": ["./src/lib/*"],
+      "@mtp/lib": ["./src/lib"],
+      "@mtp/data/*": ["./src/data/*"],
+      "@mtp/data": ["./src/data"]
     }
   },
   "include": ["src"],
