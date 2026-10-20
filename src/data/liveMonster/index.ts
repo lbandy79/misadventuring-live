@@ -15,6 +15,7 @@ import type { MonsterBuilderConfig } from './types';
 import { demoMonsterConfig } from './demo.config';
 import { motWEp2Config } from './monster-of-the-week-ep2.config';
 import { motWEp3Config } from './monster-of-the-week-ep3.config';
+import { motWEp4Config } from './monster-of-the-week-ep4.config';
 
 // ─── Registry ─────────────────────────────────────────────────────────────────
 
@@ -22,6 +23,7 @@ const registry: Record<string, MonsterBuilderConfig> = {
   [demoMonsterConfig.showId]: demoMonsterConfig,
   [motWEp2Config.showId]: motWEp2Config,
   [motWEp3Config.showId]: motWEp3Config,
+  [motWEp4Config.showId]: motWEp4Config,
 };
 
 /**
