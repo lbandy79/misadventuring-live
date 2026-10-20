@@ -14,6 +14,7 @@ import {
   collection,
   deleteField,
   doc,
+  FieldPath,
   getDoc,
   getDocs,
   onSnapshot,
@@ -58,7 +59,26 @@ export interface MonsterSession {
    * 'dead' = shown in the graveyard row with a red X.
    */
   bystanderStates?: Record<string, 'featured' | 'dead'>;
+  /**
+   * GM triage for audience write-ins, keyed by slot-vote doc id.
+   * Absent key = pending. Admin-only (lives on the session doc).
+   */
+  writeInStates?: Record<string, WriteInState>;
   updatedAt: Timestamp | null;
+}
+
+export type WriteInStatus = 'pending' | 'used' | 'hidden';
+
+export interface WriteInState {
+  /**
+   * Snapshot of the write-in text when it was triaged. Voters can re-vote
+   * (same doc id, new text); a mismatch means the state is stale and the
+   * write-in is treated as pending again.
+   */
+  text: string;
+  status: WriteInStatus;
+  pinned: boolean;
+  updatedAt?: Timestamp | null;
 }
 
 export interface MonsterSlotVote {
@@ -148,6 +168,25 @@ export async function setBystanderState(
       updatedAt: serverTimestamp(),
     });
   }
+}
+
+/**
+ * Set (or clear, with null) the GM triage state for one write-in.
+ * Uses FieldPath because vote ids contain `anon:<uuid>`, which dot-notation
+ * field strings don't handle safely.
+ */
+export async function setWriteInState(
+  showId: string,
+  voteId: string,
+  state: Omit<WriteInState, 'updatedAt'> | null,
+): Promise<void> {
+  await updateDoc(
+    doc(db, SESSION_COLLECTION, showId),
+    new FieldPath('writeInStates', voteId),
+    state === null ? deleteField() : { ...state, updatedAt: serverTimestamp() },
+    'updatedAt',
+    serverTimestamp(),
+  );
 }
 
 export async function setEmojiMode(showId: string, emojiMode: boolean): Promise<void> {
