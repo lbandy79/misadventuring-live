@@ -12,6 +12,8 @@ import {
   subscribeToBystanderSubmissions,
   type BystanderSubmission,
 } from '@mtp/lib/liveMonster/bystanderSubmissionsApi';
+import SeasonDecor from '../components/SeasonDecor';
+import { useSeason } from '../styles/seasons/useSeason';
 import './LiveMonsterDisplayPage.css';
 
 const AUDIENCE_URL = `${window.location.origin}/live-monster`;
@@ -256,7 +258,22 @@ function CornerLogo() {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
+/**
+ * Seasonal scope: `data-season` sits on a `display: contents` wrapper, so
+ * every phase's .lmd-full inherits the season's --lmd-* tokens without any
+ * layout change. `?season=none` turns it off.
+ */
 export default function LiveMonsterDisplayPage() {
+  const season = useSeason();
+  return (
+    <div className="lmd-season-scope" data-season={season ?? undefined}>
+      <SeasonDecor season={season} variant="band" />
+      <DisplayScreen />
+    </div>
+  );
+}
+
+function DisplayScreen() {
   const { showId, show } = useShow();
   const config: MonsterBuilderConfig | null = showId ? getMonsterConfig(showId) : null;
 

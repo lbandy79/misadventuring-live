@@ -1,12 +1,17 @@
+/* Seasonal scope wrapper — no box, just carries data-season for inheritance. */
+.lmd-season-scope {
+  display: contents;
+}
+
 .lmd-full {
   min-height: 100vh;
-  background: #0d0d14;
+  background: var(--lmd-bg, #0d0d14);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 3rem 4rem;
-  color: #eee;
+  color: var(--lmd-text, #eee);
   text-align: center;
   gap: 2rem;
   box-sizing: border-box;
@@ -18,14 +23,14 @@
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: #cc4444;
-  text-shadow: 0 0 30px rgba(200, 60, 60, 0.4);
+  color: var(--lmd-accent, #cc4444);
+  text-shadow: 0 0 30px rgba(var(--lmd-glow-rgb, 200, 60, 60), 0.4);
   margin: 0;
 }
 
 .lmd-idle-sub {
   font-size: clamp(0.9rem, 2vw, 1.4rem);
-  color: #666;
+  color: var(--lmd-text-faint, #666);
   letter-spacing: 0.06em;
   margin: 0;
 }
@@ -34,12 +39,12 @@
   background: #0d0d14;
   padding: 1rem;
   border-radius: 12px;
-  border: 2px solid #2a2a3e;
+  border: 2px solid var(--lmd-border, #2a2a3e);
 }
 
 .lmd-idle-url {
   font-size: 0.9rem;
-  color: #555;
+  color: var(--lmd-text-faint, #555);
   font-family: monospace;
   margin: 0;
 }
@@ -84,7 +89,7 @@
   font-size: 0.78rem;
   text-transform: uppercase;
   letter-spacing: 0.15em;
-  color: #555;
+  color: var(--lmd-text-faint, #555);
   margin: 0;
 }
 
@@ -92,7 +97,7 @@
 .lmd-prompt {
   font-size: clamp(1.4rem, 3vw, 2.5rem);
   font-weight: 700;
-  color: #ddd;
+  color: var(--lmd-text, #ddd);
   margin: 0;
 }
 
@@ -101,20 +106,20 @@
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: #cc4444;
-  text-shadow: 0 0 24px rgba(200, 60, 60, 0.35);
+  color: var(--lmd-accent, #cc4444);
+  text-shadow: 0 0 24px rgba(var(--lmd-glow-rgb, 200, 60, 60), 0.35);
   margin: 0;
 }
 
 .lmd-vote-count {
   font-size: 0.9rem;
-  color: #555;
+  color: var(--lmd-text-faint, #555);
   margin: 0;
 }
 
 .lmd-writein-count {
   font-size: 0.9rem;
-  color: #666;
+  color: var(--lmd-text-faint, #666);
   margin: 0;
 }
 
@@ -136,7 +141,7 @@
 .lmd-bar-label {
   font-size: clamp(0.9rem, 1.8vw, 1.2rem);
   text-align: right;
-  color: #ccc;
+  color: var(--lmd-text-soft, #ccc);
 }
 
 .lmd-bar-label--option {
@@ -148,14 +153,14 @@
 
 .lmd-bar-track {
   height: 28px;
-  background: #1a1a2e;
+  background: var(--lmd-track, #1a1a2e);
   border-radius: 6px;
   overflow: hidden;
 }
 
 .lmd-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #992222 0%, #cc4444 100%);
+  background: linear-gradient(90deg, var(--lmd-accent-deep, #992222) 0%, var(--lmd-accent, #cc4444) 100%);
   border-radius: 6px;
   transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   min-width: 4px;
@@ -163,15 +168,15 @@
 
 /* ── Slot locked banner (during slot phase when result is locked) ── */
 .lmd-locked-banner {
-  background: linear-gradient(135deg, #1a0a0a 0%, #2a1010 100%);
-  border: 2px solid #cc4444;
+  background: linear-gradient(135deg, var(--lmd-surface-hot, #1a0a0a) 0%, var(--lmd-surface-hot-2, #2a1010) 100%);
+  border: 2px solid var(--lmd-accent, #cc4444);
   border-radius: 12px;
   padding: 1.25rem 2rem;
   font-size: clamp(1.2rem, 2.5vw, 2rem);
   font-weight: 700;
   font-style: italic;
-  color: #fff;
-  box-shadow: 0 0 30px rgba(200, 60, 60, 0.25);
+  color: var(--lmd-text, #fff);
+  box-shadow: 0 0 30px rgba(var(--lmd-glow-rgb, 200, 60, 60), 0.25);
   animation: lmd-fade-in 0.5s ease both;
 }
 
@@ -228,13 +233,13 @@
 }
 
 .lmd-stack-card.locked {
-  background: #1a1a1a;
-  border-left: 4px solid #cc4444;
+  background: var(--lmd-surface, #1a1a1a);
+  border-left: 4px solid var(--lmd-accent, #cc4444);
   animation: lmd-slide-in 0.45s ease both;
 }
 
 .lmd-stack-card.pending {
-  border-left: 4px solid #2a2a3e;
+  border-left: 4px solid var(--lmd-border, #2a2a3e);
   opacity: 0.5;
 }
 
@@ -242,13 +247,13 @@
   font-size: clamp(0.7rem, 1.2vw, 1rem);
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: #aaa;
+  color: var(--lmd-text-soft, #aaa);
 }
 
 .lmd-stack-value {
   font-size: clamp(1.4rem, 2.6vw, 2.6rem);
   font-weight: 700;
-  color: #eee;
+  color: var(--lmd-text, #eee);
   font-style: italic;
   line-height: 1.15;
   animation: lmd-token-stamp 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
@@ -261,7 +266,7 @@
 
 .lmd-stack-pending {
   font-size: clamp(1rem, 2vw, 2rem);
-  color: #555;
+  color: var(--lmd-text-faint, #555);
   letter-spacing: 0.35em;
   animation: lmd-pending-bob 1.4s ease-in-out infinite;
 }
@@ -284,14 +289,14 @@
 .lmd-name-label {
   font-size: clamp(1rem, 2vw, 1.4rem);
   font-weight: 700;
-  color: #eee;
+  color: var(--lmd-text, #eee);
   text-align: right;
   font-style: italic;
 }
 
 .lmd-name-count {
   font-size: 0.85rem;
-  color: #888;
+  color: var(--lmd-text-muted, #888);
   text-align: left;
 }
 
@@ -304,23 +309,23 @@
   font-size: clamp(0.9rem, 1.6vw, 1.4rem);
   text-transform: uppercase;
   letter-spacing: 0.15em;
-  color: #aaa;
+  color: var(--lmd-text-soft, #aaa);
   margin: 0;
 }
 
 .lmd-bystander-name-display {
   font-size: clamp(1.8rem, 4vw, 3rem);
   font-weight: 800;
-  color: #cc4444;
+  color: var(--lmd-accent, #cc4444);
   font-style: italic;
-  text-shadow: 0 0 20px rgba(200, 60, 60, 0.35);
+  text-shadow: 0 0 20px rgba(var(--lmd-glow-rgb, 200, 60, 60), 0.35);
   margin: 0;
   animation: lmd-fade-in 0.4s ease both;
 }
 
 .lmd-bystander-move-display {
   font-size: clamp(1rem, 2vw, 1.5rem);
-  color: #bbb;
+  color: var(--lmd-text-soft, #bbb);
   font-style: italic;
   margin: 0;
   animation: lmd-fade-in 0.4s ease 0.1s both;
@@ -341,8 +346,8 @@
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: #cc4444;
-  text-shadow: 0 0 24px rgba(200, 60, 60, 0.35);
+  color: var(--lmd-accent, #cc4444);
+  text-shadow: 0 0 24px rgba(var(--lmd-glow-rgb, 200, 60, 60), 0.35);
   margin: 0;
   align-self: flex-start;
 }
@@ -376,7 +381,7 @@
   width: clamp(200px, 30vw, 440px);
   height: auto;
   object-fit: contain;
-  filter: drop-shadow(0 0 20px rgba(200, 60, 60, 0.3));
+  filter: drop-shadow(0 0 20px rgba(var(--lmd-glow-rgb, 200, 60, 60), 0.3));
 }
 
 /* ── Bystander stage (name/move/done phases) ── */
@@ -398,14 +403,14 @@
   flex-direction: column;
   gap: 0.6rem;
   padding-right: 2vw;
-  border-right: 1px solid #222;
+  border-right: 1px solid var(--lmd-border-soft, #222);
 }
 
 .lmd-strip-label {
   font-size: clamp(0.65rem, 1vw, 0.85rem);
   text-transform: uppercase;
   letter-spacing: 0.15em;
-  color: #cc4444;
+  color: var(--lmd-accent, #cc4444);
   font-weight: 700;
   margin: 0 0 0.25rem;
 }
@@ -419,12 +424,12 @@
 }
 
 .lmd-strip-row.locked {
-  border-left: 3px solid #cc4444;
-  background: #1a1a1a;
+  border-left: 3px solid var(--lmd-accent, #cc4444);
+  background: var(--lmd-surface, #1a1a1a);
 }
 
 .lmd-strip-row.pending {
-  border-left: 3px solid #2a2a3e;
+  border-left: 3px solid var(--lmd-border, #2a2a3e);
   opacity: 0.4;
 }
 
@@ -432,13 +437,13 @@
   font-size: clamp(0.55rem, 0.85vw, 0.75rem);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #888;
+  color: var(--lmd-text-muted, #888);
 }
 
 .lmd-strip-value {
   font-size: clamp(0.8rem, 1.4vw, 1.2rem);
   font-weight: 600;
-  color: #eee;
+  color: var(--lmd-text, #eee);
   font-style: italic;
   animation: lmd-token-stamp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
   display: flex;
@@ -454,7 +459,7 @@
 
 .lmd-strip-pending {
   font-size: 0.9rem;
-  color: #444;
+  color: var(--lmd-text-faint, #444);
   letter-spacing: 0.25em;
 }
 
@@ -529,7 +534,7 @@
   justify-content: center;
   gap: clamp(0.75rem, 2vw, 1.5rem);
   padding-top: 1.25rem;
-  border-top: 1px solid #222;
+  border-top: 1px solid var(--lmd-border-soft, #222);
 }
 
 .lmd-bystander-grave-card {
@@ -561,8 +566,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #1a0a0a;
-  color: #cc4444;
+  background: var(--lmd-surface-hot, #1a0a0a);
+  color: var(--lmd-accent, #cc4444);
   font-size: 1.75rem;
   font-weight: 800;
   border-radius: 8px;
@@ -584,7 +589,7 @@
 .lmd-bystander-grave-name {
   font-size: clamp(0.6rem, 1vw, 0.8rem);
   font-weight: 600;
-  color: #888;
+  color: var(--lmd-text-muted, #888);
   margin: 0;
   text-align: center;
   font-style: italic;
@@ -614,8 +619,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #1a0a0a;
-  color: #cc4444;
+  background: var(--lmd-surface-hot, #1a0a0a);
+  color: var(--lmd-accent, #cc4444);
   font-size: 3.5rem;
   font-weight: 800;
   border-radius: 12px;
@@ -627,10 +632,10 @@
   right: -10px;
   font-size: 1.6rem;
   line-height: 1;
-  background: #0d0d14;
+  background: var(--lmd-bg, #0d0d14);
   border-radius: 50%;
   padding: 5px;
-  border: 1px solid #2a2a3e;
+  border: 1px solid var(--lmd-border, #2a2a3e);
 }
 
 /* ── Featured bystander card ── */
@@ -648,16 +653,16 @@
   font-size: clamp(0.8rem, 1.4vw, 1.1rem);
   text-transform: uppercase;
   letter-spacing: 0.18em;
-  color: #aaa;
+  color: var(--lmd-text-soft, #aaa);
   margin: 0;
 }
 
 .lmd-bystander-card-name {
   font-size: clamp(2.5rem, 5vw, 6rem);
   font-weight: 800;
-  color: #cc4444;
+  color: var(--lmd-accent, #cc4444);
   font-style: italic;
-  text-shadow: 0 0 30px rgba(200, 60, 60, 0.4);
+  text-shadow: 0 0 30px rgba(var(--lmd-glow-rgb, 200, 60, 60), 0.4);
   margin: 0;
   line-height: 1.05;
 }
@@ -665,17 +670,17 @@
 .lmd-bystander-card-type {
   font-size: clamp(1rem, 1.8vw, 1.6rem);
   font-weight: 600;
-  color: #bbb;
+  color: var(--lmd-text-soft, #bbb);
   margin: 0;
   text-transform: capitalize;
 }
 
 .lmd-bystander-card-move {
   font-size: clamp(1rem, 1.6vw, 1.4rem);
-  color: #999;
+  color: var(--lmd-text-muted, #999);
   font-style: italic;
   margin: 0;
-  border-left: 3px solid #cc4444;
+  border-left: 3px solid var(--lmd-accent, #cc4444);
   padding-left: 1rem;
   animation: lmd-fade-in 0.5s ease 0.15s both;
 }
@@ -690,7 +695,7 @@
 
 .lmd-bystander-waiting-label {
   font-size: clamp(1rem, 2vw, 1.8rem);
-  color: #444;
+  color: var(--lmd-text-faint, #444);
   letter-spacing: 0.1em;
   margin: 0;
 }
@@ -705,8 +710,8 @@
   flex-direction: column;
   align-items: center;
   gap: 0.35rem;
-  background: rgba(13, 13, 20, 0.85);
-  border: 1px solid #2a2a3e;
+  background: rgba(var(--lmd-bg-rgb, 13, 13, 20), 0.85);
+  border: 1px solid var(--lmd-border, #2a2a3e);
   border-radius: 8px;
   padding: 0.6rem;
   z-index: 10;
@@ -714,7 +719,7 @@
 
 .lmd-corner-qr-url {
   font-size: 0.55rem;
-  color: #555;
+  color: var(--lmd-text-faint, #555);
   font-family: monospace;
   margin: 0;
   text-align: center;
@@ -765,5 +770,22 @@
   .lmd-stack-pending {
     animation: none;
     opacity: 0.5;
+  }
+}
+
+/* Reduced motion, everything on the projector: collapse animations and
+ * transitions to an instant finish rather than `animation: none`, so
+ * elements that animate in from opacity 0 (fill-mode both) still end
+ * visible. Covers seasonal decor too. */
+@media (prefers-reduced-motion: reduce) {
+  .lmd-full,
+  .lmd-full *,
+  .season-decor,
+  .season-decor * {
+    animation-duration: 0.001ms !important;
+    animation-delay: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    transition-delay: 0s !important;
   }
 }
