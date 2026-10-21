@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { MonsterSlotVote, WriteInState } from './liveMonsterApi';
 import {
   buildWriteInGroups,
+  canRevealWriteIn,
   nextPendingId,
   pinnedItems,
   previousId,
@@ -78,6 +79,34 @@ describe('buildWriteInGroups', () => {
     }, { a1: state('x', 'used'), a2: state('y', 'hidden') });
     expect(groups[0].pendingCount).toBe(1);
     expect(totalPending(groups)).toBe(1);
+  });
+});
+
+describe('reveal', () => {
+  const votes = {
+    appearance: [writeIn('a1', 'appearance', 'A Toyota Tacoma', 1), writeIn('a2', 'appearance', 'Gummy worms', 2)],
+    habitat: [writeIn('h1', 'habitat', 'Winn Dixie', 3)],
+  };
+
+  it('marks the write-in whose text is the slot result as revealed', () => {
+    const groups = buildWriteInGroups(SLOTS, votes, undefined, { appearance: 'A Toyota Tacoma', habitat: null });
+    const byId = Object.fromEntries(groups.flatMap((g) => g.items).map((i) => [i.id, i.revealed]));
+    expect(byId).toEqual({ a1: true, a2: false, h1: false });
+  });
+
+  it('marks nothing when the revealed vote was later changed by its voter', () => {
+    const groups = buildWriteInGroups(SLOTS, votes, undefined, { appearance: 'Toyota tacoma truck' });
+    expect(groups.flatMap((g) => g.items).some((i) => i.revealed)).toBe(false);
+  });
+
+  it('allows reveal only in the reveal phase, on an unlocked slot, for a visible item', () => {
+    const [appearance] = buildWriteInGroups(SLOTS, votes, { a2: state('Gummy worms', 'hidden') });
+    const [hidden, visible] = appearance.items; // newest first: a2 then a1
+    expect(canRevealWriteIn(visible, 'reveal', {})).toBe(true);
+    expect(canRevealWriteIn(visible, 'reveal', { appearance: null })).toBe(true);
+    expect(canRevealWriteIn(visible, 'active', {})).toBe(false);
+    expect(canRevealWriteIn(visible, 'reveal', { appearance: 'Something else' })).toBe(false);
+    expect(canRevealWriteIn(hidden, 'reveal', {})).toBe(false);
   });
 });
 

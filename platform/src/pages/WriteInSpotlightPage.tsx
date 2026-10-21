@@ -16,9 +16,10 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '@mtp/lib';
 import { useShow } from '@mtp/lib/shows';
 import { getMonsterConfig, type MonsterBuilderConfig } from '@mtp/data/liveMonster';
-import { setWriteInState, type WriteInState } from '@mtp/lib/liveMonster/liveMonsterApi';
+import { setSlotResult, setWriteInState, type WriteInState } from '@mtp/lib/liveMonster/liveMonsterApi';
 import {
   buildWriteInGroups,
+  canRevealWriteIn,
   nextPendingId,
   pinnedItems,
   previousId,
@@ -102,10 +103,11 @@ function Spotlight({ showId, config }: SpotlightProps) {
   useWakeLock();
   const { session, votesBySlot, loaded } = useWriteInFeed(showId, config);
   const states = session?.writeInStates;
+  const slotResults = session?.slotResults;
 
   const groups = useMemo(
-    () => buildWriteInGroups(config.slots, votesBySlot, states),
-    [config, votesBySlot, states],
+    () => buildWriteInGroups(config.slots, votesBySlot, states, slotResults),
+    [config, votesBySlot, states, slotResults],
   );
   const [slotFilter, setSlotFilter] = useState<string | null>(null);
   const order = useMemo(() => readingOrder(groups, slotFilter), [groups, slotFilter]);
@@ -124,6 +126,7 @@ function Spotlight({ showId, config }: SpotlightProps) {
   const [knownIds, setKnownIds] = useState<Set<string> | null>(null);
   const [trayOpen, setTrayOpen] = useState(false);
   const [hideArmed, setHideArmed] = useState<string | null>(null);
+  const [revealArmed, setRevealArmed] = useState<string | null>(null);
   const [toast, setToast] = useState<Toast | null>(null);
   const [lastAction, setLastAction] = useState<{ id: string; prev: TriageState | null } | null>(null);
   const toastSeq = useRef(0);
@@ -139,6 +142,7 @@ function Spotlight({ showId, config }: SpotlightProps) {
   const show = useCallback((id: string | null) => {
     setCurrentId(id);
     setHideArmed(null);
+    setRevealArmed(null);
     if (id) setKnownIds((prev) => new Set(prev ?? []).add(id));
   }, []);
 
@@ -164,6 +168,14 @@ function Spotlight({ showId, config }: SpotlightProps) {
     const t = setTimeout(() => setHideArmed(null), HIDE_ARM_MS);
     return () => clearTimeout(t);
   }, [hideArmed]);
+
+  useEffect(() => {
+    if (!revealArmed) return;
+    const t = setTimeout(() => setRevealArmed(null), HIDE_ARM_MS);
+    return () => clearTimeout(t);
+  }, [revealArmed]);
+
+  const canReveal = !!current && canRevealWriteIn(current, session?.phase, slotResults);
 
   const newItems = useMemo(
     () => (knownIds ? order.filter((i) => i.status === 'pending' && !knownIds.has(i.id)) : []),
@@ -217,6 +229,19 @@ function Spotlight({ showId, config }: SpotlightProps) {
     show(nextPendingId(order, current.id));
   }, [current, hideArmed, order, write, show]);
 
+  // Public and not undoable (/admin has no un-reveal either), so it takes two taps.
+  const reveal = useCallback(() => {
+    if (!current || !canReveal) return;
+    if (revealArmed !== current.id) { setRevealArmed(current.id); return; }
+    setRevealArmed(null);
+    setLastAction(null);
+    showToast('Revealed on the projector', false);
+    setSlotResult(showId, current.slotId, current.text).catch((err) => {
+      console.error('WriteInSpotlight: reveal failed', err);
+      showToast("Reveal didn't save. Check the connection, or reveal from /admin.", false, true);
+    });
+  }, [current, canReveal, revealArmed, showId, showToast]);
+
   const unhide = useCallback((id: string) => {
     const item = itemsById.get(id);
     hiddenLocally.current.delete(id);
@@ -251,8 +276,8 @@ function Spotlight({ showId, config }: SpotlightProps) {
   const selectPinned = useCallback((id: string) => { show(id); setTrayOpen(false); }, [show]);
 
   // Keyboard shortcuts. A ref keeps the listener stable while handlers change.
-  const keys = useRef({ next, prev, togglePin, toggleUsed, hide, undo });
-  keys.current = { next, prev, togglePin, toggleUsed, hide, undo };
+  const keys = useRef({ next, prev, togglePin, toggleUsed, hide, undo, reveal });
+  keys.current = { next, prev, togglePin, toggleUsed, hide, undo, reveal };
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -269,7 +294,8 @@ function Spotlight({ showId, config }: SpotlightProps) {
         case 'u': case 'U': k.toggleUsed(); break;
         case 'h': case 'H': k.hide(); break;
         case 'z': case 'Z': k.undo(); break;
-        case 'Escape': setTrayOpen(false); setHideArmed(null); break;
+        case 'r': case 'R': k.reveal(); break;
+        case 'Escape': setTrayOpen(false); setHideArmed(null); setRevealArmed(null); break;
         default: return;
       }
       e.preventDefault();
@@ -304,7 +330,13 @@ function Spotlight({ showId, config }: SpotlightProps) {
       </header>
 
       <main className="wis-main">
-        <SpotlightCard item={current} pendingCount={pendingCount} />
+        <SpotlightCard
+          item={current}
+          pendingCount={pendingCount}
+          canReveal={canReveal}
+          revealArmed={!!current && revealArmed === current.id}
+          onReveal={reveal}
+        />
         <QueueRail
           groups={groups}
           slotFilter={slotFilter}

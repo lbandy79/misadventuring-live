@@ -28,6 +28,8 @@ export interface WriteInItem {
   pinned: boolean;
   /** True when the voter changed their text after the GM triaged it. */
   edited: boolean;
+  /** True when this text is the slot's locked result (shown on the projector). */
+  revealed: boolean;
 }
 
 export interface WriteInGroup {
@@ -65,9 +67,11 @@ export function buildWriteInGroups(
   slots: SlotPrompt[],
   votesBySlot: Record<string, MonsterSlotVote[]>,
   states: Record<string, WriteInState> | undefined,
+  slotResults: Record<string, string | null> | undefined = undefined,
 ): WriteInGroup[] {
   const groups: WriteInGroup[] = [];
   for (const slot of slots) {
+    const locked = slotResults?.[slot.id] ?? null;
     const items: WriteInItem[] = [];
     for (const vote of votesBySlot[slot.id] ?? []) {
       const text = vote.optionIndex === null ? vote.writeIn?.trim() : '';
@@ -80,6 +84,9 @@ export function buildWriteInGroups(
         text,
         submittedAtMs: toMillis(vote.timestamp),
         ...resolveWriteInState(vote.id, text, states),
+        // slotResults keeps its own copy of the text, so a voter who changes
+        // their answer after the reveal simply stops matching.
+        revealed: locked !== null && locked === text,
       });
     }
     if (items.length === 0) continue;
@@ -123,6 +130,19 @@ export function nextPendingId(order: WriteInItem[], currentId: string | null): s
 export function previousId(order: WriteInItem[], currentId: string | null): string | null {
   const idx = currentId ? order.findIndex((i) => i.id === currentId) : -1;
   return idx > 0 ? order[idx - 1].id : null;
+}
+
+/**
+ * Whether the GM may reveal this write-in from the spotlight. Mirrors the
+ * /admin panel exactly: only in the `reveal` phase, and only while the
+ * item's slot has no locked result yet.
+ */
+export function canRevealWriteIn(
+  item: WriteInItem,
+  phase: string | undefined,
+  slotResults: Record<string, string | null> | undefined,
+): boolean {
+  return phase === 'reveal' && (slotResults?.[item.slotId] ?? null) === null && item.status !== 'hidden';
 }
 
 export function pinnedItems(groups: WriteInGroup[]): WriteInItem[] {

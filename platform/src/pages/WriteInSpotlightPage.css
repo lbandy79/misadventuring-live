@@ -20,6 +20,8 @@
   --season-danger:      #ff8a7a;
   --season-danger-text: #1a0805;
   --season-focus:       #8cc4ff;
+  --season-reveal:      #7fdcc0;
+  --season-reveal-text: #06201a;
 }
 
 .wis-root {
@@ -168,6 +170,20 @@
 .wis-tag--used   { color: var(--season-text-muted); }
 .wis-tag--pinned { color: var(--season-accent); }
 .wis-tag--edited { color: var(--season-danger); }
+.wis-tag--revealed { color: var(--season-reveal); }
+
+/* Reveal: the one public action on this page — its own color, never Next's amber. */
+.wis-btn--reveal {
+  align-self: flex-start;
+  margin-top: 8px;
+  border-color: var(--season-reveal);
+  color: var(--season-reveal);
+  background: transparent;
+}
+.wis-btn--reveal-armed {
+  background: var(--season-reveal);
+  color: var(--season-reveal-text);
+}
 
 /* ── Queue rail ── */
 .wis-rail {

@@ -20,7 +20,7 @@ type Vote = {
 type State = { text: string; status: 'pending' | 'used' | 'hidden'; pinned: boolean };
 
 let isAdmin = true;
-let session: { phase: string; slotResults: object; emojiMode: boolean; updatedAt: null; writeInStates: Record<string, State> };
+let session: { phase: string; slotResults: Record<string, string | null>; emojiMode: boolean; updatedAt: null; writeInStates: Record<string, State> };
 let votes: Record<string, Vote[]>;
 let sessionListener: ((s: unknown) => void) | null;
 const voteListeners: Record<string, (v: Vote[]) => void> = {};
@@ -34,6 +34,12 @@ const setWriteInState = vi.fn((_showId: string, id: string, state: State | null)
   if (state === null) delete next[id];
   else next[id] = { text: state.text, status: state.status, pinned: state.pinned };
   session = { ...session, writeInStates: next };
+  sessionListener?.(session);
+  return Promise.resolve();
+});
+
+const setSlotResult = vi.fn((_showId: string, slotId: string, text: string) => {
+  session = { ...session, slotResults: { ...session.slotResults, [slotId]: text } };
   sessionListener?.(session);
   return Promise.resolve();
 });
@@ -58,6 +64,7 @@ vi.mock('@mtp/lib/liveMonster/liveMonsterApi', () => ({
     return () => { delete voteListeners[slotId]; };
   },
   setWriteInState: (...args: [string, string, State | null]) => setWriteInState(...args),
+  setSlotResult: (...args: [string, string, string]) => setSlotResult(...args),
 }));
 
 function renderPage() {
@@ -75,6 +82,7 @@ beforeEach(() => {
   isAdmin = true;
   sessionListener = null;
   setWriteInState.mockClear();
+  setSlotResult.mockClear();
   session = { phase: 'active', slotResults: {}, emojiMode: false, updatedAt: null, writeInStates: {} };
   votes = {
     appearance: [
@@ -166,6 +174,53 @@ describe('WriteInSpotlightPage', () => {
     renderPage();
     expect(within(card()).getByText('Gummy worms')).toBeInTheDocument();
     expect(within(card()).getByText('Edited by voter')).toBeInTheDocument();
+  });
+
+  describe('reveal', () => {
+    it('offers no Reveal button outside the reveal phase', () => {
+      renderPage(); // phase: active
+      expect(screen.queryByRole('button', { name: /Reveal this/ })).not.toBeInTheDocument();
+    });
+
+    it('needs two taps, then locks the slot and tags the write-in as on the projector', async () => {
+      session.phase = 'reveal';
+      const user = userEvent.setup();
+      renderPage();
+
+      await user.click(screen.getByRole('button', { name: /Reveal this/ }));
+      expect(setSlotResult).not.toHaveBeenCalled();
+
+      await user.click(screen.getByRole('button', { name: /Tap again: show on projector/ }));
+      expect(setSlotResult).toHaveBeenCalledWith(SHOW_ID, 'appearance', 'Gummy worms');
+      expect(within(card()).getByText('On the projector')).toBeInTheDocument();
+      expect(within(rail()).getByText('Revealed')).toBeInTheDocument();
+      // Slot is now locked: no second reveal for any write-in in it.
+      expect(screen.queryByRole('button', { name: /Reveal this/ })).not.toBeInTheDocument();
+    });
+
+    it('works from the keyboard with R twice, and disarms when moving on', async () => {
+      session.phase = 'reveal';
+      const user = userEvent.setup();
+      renderPage();
+
+      await user.keyboard('r');
+      await user.keyboard('{ArrowRight}'); // moving on disarms
+      expect(screen.getByRole('button', { name: /Reveal this/ })).toBeInTheDocument();
+      await user.keyboard('r');
+      expect(setSlotResult).not.toHaveBeenCalled();
+      await user.keyboard('r');
+      expect(setSlotResult).toHaveBeenCalledWith(SHOW_ID, 'appearance', 'A Toyota Tacoma');
+    });
+
+    it('still offers reveal for other prompts once one slot is locked', async () => {
+      session.phase = 'reveal';
+      session.slotResults = { appearance: 'Gummy worms' };
+      const user = userEvent.setup();
+      renderPage();
+      expect(screen.queryByRole('button', { name: /Reveal this/ })).not.toBeInTheDocument();
+      await user.click(within(rail()).getByText('The Winn Dixie pork aisle'));
+      expect(screen.getByRole('button', { name: /Reveal this/ })).toBeInTheDocument();
+    });
   });
 
   it('announces new arrivals without swapping the write-in being read', async () => {

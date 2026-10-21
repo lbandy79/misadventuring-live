@@ -69,6 +69,7 @@ export default function QueueRail({ groups, slotFilter, onFilter, currentId, onS
                     >
                       <span className="wis-item-text">{item.text}</span>
                       <span className="wis-item-meta">
+                        {item.revealed && <span className="wis-tag wis-tag--revealed">Revealed</span>}
                         {item.pinned && <span className="wis-tag wis-tag--pinned">★</span>}
                         {item.status === 'used' && <span className="wis-tag wis-tag--used">Used</span>}
                         {item.edited && <span className="wis-tag wis-tag--edited">Edited</span>}
