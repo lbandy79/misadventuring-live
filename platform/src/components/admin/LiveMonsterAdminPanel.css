@@ -1,4 +1,10 @@
 .lm-panel {
+  --lm-text: var(--ink-black, #1c1c1c);
+  --lm-muted: #595959;
+  --lm-good: #1f6b45;
+  --lm-danger: #b3261e;
+  --lm-amber-ink: #7a4f00;
+  --lm-orange-ink: #8f4310;
   margin-top: 2rem;
   padding: 1.5rem;
   background: rgba(255 255 255 / 0.04);
@@ -23,7 +29,7 @@
 .lm-show-badge {
   font-size: 0.72rem;
   font-family: monospace;
-  color: var(--color-text-muted, #888);
+  color: var(--lm-muted);
   background: rgba(255 255 255 / 0.06);
   border: 1px solid rgba(255 255 255 / 0.12);
   border-radius: 4px;
@@ -32,7 +38,7 @@
 
 .lm-hint {
   font-size: 0.85rem;
-  color: var(--color-text-muted, #888);
+  color: var(--lm-muted);
   margin: 0 0 1.25rem;
 }
 
@@ -61,7 +67,7 @@
   font-size: 0.62rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: var(--color-text-muted, #666);
+  color: var(--lm-muted);
   margin-right: 0.15rem;
   white-space: nowrap;
 }
@@ -96,12 +102,12 @@
 
 .lm-push-toast--pushing {
   background: rgba(255 255 255 / 0.07);
-  color: #888;
+  color: var(--lm-muted);
 }
 
 .lm-push-toast--pushed {
   background: rgba(100 200 120 / 0.14);
-  color: #7dd3a8;
+  color: var(--lm-good);
   animation: lm-toast-in 0.18s ease-out both, lm-toast-out 0.2s ease-in 2s both;
 }
 
@@ -125,7 +131,7 @@
   font-size: 0.75rem;
   line-height: inherit;
   background: rgba(255 255 255 / 0.07);
-  color: var(--color-text-muted, #888);
+  color: var(--lm-muted);
   transition: background 0.2s, color 0.2s;
 }
 
@@ -150,7 +156,7 @@
 
 .lm-phase-pip.clickable:hover {
   background: rgba(255 255 255 / 0.15);
-  color: #ddd;
+  color: var(--lm-text);
 }
 
 /* Buttons */
@@ -194,8 +200,8 @@
 
 .lm-btn--danger {
   background: transparent;
-  border-color: #e05555;
-  color: #e05555;
+  border-color: var(--lm-danger);
+  color: var(--lm-danger);
 }
 
 .lm-btn--danger:hover:not(:disabled) {
@@ -242,7 +248,7 @@
 .lm-count {
   font-weight: 400;
   font-size: 0.85rem;
-  color: var(--color-text-muted, #888);
+  color: var(--lm-muted);
 }
 
 /* Tallies */
@@ -300,13 +306,13 @@
   font-size: 0.8rem;
   min-width: 1.5rem;
   text-align: right;
-  color: var(--color-text-muted, #888);
+  color: var(--lm-muted);
 }
 
 /* Locked badge */
 .lm-locked-badge {
   font-size: 0.875rem;
-  color: #7dd3a8;
+  color: var(--lm-good);
   margin: 0.5rem 0 0;
 }
 
@@ -340,7 +346,7 @@
 
 .lm-threat-desc {
   margin: 0;
-  color: var(--color-text-muted, #aaa);
+  color: var(--lm-muted);
   font-style: italic;
 }
 
@@ -387,7 +393,7 @@
   font-size: 0.85rem;
   font-weight: 700;
   margin: 0 0 0.5rem;
-  color: #e0a022;
+  color: var(--lm-amber-ink);
 }
 
 .lm-writein-row {
@@ -435,7 +441,7 @@
 .lm-writein-text {
   flex: 1;
   font-style: italic;
-  color: #f0e0c0;
+  color: var(--lm-text);
   overflow-wrap: anywhere;
 }
 
@@ -449,13 +455,13 @@
 
 .lm-result-label {
   min-width: 8rem;
-  color: var(--color-text-muted, #aaa);
+  color: var(--lm-muted);
   font-style: italic;
 }
 
 .lm-result-value {
   font-weight: 600;
-  color: #e0c97f;
+  color: var(--lm-text);
 }
 
 /* Panel header row (title + emoji toggle) */
@@ -476,7 +482,7 @@
   padding: 0.3rem 0.75rem;
   background: rgba(255 255 255 / 0.06);
   border: 1px solid rgba(255 255 255 / 0.15);
-  color: var(--color-text-muted, #aaa);
+  color: var(--lm-muted);
   border-radius: 6px;
   cursor: pointer;
   transition: background 0.15s;
@@ -485,7 +491,7 @@
 
 .lm-btn--toggle:hover:not(:disabled) {
   background: rgba(255 255 255 / 0.12);
-  color: #eee;
+  color: var(--lm-text);
 }
 
 /* ── Bystander roster ── */
@@ -504,7 +510,7 @@
 
 .lm-bystander-featured-badge {
   font-size: 0.7rem;
-  color: #7dd3a8;
+  color: var(--lm-good);
   font-weight: 600;
   white-space: nowrap;
 }
@@ -572,12 +578,12 @@
 .lm-bystander-name {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #eee;
+  color: var(--lm-text);
 }
 
 .lm-bystander-type {
   font-size: 0.72rem;
-  color: #cc7744;
+  color: var(--lm-orange-ink);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -585,7 +591,7 @@
 
 .lm-bystander-move-preview {
   font-size: 0.75rem;
-  color: #888;
+  color: var(--lm-muted);
   font-style: italic;
   white-space: nowrap;
   overflow: hidden;
@@ -642,20 +648,20 @@
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--color-text-muted, #888);
+  color: var(--lm-muted);
 }
 
 .lm-gm-token-value {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #e0c97f;
+  color: var(--lm-text);
   font-style: italic;
 }
 
 .lm-gm-pending {
   font-style: normal;
   font-weight: 400;
-  color: #444;
+  color: var(--lm-muted);
 }
 
 /* Type suggestions */
@@ -673,7 +679,7 @@
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--color-text-muted, #888);
+  color: var(--lm-muted);
   margin: 0 0 0.25rem;
 }
 
@@ -687,17 +693,17 @@
 
 .lm-gm-type-id {
   font-weight: 700;
-  color: #cc7744;
+  color: var(--lm-orange-ink);
   text-transform: capitalize;
 }
 
 .lm-gm-type-motivation {
-  color: #bbb;
+  color: var(--lm-muted);
   font-style: italic;
 }
 
 .lm-gm-type-count {
-  color: var(--color-text-muted, #888);
+  color: var(--lm-muted);
   font-size: 0.75rem;
   white-space: nowrap;
 }
