@@ -105,6 +105,10 @@
   gap: 10px;
   flex-shrink: 0;
 }
+/* Wide: the title keeps its natural width; seasonal decor takes the gap. */
+@media (min-width: 800px) {
+  .wis-top-title { flex: 0 1 auto; }
+}
 
 /* ── Main split: spotlight + rail ── */
 .wis-main {

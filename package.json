@@ -12,6 +12,7 @@
     "preview:platform": "vite preview --config platform/vite.config.ts",
     "test": "vitest run",
     "test:watch": "vitest",
+    "check:contrast": "node scripts/check-contrast.mjs",
     "test:rules": "firebase emulators:exec --only firestore \"vitest run --config vitest.rules.config.ts\""
   },
   "dependencies": {

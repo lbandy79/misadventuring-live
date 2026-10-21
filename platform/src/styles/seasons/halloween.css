@@ -1,0 +1,48 @@
+/* ─── Season: Halloween ──────────────────────────────────────────────
+ * Token values only (plus the projector's decor band). Every rule is
+ * scoped under [data-season="halloween"], which only the GM spotlight
+ * and projector roots carry — the audience phone page never does.
+ *
+ * Pumpkin on midnight-violet. All text/UI pairs are checked by
+ * `npm run check:contrast` (scripts/check-contrast.mjs).
+ * ─────────────────────────────────────────────────────────────────── */
+
+[data-season='halloween'] {
+  /* GM spotlight (--season-*) */
+  --season-bg:          #120b1a;
+  --season-surface:     #1c1228;
+  --season-surface-2:   #2a1c3b;
+  --season-border:      #8b76a8;
+  --season-text:        #f7efe1;
+  --season-text-muted:  #cbb9dc;
+  --season-accent:      #ff8c1a;
+  --season-accent-text: #1c0b00;
+  --season-danger:      #ff8396;
+  --season-danger-text: #22060b;
+  --season-focus:       #ffe066;
+  --season-reveal:      #9fe870;
+  --season-reveal-text: #0d1f05;
+
+  /* Projector (--lmd-*) — fallbacks in LiveMonsterDisplayPage.css are the original colors */
+  --lmd-bg:            #0f0916;
+  --lmd-bg-rgb:        15, 9, 22;
+  --lmd-surface:       #1d1329;
+  --lmd-track:         #251a33;
+  --lmd-surface-hot:   #2a1405;
+  --lmd-surface-hot-2: #3a1c06;
+  --lmd-border:        #4a3763;
+  --lmd-border-soft:   #2e2240;
+  --lmd-text:          #f7efe1;
+  --lmd-text-soft:     #dccdea;
+  --lmd-text-muted:    #b6a3c9;
+  --lmd-text-faint:    #a490b9;
+  --lmd-accent:        #ff8c1a;
+  --lmd-accent-deep:   #c25a00;
+  --lmd-glow-rgb:      255, 140, 26;
+}
+
+/* Projector: reserve a decor band across the top so corner art can never
+ * sit behind content. SeasonDecor draws only inside the top 96px. */
+[data-season='halloween'] .lmd-full {
+  padding-top: calc(3rem + 72px);
+}

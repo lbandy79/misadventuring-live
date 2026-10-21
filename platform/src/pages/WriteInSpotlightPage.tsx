@@ -34,6 +34,9 @@ import PinnedTray from '../components/spotlight/PinnedTray';
 import UndoToast from '../components/spotlight/UndoToast';
 import { useWriteInFeed } from '../components/spotlight/useWriteInFeed';
 import { useWakeLock } from '../components/spotlight/useWakeLock';
+import SeasonDecor from '../components/SeasonDecor';
+import { useSeason } from '../styles/seasons/useSeason';
+import type { SeasonId } from '../styles/seasons/seasons.config';
 import './WriteInSpotlightPage.css';
 
 const TOAST_MS = 10_000;
@@ -41,9 +44,9 @@ const HIDE_ARM_MS = 4_000;
 
 type TriageState = Omit<WriteInState, 'updatedAt'>;
 
-function Shell({ children }: { children: ReactNode }) {
+function Shell({ children, season }: { children: ReactNode; season: SeasonId | null }) {
   return (
-    <div className="wis-root wis-root--message">
+    <div className="wis-root wis-root--message" data-season={season ?? undefined}>
       <div className="wis-message">{children}</div>
     </div>
   );
@@ -52,13 +55,14 @@ function Shell({ children }: { children: ReactNode }) {
 export default function WriteInSpotlightPage() {
   const { user, isAdmin, isLoading, isAdminLoading } = useAuth();
   const { showId } = useShow();
+  const season = useSeason();
 
   if (isLoading || (user && isAdminLoading)) {
-    return <Shell><p>Checking your admin status…</p></Shell>;
+    return <Shell season={season}><p>Checking your admin status…</p></Shell>;
   }
   if (!user || !isAdmin) {
     return (
-      <Shell>
+      <Shell season={season}>
         <h1>GM only</h1>
         <p>
           <Link to="/admin">Sign in on the admin page</Link> with an allowlisted
@@ -71,7 +75,7 @@ export default function WriteInSpotlightPage() {
   const config = showId ? getMonsterConfig(showId) : null;
   if (!showId || !config) {
     return (
-      <Shell>
+      <Shell season={season}>
         <h1>No monster config</h1>
         <p>
           <code>config/platform.currentShowId</code> is <code>{showId ?? '(none)'}</code>,
@@ -83,12 +87,13 @@ export default function WriteInSpotlightPage() {
   }
 
   // key: a show flip remounts with fresh state instead of carrying ids across shows.
-  return <Spotlight key={showId} showId={showId} config={config} />;
+  return <Spotlight key={showId} showId={showId} config={config} season={season} />;
 }
 
 interface SpotlightProps {
   showId: string;
   config: MonsterBuilderConfig;
+  season: SeasonId | null;
 }
 
 interface Toast {
@@ -99,7 +104,7 @@ interface Toast {
   seq: number;
 }
 
-function Spotlight({ showId, config }: SpotlightProps) {
+function Spotlight({ showId, config, season }: SpotlightProps) {
   useWakeLock();
   const { session, votesBySlot, loaded } = useWriteInFeed(showId, config);
   const states = session?.writeInStates;
@@ -305,13 +310,14 @@ function Spotlight({ showId, config }: SpotlightProps) {
   }, []);
 
   return (
-    <div className="wis-root" data-show={showId}>
+    <div className="wis-root" data-show={showId} data-season={season ?? undefined}>
       <header className="wis-top">
         <div className="wis-top-title">
           <Link to="/admin" className="wis-link-btn">← Admin</Link>
           <h1>{config.showName}</h1>
           <span className="wis-phase">Phase: {session?.phase ?? 'idle'}</span>
         </div>
+        <SeasonDecor season={season} variant="bar" />
         <div className="wis-top-actions">
           {newItems.length > 0 && (
             <button type="button" className="wis-btn wis-btn--new" onClick={jumpToNew}>
