@@ -39,6 +39,12 @@ export interface WriteInGroup {
   /** Newest first; includes used and hidden items. */
   items: WriteInItem[];
   pendingCount: number;
+  /**
+   * The slot's locked result (what the projector shows), straight from
+   * session.slotResults. Survives the winning vote being overwritten or
+   * deleted, unlike the per-item `revealed` flag.
+   */
+  lockedResult: string | null;
 }
 
 export function resolveWriteInState(
@@ -89,7 +95,9 @@ export function buildWriteInGroups(
         revealed: locked !== null && locked === text,
       });
     }
-    if (items.length === 0) continue;
+    // Keep a prompt with no write-ins if it has a locked result, so the GM
+    // still sees what's on the projector for it (e.g. a preset winner).
+    if (items.length === 0 && locked === null) continue;
     items.sort(newestFirst);
     groups.push({
       slotId: slot.id,
@@ -97,6 +105,7 @@ export function buildWriteInGroups(
       revealPrefix: slot.revealPrefix,
       items,
       pendingCount: items.filter((i) => i.status === 'pending').length,
+      lockedResult: locked,
     });
   }
   return groups;

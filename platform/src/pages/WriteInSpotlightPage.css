@@ -252,6 +252,16 @@
   text-transform: uppercase;
   color: var(--season-text-muted);
 }
+.wis-group-locked {
+  margin: 0 6px 8px;
+  padding: 8px 10px;
+  border-left: 3px solid var(--season-reveal);
+  font-size: 16px;
+  color: var(--season-text);
+  overflow-wrap: anywhere;
+}
+.wis-group-locked .wis-tag { margin-right: 6px; font-size: 13px; }
+
 .wis-list {
   list-style: none;
   margin: 0;

@@ -99,6 +99,19 @@ describe('reveal', () => {
     expect(groups.flatMap((g) => g.items).some((i) => i.revealed)).toBe(false);
   });
 
+  it('keeps the locked result on the group even when no vote matches it (the Ep3 Toyota case)', () => {
+    const groups = buildWriteInGroups(SLOTS, votes, undefined, { appearance: 'Toyota tacoma truck' });
+    expect(groups.find((g) => g.slotId === 'appearance')?.lockedResult).toBe('Toyota tacoma truck');
+    expect(groups.find((g) => g.slotId === 'habitat')?.lockedResult).toBeNull();
+  });
+
+  it('keeps a prompt with no write-ins when it has a locked result, and drops it otherwise', () => {
+    const presetOnly = { appearance: [preset('p1', 'appearance')] };
+    expect(buildWriteInGroups(SLOTS, presetOnly, undefined, {})).toEqual([]);
+    const [g] = buildWriteInGroups(SLOTS, presetOnly, undefined, { appearance: 'Living Shadow' });
+    expect(g).toMatchObject({ slotId: 'appearance', items: [], pendingCount: 0, lockedResult: 'Living Shadow' });
+  });
+
   it('allows reveal only in the reveal phase, on an unlocked slot, for a visible item', () => {
     const [appearance] = buildWriteInGroups(SLOTS, votes, { a2: state('Gummy worms', 'hidden') });
     const [hidden, visible] = appearance.items; // newest first: a2 then a1

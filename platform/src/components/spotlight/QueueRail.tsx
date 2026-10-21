@@ -52,12 +52,18 @@ export default function QueueRail({ groups, slotFilter, onFilter, currentId, onS
 
         {visible.map((g) => {
           const items = g.items.filter((i) => i.status !== 'hidden');
-          if (items.length === 0) return null;
+          if (items.length === 0 && g.lockedResult === null) return null;
           return (
             <section key={g.slotId} className="wis-group" aria-label={g.prompt}>
               <h3 className="wis-group-title">
                 {g.prompt} <span className="wis-count">{g.pendingCount}</span>
               </h3>
+              {g.lockedResult !== null && (
+                <p className="wis-group-locked">
+                  <span className="wis-tag wis-tag--revealed">On the projector</span>{' '}
+                  {g.revealPrefix} <strong>{g.lockedResult}</strong>
+                </p>
+              )}
               <ul className="wis-list">
                 {items.map((item) => (
                   <li key={item.id}>

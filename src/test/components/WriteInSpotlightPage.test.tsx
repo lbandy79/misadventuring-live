@@ -212,6 +212,15 @@ describe('WriteInSpotlightPage', () => {
       expect(setSlotResult).toHaveBeenCalledWith(SHOW_ID, 'appearance', 'A Toyota Tacoma');
     });
 
+    it('shows the locked result in the rail even when its vote no longer exists', () => {
+      session.phase = 'reveal';
+      session.slotResults = { appearance: 'Toyota tacoma truck' };
+      renderPage();
+      const group = within(rail()).getByRole('region', { name: 'What does it look like?' });
+      expect(within(group).getByText('Toyota tacoma truck')).toBeInTheDocument();
+      expect(within(group).getByText('On the projector')).toBeInTheDocument();
+    });
+
     it('still offers reveal for other prompts once one slot is locked', async () => {
       session.phase = 'reveal';
       session.slotResults = { appearance: 'Gummy worms' };
