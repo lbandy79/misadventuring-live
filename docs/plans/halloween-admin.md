@@ -2,7 +2,7 @@
 
 **Show:** Saturday Oct 24, 2026 · Lucky Straws · Monster of the Week Ep4
 **Code freeze:** Thursday Oct 22, ~9pm · **Friday Oct 23:** testing only
-**Status:** Approved Oct 19, 2026
+**Status:** Approved Oct 19, 2026 · Phases 0–1 in production Oct 21 (`f8ab3dd`) · Reveal-from-spotlight added Oct 21
 
 ## Goals
 
@@ -18,6 +18,7 @@
 | GM device | **Tablet, touch only.** Big tap targets first; keyboard shortcuts as a bonus |
 | Theme scope | **Admin + projector only.** Audience phone page visually untouched |
 | Ep4 config | In scope as Phase 0. Luke picks/approves options; Claude wires it and tags Ep3 pool usage |
+| Where `/admin` runs on show night | **Same tablet, second tab.** So the spotlight gets its own two-tap Reveal (Oct 21); phase changes stay on `/admin` |
 
 ## Hard constraints
 
@@ -90,10 +91,15 @@ writeInStates?: Record<string /* slot-vote doc id */, {
 ### Behaviour
 
 - **The spotlight never jumps on its own.** New arrivals show a "N new" pill; Next advances to the next pending item in rail order, skipping used/hidden.
-- Keyboard: `→`/`Space` next · `←` previous · `P` pin · `U` used · `H` hide (then confirm) · `Z` undo · `Esc` closes the drawer/confirm. All buttons are reachable by Tab with a visible focus ring.
+- Keyboard: `→`/`Space` next · `←` previous · `P` pin · `U` used · `H` hide (then confirm) · `R` reveal (then confirm) · `Z` undo · `Esc` closes the drawer/disarms. All buttons are reachable by Tab with a visible focus ring.
 - Spotlight changes are announced via `aria-live="polite"`.
 - Screen Wake Lock (`navigator.wakeLock`) while the page is open, where the browser supports it.
-- Revealing/locking a slot winner stays in the existing admin panel (open it in a second tab).
+- **Reveal from the spotlight (added Oct 21).** The GM runs `/admin` as a second tab on the same tablet, so the reveal moment shouldn't need a tab switch.
+  - A **Reveal this** button on the card calls the same `setSlotResult` as `/admin`. It appears only when `/admin` would allow it: phase is `reveal`, the slot has no locked result, and the item isn't hidden (`canRevealWriteIn` in `writeInQueue.ts`).
+  - **Two taps** (or `R` twice), with a 4-second arm window. Moving to another write-in disarms it. There's no undo, because `/admin` has no un-reveal either.
+  - Its own colour (`--season-reveal`, teal), never Next's amber.
+  - A **Revealed** tag (rail) / **On the projector** tag (card) marks the write-in whose text matches its slot's `slotResults`. If the voter changes their answer after the reveal, the tag correctly disappears; the projector keeps its copy.
+  - Phase changes, bystanders and Reset stay on `/admin`.
 
 ## Phase 2 — Seasonal theme (admin spotlight + projector only)
 
@@ -168,7 +174,7 @@ At minimum one iPhone (Safari) and one Android (Chrome), on cellular, plus 3–5
    - Emoji
    - Profanity attempt (blocked on the phone)
 6. Hidden write-in shows a Hidden badge in `/admin`.
-7. Reveal a write-in from `/admin` → projector shows it in Halloween theme.
+7. In the `reveal` phase, reveal one write-in from the **spotlight** (two taps) and another from `/admin`. The projector shows both in Halloween theme; the spotlight tags both "Revealed", and the Reveal button disappears for those slots.
 8. `?season=none` on the display → original look.
 9. Reduce Motion on (iOS setting) → no decor/display animation.
 10. Tablet Wi-Fi off, then on → spotlight recovers, queued triage writes land.
@@ -200,6 +206,7 @@ At minimum one iPhone (Safari) and one Android (Chrome), on cellular, plus 3–5
 | Legacy app (auto-deploys) breaks on a shared `src/` change | Run `npm run build` before every push; confirm the `misadventuring-live` production deploy is READY |
 | Platform fix "pushed" but not live | Platform deploys are staged; **Luke must promote** in the Vercel dashboard |
 | Re-vote changes text after triage | Text snapshot + "edited" tag (Phase 1) |
+| Accidental reveal from the spotlight (public, no undo) | Two taps with a 4s arm window, distinct teal colour, disarms on navigation. Only offered when `/admin` would offer it |
 | `currentShowId` flip crashes admin | Fixed in Phase 0 |
 | Venue Wi-Fi | Tablet on hotspot; Firestore queues writes offline |
 | Vote collections are world-writable (`if true`) | Accepted for Saturday; schedule a rules hardening after the show |
@@ -216,9 +223,10 @@ At minimum one iPhone (Safari) and one Android (Chrome), on cellular, plus 3–5
 
 **Never cut:** Phase 0; spotlight card, Next, Used, Hide, queue rail.
 
+**Status Oct 21:** items 2, 5, 6 and 7 are already built and in production with Phase 1, so the remaining cut order applies to Phase 2 (items 1, 3, 4). Reveal-from-spotlight can be pulled by removing the button if Friday testing finds a problem; `/admin` reveal is the fallback.
+
 ## Out of scope (post-show)
 
 - Bystander submissions in the spotlight
-- "Lock as winner" from the spotlight
 - Firestore rules hardening for `live-monster-slot-votes` / `live-bystander-submissions`
 - Submitter names
