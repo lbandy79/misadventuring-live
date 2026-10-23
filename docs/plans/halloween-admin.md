@@ -227,6 +227,9 @@ At minimum one iPhone (Safari) and one Android (Chrome), on cellular, plus 3–5
 
 ## Out of scope (post-show)
 
+- **Active-episode picker in the platform `/admin` Live Monster panel.** Today the `currentShowId` flip is a manual Firestore console edit. The legacy admin's "Active Show" selector is a trap: it lists *series* show IDs from `src/lib/shows/registry.ts`, while the monster builder is keyed by *dated episode* IDs (`monster-of-the-week-2026-10-24`), so it would leave every live page with "No monster config". The picker should list only episodes registered in `src/data/liveMonster/index.ts`, confirm before writing, and reuse the existing admin-only rule on `config/platform`. Longer term: reconcile the two ID schemes and retire the legacy selector.
+- Spotlight "connection lost" indicator (iPad Chrome tabs went stale on Oct 23 and needed a reload).
+
 - Bystander submissions in the spotlight
 - Firestore rules hardening for `live-monster-slot-votes` / `live-bystander-submissions`
 - Submitter names
