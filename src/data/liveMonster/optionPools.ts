@@ -8,8 +8,10 @@ import type { MonsterSlotOption } from './types';
  * used at a past show are tagged with the episode date; rotate them back in
  * after a show or two.
  *
- * Eligible for Episode Four (2026-10-24): Episode Two picks, plus Episode One
- * picks NOT marked "Re-used 2026-09-19". Every Aug 2026 addition ran in Ep3.
+ * Eligible for Episode Five: everything NOT marked "Re-used 2026-10-24".
+ * That's the Episode Three picks (the Aug 2026 additions and the Episode One
+ * entries marked "Re-used 2026-09-19") plus the untagged leftovers that
+ * haven't run since Episodes One and Two.
  *
  * ICON NOTES (July 2026 audit):
  *   - fluentEmoji folder names are SENTENCE CASE ("Drop of blood", not
@@ -29,18 +31,18 @@ import type { MonsterSlotOption } from './types';
 export const appearancePool: MonsterSlotOption[] = [
   // Used 2026-06-27 (Episode One)
   { text: 'Too Many',      emoji: '🕷️', typeHints: ['beast', 'devourer'],      fluentEmoji: 'Spider' },
-  { text: 'Wrong Skin',    emoji: '🩸', typeHints: ['parasite', 'queen'],      fluentEmoji: 'Drop of blood' },
-  { text: 'Almost Human',  emoji: '👤', typeHints: ['trickster', 'parasite'],  fluentEmoji: 'Bust in silhouette' },
+  { text: 'Wrong Skin',    emoji: '🩸', typeHints: ['parasite', 'queen'],      fluentEmoji: 'Drop of blood' }, // Re-used 2026-10-24 (Episode Four)
+  { text: 'Almost Human',  emoji: '👤', typeHints: ['trickster', 'parasite'],  fluentEmoji: 'Bust in silhouette' }, // Re-used 2026-10-24 (Episode Four)
   { text: 'All Teeth',     emoji: '🦷', typeHints: ['beast', 'devourer'],      fluentEmoji: 'Tooth' }, // Re-used 2026-09-19 (Episode Three)
   { text: 'Living Shadow', emoji: '🌑', typeHints: ['sorcerer', 'devourer'],   fluentEmoji: 'New moon' }, // Re-used 2026-09-19 (Episode Three)
   { text: 'Stolen Faces',  emoji: '🪞', typeHints: ['collector', 'trickster'], fluentEmoji: 'Mirror' }, // Re-used 2026-09-19 (Episode Three)
   // Used 2026-07-25 (Episode Two)
   { text: 'Beautiful',     emoji: '🦋', typeHints: ['queen', 'trickster'],     fluentEmoji: 'Butterfly' },
-  { text: 'Child-Sized',   emoji: '🧸', typeHints: ['trickster', 'collector'], fluentEmoji: 'Teddy bear' },
-  { text: 'Antlered',      emoji: '🦌', typeHints: ['beast', 'executioner'],   fluentEmoji: 'Deer' },
-  { text: 'Made of Rot',   emoji: '🍄', typeHints: ['parasite', 'devourer'],   fluentEmoji: 'Mushroom' },
+  { text: 'Child-Sized',   emoji: '🧸', typeHints: ['trickster', 'collector'], fluentEmoji: 'Teddy bear' }, // Re-used 2026-10-24 (Episode Four)
+  { text: 'Antlered',      emoji: '🦌', typeHints: ['beast', 'executioner'],   fluentEmoji: 'Deer' }, // Re-used 2026-10-24 (Episode Four)
+  { text: 'Made of Rot',   emoji: '🍄', typeHints: ['parasite', 'devourer'],   fluentEmoji: 'Mushroom' }, // Re-used 2026-10-24 (Episode Four)
   { text: 'Bone Thin',     emoji: '💀', typeHints: ['devourer', 'torturer'],   fluentEmoji: 'Skull' },
-  { text: 'Grinning Wide', emoji: '😁', typeHints: ['trickster', 'torturer'],  fluentEmoji: 'Grinning face' },
+  { text: 'Grinning Wide', emoji: '😁', typeHints: ['trickster', 'torturer'],  fluentEmoji: 'Grinning face' }, // Re-used 2026-10-24 (Episode Four)
   // Added Aug 2026 · used 2026-09-19 (Episode Three)
   { text: 'Dripping Wet',  emoji: '💧', typeHints: ['beast', 'destroyer'],     fluentEmoji: 'Droplet' },
   { text: 'Static-Faced',  emoji: '📺', typeHints: ['trickster', 'sorcerer'],  fluentEmoji: 'Television' },
@@ -51,19 +53,19 @@ export const appearancePool: MonsterSlotOption[] = [
 
 export const habitatPool: MonsterSlotOption[] = [
   // Used 2026-06-27 (Episode One)
-  { text: 'Empty Houses',    emoji: '🚪', typeHints: ['executioner', 'torturer'], fluentEmoji: 'House' },
+  { text: 'Empty Houses',    emoji: '🚪', typeHints: ['executioner', 'torturer'], fluentEmoji: 'House' }, // Re-used 2026-10-24 (Episode Four)
   { text: 'Still Water',     emoji: '🌊', typeHints: ['destroyer', 'beast'],      fluentEmoji: 'Water wave' },
   { text: 'Deep Woods',      emoji: '🌲', typeHints: ['beast', 'torturer'],       fluentEmoji: 'Evergreen tree' }, // Re-used 2026-09-19 (Episode Three)
   { text: 'Your Walls',      emoji: '🛏️', typeHints: ['parasite', 'queen'],      fluentEmoji: 'Bed' }, // Re-used 2026-09-19 (Episode Three)
   { text: 'Holy Ground',     emoji: '⛪', typeHints: ['sorcerer', 'destroyer'],   fluentEmoji: 'Church' }, // Re-used 2026-09-19 (Episode Three)
-  { text: 'The Underneath',  emoji: '🕳️', typeHints: ['devourer', 'beast'],      fluentEmoji: 'Hole' },
+  { text: 'The Underneath',  emoji: '🕳️', typeHints: ['devourer', 'beast'],      fluentEmoji: 'Hole' }, // Re-used 2026-10-24 (Episode Four)
   // Used 2026-07-25 (Episode Two)
-  { text: 'The County Fair', emoji: '🎡', typeHints: ['trickster', 'collector'],  fluentEmoji: 'Ferris wheel' },
-  { text: 'The Graveyard',   emoji: '🪦', typeHints: ['sorcerer', 'executioner'], fluentEmoji: 'Headstone' },
-  { text: 'The Dead Mall',   emoji: '🛍️', typeHints: ['collector', 'parasite'],  fluentEmoji: 'Shopping bags' },
+  { text: 'The County Fair', emoji: '🎡', typeHints: ['trickster', 'collector'],  fluentEmoji: 'Ferris wheel' }, // Re-used 2026-10-24 (Episode Four)
+  { text: 'The Graveyard',   emoji: '🪦', typeHints: ['sorcerer', 'executioner'], fluentEmoji: 'Headstone' }, // Re-used 2026-10-24 (Episode Four)
+  { text: 'The Dead Mall',   emoji: '🛍️', typeHints: ['collector', 'parasite'],  fluentEmoji: 'Shopping bags' }, // Re-used 2026-10-24 (Episode Four)
   { text: 'The High School', emoji: '🏫', typeHints: ['queen', 'trickster'],      fluentEmoji: 'School' },
   { text: 'Storm Drains',    emoji: '🌀', typeHints: ['devourer', 'beast'],       fluentEmoji: 'Cyclone' },
-  { text: 'The Old Motel',   emoji: '🛎️', typeHints: ['torturer', 'destroyer'],  fluentEmoji: 'Bellhop bell' },
+  { text: 'The Old Motel',   emoji: '🛎️', typeHints: ['torturer', 'destroyer'],  fluentEmoji: 'Bellhop bell' }, // Re-used 2026-10-24 (Episode Four)
   // Added Aug 2026 · used 2026-09-19 (Episode Three)
   { text: 'This Very Bar',    emoji: '🍺', typeHints: ['trickster', 'devourer'],  fluentEmoji: 'Beer mug' },
   { text: 'The Radio Tower',  emoji: '📡', typeHints: ['sorcerer', 'destroyer'],  fluentEmoji: 'Satellite antenna' },
@@ -74,19 +76,19 @@ export const habitatPool: MonsterSlotOption[] = [
 
 export const behaviorPool: MonsterSlotOption[] = [
   // Used 2026-06-27 (Episode One)
-  { text: 'Wears Faces',       emoji: '🎭', typeHints: ['trickster', 'queen'],       fluentEmoji: 'Performing arts' },
+  { text: 'Wears Faces',       emoji: '🎭', typeHints: ['trickster', 'queen'],       fluentEmoji: 'Performing arts' }, // Re-used 2026-10-24 (Episode Four)
   { text: 'Sings First',       emoji: '🎵', typeHints: ['sorcerer', 'trickster'],    fluentEmoji: 'Musical notes' }, // Re-used 2026-09-19 (Episode Three)
   { text: 'Never Blinks',      emoji: '👁️', typeHints: ['executioner', 'torturer'], fluentEmoji: 'Eye' }, // Re-used 2026-09-19 (Episode Three)
   { text: 'Whispers Names',    emoji: '🤫', typeHints: ['sorcerer', 'parasite'],     fluentEmoji: 'Shushing face' }, // Re-used 2026-09-19 (Episode Three)
   { text: 'Hollows Them',      emoji: '🩻', typeHints: ['devourer', 'parasite'],     fluentEmoji: 'Anatomical heart' },
-  { text: 'Snuffs Light',      emoji: '🕯️', typeHints: ['destroyer', 'executioner'], fluentEmoji: 'Candle' },
+  { text: 'Snuffs Light',      emoji: '🕯️', typeHints: ['destroyer', 'executioner'], fluentEmoji: 'Candle' }, // Re-used 2026-10-24 (Episode Four)
   // Used 2026-07-25 (Episode Two)
-  { text: 'Mimics Voices',     emoji: '🗣️', typeHints: ['trickster', 'parasite'],   fluentEmoji: 'Speaking head' },
-  { text: 'Collects Trophies', emoji: '🏆', typeHints: ['collector', 'executioner'], fluentEmoji: 'Trophy' },
+  { text: 'Mimics Voices',     emoji: '🗣️', typeHints: ['trickster', 'parasite'],   fluentEmoji: 'Speaking head' }, // Re-used 2026-10-24 (Episode Four)
+  { text: 'Collects Trophies', emoji: '🏆', typeHints: ['collector', 'executioner'], fluentEmoji: 'Trophy' }, // Re-used 2026-10-24 (Episode Four)
   { text: 'Waits by Roads',    emoji: '🛣️', typeHints: ['executioner', 'beast'],    fluentEmoji: 'Motorway' },
-  { text: 'Feeds on Fear',     emoji: '😱', typeHints: ['torturer', 'devourer'],     fluentEmoji: 'Face screaming in fear' },
+  { text: 'Feeds on Fear',     emoji: '😱', typeHints: ['torturer', 'devourer'],     fluentEmoji: 'Face screaming in fear' }, // Re-used 2026-10-24 (Episode Four)
   { text: 'Marks Its Prey',    emoji: '❌', typeHints: ['beast', 'queen'],           fluentEmoji: 'Cross mark' },
-  { text: 'Knocks Twice',      emoji: '🚪', typeHints: ['trickster', 'sorcerer'],    fluentEmoji: 'Door' },
+  { text: 'Knocks Twice',      emoji: '🚪', typeHints: ['trickster', 'sorcerer'],    fluentEmoji: 'Door' }, // Re-used 2026-10-24 (Episode Four)
   // Added Aug 2026 · used 2026-09-19 (Episode Three)
   { text: 'Steals Sleep',      emoji: '😴', typeHints: ['parasite', 'torturer'],     fluentEmoji: 'Sleeping face' },
   { text: 'Answers Prayers',   emoji: '🌟', typeHints: ['sorcerer', 'queen'],        fluentEmoji: 'Glowing star' },
@@ -97,18 +99,18 @@ export const behaviorPool: MonsterSlotOption[] = [
 
 export const weaknessPool: MonsterSlotOption[] = [
   // Used 2026-06-27 (Episode One)
-  { text: 'Burn It',        emoji: '🔥', typeHints: ['destroyer', 'beast'],     fluentEmoji: 'Fire' },
+  { text: 'Burn It',        emoji: '🔥', typeHints: ['destroyer', 'beast'],     fluentEmoji: 'Fire' }, // Re-used 2026-10-24 (Episode Four)
   { text: 'True Name',      emoji: '⚙️', typeHints: ['sorcerer', 'trickster'],  fluentEmoji: 'Open book' }, // Re-used 2026-09-19 (Episode Three)
-  { text: 'Its Reflection', emoji: '🪞', typeHints: ['trickster', 'queen'],     fluentEmoji: 'Mirror' },
+  { text: 'Its Reflection', emoji: '🪞', typeHints: ['trickster', 'queen'],     fluentEmoji: 'Mirror' }, // Re-used 2026-10-24 (Episode Four)
   { text: 'Salt Circle',    emoji: '🧂', typeHints: ['sorcerer', 'destroyer'],  fluentEmoji: 'Salt' }, // Re-used 2026-09-19 (Episode Three)
   { text: 'Old Blood',      emoji: '🩸', typeHints: ['parasite', 'sorcerer'],   fluentEmoji: 'Drop of blood' },
   { text: 'First Light',    emoji: '🌅', typeHints: ['devourer', 'torturer'],   fluentEmoji: 'Sunrise' }, // Re-used 2026-09-19 (Episode Three)
   // Used 2026-07-25 (Episode Two)
-  { text: 'Cold Iron',      emoji: '⛓️', typeHints: ['sorcerer', 'queen'],      fluentEmoji: 'Chains' },
-  { text: 'A Lullaby',      emoji: '🎶', typeHints: ['queen', 'torturer'],      fluentEmoji: 'Musical notes' },
-  { text: 'Silver',         emoji: '💍', typeHints: ['beast', 'parasite'],      fluentEmoji: 'Ring' },
+  { text: 'Cold Iron',      emoji: '⛓️', typeHints: ['sorcerer', 'queen'],      fluentEmoji: 'Chains' }, // Re-used 2026-10-24 (Episode Four)
+  { text: 'A Lullaby',      emoji: '🎶', typeHints: ['queen', 'torturer'],      fluentEmoji: 'Musical notes' }, // Re-used 2026-10-24 (Episode Four)
+  { text: 'Silver',         emoji: '💍', typeHints: ['beast', 'parasite'],      fluentEmoji: 'Ring' }, // Re-used 2026-10-24 (Episode Four)
   { text: 'Its Own Kind',   emoji: '👥', typeHints: ['collector', 'devourer'],  fluentEmoji: 'Busts in silhouette' },
-  { text: 'An Honest Gift', emoji: '🎁', typeHints: ['trickster', 'collector'], fluentEmoji: 'Wrapped gift' },
+  { text: 'An Honest Gift', emoji: '🎁', typeHints: ['trickster', 'collector'], fluentEmoji: 'Wrapped gift' }, // Re-used 2026-10-24 (Episode Four)
   { text: 'Starve It',      emoji: '🍽️', typeHints: ['devourer', 'parasite'],  fluentEmoji: 'Fork and knife' },
   // Added Aug 2026 · used 2026-09-19 (Episode Three)
   { text: 'Laughter',       emoji: '🤣', typeHints: ['trickster', 'torturer'],  fluentEmoji: 'Rolling on the floor laughing' },

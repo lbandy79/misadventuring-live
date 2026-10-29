@@ -155,7 +155,7 @@ export default function ShowPage() {
             ))}
           </div>
         </div>
-      ) : era !== 'past' ? (
+      ) : era !== 'past' && show.enabledInteractions.length > 0 ? (
         <details className="show-detail-interactions" open={era === 'upcoming' || era === 'live'}>
           <summary>What you can do as the audience</summary>
           <ul>

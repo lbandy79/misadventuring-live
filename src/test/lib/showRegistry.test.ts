@@ -16,8 +16,8 @@ describe('getUpcomingShow', () => {
   it('returns the soonest scheduled show', () => {
     const upcoming = getUpcomingShow();
     expect(upcoming).not.toBeNull();
-    expect(upcoming!.id).toBe('monster-of-the-week');
-    expect(upcoming!.nextDate).toBe('2026-10-24');
+    expect(upcoming!.id).toBe('green-oaks');
+    expect(upcoming!.nextDate).toBe('2026-11-28');
   });
 
   it('returns a show that is actually upcoming or live, never past', () => {
@@ -42,6 +42,16 @@ describe('show registry integrity', () => {
   it('has no duplicate show ids', () => {
     const ids = shows.map((s) => s.id);
     expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it('registers Episode Four as a past show with a recap pointer', () => {
+    const ep4 = getShow('monster-of-the-week-ep4');
+    expect(ep4).toBeDefined();
+    expect(getShowEra(ep4!)).toBe('past');
+    expect(ep4!.recap).toEqual({
+      kind: 'firestore',
+      recapId: 'monster-of-the-week-2026-10-24',
+    });
   });
 
   it('registers Episode Three as a past show with a recap pointer', () => {

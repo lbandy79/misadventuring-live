@@ -34,8 +34,9 @@ function recapHrefFor(show: Show): string | null {
 }
 
 const LATEST_RECAP = {
-  showName: 'Monster of the Week — Episode Three',
-  href: 'https://www.youtube.com/watch?v=r4tdPibl0QA',
+  showName: 'Monster of the Week — Episode Four',
+  // TODO: swap to the YouTube URL once the Ep4 recording is up.
+  href: '/shows/monster-of-the-week-2026-10-24/recap',
 };
 
 /**
@@ -129,10 +130,10 @@ function SocialIcon({ icon }: { icon: (typeof SOCIAL_LINKS)[number]['icon'] }) {
   }
 }
 const NEXT_SHOW = {
-  showName: 'Monster of the Week',
-  tagline: 'The truck is still out there.',
-  dateLabel: 'October 24',
-  href: '/shows/monster-of-the-week',
+  showName: 'Green Oaks',
+  tagline: 'Welcome to your new home.',
+  dateLabel: 'November 28',
+  href: '/shows/green-oaks',
 };
 
 export default function LandingPage() {

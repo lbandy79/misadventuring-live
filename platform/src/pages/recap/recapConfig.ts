@@ -87,6 +87,22 @@ export interface RecapConfig {
  *    and is registered in src/data/liveMonster/index.ts.
  */
 export const recapConfigs: Record<string, RecapConfig> = {
+  'monster-of-the-week-2026-10-24': {
+    showId: 'monster-of-the-week-2026-10-24',
+    seriesName: 'Monster of the Week',
+    episodeTitle: 'Episode Four',
+    chapter: 'Episode Four',
+    date: '2026-10-24',
+    venue: 'Lucky Straws, Winter Garden, FL',
+    systemName: 'Monster of the Week',
+    costume: 'paper-base',
+    // TODO: add fullEpisodeYoutubeId once the recording is up.
+    summary:
+      'Halloween night, fresh options on the board, and once again the room wrote in every trait. What they built was Jumpin\' Jehova the Amish Luchador: he holes up in a mattress store that is totally not a money laundering front and suplexes anyone carrying technology that\'s too advanced.',
+    monsterStatus: 'available',
+    // No `next` yet — nothing has followed this show. The upcoming-show
+    // pitch comes from the registry; add `next` here once the next show airs.
+  },
   'monster-of-the-week-2026-09-19': {
     showId: 'monster-of-the-week-2026-09-19',
     seriesName: 'Monster of the Week',
@@ -100,8 +116,13 @@ export const recapConfigs: Record<string, RecapConfig> = {
     summary:
       'We gave the room six options per slot. The room used none of them. Every trait that made it onto the board was a write-in, and what they built was a Toyota Tacoma that haunts the pork section at Winn Dixie and crawls into your ear to drive you from the inside.',
     monsterStatus: 'available',
-    // No `next` yet — nothing has followed this show. The upcoming-show
-    // pitch comes from the registry; add `next` here once Episode Four airs.
+    next: {
+      date: '2026-10-24',
+      venue: 'Lucky Straws, Winter Garden, FL',
+      systemName: 'Monster of the Week',
+      recapId: 'monster-of-the-week-2026-10-24',
+      blurb: 'The truck stayed parked. Episode Four went to the Halloween crowd, who skipped the presets again and wrote in an Amish luchador.',
+    },
   },
   'monster-of-the-week-2026-07-25': {
     showId: 'monster-of-the-week-2026-07-25',
