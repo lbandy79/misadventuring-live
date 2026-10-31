@@ -96,7 +96,7 @@ export const recapConfigs: Record<string, RecapConfig> = {
     venue: 'Lucky Straws, Winter Garden, FL',
     systemName: 'Monster of the Week',
     costume: 'paper-base',
-    // TODO: add fullEpisodeYoutubeId once the recording is up.
+    fullEpisodeYoutubeId: 'qQd9iDZdzwo',
     summary:
       'Halloween night, fresh options on the board, and once again the room wrote in every trait. What they built was Jumpin\' Jehova the Amish Luchador: he holes up in a mattress store that is totally not a money laundering front and suplexes anyone carrying technology that\'s too advanced.',
     monsterStatus: 'available',

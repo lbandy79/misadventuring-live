@@ -35,8 +35,7 @@ function recapHrefFor(show: Show): string | null {
 
 const LATEST_RECAP = {
   showName: 'Monster of the Week — Episode Four',
-  // TODO: swap to the YouTube URL once the Ep4 recording is up.
-  href: '/shows/monster-of-the-week-2026-10-24/recap',
+  href: 'https://www.youtube.com/watch?v=qQd9iDZdzwo',
 };
 
 /**

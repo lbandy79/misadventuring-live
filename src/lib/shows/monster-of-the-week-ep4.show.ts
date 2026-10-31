@@ -22,5 +22,5 @@ export const monsterOfTheWeekEp4Show: Show = {
   accentColor: '#1d4e3a',
   accentInk: '#f5f0e3',
   recap: { kind: 'firestore', recapId: 'monster-of-the-week-2026-10-24' },
-  // TODO: add youtubeUrl once the recording is up.
+  youtubeUrl: 'https://www.youtube.com/watch?v=qQd9iDZdzwo',
 };
