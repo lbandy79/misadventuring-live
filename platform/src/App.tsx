@@ -6,7 +6,9 @@
  * still work — both render the same RecapPage component).
  *
  * /my-bears redirects to /my-characters (cutover alias — keep until old links die).
- * /companion redirects to /notebook (replaced May 2026).
+ * /notebook, /companion and /shows/:showId/notebook/:npcId redirect home —
+ * the Misadventuring Notebook placeholder was removed Oct 2026 (git history
+ * has NotebookPage / NotebookShowPage if it comes back).
  */
 
 import { useState } from 'react';
@@ -17,8 +19,6 @@ import LandingPage from './pages/LandingPage';
 import ShowsIndexPage from './pages/ShowsIndexPage';
 import ShowPage from './pages/ShowPage';
 import AudiencePage from './pages/AudiencePage';
-import NotebookPage from './pages/NotebookPage';
-import NotebookShowPage from './pages/NotebookShowPage';
 import AdminPage from './pages/AdminPage';
 import NotFoundPage from './pages/NotFoundPage';
 import RecapPage from './pages/RecapPage';
@@ -44,6 +44,7 @@ import WriteInSpotlightPage from './pages/WriteInSpotlightPage';
 import SbpLabsPage from './pages/labs/SbpLabsPage';
 import SbpCharacterWizardPage from './pages/labs/SbpCharacterWizardPage';
 import SbpCharacterSheetPage from './pages/labs/SbpCharacterSheetPage';
+import JoinRedirectPage from './pages/JoinRedirectPage';
 
 export default function App() {
   const location = useLocation();
@@ -67,7 +68,6 @@ export default function App() {
         </Link>
         <nav>
           <Link to="/shows">Shows</Link>
-          <Link to="/notebook">Notebook</Link>
           {(isCast || isAdmin) && (
             <Link to="/hunters" className="nav-hunters-link">The Party</Link>
           )}
@@ -103,6 +103,11 @@ export default function App() {
             <Route path="/shows/:showId/recap" element={<RecapPage />} />
             {/* Backward-compat alias — keep for old QR codes and external links */}
             <Route path="/recap/:showId" element={<RecapPage />} />
+            {/* Permanent QR target: forwards to the current show's phone page. */}
+            <Route path="/join" element={<JoinRedirectPage />} />
+            {/* The stream overlay and the venue QR still encode the Honey Heist
+                join URL (May 2026). That show is over, so treat it as /join. */}
+            <Route path="/shows/mad-libs-honey-heist/join" element={<Navigate to="/join" replace />} />
             {/* Audience NPC creation / join flow */}
             <Route path="/shows/:showId/join" element={<NpcCreationPage />} />
             {/* Cast hunter creation wizard */}
@@ -128,17 +133,16 @@ export default function App() {
             <Route path="/keeper/locations/new" element={<LocationWizardPage />} />
             <Route path="/keeper/locations/:id" element={<LocationStatPage />} />
             <Route path="/keeper/locations/:id/edit" element={<LocationWizardPage />} />
-            {/* Misadventuring Notebook — per-show/NPC URL reserved for future build */}
-            <Route path="/shows/:showId/notebook/:npcId" element={<NotebookShowPage />} />
-            {/* Notebook concept page — top-level */}
-            <Route path="/notebook" element={<NotebookPage />} />
+            {/* Notebook placeholder removed — old links go home */}
+            <Route path="/shows/:showId/notebook/:npcId" element={<Navigate to="/" replace />} />
+            <Route path="/notebook" element={<Navigate to="/" replace />} />
             {/* Audience return flow */}
             <Route path="/return" element={<ReturnPage />} />
             <Route path="/my-characters" element={<MyCharactersPage />} />
             {/* Cutover alias — /my-bears lived in old links, redirect silently */}
             <Route path="/my-bears" element={<Navigate to="/my-characters" replace />} />
-            {/* Companion redirects to notebook — old nav link alias */}
-            <Route path="/companion" element={<Navigate to="/notebook" replace />} />
+            {/* Old nav link alias */}
+            <Route path="/companion" element={<Navigate to="/" replace />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>

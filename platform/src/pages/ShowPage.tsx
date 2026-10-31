@@ -183,11 +183,12 @@ export default function ShowPage() {
       {systemConfig?.showConfig?.npcCreation && era !== 'past' && (
         <section className="show-detail-madlibs">
           <p className="show-detail-madlibs-blurb">
-            You write the words. The bears live with them.
+            {systemConfig.showConfig.npcCreation.copy?.showPageBlurb ??
+              'You write the words. The bears live with them.'}
           </p>
           <div className="show-detail-madlibs-cta">
             <Link to={`/shows/${show.id}/join`} className="btn-primary">
-              Help shape the heist →
+              {systemConfig.showConfig.npcCreation.copy?.showPageCta ?? 'Help shape the heist →'}
             </Link>
           </div>
         </section>

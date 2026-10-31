@@ -46,4 +46,4 @@ export type {
   ActiveInteraction,
   VoteOption,
 } from './interaction.types';
-export type { Show } from './show.types';
+export type { Show, AudienceMode } from './show.types';

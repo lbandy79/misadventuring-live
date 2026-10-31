@@ -21,6 +21,7 @@ export const monsterOfTheWeekShow: Show = {
   themeId: 'tmp-base',
   systemId: 'monster-of-the-week',
   enabledInteractions: ['vote', 'group-roll'],
+  audienceMode: 'monster-builder',
   description:
     'The case stays open. The audience names the victims, builds the monster, and votes on every terrible decision. Episode Five is coming.',
   era: 'upcoming',

@@ -12,14 +12,19 @@
  *   4. Submit → reveal screen (words slammed into brand-voice template)
  *   5. "Got it. I'm in." → my-npc view + save-your-character section
  *   6. Save (email + notebook opt-in) → fires character-saved email → confirmation
+ *      (skipped when the show sets npcCreation.emailCapture: 'none')
  *   7. Stinger overlay when the GM fires a Beat at this NPC
+ *
+ * Copy defaults to Honey Heist's wording; a show overrides it with
+ * npcCreation.copy in its system JSON (see green-oaks.system.json).
  */
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../../../src/firebase';
-import { getShow } from '@mtp/lib';
+import { getShow, getShowEra } from '@mtp/lib';
+import { formatShowDate, hasHappened } from './recap/formatShowDate';
 import {
   getOrCreateDeviceToken,
   getNpcByDeviceToken,
@@ -48,7 +53,35 @@ interface NpcFieldDef {
   fieldType: 'personal' | 'world';
   label: string;
   options: string[];
+  /** Write-in placeholder; defaults to "Your own <type>…". */
+  writeInPlaceholder?: string;
 }
+
+/** Page copy a show can override from `showConfig.npcCreation.copy`. */
+interface NpcCopy {
+  createTitle: string;
+  createSubtitle: string;
+  nameLabel: string;
+  namePlaceholder: string;
+  submitLabel: string;
+  revealTitle: string;
+  revealCta: string;
+  myNpcTitle: string;
+  myNpcSubtitle: string;
+}
+
+// Honey Heist's original wording — the default for shows that don't override.
+const DEFAULT_COPY: NpcCopy = {
+  createTitle: 'Make yourself a character.',
+  createSubtitle: "Pick one for each slot. Don't think too hard.",
+  nameLabel: 'What do they call you?',
+  namePlaceholder: 'Enter a name…',
+  submitLabel: "That's me. I'm in.",
+  revealTitle: "Here's who you are.",
+  revealCta: "Got it. I'm in.",
+  myNpcTitle: "You're in.",
+  myNpcSubtitle: 'Keep this tab open. The GM might call on you.',
+};
 
 interface ShowConfig {
   showId: string;
@@ -63,6 +96,10 @@ interface ShowConfig {
     displayNameTemplate: string;
     revealTemplate?: string;
     fields: NpcFieldDef[];
+    copy?: Partial<NpcCopy>;
+    /** 'save-character' (default): email + magic link to return later.
+     *  'none': no email step — the device token already remembers them. */
+    emailCapture?: 'save-character' | 'none';
   };
   stingerQueue?: {
     responseTemplate: string;
@@ -339,7 +376,7 @@ export default function NpcCreationPage() {
     return (
       <section className="page-card">
         <h1>Doors aren't open yet.</h1>
-        <p>The bears haven't shown up. Come back closer to seven.</p>
+        <p>Nothing to fill in for this show yet. Come back closer to showtime.</p>
         <p><Link to={`/shows/${showId}`}>← Back to show page</Link></p>
       </section>
     );
@@ -367,6 +404,18 @@ export default function NpcCreationPage() {
     '--accent-ink': show?.accentInk ?? 'var(--ink-black)',
   } as Record<string, string>;
 
+  const copy: NpcCopy = { ...DEFAULT_COPY, ...showConfig.npcCreation.copy };
+  const saveCharacter = (showConfig.npcCreation.emailCapture ?? 'save-character') === 'save-character';
+  // Bear doodles are Honey Heist art; other shows get only the generic ones.
+  const isHoneyHeist = showConfig.theme.campaignId === 'honey-heist';
+
+  // Pre-show promo strip: date + venue while the show is still upcoming.
+  const promoLine =
+    show && getShowEra(show) === 'upcoming' && show.nextDate && !hasHappened(show.nextDate)
+      ? [formatShowDate(show.nextDate, false), show.venue].filter(Boolean).join(' · ')
+      : null;
+  const promo = promoLine && <p className="join-promo">{promoLine}</p>;
+
   // ── Reveal screen ────────────────────────────────────────────────────────────
 
   if (phase === 'reveal' && myNpc && showConfig) {
@@ -387,7 +436,7 @@ export default function NpcCreationPage() {
         <Doodle name="stars" bottom="24px" left="-18px" rotation={-12} opacity={0.5} width="72px" />
         <header className="join-header">
           <p className="join-eyebrow">{showConfig.showName}</p>
-          <h1 className="join-title">Here's who you are.</h1>
+          <h1 className="join-title">{copy.revealTitle}</h1>
         </header>
 
         <div className="join-reveal">
@@ -401,7 +450,7 @@ export default function NpcCreationPage() {
           className="btn-primary join-reveal-cta"
           onClick={() => setPhase('my-npc')}
         >
-          Got it. I'm in.
+          {copy.revealCta}
         </button>
       </section>
     );
@@ -412,16 +461,19 @@ export default function NpcCreationPage() {
   if (phase === 'create') {
     return (
       <section className="page-card join-page" style={accentStyle} data-show={showId}>
-        <Doodle name="bear" top="-24px" right="-28px" rotation={15} opacity={0.8} width="112px" />
-        <Doodle name="bees" bottom="72px" left="-20px" rotation={-8} opacity={0.6} width="76px" />
+        {isHoneyHeist && <>
+          <Doodle name="bear" top="-24px" right="-28px" rotation={15} opacity={0.8} width="112px" />
+          <Doodle name="bees" bottom="72px" left="-20px" rotation={-8} opacity={0.6} width="76px" />
+        </>}
         <header className="join-header">
           <p className="join-eyebrow">{showConfig.showName}</p>
+          {!isEditing && promo}
           <h1 className="join-title">
-            {isEditing ? 'Change your answers' : 'Make yourself a character.'}
+            {isEditing ? 'Change your answers' : copy.createTitle}
           </h1>
           {!isEditing && (
             <p className="join-subtitle">
-              Pick one for each slot. Don't think too hard.
+              {copy.createSubtitle}
             </p>
           )}
         </header>
@@ -429,7 +481,7 @@ export default function NpcCreationPage() {
         <div className="join-form">
           <div className="join-name-field">
             <label className="join-name-field__label" htmlFor="npc-name">
-              What do they call you?
+              {copy.nameLabel}
             </label>
             <input
               id="npc-name"
@@ -437,7 +489,7 @@ export default function NpcCreationPage() {
               className="join-name-field__input"
               value={customName}
               onChange={(e) => setCustomName(e.target.value)}
-              placeholder="Enter a name…"
+              placeholder={copy.namePlaceholder}
               maxLength={80}
               autoComplete="off"
             />
@@ -483,7 +535,7 @@ export default function NpcCreationPage() {
               ? 'Saving…'
               : isEditing
               ? 'Save changes'
-              : "That's me. I'm in."}
+              : copy.submitLabel}
           </button>
 
           {isEditing && (
@@ -510,12 +562,15 @@ export default function NpcCreationPage() {
       )}
 
       <section className="page-card join-page join-page--my-npc" style={accentStyle} data-show={showId}>
-        <Doodle name="bear_face" top="-22px" right="-24px" rotation={10} opacity={0.75} width="92px" />
+        {isHoneyHeist && (
+          <Doodle name="bear_face" top="-22px" right="-24px" rotation={10} opacity={0.75} width="92px" />
+        )}
         <Doodle name="squiggle" bottom="36px" left="-16px" rotation={-5} opacity={0.45} width="82px" />
         <header className="join-header">
           <p className="join-eyebrow">{showConfig.showName}</p>
-          <h1 className="join-title">You're in.</h1>
-          <p className="join-subtitle">Keep this tab open. The GM might call on you.</p>
+          {promo}
+          <h1 className="join-title">{copy.myNpcTitle}</h1>
+          <p className="join-subtitle">{copy.myNpcSubtitle}</p>
         </header>
 
         {myNpc && (
@@ -559,7 +614,7 @@ export default function NpcCreationPage() {
           </section>
         )}
 
-        {savedEmailAddress ? (
+        {!saveCharacter ? null : savedEmailAddress ? (
           <p className="join-save-char__done">
             We sent a link to {savedEmailAddress}. Check your inbox to come back to your character any time.
           </p>
@@ -594,7 +649,7 @@ export default function NpcCreationPage() {
                 onChange={(e) => setOptedInForNotebook(e.target.checked)}
                 disabled={emailSaving}
               />
-              Save my character AND send me my Misadventuring Notebook after each show.
+              Save my character AND tell me about upcoming shows.
             </label>
             {emailSaveError && (
               <p className="join-save-char__error" role="alert">{emailSaveError}</p>
@@ -702,7 +757,7 @@ function FieldBlock({
               className="join-field__write-in-input"
               value={writeInText}
               onChange={(e) => handleWriteInChange(e.target.value)}
-              placeholder={`Your own ${field.type.toLowerCase()}…`}
+              placeholder={field.writeInPlaceholder ?? `Your own ${field.type.toLowerCase()}…`}
               maxLength={40}
               autoFocus
             />

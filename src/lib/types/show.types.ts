@@ -12,6 +12,8 @@
 import type { ThemeId } from '../../themes/theme.types';
 import type { InteractionType } from './interaction.types';
 
+export type AudienceMode = 'monster-builder' | 'npc-creation';
+
 export interface Show {
   /** kebab-case slug, used in URLs and Firestore `showId` field */
   id: string;
@@ -30,6 +32,15 @@ export interface Show {
 
   /** Which interaction features are enabled for this show */
   enabledInteractions: InteractionType[];
+
+  /**
+   * Which phone page the show's QR sends people to (via `/join`):
+   * - `monster-builder` → `/live-monster` (MotW live monster + bystanders)
+   * - `npc-creation`    → `/shows/:id/join` (blind Mad Libs NPC submission,
+   *   driven by `showConfig.npcCreation` in the system JSON)
+   * Shows without one have no audience phone page.
+   */
+  audienceMode?: AudienceMode;
 
   /** Per-show data extensions (decoder characters, ship combat waves, etc.).
    *  Phase 3 will replace this with strongly-typed slots. */

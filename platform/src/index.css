@@ -2877,6 +2877,17 @@ textarea:focus-visible {
   font-size: clamp(2rem, 6vw, 3rem);
   line-height: 1.1;
 }
+.join-promo {
+  display: inline-block;
+  margin: 0.15rem 0 0.75rem;
+  padding: 0.2rem 0.6rem;
+  font-family: var(--font-type);
+  font-size: 0.85rem;
+  color: var(--ink-black);
+  /* Mixed here, not var(--accent-soft): that token resolves at :root with the site accent. */
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border-left: 3px solid var(--accent);
+}
 .join-subtitle {
   margin: 0;
   font-family: var(--font-hand);
@@ -3037,7 +3048,7 @@ textarea:focus-visible {
   margin: 0 0 0.5rem;
 }
 .npc-card__fields { display: flex; flex-direction: column; gap: 0.25rem; margin: 0; }
-.npc-card__field { display: flex; gap: 0.5rem; align-items: baseline; }
+.npc-card__field { display: flex; flex-wrap: wrap; gap: 0 0.5rem; align-items: baseline; }
 .npc-card__field-label {
   font-family: var(--font-marker);
   font-size: 0.72rem;
@@ -3046,7 +3057,7 @@ textarea:focus-visible {
   color: var(--ink-blue);
   white-space: nowrap;
 }
-.npc-card__field-value { font-family: var(--font-hand); font-size: 1rem; }
+.npc-card__field-value { font-family: var(--font-hand); font-size: 1rem; margin: 0; min-width: 0; overflow-wrap: anywhere; }
 
 /* Feed */
 .join-feed { margin-bottom: 1.5rem; }

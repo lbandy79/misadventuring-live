@@ -6,7 +6,8 @@
  * Checks are card draws from a poker deck, not dice.
  *
  * November 28, 2026. Firestore episode id: `greenoaks-2026-11-28`.
- * No system JSON yet — ShowPage falls back to the title-cased systemId.
+ * Audience submits Green Oaks townsfolk (NPCs) on /shows/green-oaks/join —
+ * config in src/systems/green-oaks.system.json (showConfig.npcCreation).
  */
 import type { Show } from '../types/show.types';
 
@@ -15,7 +16,8 @@ export const greenOaksShow: Show = {
   name: 'Green Oaks',
   themeId: 'tmp-base',
   systemId: 'green-oaks',
-  enabledInteractions: [],
+  enabledInteractions: ['villager-submit'],
+  audienceMode: 'npc-creation',
   description:
     'Welcome to your new home. The residents of Green Oaks retirement community all have a past, and something is going on in the basement. The party plays the Seniors; the deck of cards decides how badly it goes.',
   era: 'upcoming',

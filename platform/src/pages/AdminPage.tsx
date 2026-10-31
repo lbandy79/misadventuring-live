@@ -66,7 +66,7 @@ export default function AdminPage() {
   }
 
   // NPC Mad Libs shows — shows that use npcCreation format
-  const npcShows = shows.filter((s) => s.id === 'mad-libs-honey-heist');
+  const npcShows = shows.filter((s) => s.audienceMode === 'npc-creation');
 
   return (
     <section className="page-card">

@@ -4,7 +4,72 @@
     "name": "Green Oaks",
     "edition": "2024 English edition",
     "publisher": "MS Edizioni",
-    "description": "Everyone plays a Senior at the Green Oaks retirement home: former something, retired something else, with a hobby. Checks are card draws from a poker deck, because dice are for youths.",
+    "description": "Everyone plays a Senior at the Green Oaks retirement home: what they were back in the day, the career they retired from, and what they're into now. Checks are card draws from a poker deck, because dice are for youths.",
     "credits": "A role-playing game by Roberto de Luca. Published by MS Edizioni under CC BY-NC-SA 4.0."
+  },
+
+  "showConfig": {
+    "_comment": "Audience builds Green Oaks townsfolk (NPCs the cast's Seniors run into), not Seniors. Blind collection like Honey Heist; the reputation prompt shows its sentence lead-in on purpose. showId is the Firestore episode id = config/platform.currentShowId.",
+    "showId": "greenoaks-2026-11-28",
+    "showName": "Green Oaks",
+    "venue": "Lucky Straws, Winter Garden, FL",
+    "date": "2026-11-28",
+    "theme": {
+      "beatLabel": "Stinger",
+      "campaignId": "green-oaks",
+      "primaryColor": "#1c1c1c",
+      "accentColor": "#00698f"
+    },
+    "pitch": {
+      "hook": "The cast plays the Seniors. You build the town they terrorize.",
+      "genreNote": "If you love Bubba Ho-Tep, Buffy, or Red — no rules knowledge needed.",
+      "genreComps": ["Bubba Ho-Tep", "Buffy", "Red"],
+      "audienceActions": [
+        { "label": "Build a townie", "detail": "Scan the QR and give Green Oaks a resident: a name, a job, and the thing everyone in town whispers about them." },
+        { "label": "Watch them get dragged in", "detail": "The Seniors might need your townie. Your townie might regret it." }
+      ]
+    },
+    "npcCreation": {
+      "displayNameTemplate": "{adjective} {occupation}",
+      "revealTemplate": "The {adjective} {occupation}. Everyone in Green Oaks knows they {reputation}.",
+      "emailCapture": "none",
+      "copy": {
+        "createTitle": "Who lives in Green Oaks?",
+        "createSubtitle": "Give us a townie. The Seniors might run into them.",
+        "nameLabel": "Give us a first name.",
+        "namePlaceholder": "Dolores, Gus, Pastor Jim…",
+        "submitLabel": "Send them to town.",
+        "revealTitle": "Welcome to Green Oaks.",
+        "revealCta": "Love them.",
+        "myNpcTitle": "They're in town.",
+        "myNpcSubtitle": "Come to the show and find out if the Seniors run into them.",
+        "showPageBlurb": "Give the town a resident before the show. The Seniors will take it from there.",
+        "showPageCta": "Build a townie →"
+      },
+      "fields": [
+        {
+          "id": "adjective",
+          "type": "ADJECTIVE",
+          "fieldType": "personal",
+          "label": "Adjective",
+          "options": ["suspiciously cheerful", "recently divorced", "very sweaty", "deeply Lutheran", "overly helpful", "mysteriously tan"]
+        },
+        {
+          "id": "occupation",
+          "type": "A JOB",
+          "fieldType": "personal",
+          "label": "Job",
+          "options": ["night-shift orderly", "bingo caller", "pharmacist", "mayor", "cafeteria lady", "Worthers factory foreman"]
+        },
+        {
+          "id": "reputation",
+          "type": "EVERYONE IN TOWN KNOWS THEY…",
+          "fieldType": "personal",
+          "label": "Everyone knows they",
+          "writeInPlaceholder": "…what does everyone know?",
+          "options": ["have never lost at bingo", "used to be in the CIA", "keep a crossbow in the trunk", "know where the bodies are buried", "got banned from the buffet", "talk to the geese"]
+        }
+      ]
+    }
   }
 }

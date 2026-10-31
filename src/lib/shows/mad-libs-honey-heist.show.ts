@@ -12,6 +12,7 @@ export const madLibsHoneyHeistShow: Show = {
   themeId: 'tmp-base',
   systemId: 'honey-heist',
   enabledInteractions: ['vote', 'group-roll'],
+  audienceMode: 'npc-creation',
   description:
     'Mad Libs format. The audience writes the prompts. The cast plays it live.',
   status: 'live',

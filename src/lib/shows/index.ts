@@ -7,6 +7,7 @@
  */
 
 export * from './registry';
+export * from './joinTarget';
 export {
   ShowProvider,
   useShow,
