@@ -84,9 +84,35 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // ── NPCs (audience-created, device-token identity) ────────────
-    // New model: no reservationId, no auth, no gmFlagged.
-    // Identity = localStorage UUID (deviceToken). Soft de-dupe only.
+    // ── NPCs (audience-created) ───────────────────────────────────
+    // Owner = the anonymous auth uid from the join page, stamped as
+    // `ownerUid` at create. Ownership used to be checked against
+    // `deviceToken`, but npcs is public-read, so every token was public and
+    // any phone could edit any NPC, including flipping `showOnDisplay` to
+    // put unmoderated text on the projector (Nov 2026 audit, step 1).
+    //
+    // `deviceToken` is kept for the client's "find my NPC" lookup only; it
+    // grants nothing. NPCs created before the hotfix have no `ownerUid`, so
+    // the audience can no longer edit them; admins still can.
+    //
+    // Only admins change what the projector shows (`showOnDisplay`) or the
+    // lifecycle flags. Owners can't edit while their NPC is on screen, so
+    // approved text can't be swapped after the GM puts it up.
+    //
+    // Rules can't loop over a map, so individual fieldValues lengths are not
+    // capped here; the key count is, and GM approval gates the big screen.
+    function validNpcName(name) {
+      return name is string && name.size() >= 1 && name.size() <= 120;
+    }
+    function validNpcFields(fields) {
+      return fields is map && fields.size() <= 20;
+    }
+    function validEmail(email) {
+      return email is string
+        && email.size() <= 254
+        && email.matches('^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$');
+    }
+
     match /npcs/{npcId} {
       allow read: if true;
 
@@ -94,27 +120,41 @@ service cloud.firestore {
         isSignedIn()
         && request.resource.data.keys().hasAll([
           'showId','systemId','displayName','fieldValues',
-          'deviceToken','createdAt','isActive','hasBeenTagged'
+          'deviceToken','ownerUid','createdAt','isActive','hasBeenTagged'
         ])
+        && request.resource.data.keys().hasOnly([
+          'showId','systemId','displayName','fieldValues','fieldWriteIns',
+          'deviceToken','ownerUid','createdAt','isActive','hasBeenTagged',
+          'isArchived','showOnDisplay'
+        ])
+        && request.resource.data.ownerUid == request.auth.uid
         && request.resource.data.showId is string
         && request.resource.data.systemId is string
-        && request.resource.data.displayName is string
-        && request.resource.data.displayName.size() >= 1
-        && request.resource.data.displayName.size() <= 120
+        && validNpcName(request.resource.data.displayName)
+        && validNpcFields(request.resource.data.fieldValues)
+        && (!('fieldWriteIns' in request.resource.data)
+            || validNpcFields(request.resource.data.fieldWriteIns))
         && request.resource.data.deviceToken is string
         && request.resource.data.isActive == true
-        && request.resource.data.hasBeenTagged == false;
+        && request.resource.data.hasBeenTagged == false
+        && request.resource.data.get('isArchived', false) == false
+        && request.resource.data.get('showOnDisplay', false) == false;
 
-      // Owner (matching deviceToken) can update displayName + fieldValues.
-      // showId and deviceToken are immutable. Admins bypass.
-      // Anyone can add their email to an existing NPC (save-your-character flow).
       allow update: if
         isAdmin()
         || (
-          request.resource.data.showId == resource.data.showId
-          && request.resource.data.deviceToken == resource.data.deviceToken
-        )
-        || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['email']);
+          isSignedIn()
+          && resource.data.get('ownerUid', null) == request.auth.uid
+          && resource.data.get('showOnDisplay', false) != true
+          && request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(['displayName', 'fieldValues', 'fieldWriteIns', 'email'])
+          && validNpcName(request.resource.data.displayName)
+          && validNpcFields(request.resource.data.fieldValues)
+          && (!('fieldWriteIns' in request.resource.data)
+              || validNpcFields(request.resource.data.fieldWriteIns))
+          && (!('email' in request.resource.data)
+              || validEmail(request.resource.data.email))
+        );
 
       allow delete: if isAdmin();
     }
@@ -145,12 +185,20 @@ service cloud.firestore {
 
       allow update: if
         // Audience submitting their Mad-Lib response to a pending beat.
+        // Not checked against NPC ownership: pre-hotfix NPCs have no owner,
+        // and every response still needs GM approval before the big screen.
         (
-          resource.data.status == 'pending'
+          isSignedIn()
+          && resource.data.status == 'pending'
           && request.resource.data.status == 'responded'
-          && request.resource.data.keys().hasAll(['response','respondedAt'])
-          && request.resource.data.showId == resource.data.showId
-          && request.resource.data.npcId == resource.data.npcId
+          && request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(['response', 'status', 'respondedAt'])
+          && request.resource.data.response is map
+          && request.resource.data.response.keys().hasOnly(['slotValues', 'assembledText'])
+          && request.resource.data.response.assembledText is string
+          && request.resource.data.response.assembledText.size() <= 500
+          && request.resource.data.response.slotValues is map
+          && request.resource.data.response.slotValues.size() <= 10
         )
         // GM approving or rejecting.
         || isAdmin();
@@ -216,19 +264,19 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    // ── Live show interaction state (legacy admin panel still
-    //    password-gated; tightening this requires migrating the
-    //    legacy panel to Firebase Auth — own follow-up phase). ─────
+    // ── Every other config doc (active-interaction, live-cues, theme) ─
+    // Public read (legacy display, phones and sound cues subscribe), admin
+    // write. Every writer is an admin surface: the legacy /admin panel has
+    // used Firebase Auth + the allowlist since Phase 9A, and launchVote and
+    // broadcastCue are only called from it. Blade Runner never writes here.
     //
-    // IMPORTANT: Firestore grants access if ANY matching rule allows it,
-    // so this catch-all also matches every config doc that has its own
-    // stricter rule above. Each of those MUST be excluded here, or the
-    // catch-all silently overrides it. `cast` was missing until Sept 2026,
-    // which left the cast allowlist publicly writable.
+    // Firestore grants access if ANY matching rule allows it, so this also
+    // matches admins/platform/cast. Admin-only write is never looser than
+    // their own rules, so no exclusions are needed any more. Never widen
+    // this rule without re-adding them.
     match /config/{docId} {
-      allow read, write: if docId != 'admins'
-                         && docId != 'platform'
-                         && docId != 'cast';
+      allow read: if true;
+      allow write: if isAdmin();
     }
     match /votes/{docId} { allow read, write: if true; }
     match /group-roll/{docId} { allow read, write: if true; }
@@ -244,17 +292,17 @@ service cloud.firestore {
     }
     match /mad-lib-locks/{docId} {
       // Admin manual close-voting toggle for Mad Libs. Public read so the
-      // vote page renders the lock state in real time. Writes are open to
-      // match neighboring live-show collections; the admin panel is gated
-      // by Firebase Auth + the email allowlist on the client side.
-      allow read, write: if true;
+      // vote page renders the lock state in real time. Only written by
+      // MadLibsAdminPanel, so admin-only.
+      allow read: if true;
+      allow write: if isAdmin();
     }
     match /mad-lib-active/{docId} {
       // Admin "push to audience" pointer. One doc per showId pointing at
       // the currently-active Mad Lib id (or null). Public read so audience
-      // phones can follow live segments; writes match neighboring live-show
-      // collections (admin gating is client-side via Firebase Auth).
-      allow read, write: if true;
+      // phones can follow live segments. Only written by MadLibsAdminPanel.
+      allow read: if true;
+      allow write: if isAdmin();
     }
     match /monster-builder/{docId} { allow read, write: if true; }
     match /decoder-ring/{docId} { allow read, write: if true; }

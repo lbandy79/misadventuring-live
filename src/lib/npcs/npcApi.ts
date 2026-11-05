@@ -30,7 +30,7 @@ import {
   where,
   type Timestamp,
 } from 'firebase/firestore';
-import { db } from '../../firebase';
+import { auth, db } from '../../firebase';
 
 // ─── Collection names ────────────────────────────────────────────────────────
 
@@ -54,6 +54,9 @@ export interface NpcProfile {
   /** fieldId → true when the audience member typed a write-in rather than picking a preset */
   fieldWriteIns?: Record<string, boolean>;
   deviceToken: string;
+  /** Anonymous auth uid of the creator. The rules' only ownership check.
+   *  Missing on NPCs created before Nov 2026; those are admin-edit only. */
+  ownerUid?: string;
   createdAt: Timestamp | null;
   isActive: boolean;
   hasBeenTagged: boolean;
@@ -181,12 +184,17 @@ export async function createNpc(input: {
   fieldWriteIns?: Record<string, boolean>;
   deviceToken: string;
 }): Promise<NpcProfile> {
+  // firestore.rules makes the auth uid the owner; the join page signs in
+  // anonymously before it lets anyone submit, so this is always set there.
+  const ownerUid = auth.currentUser?.uid;
+  if (!ownerUid) throw new Error('createNpc: not signed in');
   const doc_data: Record<string, unknown> = {
     showId: input.showId,
     systemId: input.systemId,
     displayName: input.displayName,
     fieldValues: input.fieldValues,
     deviceToken: input.deviceToken,
+    ownerUid,
     createdAt: serverTimestamp(),
     isActive: true,
     hasBeenTagged: false,
