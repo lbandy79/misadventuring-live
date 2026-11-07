@@ -211,7 +211,8 @@ Each step is its own branch. Steps 1 to 3 are the only ones that should land bef
    - `npcs` update: owner = `request.auth.uid` stored at create (anonymous uid), not the public device token. Owner may change only `displayName`/`fieldValues` with length caps. Only admins change `showOnDisplay`, `isActive`, `hasBeenTagged`. Drop the open `email` clause.
    - Length caps on `npcs` create and `beats.response`.
    - Remove `active-interaction`, `live-cues`, `theme` from the open `config` catch-all (admin write), and make `mad-lib-locks` / `mad-lib-active` admin-write. Check the legacy Blade Runner app does not write any of them first.
-2. **Stop leaking emails:** move NPC emails off the public `npcs` doc (it is already in `audience-profiles`), make `magic-tokens` get-only (no list) and create-only, set `reservations` to admin-only read.
+2. *Steps 2 and 3 done on branch `fix/audience-pii-rules` (stacked on step 1), tests in `src/test/rules/audience-pii.rules.test.ts`. Existing NPC emails are removed by `scripts/strip-npc-emails.mjs` (needs a service-account key). Remaining known gap: a stranger can still replace someone's `magicToken`/`accessCode` on their profile, since nothing proves email ownership.*
+   **Stop leaking emails:** move NPC emails off the public `npcs` doc (it is already in `audience-profiles`), make `magic-tokens` get-only (no list) and create-only, set `reservations` to admin-only read.
 3. **`audience-profiles` write validation:** shape + email format, create/merge only.
 4. **Unify the baseline:** delete or quarantine the reservation tests, get tests green, add a `typecheck` script. Then make "build + test pass" mean something.
 5. **Move platform Firebase stragglers into `src/lib`:** `recapApi.ts` → `src/lib/recap/recapApi.ts` (dropping `reservations`), anonymous sign-in → `src/lib/auth`.

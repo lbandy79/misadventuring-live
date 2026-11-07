@@ -197,17 +197,6 @@ describe('npcs update', () => {
     );
   });
 
-  it('lets the owner save a valid email', async () => {
-    await assertSucceeds(updateDoc(doc(asOwner(), 'npcs', 'npc-1'), { email: 'dolores@example.com' }));
-  });
-
-  it('rejects a malformed or oversized email from the owner', async () => {
-    await assertFails(updateDoc(doc(asOwner(), 'npcs', 'npc-1'), { email: 'not-an-email' }));
-    await assertFails(
-      updateDoc(doc(asOwner(), 'npcs', 'npc-1'), { email: `${'a'.repeat(250)}@example.com` }),
-    );
-  });
-
   it('rejects an owner name over 120 characters', async () => {
     await assertFails(updateDoc(doc(asOwner(), 'npcs', 'npc-1'), { displayName: 'x'.repeat(121) }));
   });

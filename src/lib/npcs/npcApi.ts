@@ -63,7 +63,9 @@ export interface NpcProfile {
   /** Soft-delete: set post-show. Archived NPCs never appear in the live roster
    *  but remain in Firestore for recap and audit. Never hard-delete. */
   isArchived?: boolean;
-  /** Optional email captured on the save-your-bear screen. */
+  /** Legacy: set on a few pre-Nov-2026 NPCs. No longer written (the doc is
+   *  public-read); emails live in audience-profiles. Being stripped by
+   *  scripts/strip-npc-emails.mjs. */
   email?: string;
   /** If true, this NPC appears in the projector NPC scene. Default false.
    *  Toggled by the GM from the admin Roster tab. */
@@ -256,11 +258,6 @@ export async function getApprovedBeatsForNpc(npcId: string): Promise<Beat[]> {
   );
   const snap = await getDocs(q);
   return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Beat, 'id'>) }));
-}
-
-/** Attach an email address to an NPC document (save-your-character flow). */
-export async function saveNpcEmail(npcId: string, email: string): Promise<void> {
-  await updateDoc(doc(db, NPCS_COLLECTION, npcId), { email: email.trim().toLowerCase() });
 }
 
 /**
