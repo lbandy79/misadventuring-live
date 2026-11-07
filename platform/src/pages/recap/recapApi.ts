@@ -105,15 +105,11 @@ export async function fetchRecapData(showId: string): Promise<RecapData> {
     return { reservations: [], npcs: [], reservationCount: 0, npcCount: 0 };
   }
 
-  const [resSnap, npcSnap] = await Promise.all([
-    getDocs(query(collection(db, 'reservations'), where('showId', '==', showId))),
-    getDocs(query(collection(db, 'npcs'), where('showId', '==', showId))),
-  ]);
-
-  const reservations: Reservation[] = resSnap.docs.map((d) => ({
-    id: d.id,
-    ...(d.data() as Omit<Reservation, 'id'>),
-  }));
+  // `reservations` is admin-read-only since Nov 2026 (it holds emails), so
+  // the public recap no longer reads it. It only fed the funnel count,
+  // which RecapPage shows only when characters exist anyway.
+  const npcSnap = await getDocs(query(collection(db, 'npcs'), where('showId', '==', showId)));
+  const reservations: Reservation[] = [];
 
   const eligible: PublicNPC[] = npcSnap.docs
     .filter((d) => isPublicEligible(d.data()))

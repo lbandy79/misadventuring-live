@@ -30,7 +30,6 @@ import {
   getNpcByDeviceToken,
   createNpc,
   updateNpc,
-  saveNpcEmail,
   castWorldVote,
   subscribeToBeatsForNpc,
   subscribeToApprovedBeats,
@@ -324,7 +323,8 @@ export default function NpcCreationPage() {
         ? composeFromWords(showConfig.npcCreation.revealTemplate, words)
         : '';
 
-      await saveNpcEmail(myNpc.id, trimmed);
+      // The email goes only into admin-read audience-profiles, never onto
+      // the public npcs doc (Nov 2026 audit step 2).
       await upsertAudienceProfile({
         email: trimmed,
         npc: {

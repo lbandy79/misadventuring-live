@@ -1,4 +1,30 @@
-# MTP App — Claude Code Reference
+# TMP App — Claude Code Reference
+
+Rules and reference for every Claude Code session in this repo. Read this first, every time.
+
+## Golden rules
+
+1. **Plan before multi-file changes.** Explain the plan and wait for approval before editing more than one file.
+2. **Stay in scope.** Do not refactor, rename, or "clean up" code outside the task. Log it in `docs/ARCHITECTURE.md` under "Known mess" instead.
+3. **One feature per branch.** Every change gets a Vercel preview deploy and gets checked there before merging.
+4. **Show-day freeze.** No production deploys in the 48 hours before a live show except fixes Luke approves. Next show: Green Oaks, Nov 28, 2026.
+5. **Build must pass.** Run the build before declaring anything done.
+6. **Update the docs.** When a task changes structure, update this file or `docs/ARCHITECTURE.md` in the same branch.
+
+## Commands
+
+There is no `platform/package.json`. Everything runs from the **repo root** (one `package.json`, one `node_modules`).
+
+- `npm run dev:platform` platform dev server (port 3001)
+- `npm run build:platform` platform production build to `platform/dist` (must pass before any commit)
+- `npm test` unit tests (Vitest). Baseline: 18 known failures, all legacy reservation tests. See `docs/ARCHITECTURE.md`.
+- `npm run test:rules` Firestore rules tests against the emulator (needs the Firebase CLI)
+- `npm run check:contrast` colour-contrast gate for theme/season tokens
+- `npx tsc -p platform/tsconfig.json --noEmit` type check (no script yet; 21 pre-existing errors)
+- No linter is installed. There is no lint command.
+- `npm run dev` / `npm run build` are the **legacy** live app (Blade Runner), not the platform.
+
+---
 
 ## Repository layout
 
@@ -20,6 +46,69 @@ misadventuring-live-starter/
 ```
 
 The `platform/` app imports from `src/` using relative paths (`../../../src/…`). This is intentional — `src/` is the shared monorepo library.
+
+### Structure rules going forward
+
+- **Firebase access lives only in `src/firebase.ts` and `src/lib/*Api.ts`.** Pages and components call those APIs. They never import Firebase SDKs directly.
+- **New interaction features get a folder:** `platform/src/features/<feature-name>/` with `components/`, `hooks/`, and an `index.ts` that is the only file other code imports from. Existing pages move into this pattern gradually, one per session, never as a side effect.
+- **Pages stay thin.** A page composes features and applies the show accent. Logic belongs in the feature or in `src/lib`.
+
+---
+
+## Live interaction features
+
+The show system below is the spine for all audience interaction (NPC creator, stingers, Mad Libs, and new ones like gossip line and bingo). When adding a new interaction:
+
+1. **Config goes in the show's system JSON** (bingo squares, gossip prompts, word banks). Not hardcoded in components.
+2. **Data access goes in `src/lib`** as a new `*Api.ts` or an extension of `audienceApi`.
+3. **Every feature provides up to three views:** phone (audience), big screen (display page), and GM control.
+4. **Moderation by default:** audience-written text never reaches the big screen until the GM approves it.
+5. **Keys off `config/platform.currentShowId`** like everything else. Do not invent a parallel "active show" mechanism.
+
+---
+
+## The Misadventuring Labs (team tools)
+
+Private team area at `/labs`, served from this same app. First tool: the Soggy Bottom Pirates character creator at `/labs/sbp`.
+
+- **Routes:** `/labs/sbp` (`platform/src/pages/labs/SbpLabsPage.tsx`), `/labs/sbp/characters/new` and `/labs/sbp/characters/:id/edit` (`SbpCharacterWizardPage.tsx`), `/labs/sbp/characters/:id` (`SbpCharacterSheetPage.tsx`). `/labs` itself has no route yet.
+- **UI:** `platform/src/components/sbp/` (`SbpPage.tsx` holds the `useSbpGate()` cast gate; `wizard/`, `spells/`, `art/`). Upload panels: `platform/src/components/admin/SbpRulesAdminPanel.tsx`, `SbpArtAdminPanel.tsx` on `/admin`.
+- **Data + logic:** `src/lib/sbp/` (`rulesApi.ts`, `characterApi.ts`, `artApi.ts`, `validateRules.ts`, `derive.ts`, `types.ts`).
+- **Firestore:** `sbp-rules`, `sbp-rules-history`, `sbp-art`, `sbp-art-full`, `sbp-art-history`, `sbp-characters`. Rules tests: `src/test/rules/sbp.rules.test.ts`.
+- **Background:** `docs/sbp/BRIEF.md` (security model, read first), `docs/sbp/ROADMAP.md`.
+
+- **Audience and team are different trust levels.** Labs is for the GM and cast only. Labs routes require auth, and Firestore rules must block audience users from reading or writing Labs data. A hidden URL is not access control.
+- **Game data is uploaded JSON.** SBP classes and origins are updated by uploading JSON files. Validate uploads against a TypeScript type or schema before saving, and fail loudly with a readable error.
+- **Labs tools follow the same structure rules** as audience features: `platform/src/features/<tool-name>/`, data access through `src/lib`.
+- **Planned next for SBP:** spells, and art for classes, species, and backgrounds.
+- **SBP terms:** currency is "bits". Backgrounds are named for where a character grew up (e.g. Frost Scrapper, Bay Runner), not class names.
+
+---
+
+## Security (non-negotiable)
+
+Audience input is untrusted input from strangers.
+
+- Render user text as text. Never use `dangerouslySetInnerHTML` or build HTML from user input.
+- Enforce length limits in the UI, in `src/lib`, and in Firestore security rules.
+- Firestore rules validate shape, types, and length on every audience-writable collection. Client-side validation alone does not count.
+- Audience users can write only their own submissions. They can never write show state or `config/`.
+- Rate-limit submissions per device or anonymous user.
+- No secrets in client code. Anything in `VITE_` env vars is public.
+
+## Accessibility (WCAG 2.1 AA minimum)
+
+- Phone views: tap targets at least 44x44px, readable without zoom, work one-handed.
+- Big-screen views: high contrast, large type, readable from the back of a room. Check the handwritten fonts (Kalam, Caveat) at distance; use `--font-display` or `--font-type` for anything that must be read quickly.
+- Realtime updates use `aria-live="polite"`, never focus stealing.
+- Respect `prefers-reduced-motion` (watch the `.tilt-*` and any animated reveals).
+- Every interactive element is keyboard reachable with a visible focus state.
+- Color is never the only signal (bingo marks, approved/rejected states, per-show accents).
+
+## Copy
+
+- TMP voice: warm, funny, short.
+- No em dashes in user-facing copy.
 
 ---
 
@@ -149,3 +238,18 @@ Mobile-first: base styles target narrow viewports, media queries add features fo
 - Do not hardcode `--accent-soft` — it is computed from `--accent` via `color-mix()`.
 - Do not put doodles outside their phase's `<section>` — each phase returns independently.
 - Do not use the old dark-theme CSS variables (`--bg-primary`, `--accent` from `src/index.css`) in platform pages — the platform has its own token layer in `paper.css`.
+- Do not import Firebase SDKs outside `src/firebase.ts` and `src/lib`.
+- Do not render audience text with `dangerouslySetInnerHTML`.
+
+---
+
+## Audit (run once, before new feature work)
+
+If `docs/ARCHITECTURE.md` does not exist or predates this file, do this before anything else, without changing any code:
+
+1. Read the whole repo, including `docs/`.
+2. Write `docs/ARCHITECTURE.md`: every route, every feature and where it lives, how each feature reaches Firebase, current Firestore security rules and their gaps, duplicated logic, dead code, and anything in this file that no longer matches reality. Cover the Labs area separately: its routes, how it is protected, how the SBP JSON uploads are validated, and whether any Labs data is reachable by audience users. Fill in the Labs paths in this file.
+3. Add a "Known mess" section listing the 10 biggest problems ranked by risk, security first.
+4. Propose a migration order, plus how Green Oaks (gossip line, bingo, NPC creator) should be built on the existing show system.
+5. Correct the Commands section of this file.
+6. Stop and wait for Luke's review.
