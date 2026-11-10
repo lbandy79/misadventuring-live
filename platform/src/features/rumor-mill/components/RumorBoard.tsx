@@ -36,6 +36,17 @@ function lengthBucket(text: string): 'short' | 'medium' | 'long' | 'xlong' {
   return 'xlong';
 }
 
+/**
+ * Split a byline into the townie's name and the rest, so the name can be
+ * set big. "Dolores, the very sweaty bingo caller" → ["Dolores", "the very
+ * sweaty bingo caller"]. A byline with no comma is all name.
+ */
+export function splitByline(byline: string): [name: string, description: string] {
+  const i = byline.indexOf(',');
+  if (i === -1) return [byline.trim(), ''];
+  return [byline.slice(0, i).trim(), byline.slice(i + 1).trim()];
+}
+
 export function RumorBoard({ showId, config, open, joinUrl, demoRumors }: Props) {
   const { copy } = config;
   const [liveRumors, setLiveRumors] = useState<Rumor[]>([]);
@@ -102,17 +113,25 @@ export function RumorBoard({ showId, config, open, joinUrl, demoRumors }: Props)
           aria-live="polite"
           aria-label="Rumors going around town"
         >
-          {visible.map((r, i) => (
-            <li
-              key={r.id}
-              className={`rumor-note rumor-note--${lengthBucket(r.text)} ${r.verdict ? `rumor-note--${r.verdict}` : ''}`}
-              data-tilt={i % 4}
-            >
-              <p className="rumor-note__byline">{r.npcName} {copy.leadIn}</p>
-              <p className="rumor-note__text">{r.text}</p>
-              {r.verdict && <VerdictStamp verdict={r.verdict} copy={copy} />}
-            </li>
-          ))}
+          {visible.map((r, i) => {
+            const [name, description] = splitByline(r.npcName);
+            return (
+              <li
+                key={r.id}
+                className={`rumor-note rumor-note--${lengthBucket(r.text)} ${r.verdict ? `rumor-note--${r.verdict}` : ''}`}
+                data-tilt={i % 4}
+              >
+                <p className="rumor-note__byline">
+                  <span className="rumor-note__name">{name}</span>
+                  <span className="rumor-note__desc">
+                    {description ? `${description} ${copy.leadIn}` : copy.leadIn}
+                  </span>
+                </p>
+                <p className="rumor-note__text">{r.text}</p>
+                {r.verdict && <VerdictStamp verdict={r.verdict} copy={copy} />}
+              </li>
+            );
+          })}
         </ol>
       )}
     </div>

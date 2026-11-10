@@ -303,7 +303,7 @@
 .rumor-board__grid[data-count='1'] { --cols: 1; --note-size: 3.8vw; padding-inline: 16vw; }
 .rumor-board__grid[data-count='2'] { --cols: 2; --note-size: 3.3vw; padding-inline: 5vw; }
 .rumor-board__grid[data-count='3'] { --cols: 3; --note-size: 2.6vw; }
-.rumor-board__grid[data-count='4'] { --cols: 2; --note-size: 2.3vw; padding-inline: 6vw; }
+.rumor-board__grid[data-count='4'] { --cols: 2; --note-size: 2.15vw; padding-inline: 6vw; }
 .rumor-board__grid[data-count='5'],
 .rumor-board__grid[data-count='6'] { --cols: 3; --note-size: 1.95vw; }
 .rumor-board__grid[data-count='7'],
@@ -420,3 +420,30 @@
 .rumor-note--false { --stamped: 0.9; padding-bottom: 2.1em; justify-content: flex-start; }
 /* Byline has to survive the back row. */
 .rumor-note__byline { font-size: 0.6em; }
+
+/* Byline: the townie's NAME reads from the back row; the description
+   under it stays small. */
+.rumor-note__byline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1em;
+  font-size: 1em;
+  letter-spacing: 0;
+  text-transform: none;
+  margin-bottom: 0.45em;
+}
+.rumor-note__name {
+  font-family: var(--font-marker);
+  font-size: 1.15em;
+  line-height: 1;
+  color: var(--ink-black);
+  overflow-wrap: anywhere;
+}
+.rumor-note__desc {
+  font-family: var(--font-type);
+  font-size: 0.48em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1.3;
+  color: var(--ink-blue);
+}
