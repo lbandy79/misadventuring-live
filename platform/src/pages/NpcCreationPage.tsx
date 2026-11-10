@@ -42,6 +42,12 @@ import { composeFromWords, type CollectedWord } from '../../../src/lib/npcs/comp
 import { sendCharacterSavedEmail } from '../lib/email/emailService';
 import { NpcCard } from '../components/NpcCard';
 import { StingerPrompt } from '../components/StingerPrompt';
+import {
+  RumorMillPhone,
+  buildByline,
+  resolveRumorMillConfig,
+  type RawRumorMillConfig,
+} from '../features/rumor-mill';
 import { Doodle } from '../components/Doodle';
 
 // ─── Local types ──────────────────────────────────────────────────────────────
@@ -104,6 +110,8 @@ interface ShowConfig {
     responseTemplate: string;
     responseSlots: BeatResponseSlot[];
   };
+  /** Present on shows with a Rumor Mill (Green Oaks). */
+  rumorMill?: RawRumorMillConfig;
 }
 
 type PagePhase = 'loading' | 'create' | 'reveal' | 'my-npc';
@@ -554,6 +562,7 @@ export default function NpcCreationPage() {
   // ── My NPC view (post-reveal) ─────────────────────────────────────────────
 
   const npcFieldDefs = fields.map((f) => ({ id: f.id, label: f.label, fieldType: f.fieldType }));
+  const rumorMill = showConfig.rumorMill ? resolveRumorMillConfig(showConfig.rumorMill) : null;
 
   return (
     <>
@@ -579,6 +588,15 @@ export default function NpcCreationPage() {
             fields={npcFieldDefs}
             personalOnly={true}
             className="join-npc-card"
+          />
+        )}
+
+        {myNpc && rumorMill && (
+          <RumorMillPhone
+            showId={myNpc.showId}
+            npcId={myNpc.id}
+            byline={buildByline(rumorMill.bylineTemplate, myNpc.displayName, myNpc.fieldValues)}
+            config={rumorMill}
           />
         )}
 

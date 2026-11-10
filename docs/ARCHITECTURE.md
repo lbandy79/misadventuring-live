@@ -226,11 +226,13 @@ Green Oaks already has a show (`src/lib/shows/green-oaks.show.ts`, `id: green-oa
 
 **NPC creator (townies).** Already built: `npcCreation` in the system JSON drives `NpcCreationPage`; the GM puts townies on the projector from `NpcAdminPanel`. Needs only migration step 1 so "GM approves before big screen" is actually enforced.
 
-**Gossip line** (`platform/src/features/gossip-line/`):
-- Config: `showConfig.gossipLine` in `green-oaks.system.json` with prompts, max length, and copy.
-- Data: `src/lib/gossip/gossipApi.ts`, collection `gossip` with `{ showId, authorUid, text, promptId, status: 'pending', createdAt }`. Rules: create only with `status == 'pending'`, `authorUid == request.auth.uid`, text length capped, showId equal to `config/platform.currentShowId`; read of `pending` admin-only; status changes admin-only.
-- Views: phone (submit, see "sent"), GM (queue with approve/reject, reusing the spotlight queue pattern from `components/spotlight/`), big screen (approved only, `aria-live="polite"`).
-- Rate limit: one doc per `authorUid` per N seconds, enforced in rules by keying a `gossip-ratelimit/{uid}` timestamp doc.
+**Rumor Mill** (built Nov 2026, `platform/src/features/rumor-mill/`; was "gossip line" in the first draft of this doc). The first feature in the `features/` structure. It follows the rulebook's own "Rumor mill" and "Testing the Rumors" steps: the Narrator may add rumors whispered by other residents (the audience's townies), and secretly draws a card per rumor, Trump Suit = true; if all are false the Narrator picks one.
+- Config: `showConfig.rumorMill` in `green-oaks.system.json` (limits, byline template, board page size, all copy). Resolved and clamped by `features/rumor-mill/config.ts`.
+- Data: `src/lib/rumors/` (`rumorApi.ts`, pure `cards.ts`). Collections: `rumor-mill/{showId}` (`open`, `trumpSuit`, `boardOn`; public read, admin write), `rumors/{showId}__{uid}__{slot}` (create-only, slot 0..2, so the doc id is the rate limit: three per person per show; public only once `status == 'circulating'`), `rumor-draws/{rumorId}` (the secret card; admin only). A verdict reaches the audience only when the GM reveals it, by writing `verdict` on the rumor.
+- Views: phone (`RumorMillPhone`, under the townie card on the join page), GM (`RumorMillAdminPanel` on `/admin`: Trump Suit, open/close, approve + secret draw, reveal, "make it true"), big screen (`RumorBoard`, takes over `/shows/:id/display` while `boardOn`; 8 notes per page, then it turns pages).
+- Layout preview without Firestore: `/shows/green-oaks/display?demo=rumors&n=8` (add `&len=max` for the worst case).
+- Tests: `src/test/rules/rumor-mill.rules.test.ts`, `src/test/components/RumorMill.test.tsx`, `src/lib/rumors/cards.test.ts`.
+- Not rules-checked: that the townie named in a rumor's byline belongs to the sender (pre-hotfix townies have no owner). The GM reads every rumor before it circulates.
 
 **Bingo** (`platform/src/features/bingo/`):
 - Config: `showConfig.bingo.squares` (pool of strings) and card size in the system JSON.

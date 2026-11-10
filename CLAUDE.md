@@ -51,15 +51,16 @@ The `platform/` app imports from `src/` using relative paths (`../../../src/…`
 
 - **Firebase access lives only in `src/firebase.ts` and `src/lib/*Api.ts`.** Pages and components call those APIs. They never import Firebase SDKs directly.
 - **New interaction features get a folder:** `platform/src/features/<feature-name>/` with `components/`, `hooks/`, and an `index.ts` that is the only file other code imports from. Existing pages move into this pattern gradually, one per session, never as a side effect.
+- **Reference feature:** `platform/src/features/rumor-mill/` (Rumor Mill, Green Oaks) is the first one built this way. Copy its shape: `config.ts` reads the system JSON, `src/lib/rumors` holds the data access, rules tests in `src/test/rules/`.
 - **Pages stay thin.** A page composes features and applies the show accent. Logic belongs in the feature or in `src/lib`.
 
 ---
 
 ## Live interaction features
 
-The show system below is the spine for all audience interaction (NPC creator, stingers, Mad Libs, and new ones like gossip line and bingo). When adding a new interaction:
+The show system below is the spine for all audience interaction (NPC creator, stingers, Mad Libs, the Rumor Mill, and new ones like bingo). When adding a new interaction:
 
-1. **Config goes in the show's system JSON** (bingo squares, gossip prompts, word banks). Not hardcoded in components.
+1. **Config goes in the show's system JSON** (bingo squares, rumor mill copy, word banks). Not hardcoded in components.
 2. **Data access goes in `src/lib`** as a new `*Api.ts` or an extension of `audienceApi`.
 3. **Every feature provides up to three views:** phone (audience), big screen (display page), and GM control.
 4. **Moderation by default:** audience-written text never reaches the big screen until the GM approves it.
@@ -250,6 +251,6 @@ If `docs/ARCHITECTURE.md` does not exist or predates this file, do this before a
 1. Read the whole repo, including `docs/`.
 2. Write `docs/ARCHITECTURE.md`: every route, every feature and where it lives, how each feature reaches Firebase, current Firestore security rules and their gaps, duplicated logic, dead code, and anything in this file that no longer matches reality. Cover the Labs area separately: its routes, how it is protected, how the SBP JSON uploads are validated, and whether any Labs data is reachable by audience users. Fill in the Labs paths in this file.
 3. Add a "Known mess" section listing the 10 biggest problems ranked by risk, security first.
-4. Propose a migration order, plus how Green Oaks (gossip line, bingo, NPC creator) should be built on the existing show system.
+4. Propose a migration order, plus how Green Oaks (Rumor Mill, bingo, NPC creator) should be built on the existing show system.
 5. Correct the Commands section of this file.
 6. Stop and wait for Luke's review.

@@ -516,6 +516,66 @@ service cloud.firestore {
         || (isCast() && resource.data.ownerUid == request.auth.uid);
     }
 
+    // ── Rumor Mill (Green Oaks) ─────────────────────────────────────
+    // The audience's townies start rumors; the GM approves them into
+    // circulation; the app secretly draws a card per rumor (Trump Suit =
+    // true), as the Green Oaks "Testing the Rumors" step has the Narrator do.
+    //
+    // rumor-mill/{showId}: { open, trumpSuit, boardOn }. Public read so
+    // phones know if the mill is open and the projector knows what to show.
+    match /rumor-mill/{showId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // rumors/{showId}__{uid}__{slot}: slot is 0..2, so the doc id itself
+    // caps each person at three rumors per show (the rate limit), and
+    // create-only means a rumor can't be edited after it is sent.
+    // Only rumors in circulation are public; pending and rejected ones are
+    // visible to their author and admins. Queries must filter on
+    // status == 'circulating' or ownerUid == the caller to be allowed.
+    match /rumors/{rumorId} {
+      allow read: if isAdmin()
+        || resource.data.status == 'circulating'
+        || (isSignedIn() && resource.data.ownerUid == request.auth.uid);
+
+      allow create: if
+        isSignedIn()
+        && request.resource.data.keys().hasAll([
+          'showId', 'ownerUid', 'slot', 'npcId', 'npcName', 'text', 'status', 'createdAt'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'showId', 'ownerUid', 'slot', 'npcId', 'npcName', 'text', 'status', 'createdAt'
+        ])
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.showId is string
+        && request.resource.data.slot is int
+        && request.resource.data.slot >= 0
+        && request.resource.data.slot <= 2
+        && rumorId == request.resource.data.showId + '__' + request.auth.uid
+                      + '__' + string(request.resource.data.slot)
+        && request.resource.data.npcId is string
+        && request.resource.data.npcId.size() <= 64
+        && request.resource.data.npcName is string
+        && request.resource.data.npcName.size() >= 1
+        && request.resource.data.npcName.size() <= 160
+        && request.resource.data.text is string
+        && request.resource.data.text.size() >= 1
+        && request.resource.data.text.size() <= 140
+        && request.resource.data.status == 'pending'
+        && exists(/databases/$(database)/documents/rumor-mill/$(request.resource.data.showId))
+        && get(/databases/$(database)/documents/rumor-mill/$(request.resource.data.showId)).data.open == true;
+
+      allow update, delete: if isAdmin();
+    }
+
+    // rumor-draws/{rumorId}: the secret card and whether the rumor is
+    // true. Admin only, always. The verdict reaches the audience only when
+    // the GM reveals it, by writing `verdict` onto the rumor itself.
+    match /rumor-draws/{rumorId} {
+      allow read, write: if isAdmin();
+    }
+
     // Default deny — anything not matched above is locked.
     match /{document=**} {
       allow read, write: if false;

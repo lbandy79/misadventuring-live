@@ -18,6 +18,7 @@ import LiveMonsterAdminPanel from '../components/admin/LiveMonsterAdminPanel';
 import AudienceAdminPanel from '../components/admin/AudienceAdminPanel';
 import SbpRulesAdminPanel from '../components/admin/SbpRulesAdminPanel';
 import SbpArtAdminPanel from '../components/admin/SbpArtAdminPanel';
+import { RumorMillAdminPanel } from '../features/rumor-mill';
 
 export default function AdminPage() {
   const { user, isAdmin, isLoading, isAdminLoading, signIn } = useAuth();
@@ -84,6 +85,11 @@ export default function AdminPage() {
       <LiveMonsterAdminPanel />
 
       <AudienceAdminPanel />
+
+      {/* Renders only for shows whose system JSON has showConfig.rumorMill. */}
+      {npcShows.map((s) => (
+        <RumorMillAdminPanel key={`rumors-${s.id}`} showSlug={s.id} systemId={s.systemId} />
+      ))}
 
       {npcShows.map((s) => (
         <NpcAdminPanel

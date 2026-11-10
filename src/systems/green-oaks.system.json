@@ -70,6 +70,31 @@
           "options": ["have never lost at bingo", "used to be in the CIA", "keep a crossbow in the trunk", "know where the bodies are buried", "got banned from the buffet", "talk to the geese"]
         }
       ]
+    },
+    "rumorMill": {
+      "_comment": "Audience townies start rumors (rulebook step 3, 'Rumor mill': the Narrator may add rumors whispered by other residents). The GM approves; the app secretly draws a card per rumor, Trump Suit = true (step 4, 'Testing the Rumors'). maxPerPerson is capped at 3 and maxLength at 140 by firestore.rules.",
+      "maxPerPerson": 3,
+      "maxLength": 140,
+      "boardPageSize": 8,
+      "boardPageSeconds": 14,
+      "bylineTemplate": "{name}, the {adjective} {occupation}",
+      "copy": {
+        "phoneTitle": "The Rumor Mill",
+        "phoneSubtitle": "Your townie heard something. Pass it on. It might even be true.",
+        "leadIn": "heard that…",
+        "placeholder": "the pharmacist waters down the prune juice",
+        "submitLabel": "Start the rumor.",
+        "closedNote": "The mill is quiet right now. Check back during the show.",
+        "outOfRumors": "That's all the gossip one townie gets.",
+        "pendingLabel": "Whispered. Waiting to see if it catches on.",
+        "circulatingLabel": "It's going around town.",
+        "rejectedLabel": "Nobody bought it.",
+        "trueLabel": "True",
+        "falseLabel": "Hogwash",
+        "boardTitle": "The Rumor Mill",
+        "boardSubtitle": "Heard around Green Oaks. Some of it might even be true.",
+        "boardEmpty": "Quiet in Green Oaks. Too quiet."
+      }
     }
   }
 }
