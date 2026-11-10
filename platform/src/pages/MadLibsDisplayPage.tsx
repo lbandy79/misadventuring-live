@@ -41,6 +41,13 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
+import {
+  RumorBoard,
+  buildDemoRumors,
+  resolveRumorMillConfig,
+  useRumorMillSession,
+  type RawRumorMillConfig,
+} from '../features/rumor-mill';
 import { QRCodeSVG } from 'qrcode.react';
 import {
   getShow,
@@ -89,6 +96,8 @@ interface SystemConfig {
     madLibs?: MadLibTemplate[];
     /** Present on NPC Mad Libs shows — signals stinger feed should be active. */
     npcCreation?: { displayNameTemplate: string; fields: unknown[] };
+    /** Present on shows with a Rumor Mill (Green Oaks). */
+    rumorMill?: RawRumorMillConfig;
   };
 }
 
@@ -205,6 +214,28 @@ export default function MadLibsDisplayPage() {
     };
   }, [npcShowId, config?.showConfig?.npcCreation]);
 
+  // ── Rumor Mill board (shows with showConfig.rumorMill) ───────────────
+  // The GM turns the board on from /admin; it then takes over the projector.
+  // `?demo=rumors&n=8` renders sample notes for layout checks, no Firestore.
+  const rumorMillConfig = useMemo(
+    () =>
+      config?.showConfig?.rumorMill
+        ? resolveRumorMillConfig(config.showConfig.rumorMill)
+        : null,
+    [config],
+  );
+  const rumorSession = useRumorMillSession(rumorMillConfig ? npcShowId : undefined);
+  const isRumorDemo = searchParams.get('demo') === 'rumors';
+  const demoCount = Number(searchParams.get('n') ?? 8);
+  const demoWorstCase = searchParams.get('len') === 'max';
+  const demoRumors = useMemo(
+    () =>
+      isRumorDemo
+        ? buildDemoRumors(Number.isFinite(demoCount) ? demoCount : 8, demoWorstCase)
+        : undefined,
+    [isRumorDemo, demoCount, demoWorstCase],
+  );
+
   // ── Theming via CSS custom properties ────────────────────────────────
   // Show authors set `accentColor` / `accentInk` on the registry entry.
   // Anything inside `.madlibs-display` can `var(--display-accent)` for
@@ -263,6 +294,20 @@ export default function MadLibsDisplayPage() {
     typeof window !== 'undefined'
       ? `${window.location.origin}/shows/${showId}/${joinPath}`
       : `/shows/${showId}/${joinPath}`;
+
+  if (rumorMillConfig && npcShowId && (rumorSession.boardOn || isRumorDemo)) {
+    return (
+      <section className="madlibs-display madlibs-display-rumors" style={themeStyle}>
+        <RumorBoard
+          showId={npcShowId}
+          config={rumorMillConfig}
+          open={rumorSession.open || isRumorDemo}
+          joinUrl={voteUrl}
+          demoRumors={demoRumors}
+        />
+      </section>
+    );
+  }
 
   return (
     <section className={`madlibs-display madlibs-display-${mode}`} style={themeStyle}>

@@ -1,0 +1,449 @@
+/* Rumor Mill: phone, GM panel and projector board.
+   Uses the paper.css token layer; no colours of its own except the stamps. */
+
+/* ─── Verdict stamp (shared) ─────────────────────────────────────────────── */
+.rumor-stamp {
+  display: inline-block;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  border: 3px solid currentColor;
+  border-radius: 6px;
+  padding: 0.2em 0.5em 0.25em;
+  transform: rotate(-6deg);
+  background: color-mix(in srgb, var(--paper) 82%, transparent);
+}
+.rumor-stamp--true { color: var(--ink-blue); }
+.rumor-stamp--false { color: var(--ink-red); border-style: dashed; }
+.rumor-stamp--small { font-size: 0.85rem; border-width: 2px; }
+
+/* ─── Phone ──────────────────────────────────────────────────────────────── */
+.rumor-phone {
+  margin-top: 1.75rem;
+  padding-top: 1.25rem;
+  border-top: 2px dashed var(--paper-line);
+  position: relative;
+  z-index: 1;
+}
+.rumor-phone__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+}
+.rumor-phone__subtitle,
+.rumor-phone__note {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-hand);
+  font-size: 1.05rem;
+}
+.rumor-phone__form { margin-top: 1rem; }
+.rumor-phone__lead {
+  display: block;
+  font-family: var(--font-type);
+  font-size: 0.95rem;
+  margin-bottom: 0.4rem;
+}
+.rumor-phone__input {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 5.5rem;
+  padding: 0.75rem;
+  font-family: var(--font-type);
+  font-size: 1.05rem; /* ≥16px so iOS doesn't zoom on focus */
+  line-height: 1.4;
+  color: var(--ink-black);
+  background: var(--paper-warm);
+  border: 2px solid var(--ink-black);
+  border-radius: 4px;
+  resize: vertical;
+}
+.rumor-phone__input:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+.rumor-phone__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.6rem;
+  flex-wrap: wrap;
+}
+.rumor-phone__count {
+  font-family: var(--font-type);
+  font-size: 0.8rem;
+  opacity: 0.75;
+}
+.rumor-phone__send { min-height: 44px; }
+.rumor-phone__error {
+  margin: 0.6rem 0 0;
+  font-family: var(--font-type);
+  color: var(--ink-red);
+}
+.rumor-phone__list {
+  list-style: none;
+  margin: 1.25rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+.rumor-phone__item {
+  padding: 0.75rem 0.9rem;
+  background: var(--paper-warm);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-left: 5px solid var(--accent);
+  border-radius: 4px;
+}
+.rumor-phone__item--rejected { border-left-style: dotted; opacity: 0.75; }
+.rumor-phone__text {
+  margin: 0 0 0.4rem;
+  font-family: var(--font-type);
+  font-size: 1rem;
+  overflow-wrap: anywhere;
+}
+.rumor-phone__status {
+  margin: 0;
+  font-family: var(--font-hand);
+  font-size: 0.95rem;
+}
+
+/* ─── GM panel ───────────────────────────────────────────────────────────── */
+.rumor-admin__error {
+  margin: 0.75rem 0;
+  padding: 0.6rem 0.8rem;
+  border: 2px solid var(--ink-red);
+  border-radius: 4px;
+  font-family: var(--font-type);
+  color: var(--ink-red);
+  background: var(--paper-warm);
+}
+.rumor-admin__controls {
+  display: grid;
+  gap: 0.9rem;
+  margin: 0.75rem 0 1rem;
+}
+.rumor-admin__suits {
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  padding: 0.6rem 0.75rem 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.rumor-admin__suits legend {
+  font-family: var(--font-type);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0 0.3rem;
+}
+.rumor-admin__suit {
+  min-height: 44px;
+  padding: 0.4rem 0.9rem;
+  font-family: var(--font-type);
+  font-size: 1rem;
+  color: var(--ink-black);
+  background: var(--paper-warm);
+  border: 2px solid var(--ink-black);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.rumor-admin__suit--on {
+  background: var(--ink-black);
+  color: var(--paper);
+  text-decoration: underline;
+}
+.rumor-admin__suit:focus-visible,
+.rumor-admin__link:focus-visible {
+  outline: 3px solid var(--ink-blue);
+  outline-offset: 2px;
+}
+.rumor-admin__toggles {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+.rumor-admin__link { font-family: var(--font-type); font-size: 0.9rem; }
+.rumor-admin__hint {
+  margin: 0 0 1rem;
+  padding: 0.6rem 0.8rem;
+  font-family: var(--font-hand);
+  font-size: 1.05rem;
+  background: var(--paper-warm);
+  border-left: 5px solid var(--ink-blue);
+}
+.rumor-admin__hint--pick { border-left-color: var(--ink-red); }
+.rumor-admin__heading {
+  margin: 1.25rem 0 0.5rem;
+  font-family: var(--font-type);
+  font-size: 0.85rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.rumor-admin__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+.rumor-admin__item {
+  padding: 0.75rem 0.9rem;
+  background: var(--paper-warm);
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: 4px;
+}
+.rumor-admin__text {
+  margin: 0;
+  font-family: var(--font-type);
+  font-size: 1.05rem;
+  overflow-wrap: anywhere;
+}
+.rumor-admin__byline { opacity: 0.7; font-size: 0.9rem; }
+.rumor-admin__secret {
+  margin: 0.4rem 0 0;
+  font-family: var(--font-type);
+  font-size: 0.9rem;
+}
+.rumor-admin__card {
+  display: inline-block;
+  min-width: 2.4em;
+  text-align: center;
+  padding: 0.05em 0.3em;
+  border: 1px solid var(--ink-black);
+  border-radius: 3px;
+  background: var(--paper);
+}
+.rumor-admin__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+.rumor-admin__actions button { min-height: 44px; }
+
+/* ─── Projector board ────────────────────────────────────────────────────── */
+.rumor-board {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  gap: 2.5vh;
+}
+.rumor-board__header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 3vw;
+}
+.rumor-board__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 6.5vw, 6rem);
+  line-height: 0.95;
+}
+.rumor-board__aside {
+  display: flex;
+  align-items: center;
+  gap: 2.5vw;
+}
+.rumor-board__pages {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-type);
+  font-size: clamp(0.9rem, 1.3vw, 1.2rem);
+}
+.rumor-board__dot {
+  width: 0.8em;
+  height: 0.8em;
+  border: 2px solid var(--ink-black);
+  border-radius: 50%;
+}
+.rumor-board__dot--on { background: var(--ink-black); }
+.rumor-board__count { margin-left: 0.4rem; opacity: 0.7; }
+.rumor-board__qr {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  font-family: var(--font-type);
+  font-size: clamp(0.85rem, 1.25vw, 1.15rem);
+  line-height: 1.3;
+}
+.rumor-board__qr p { margin: 0; }
+.rumor-board__empty {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  font-family: var(--font-hand);
+  font-size: clamp(1.6rem, 4vw, 3.4rem);
+  opacity: 0.7;
+}
+
+/* The grid fills whatever height is left. Columns and type step down with
+   the number of notes on the page, set by data-count. */
+.rumor-board__grid {
+  --cols: 4;
+  --note-size: 1.9vw;
+  flex: 1;
+  min-height: 0;
+  list-style: none;
+  margin: 0;
+  padding: 1vh 0.5vw;
+  display: grid;
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  grid-auto-rows: minmax(0, 1fr);
+  gap: 3.2vh 2vw;
+  animation: rumor-page-in 0.5s ease-out;
+}
+.rumor-board__grid[data-count='1'] { --cols: 1; --note-size: 3.8vw; padding-inline: 16vw; }
+.rumor-board__grid[data-count='2'] { --cols: 2; --note-size: 3.3vw; padding-inline: 5vw; }
+.rumor-board__grid[data-count='3'] { --cols: 3; --note-size: 2.6vw; }
+.rumor-board__grid[data-count='4'] { --cols: 2; --note-size: 2.15vw; padding-inline: 6vw; }
+.rumor-board__grid[data-count='5'],
+.rumor-board__grid[data-count='6'] { --cols: 3; --note-size: 1.95vw; }
+.rumor-board__grid[data-count='7'],
+.rumor-board__grid[data-count='8'] { --cols: 4; --note-size: 1.8vw; }
+.rumor-board__grid[data-count='9'],
+.rumor-board__grid[data-count='10'],
+.rumor-board__grid[data-count='11'],
+.rumor-board__grid[data-count='12'] { --cols: 4; --note-size: 1.45vw; gap: 2.4vh 1.6vw; }
+
+.rumor-note {
+  position: relative;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1.1em 1.1em 0.9em;
+  font-size: var(--note-size);
+  background: var(--paper-warm);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 3px;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05), 0 14px 30px -18px var(--paper-shadow);
+  overflow: hidden;
+}
+/* Masking tape holding the note up */
+.rumor-note::before {
+  content: '';
+  position: absolute;
+  top: -0.35em;
+  left: 50%;
+  width: 4.2em;
+  height: 1em;
+  transform: translateX(-50%) rotate(-3deg);
+  background: var(--tape);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+.rumor-note[data-tilt='0'] { transform: rotate(-1.1deg); }
+.rumor-note[data-tilt='1'] { transform: rotate(0.8deg); }
+.rumor-note[data-tilt='2'] { transform: rotate(-0.5deg); }
+.rumor-note[data-tilt='3'] { transform: rotate(1.2deg); }
+.rumor-note[data-tilt='1']::before { transform: translateX(-50%) rotate(2.5deg); }
+.rumor-note[data-tilt='3']::before { transform: translateX(-50%) rotate(4deg); }
+
+.rumor-note__byline {
+  margin: 0 0 0.5em;
+  font-family: var(--font-type);
+  font-size: 0.52em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1.3;
+  color: var(--ink-blue);
+}
+.rumor-note__text {
+  margin: 0;
+  font-family: var(--font-type);
+  /* --len steps down for longer rumors; --stamped makes room for a stamp. */
+  font-size: calc(var(--len, 1) * var(--stamped, 1) * 1em);
+  line-height: 1.22;
+  overflow-wrap: anywhere;
+}
+.rumor-note--short { --len: 1.3; }
+.rumor-note--short .rumor-note__text { line-height: 1.12; }
+.rumor-note--long { --len: 0.82; }
+.rumor-note--xlong { --len: 0.7; }
+
+.rumor-note .rumor-stamp {
+  position: absolute;
+  right: 0.5em;
+  bottom: 0.45em;
+  font-size: 0.95em;
+  animation: rumor-stamp-in 0.35s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+/* A revealed-false rumor is struck through as well as stamped. */
+.rumor-note--false .rumor-note__text {
+  text-decoration: line-through;
+  text-decoration-thickness: 0.08em;
+  text-decoration-color: var(--ink-red);
+}
+.rumor-note--true { border: 0.14em solid var(--ink-blue); }
+
+@keyframes rumor-page-in {
+  from { opacity: 0; transform: translateY(1.5vh); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes rumor-stamp-in {
+  from { opacity: 0; transform: rotate(-6deg) scale(2.2); }
+  to { opacity: 1; transform: rotate(-6deg) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rumor-board__grid,
+  .rumor-note .rumor-stamp { animation: none; }
+  .rumor-note[data-tilt] { transform: none; }
+}
+
+/* Narrow screens (someone opens the projector link on a phone): stack. */
+@media (max-width: 720px) {
+  .rumor-board__header { flex-direction: column; align-items: flex-start; }
+  .rumor-board__grid[data-count] {
+    --cols: 1;
+    --note-size: 1.15rem;
+    padding-inline: 0;
+    grid-auto-rows: auto;
+  }
+}
+
+/* The board owns the whole projector: exactly one screen tall, no scroll. */
+.madlibs-display-rumors { height: 100dvh; overflow: hidden; }
+.madlibs-display-rumors .madlibs-display-footer { display: none; }
+@media (max-width: 720px) {
+  .madlibs-display-rumors { height: auto; overflow: visible; }
+}
+
+/* Leave room so the stamp never sits on top of the rumor text. */
+.rumor-note--true,
+.rumor-note--false { --stamped: 0.9; padding-bottom: 2.1em; justify-content: flex-start; }
+/* Byline has to survive the back row. */
+.rumor-note__byline { font-size: 0.6em; }
+
+/* Byline: the townie's NAME reads from the back row; the description
+   under it stays small. */
+.rumor-note__byline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1em;
+  font-size: 1em;
+  letter-spacing: 0;
+  text-transform: none;
+  margin-bottom: 0.45em;
+}
+.rumor-note__name {
+  font-family: var(--font-marker);
+  font-size: 1.15em;
+  line-height: 1;
+  color: var(--ink-black);
+  overflow-wrap: anywhere;
+}
+.rumor-note__desc {
+  font-family: var(--font-type);
+  font-size: 0.48em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1.3;
+  color: var(--ink-blue);
+}
