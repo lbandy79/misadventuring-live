@@ -447,3 +447,17 @@
   line-height: 1.3;
   color: var(--ink-blue);
 }
+
+/* GM panel: the Trump Suit is step 1 and blocks approving, so it shouts
+   until it is set. Thick dashed border + words, not colour alone. */
+.rumor-admin__suits--needed {
+  border: 3px dashed var(--ink-red);
+  background: var(--paper-warm);
+}
+.rumor-admin__suit-status {
+  flex-basis: 100%;
+  margin: 0 0 0.25rem;
+  font-family: var(--font-type);
+  font-size: 1rem;
+}
+.rumor-admin__suits--needed .rumor-admin__suit-status { color: var(--ink-red); }

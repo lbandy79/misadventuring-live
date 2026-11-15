@@ -188,8 +188,10 @@ describe('RumorMillAdminPanel', () => {
   it('will not approve until the Trump Suit is set', async () => {
     allRumors = [rumor(0)];
     renderPanel();
-    expect(await screen.findByRole('button', { name: /approve \+ draw/i })).toBeDisabled();
-    expect(screen.getByText(/pick the trump suit before approving/i)).toBeInTheDocument();
+    // The blocked button says why, and the Trump Suit box says it is not set.
+    expect(await screen.findByRole('button', { name: /pick a trump suit first/i })).toBeDisabled();
+    expect(screen.getByText(/not picked yet/i)).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /approve \+ draw/i })).not.toBeInTheDocument();
   });
 
   it('sets the Trump Suit', async () => {
@@ -202,7 +204,8 @@ describe('RumorMillAdminPanel', () => {
     session.trumpSuit = 'hearts';
     allRumors = [rumor(0)];
     renderPanel();
-    await userEvent.click(await screen.findByRole('button', { name: /approve \+ draw/i }));
+    expect(await screen.findByText(/trump suit is/i)).toHaveTextContent(/hearts/i);
+    await userEvent.click(screen.getByRole('button', { name: /approve \+ draw/i }));
     expect(approveRumor).toHaveBeenCalledWith(allRumors[0], 'hearts');
   });
 
