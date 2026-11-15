@@ -98,8 +98,21 @@ export function RumorMillAdminPanel({ showSlug, systemId }: Props) {
       {error && <p className="rumor-admin__error" role="alert">{error}</p>}
 
       <div className="rumor-admin__controls">
-        <fieldset className="rumor-admin__suits">
-          <legend>Trump Suit (as drawn on stage)</legend>
+        <fieldset className={`rumor-admin__suits ${trump ? '' : 'rumor-admin__suits--needed'}`}>
+          <legend>Step 1 · Trump Suit (as drawn on stage)</legend>
+          <p className="rumor-admin__suit-status" aria-live="polite">
+            {trump ? (
+              <>
+                Trump Suit is <strong>{SUIT_SYMBOL[trump]} {SUIT_LABEL[trump]}</strong>. An approved
+                rumor that secretly draws one is true.
+              </>
+            ) : (
+              <>
+                <strong>Not picked yet.</strong> You can't approve rumors until you pick the suit you
+                drew on stage.
+              </>
+            )}
+          </p>
           {SUITS.map((suit) => (
             <button
               key={suit}
@@ -139,13 +152,6 @@ export function RumorMillAdminPanel({ showSlug, systemId }: Props) {
         </div>
       </div>
 
-      {!trump && (
-        <p className="rumor-admin__hint">
-          Pick the Trump Suit before approving. Each approved rumor gets a secret card: Trump Suit
-          means it's true.
-        </p>
-      )}
-
       {needsPick && (
         <p className="rumor-admin__hint rumor-admin__hint--pick" role="status">
           Every rumor came up hogwash. The book says the Narrator picks one to be true: use
@@ -166,7 +172,7 @@ export function RumorMillAdminPanel({ showSlug, systemId }: Props) {
                 disabled={!trump || busy !== null}
                 onClick={() => trump && run(`approve-${r.id}`, () => approveRumor(r, trump))}
               >
-                Approve + draw
+                {trump ? 'Approve + draw' : 'Pick a Trump Suit first ↑'}
               </button>
               <button
                 type="button"
