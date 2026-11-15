@@ -4671,3 +4671,48 @@ details[open] .helper-footer__summary::before { content: '▾ '; }
   background: color-mix(in srgb, var(--brand-amber) 30%, transparent);
   color: #7a5200;
 }
+
+/* ─── /admin tabs ──────────────────────────────────────────────────────────
+   Top-level sections of the GM panel. Sticks to the top while scrolling a
+   long tab. Active tab = filled + underlined, not colour alone. */
+.admin-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 1rem 0 1.25rem;
+  padding: 0.5rem 0;
+  background: var(--paper-warm, #fffdf5);
+  border-bottom: 2px solid var(--ink-black, #1c1c1c);
+}
+.admin-tab {
+  min-height: 44px;
+  padding: 0.5rem 1.1rem;
+  font-family: var(--font-marker);
+  font-size: 1.05rem;
+  color: var(--ink-black, #1c1c1c);
+  background: transparent;
+  border: 2px solid var(--ink-black, #1c1c1c);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.admin-tab:hover { background: var(--paper, #faf6ec); }
+.admin-tab--active,
+.admin-tab--active:hover {
+  background: var(--ink-black, #1c1c1c);
+  color: var(--paper, #faf6ec);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.admin-tab:focus-visible {
+  outline: 3px solid var(--ink-blue, #1f3a8a);
+  outline-offset: 2px;
+}
+.admin-tab-note {
+  margin: 0 0 1rem;
+  font-family: var(--font-type);
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
