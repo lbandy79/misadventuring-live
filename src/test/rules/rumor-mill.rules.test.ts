@@ -190,6 +190,52 @@ describe('rumors create', () => {
   });
 });
 
+// ─── rumors: added by the GM ──────────────────────────────────────────────────
+// The rulebook's setup step lets the Narrator add rumors "whispered by some
+// other Green Oaks resident", so the GM can add rumors outside the audience
+// limits: any number, mill open or closed, straight into the queue.
+
+/** What rumorApi.addGmRumor writes. */
+const gmRumor = (extra: Record<string, unknown> = {}) => ({
+  showId: SHOW,
+  ownerUid: ADMIN.uid,
+  source: 'gm',
+  npcId: '',
+  npcName: 'Mrs. Vanderbilt',
+  text: 'the new friars only speak Latin',
+  status: 'pending',
+  createdAt: 1,
+  ...extra,
+});
+
+describe('rumors added by the GM', () => {
+  it('lets an admin add a rumor under any id, beyond three, with the mill closed', async () => {
+    await assertSucceeds(setDoc(doc(asAdmin(), 'rumors', 'gm-1'), gmRumor()));
+    await assertSucceeds(setDoc(doc(asAdmin(), 'rumors', 'gm-2'), gmRumor()));
+    await assertSucceeds(setDoc(doc(asAdmin(), 'rumors', 'gm-3'), gmRumor()));
+    await assertSucceeds(setDoc(doc(asAdmin(), 'rumors', 'gm-4'), gmRumor()));
+    await assertSucceeds(setDoc(doc(asAdmin(), 'rumors', 'gm-closed'), gmRumor({ showId: CLOSED_SHOW })));
+  });
+
+  it('still requires a sane rumor from the GM', async () => {
+    await assertFails(setDoc(doc(asAdmin(), 'rumors', 'gm-x'), gmRumor({ text: 'x'.repeat(141) })));
+    await assertFails(setDoc(doc(asAdmin(), 'rumors', 'gm-x'), gmRumor({ npcName: '' })));
+    await assertFails(setDoc(doc(asAdmin(), 'rumors', 'gm-x'), gmRumor({ status: 'circulating' })));
+    await assertFails(setDoc(doc(asAdmin(), 'rumors', 'gm-x'), gmRumor({ ownerUid: 'someone-else' })));
+    await assertFails(setDoc(doc(asAdmin(), 'rumors', 'gm-x'), gmRumor({ html: '<b>' })));
+  });
+
+  it('does not let the audience or cast use the GM path', async () => {
+    await assertFails(setDoc(doc(asOwner(), 'rumors', 'gm-1'), gmRumor({ ownerUid: OWNER })));
+    await assertFails(setDoc(doc(asCast(), 'rumors', 'gm-1'), gmRumor({ ownerUid: CAST.uid })));
+  });
+
+  it('lets an admin delete a rumor and its secret draw for good', async () => {
+    await assertSucceeds(deleteDoc(doc(asAdmin(), 'rumors', rumorId('someone', 0))));
+    await assertSucceeds(deleteDoc(doc(asAdmin(), 'rumor-draws', rumorId('someone', 0))));
+  });
+});
+
 // ─── rumors: read ─────────────────────────────────────────────────────────────
 
 describe('rumors read', () => {

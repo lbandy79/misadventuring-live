@@ -566,6 +566,29 @@ service cloud.firestore {
         && exists(/databases/$(database)/documents/rumor-mill/$(request.resource.data.showId))
         && get(/databases/$(database)/documents/rumor-mill/$(request.resource.data.showId)).data.open == true;
 
+      // The GM adds rumors too (the rulebook's Narrator may add rumors
+      // "whispered by some other Green Oaks resident"): any id, any number,
+      // mill open or closed, but still a sane rumor and still into the queue.
+      allow create: if isAdmin()
+        && request.resource.data.keys().hasAll([
+          'showId', 'ownerUid', 'source', 'npcId', 'npcName', 'text', 'status', 'createdAt'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'showId', 'ownerUid', 'source', 'npcId', 'npcName', 'text', 'status', 'createdAt'
+        ])
+        && request.resource.data.source == 'gm'
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.showId is string
+        && request.resource.data.npcId is string
+        && request.resource.data.npcId.size() <= 64
+        && request.resource.data.npcName is string
+        && request.resource.data.npcName.size() >= 1
+        && request.resource.data.npcName.size() <= 160
+        && request.resource.data.text is string
+        && request.resource.data.text.size() >= 1
+        && request.resource.data.text.size() <= 140
+        && request.resource.data.status == 'pending';
+
       allow update, delete: if isAdmin();
     }
 

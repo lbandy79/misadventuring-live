@@ -43,6 +43,15 @@ vi.mock('../../../platform/src/components/admin/NpcAdminPanel', () => ({
 vi.mock('../../../platform/src/features/rumor-mill', () => ({
   RumorMillAdminPanel: ({ showSlug }: { showSlug: string }) => <div>panel:rumors:{showSlug}</div>,
 }));
+// Honey Heist uses stingers (keeps the old NPC panel); Green Oaks doesn't
+// (gets the Townies panel).
+vi.mock('../../../platform/src/features/townies', () => ({
+  useTowniesConfig: (systemId: string) => ({
+    status: 'ready',
+    config: { showId: `${systemId}-episode`, showName: systemId, fields: [], usesStingers: systemId === 'honey-heist' },
+  }),
+  TowniesAdminPanel: ({ systemId }: { systemId: string }) => <div>panel:townies:{systemId}</div>,
+}));
 
 const renderAt = (url = '/admin') =>
   render(
@@ -62,7 +71,7 @@ describe('AdminPage tabs', () => {
     renderAt();
     expect(screen.getByRole('tab', { name: 'Show night' })).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByText('panel:rumors:green-oaks')).toBeInTheDocument();
-    expect(screen.getByText('panel:npc:Green Oaks')).toBeInTheDocument();
+    expect(screen.getByText('panel:townies:green-oaks')).toBeInTheDocument();
     // Not on this tab: past shows, the email list, cast and Labs uploads.
     expect(screen.queryByText('panel:npc:Honey Heist')).not.toBeInTheDocument();
     expect(screen.queryByText('panel:audience')).not.toBeInTheDocument();
@@ -73,7 +82,7 @@ describe('AdminPage tabs', () => {
   it('puts the Rumor Mill above the townie roster', () => {
     renderAt();
     const rumors = screen.getByText('panel:rumors:green-oaks');
-    const roster = screen.getByText('panel:npc:Green Oaks');
+    const roster = screen.getByText('panel:townies:green-oaks');
     expect(rumors.compareDocumentPosition(roster) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
@@ -108,7 +117,7 @@ describe('AdminPage tabs', () => {
     renderAt();
     await userEvent.click(screen.getByRole('tab', { name: 'Past shows' }));
     expect(screen.getByText('panel:npc:Honey Heist')).toBeInTheDocument();
-    expect(screen.queryByText('panel:npc:Green Oaks')).not.toBeInTheDocument();
+    expect(screen.queryByText('panel:townies:green-oaks')).not.toBeInTheDocument();
   });
 
   it('opens the tab named in the URL', () => {

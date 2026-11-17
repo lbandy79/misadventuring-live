@@ -461,3 +461,45 @@
   font-size: 1rem;
 }
 .rumor-admin__suits--needed .rumor-admin__suit-status { color: var(--ink-red); }
+
+/* GM: add a rumor, delete, rejected list */
+.rumor-admin__add-btn,
+.rumor-admin__toggle-rejected { min-height: 44px; margin: 0.25rem 0 0.75rem; }
+.rumor-admin__toggle-rejected { margin-top: 1rem; }
+.rumor-admin__delete { color: var(--ink-red); }
+.rumor-admin__item--rejected { opacity: 0.8; border-style: dashed; }
+.rumor-admin__gm-badge {
+  margin-left: 0.5rem;
+  padding: 0.05rem 0.4rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid var(--ink-blue);
+  border-radius: 3px;
+  color: var(--ink-blue);
+}
+.rumor-admin__add {
+  display: grid;
+  gap: 0.7rem;
+  margin: 0 0 1rem;
+  padding: 1rem;
+  background: var(--paper-warm);
+  border: 2px dashed var(--ink-black);
+  border-radius: 4px;
+}
+.rumor-admin__add .rumor-admin__heading { margin: 0; }
+.rumor-admin__add-note { margin: 0; font-family: var(--font-hand); font-size: 1rem; }
+.rumor-admin__add-field { display: grid; gap: 0.3rem; font-family: var(--font-type); font-size: 0.85rem; }
+.rumor-admin__add-field select,
+.rumor-admin__add-field input,
+.rumor-admin__add-field textarea {
+  min-height: 44px;
+  padding: 0.5rem 0.7rem;
+  font-family: var(--font-type);
+  font-size: 1rem;
+  color: var(--ink-black);
+  background: var(--paper);
+  border: 2px solid var(--ink-black);
+  border-radius: 4px;
+}
+.rumor-admin__add-field :focus-visible { outline: 3px solid var(--ink-blue); outline-offset: 2px; }

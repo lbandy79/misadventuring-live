@@ -18,6 +18,7 @@
 import {
   addDoc,
   collection,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
@@ -269,7 +270,14 @@ export async function archiveNpc(npcId: string): Promise<void> {
   await updateDoc(doc(db, NPCS_COLLECTION, npcId), {
     isArchived: true,
     isActive: false,
+    showOnDisplay: false,
   });
+}
+
+/** GM: delete a townie for good (test entries, junk). Admin only in rules.
+ *  Callers should delete the townie's rumors too (rumorApi.deleteRumors). */
+export async function deleteNpc(npcId: string): Promise<void> {
+  await deleteDoc(doc(db, NPCS_COLLECTION, npcId));
 }
 
 /** Toggle a single NPC's visibility on the projector display. */

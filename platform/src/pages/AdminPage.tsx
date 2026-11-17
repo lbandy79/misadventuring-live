@@ -18,6 +18,23 @@ import AudienceAdminPanel from '../components/admin/AudienceAdminPanel';
 import SbpRulesAdminPanel from '../components/admin/SbpRulesAdminPanel';
 import SbpArtAdminPanel from '../components/admin/SbpArtAdminPanel';
 import { RumorMillAdminPanel } from '../features/rumor-mill';
+import { TowniesAdminPanel, useTowniesConfig } from '../features/townies';
+
+/**
+ * The townie panel for one NPC show. Shows that use stingers (Honey Heist)
+ * keep the older panel with its stinger, world-vote and email tools; the
+ * rest (Green Oaks) get the simpler Townies panel.
+ */
+function NpcShowPanel({ registryId, systemId, showName }: { registryId: string; systemId: string; showName: string }) {
+  const loaded = useTowniesConfig(systemId);
+  if (loaded.status === 'loading') {
+    return <p className="npc-admin-panel__loading">Loading {showName}…</p>;
+  }
+  if (loaded.status === 'error' || loaded.config.usesStingers) {
+    return <NpcAdminPanel showId={registryId} systemId={systemId} showName={showName} />;
+  }
+  return <TowniesAdminPanel systemId={systemId} config={loaded.config} />;
+}
 
 export default function AdminPage() {
   const { user, isAdmin, isLoading, isAdminLoading, signIn } = useAuth();
@@ -189,7 +206,7 @@ function AdminTabs() {
             {activeNpcShows.map((s) => (
               <Fragment key={s.id}>
                 <RumorMillAdminPanel showSlug={s.id} systemId={s.systemId} />
-                <NpcAdminPanel showId={s.id} systemId={s.systemId} showName={s.name} />
+                <NpcShowPanel registryId={s.id} systemId={s.systemId} showName={s.name} />
               </Fragment>
             ))}
 
@@ -218,7 +235,7 @@ function AdminTabs() {
         {tab === 'past' && (
           <>
             {pastNpcShows.map((s) => (
-              <NpcAdminPanel key={s.id} showId={s.id} systemId={s.systemId} showName={s.name} />
+              <NpcShowPanel key={s.id} registryId={s.id} systemId={s.systemId} showName={s.name} />
             ))}
             {pastNpcShows.length === 0 && (
               <p className="npc-admin-panel__empty">No past shows with townies or stingers yet.</p>

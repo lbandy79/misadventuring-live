@@ -34,6 +34,8 @@ const revealRumor = vi.fn(() => Promise.resolve());
 const overrideRumorDraw = vi.fn(() => Promise.resolve());
 const withdrawRumor = vi.fn(() => Promise.resolve());
 const setRumorMill = vi.fn(() => Promise.resolve());
+const addGmRumor = vi.fn(() => Promise.resolve());
+const deleteRumors = vi.fn(() => Promise.resolve());
 
 vi.mock('@mtp/lib', () => ({
   useAuth: () => ({ user: { uid: 'anon-1' } }),
@@ -57,6 +59,13 @@ vi.mock('@mtp/lib/rumors', async () => ({
   overrideRumorDraw: (...a: unknown[]) => overrideRumorDraw(...(a as [])),
   withdrawRumor: (...a: unknown[]) => withdrawRumor(...(a as [])),
   setRumorMill: (...a: unknown[]) => setRumorMill(...(a as [])),
+  addGmRumor: (...a: unknown[]) => addGmRumor(...(a as [])),
+  deleteRumors: (...a: unknown[]) => deleteRumors(...(a as [])),
+}));
+
+let townies: Array<Record<string, unknown>> = [];
+vi.mock('@mtp/lib/npcs/npcApi', () => ({
+  subscribeToNpcs: (_s: string, cb: (n: unknown[]) => void) => { cb(townies); return () => {}; },
 }));
 
 const config = resolveRumorMillConfig({ copy: { closedNote: 'The mill is quiet.' } });
@@ -236,6 +245,57 @@ describe('RumorMillAdminPanel', () => {
     renderPanel();
     await userEvent.click(await screen.findByRole('button', { name: /mill is open/i }));
     expect(await screen.findByRole('alert')).toHaveTextContent(/didn't save/i);
+  });
+
+  it('adds a GM rumor signed by a townie', async () => {
+    townies = [{ id: 'npc-9', displayName: 'Gus', fieldValues: {} }];
+    renderPanel();
+    await userEvent.click(await screen.findByRole('button', { name: /add a rumor/i }));
+    await userEvent.type(screen.getByRole('textbox'), 'the pharmacist waters down the prune juice');
+    await userEvent.click(screen.getByRole('button', { name: /add to the queue/i }));
+    expect(addGmRumor).toHaveBeenCalledWith({
+      showId: SHOW,
+      npcId: 'npc-9',
+      npcName: 'Gus',
+      text: 'the pharmacist waters down the prune juice',
+    });
+    townies = [];
+  });
+
+  it('adds a GM rumor signed with any name', async () => {
+    renderPanel();
+    await userEvent.click(await screen.findByRole('button', { name: /add a rumor/i }));
+    await userEvent.selectOptions(screen.getByRole('combobox'), '__own__');
+    const [nameBox, rumorBox] = screen.getAllByRole('textbox');
+    await userEvent.type(nameBox, 'Mrs. Vanderbilt');
+    await userEvent.type(rumorBox, 'the friars only speak Latin');
+    await userEvent.click(screen.getByRole('button', { name: /add to the queue/i }));
+    expect(addGmRumor).toHaveBeenCalledWith({
+      showId: SHOW,
+      npcId: '',
+      npcName: 'Mrs. Vanderbilt',
+      text: 'the friars only speak Latin',
+    });
+  });
+
+  it('deletes a rumor for good after confirming, and not when cancelled', async () => {
+    allRumors = [rumor(0)];
+    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
+    renderPanel();
+    await userEvent.click(await screen.findByRole('button', { name: 'Delete' }));
+    expect(deleteRumors).not.toHaveBeenCalled();
+    confirm.mockReturnValue(true);
+    await userEvent.click(screen.getByRole('button', { name: 'Delete' }));
+    expect(deleteRumors).toHaveBeenCalledWith([allRumors[0].id]);
+    confirm.mockRestore();
+  });
+
+  it('lists rejected rumors on request so they can be deleted', async () => {
+    allRumors = [rumor(0, { status: 'rejected', text: 'junk rumor' })];
+    renderPanel();
+    expect(screen.queryByText(/junk rumor/)).not.toBeInTheDocument();
+    await userEvent.click(await screen.findByRole('button', { name: /show rejected and withdrawn \(1\)/i }));
+    expect(screen.getByText(/junk rumor/)).toBeInTheDocument();
   });
 });
 

@@ -14,9 +14,11 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
+  addGmRumor,
   allHogwash,
   approveRumor,
   cardLabel,
+  deleteRumors,
   overrideRumorDraw,
   rejectRumor,
   revealRumor,
@@ -30,6 +32,8 @@ import {
   type Rumor,
   type RumorDraw,
 } from '@mtp/lib/rumors';
+import { subscribeToNpcs, type NpcProfile } from '@mtp/lib/npcs/npcApi';
+import { buildByline } from '../config';
 import { useRumorMillForSystem, useRumorMillSession } from '../hooks/useRumorMill';
 import '../rumor-mill.css';
 
@@ -47,6 +51,14 @@ export function RumorMillAdminPanel({ showSlug, systemId }: Props) {
   const [draws, setDraws] = useState<Record<string, RumorDraw>>({});
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [townies, setTownies] = useState<NpcProfile[]>([]);
+  const [adding, setAdding] = useState(false);
+  const [showRejected, setShowRejected] = useState(false);
+
+  useEffect(() => {
+    if (!showId) return;
+    return subscribeToNpcs(showId, setTownies);
+  }, [showId]);
 
   useEffect(() => {
     if (!showId) return;
@@ -81,7 +93,22 @@ export function RumorMillAdminPanel({ showSlug, systemId }: Props) {
 
   const pending = rumors.filter((r) => r.status === 'pending');
   const circulating = rumors.filter((r) => r.status === 'circulating');
-  const rejectedCount = rumors.filter((r) => r.status === 'rejected').length;
+  const rejected = rumors.filter((r) => r.status === 'rejected');
+  const rejectedCount = rejected.length;
+
+  /** Delete for good, after asking. */
+  function remove(r: Rumor) {
+    const ok = window.confirm(
+      `Delete this rumor for good?\n\n“${r.text}”\n\nIts secret card goes too. It can't be undone; Reject or Take off the board keep the record.`,
+    );
+    if (ok) run(`delete-${r.id}`, () => deleteRumors([r.id]));
+  }
+
+  const deleteButton = (r: Rumor) => (
+    <button type="button" className="btn-ghost rumor-admin__delete" disabled={busy !== null} onClick={() => remove(r)}>
+      Delete
+    </button>
+  );
   const tested = circulating.map((r) => draws[r.id]).filter((d): d is RumorDraw => !!d);
   const needsPick = allHogwash(tested);
   const trump = session.trumpSuit;
@@ -159,6 +186,29 @@ export function RumorMillAdminPanel({ showSlug, systemId }: Props) {
         </p>
       )}
 
+      {adding ? (
+        <AddRumorForm
+          maxLength={mill.config.maxLength}
+          leadIn={copy.leadIn}
+          townies={townies.map((t) => ({
+            id: t.id,
+            byline: buildByline(mill.config.bylineTemplate, t.displayName, t.fieldValues),
+          }))}
+          onCancel={() => setAdding(false)}
+          onSubmit={(input) =>
+            run('add', async () => {
+              await addGmRumor({ showId, ...input });
+              setAdding(false);
+            })
+          }
+          busy={busy === 'add'}
+        />
+      ) : (
+        <button type="button" className="btn-secondary rumor-admin__add-btn" onClick={() => setAdding(true)}>
+          + Add a rumor
+        </button>
+      )}
+
       <h3 className="rumor-admin__heading">Waiting for you ({pending.length})</h3>
       {pending.length === 0 && <p className="npc-admin-panel__empty">Nothing waiting.</p>}
       <ol className="rumor-admin__list">
@@ -182,6 +232,7 @@ export function RumorMillAdminPanel({ showSlug, systemId }: Props) {
               >
                 Reject
               </button>
+              {deleteButton(r)}
             </div>
           </li>
         ))}
@@ -251,11 +302,32 @@ export function RumorMillAdminPanel({ showSlug, systemId }: Props) {
                 >
                   Take off the board
                 </button>
+                {deleteButton(r)}
               </div>
             </li>
           );
         })}
       </ol>
+
+      <button
+        type="button"
+        className="btn-ghost rumor-admin__toggle-rejected"
+        aria-expanded={showRejected}
+        onClick={() => setShowRejected((v) => !v)}
+        disabled={rejectedCount === 0}
+      >
+        {showRejected ? 'Hide' : 'Show'} rejected and withdrawn ({rejectedCount})
+      </button>
+      {showRejected && (
+        <ol className="rumor-admin__list">
+          {rejected.map((r) => (
+            <li key={r.id} className="rumor-admin__item rumor-admin__item--rejected">
+              <RumorText rumor={r} leadIn={copy.leadIn} />
+              <div className="rumor-admin__actions">{deleteButton(r)}</div>
+            </li>
+          ))}
+        </ol>
+      )}
     </div>
   );
 }
@@ -265,6 +337,80 @@ function RumorText({ rumor, leadIn }: { rumor: Rumor; leadIn: string }) {
     <p className="rumor-admin__text">
       <span className="rumor-admin__byline">{rumor.npcName} {leadIn}</span>{' '}
       {rumor.text}
+      {rumor.source === 'gm' && <span className="rumor-admin__gm-badge">added by GM</span>}
     </p>
+  );
+}
+
+const OWN_NAME = '__own__';
+
+/** GM: start a rumor, signed by a townie or by any name you type. */
+function AddRumorForm({
+  townies,
+  maxLength,
+  leadIn,
+  busy,
+  onSubmit,
+  onCancel,
+}: {
+  townies: Array<{ id: string; byline: string }>;
+  maxLength: number;
+  leadIn: string;
+  busy: boolean;
+  onSubmit: (input: { npcId: string; npcName: string; text: string }) => void;
+  onCancel: () => void;
+}) {
+  const [who, setWho] = useState<string>(townies[0]?.id ?? OWN_NAME);
+  const [ownName, setOwnName] = useState('');
+  const [text, setText] = useState('');
+  const townie = townies.find((t) => t.id === who);
+  const npcName = who === OWN_NAME ? ownName.trim() : (townie?.byline ?? '');
+  const ready = npcName.length > 0 && text.trim().length > 0;
+
+  return (
+    <form
+      className="rumor-admin__add"
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (ready && !busy) onSubmit({ npcId: townie?.id ?? '', npcName, text: text.trim() });
+      }}
+    >
+      <h3 className="rumor-admin__heading">Add a rumor</h3>
+      <p className="rumor-admin__add-note">
+        Goes into “Waiting for you” like any other. Yours don't count against anyone's limit and
+        work with the mill closed.
+      </p>
+      <label className="rumor-admin__add-field">
+        <span>Who heard it</span>
+        <select value={who} onChange={(e) => setWho(e.target.value)}>
+          {townies.map((t) => (
+            <option key={t.id} value={t.id}>
+              {t.byline}
+            </option>
+          ))}
+          <option value={OWN_NAME}>Someone else (type a name)…</option>
+        </select>
+      </label>
+      {who === OWN_NAME && (
+        <label className="rumor-admin__add-field">
+          <span>Name</span>
+          <input value={ownName} onChange={(e) => setOwnName(e.target.value)} maxLength={160} placeholder="Mrs. Vanderbilt" />
+        </label>
+      )}
+      <label className="rumor-admin__add-field">
+        <span>
+          …{leadIn} ({maxLength - text.length} left)
+        </span>
+        <textarea value={text} onChange={(e) => setText(e.target.value)} maxLength={maxLength} rows={3} />
+      </label>
+      <div className="rumor-admin__actions">
+        <button type="submit" className="btn-primary" disabled={!ready || busy}>
+          {busy ? 'Adding…' : 'Add to the queue'}
+        </button>
+        <button type="button" className="btn-ghost" onClick={onCancel} disabled={busy}>
+          Cancel
+        </button>
+      </div>
+    </form>
   );
 }
