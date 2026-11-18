@@ -18,13 +18,14 @@ import {
   deleteNpc,
   setAllNpcsDisplay,
   setNpcDisplay,
-  setWorldSelection,
   subscribeToNpcs,
   subscribeToWorldSelection,
   type NpcProfile,
   type WorldSelection,
 } from '@mtp/lib/npcs/npcApi';
 import { deleteRumors, listRumorsForNpc, withdrawRumorsForNpc } from '@mtp/lib/rumors';
+import { CrowdingWarning, screenModeFrom } from '../../big-screen';
+import { useRumorMillSession } from '../../rumor-mill';
 import type { TowniesShowConfig } from '../config';
 import { AddTownieForm } from './AddTownieForm';
 import '../townies.css';
@@ -73,7 +74,8 @@ export function TowniesAdminPanel({ systemId, config }: Props) {
     }
   }
 
-  const projectorOn = selection?.displayMode === 'cast';
+  const session = useRumorMillSession(showId);
+  const mode = screenModeFrom(session.boardOn, selection?.displayMode);
   const onScreen = npcs.filter((n) => n.showOnDisplay).length;
 
   function hide(npc: NpcProfile) {
@@ -116,17 +118,6 @@ export function TowniesAdminPanel({ systemId, config }: Props) {
       <section className="townies__projector" aria-label="Projector">
         <button
           type="button"
-          className={projectorOn ? 'btn-secondary' : 'btn-primary'}
-          aria-pressed={projectorOn}
-          disabled={busy !== null}
-          onClick={() =>
-            run('projector', () => setWorldSelection(showId, { displayMode: projectorOn ? 'hidden' : 'cast' }))
-          }
-        >
-          {projectorOn ? 'Townies are ON the projector · take them down' : 'Townies are OFF the projector · put them up'}
-        </button>
-        <button
-          type="button"
           className="btn-ghost"
           disabled={busy !== null || npcs.length === 0}
           onClick={() => run('show-all', () => setAllNpcsDisplay(showId, true))}
@@ -142,9 +133,10 @@ export function TowniesAdminPanel({ systemId, config }: Props) {
           Unmark all
         </button>
         <p className="townies__hint">
-          The projector shows only the townies you mark, and only while this is ON. The Rumor Mill
-          board takes over the projector whenever it's on.
+          The projector shows only the townies you mark, when the Big screen picker above is on
+          Townies or Both.
         </p>
+        <CrowdingWarning mode={mode} marked={onScreen} />
       </section>
 
       {adding ? (

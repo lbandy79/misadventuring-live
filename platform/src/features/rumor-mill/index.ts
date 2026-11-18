@@ -9,7 +9,9 @@
 export { RumorMillPhone } from './components/RumorMillPhone';
 export { RumorMillAdminPanel } from './components/RumorMillAdminPanel';
 export { RumorBoard } from './components/RumorBoard';
-export { useRumorMillSession } from './hooks/useRumorMill';
+export { useRumorMillForSystem, useRumorMillSession } from './hooks/useRumorMill';
+export { VerdictStamp } from './components/VerdictStamp';
+export { splitByline } from './components/RumorBoard';
 export { buildDemoRumors } from './demoRumors';
 export {
   buildByline,

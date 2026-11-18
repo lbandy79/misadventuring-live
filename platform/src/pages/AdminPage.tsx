@@ -19,6 +19,7 @@ import SbpRulesAdminPanel from '../components/admin/SbpRulesAdminPanel';
 import SbpArtAdminPanel from '../components/admin/SbpArtAdminPanel';
 import { RumorMillAdminPanel } from '../features/rumor-mill';
 import { TowniesAdminPanel, useTowniesConfig } from '../features/townies';
+import { ScreenPickerPanel } from '../features/big-screen';
 
 /**
  * The townie panel for one NPC show. Shows that use stingers (Honey Heist)
@@ -205,6 +206,7 @@ function AdminTabs() {
             {/* Rumor Mill renders only for shows whose system JSON has showConfig.rumorMill. */}
             {activeNpcShows.map((s) => (
               <Fragment key={s.id}>
+                <ScreenPickerPanel showSlug={s.id} systemId={s.systemId} />
                 <RumorMillAdminPanel showSlug={s.id} systemId={s.systemId} />
                 <NpcShowPanel registryId={s.id} systemId={s.systemId} showName={s.name} />
               </Fragment>

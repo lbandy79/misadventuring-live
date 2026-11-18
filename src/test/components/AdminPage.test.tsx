@@ -52,6 +52,9 @@ vi.mock('../../../platform/src/features/townies', () => ({
   }),
   TowniesAdminPanel: ({ systemId }: { systemId: string }) => <div>panel:townies:{systemId}</div>,
 }));
+vi.mock('../../../platform/src/features/big-screen', () => ({
+  ScreenPickerPanel: ({ showSlug }: { showSlug: string }) => <div>panel:screen:{showSlug}</div>,
+}));
 
 const renderAt = (url = '/admin') =>
   render(
@@ -77,6 +80,13 @@ describe('AdminPage tabs', () => {
     expect(screen.queryByText('panel:audience')).not.toBeInTheDocument();
     expect(screen.queryByText('panel:cast')).not.toBeInTheDocument();
     expect(screen.queryByText('panel:sbp-rules')).not.toBeInTheDocument();
+  });
+
+  it('puts the Big screen picker first on Show night', () => {
+    renderAt();
+    const picker = screen.getByText('panel:screen:green-oaks');
+    const rumors = screen.getByText('panel:rumors:green-oaks');
+    expect(picker.compareDocumentPosition(rumors) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it('puts the Rumor Mill above the townie roster', () => {

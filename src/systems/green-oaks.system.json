@@ -71,6 +71,14 @@
         }
       ]
     },
+    "bigScreen": {
+      "_comment": "What the projector and the phone 'On the big screen' page (/shows/green-oaks/screen) call things. The GM picks Off / Townies / Rumors / Both on /admin.",
+      "townieTitle": "Who's in town",
+      "phoneTitle": "On the big screen",
+      "phoneSubtitle": "Same as the screen up front, live. Handy from the back row.",
+      "phoneOff": "Nothing on the big screen right now. Keep this open, it updates by itself.",
+      "phoneLink": "See what's on the big screen →"
+    },
     "rumorMill": {
       "_comment": "Audience townies start rumors (rulebook step 3, 'Rumor mill': the Narrator may add rumors whispered by other residents). The GM approves; the app secretly draws a card per rumor, Trump Suit = true (step 4, 'Testing the Rumors'). maxPerPerson is capped at 3 and maxLength at 140 by firestore.rules.",
       "maxPerPerson": 3,

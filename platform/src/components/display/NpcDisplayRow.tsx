@@ -34,6 +34,25 @@ function toTitleCase(str: string): string {
   return str.replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
+/**
+ * The text lines a townie card shows, for either show's field ids:
+ *   Honey Heist: adjective, job_title, tagline   ("reportedly …")
+ *   Green Oaks:  adjective, occupation, reputation ("they …", from
+ *                "Everyone in town knows they …")
+ */
+export function townieLines(npc: DisplayableNpc): { name: string; role: string; known: string } {
+  const f = npc.fieldValues ?? {};
+  const job = f.job_title ?? f.occupation ?? '';
+  const known = f.tagline ? `reportedly ${f.tagline}` : f.reputation ? `they ${f.reputation}` : '';
+  return {
+    name: npc.displayName ?? '',
+    role: [f.adjective, job].filter(Boolean).join(' '),
+    known,
+  };
+}
+
+export { NpcCardAvatar };
+
 function NpcCardAvatar({ seed, size }: { seed: string; size: number }) {
   const [failed, setFailed] = useState(false);
   const trimmed = seed.trim();
@@ -88,11 +107,9 @@ export default function NpcDisplayRow({ npcs }: NpcDisplayRowProps) {
     <div className={`npc-display-row npc-display-row--${layoutClass}`}>
       <AnimatePresence mode="popLayout">
         {npcs.map((npc, i) => {
-          const adjective = npc.fieldValues?.adjective ?? '';
-          const jobTitle  = npc.fieldValues?.job_title  ?? '';
-          const tagline   = npc.fieldValues?.tagline    ?? '';
+          const lines     = townieLines(npc);
           const seed      = npc.avatarSeed ?? npc.displayName ?? '';
-          const roleLine  = toTitleCase([adjective, jobTitle].filter(Boolean).join(' '));
+          const roleLine  = toTitleCase(lines.role);
 
           return (
             <motion.div
@@ -109,7 +126,7 @@ export default function NpcDisplayRow({ npcs }: NpcDisplayRowProps) {
               </div>
               {npc.displayName && <p className="npc-display-card__name">{npc.displayName}</p>}
               {roleLine  && <p className="npc-display-card__role">{roleLine}</p>}
-              {tagline   && <p className="npc-display-card__tagline">reportedly {tagline}</p>}
+              {lines.known && <p className="npc-display-card__tagline">{lines.known}</p>}
             </motion.div>
           );
         })}
