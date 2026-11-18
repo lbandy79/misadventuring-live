@@ -63,6 +63,9 @@ const TEST_NAME_PATTERN = /test/i;
  */
 function isPublicEligible(raw: any): boolean {
   if (raw.gmFlagged === true) return false;
+  // Hidden by the GM from /admin (archiveNpc): off the roster, the projector
+  // and the public recap. The record is kept.
+  if (raw.isArchived === true) return false;
   const displayStr: string = raw.displayName ?? raw.name ?? '';
   if (TEST_NAME_PATTERN.test(displayStr)) return false;
   return true;

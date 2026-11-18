@@ -1,0 +1,120 @@
+/* Townies GM panel. paper.css tokens only. */
+
+.townies__error,
+.townies__notice {
+  margin: 0.75rem 0;
+  padding: 0.6rem 0.8rem;
+  border-radius: 4px;
+  font-family: var(--font-type);
+  background: var(--paper-warm);
+}
+.townies__error { border: 2px solid var(--ink-red); color: var(--ink-red); }
+.townies__notice { border: 2px solid var(--ink-blue); color: var(--ink-blue); }
+
+.townies__projector {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0.75rem 0 1rem;
+}
+.townies__projector button { min-height: 44px; }
+.townies__hint {
+  flex-basis: 100%;
+  margin: 0;
+  font-family: var(--font-hand);
+  font-size: 1rem;
+}
+
+.townies__add-btn { min-height: 44px; margin-bottom: 1rem; }
+
+.townies__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+.townies__item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.7rem 0.9rem;
+  background: var(--paper-warm);
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: 4px;
+}
+.townies__info { display: grid; gap: 0.2rem; min-width: 0; }
+.townies__name {
+  font-family: var(--font-marker);
+  font-size: 1.2rem;
+  overflow-wrap: anywhere;
+}
+.townies__badge {
+  margin-left: 0.5rem;
+  padding: 0.05rem 0.4rem;
+  font-family: var(--font-type);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid var(--ink-blue);
+  border-radius: 3px;
+  color: var(--ink-blue);
+  vertical-align: middle;
+}
+.townies__fields {
+  font-family: var(--font-type);
+  font-size: 0.9rem;
+  color: var(--ink-blue);
+  overflow-wrap: anywhere;
+}
+.townies__write-in { font-style: italic; opacity: 0.8; }
+.townies__actions { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.townies__actions button { min-height: 44px; }
+.townies__screen {
+  padding: 0.4rem 0.8rem;
+  font-family: var(--font-type);
+  font-size: 0.95rem;
+  color: var(--ink-black);
+  background: var(--paper);
+  border: 2px solid var(--ink-black);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.townies__screen--on { background: var(--ink-black); color: var(--paper); }
+.townies__screen:focus-visible { outline: 3px solid var(--ink-blue); outline-offset: 2px; }
+.townies__delete { color: var(--ink-red); }
+
+.townies-add {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0 0 1.25rem;
+  padding: 1rem;
+  background: var(--paper-warm);
+  border: 2px dashed var(--ink-black);
+  border-radius: 4px;
+}
+.townies-add__title { margin: 0; font-family: var(--font-display); font-size: 1.3rem; }
+.townies-add__field { display: grid; gap: 0.3rem; }
+.townies-add__label {
+  font-family: var(--font-type);
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.townies-add__input {
+  min-height: 44px;
+  padding: 0.5rem 0.7rem;
+  font-family: var(--font-type);
+  font-size: 1rem;
+  color: var(--ink-black);
+  background: var(--paper);
+  border: 2px solid var(--ink-black);
+  border-radius: 4px;
+}
+.townies-add__input:focus-visible { outline: 3px solid var(--accent, var(--ink-blue)); outline-offset: 2px; }
+.townies-add__input--write-in { margin-top: 0.3rem; }
+.townies-add__actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.townies-add__actions button { min-height: 44px; }

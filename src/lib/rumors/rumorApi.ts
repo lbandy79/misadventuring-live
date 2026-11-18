@@ -16,8 +16,10 @@
  */
 
 import {
+  addDoc,
   collection,
   doc,
+  getDocs,
   onSnapshot,
   query,
   serverTimestamp,
@@ -56,7 +58,11 @@ export interface Rumor {
   id: string;
   showId: string;
   ownerUid: string;
-  slot: number;
+  /** 0..2 for audience rumors; absent on rumors the GM added. */
+  slot?: number;
+  /** 'gm' when the GM added it from /admin. */
+  source?: 'gm';
+  /** Townie it came from; '' when the GM signed it with a free-text name. */
   npcId: string;
   /** Byline, e.g. "Dolores, the very sweaty bingo caller". */
   npcName: string;
@@ -243,6 +249,63 @@ export async function rejectRumor(rumorId: string): Promise<void> {
 /** GM: pull a rumor back out of circulation (off the board), keeping its draw. */
 export async function withdrawRumor(rumorId: string): Promise<void> {
   await updateDoc(doc(db, RUMORS_COLLECTION, rumorId), { status: 'rejected', verdict: null });
+}
+
+/**
+ * GM: add a rumor of your own. The rulebook's Narrator may add rumors
+ * "whispered by some other Green Oaks resident". Goes into the queue like
+ * any other; not bound by the per-person limit or the mill being open.
+ */
+export async function addGmRumor(input: {
+  showId: string;
+  /** A townie's id, or '' when signed with a free-text name. */
+  npcId: string;
+  npcName: string;
+  text: string;
+}): Promise<void> {
+  const uid = auth.currentUser?.uid;
+  if (!uid) throw new Error('addGmRumor: not signed in');
+  await addDoc(collection(db, RUMORS_COLLECTION), {
+    showId: input.showId,
+    ownerUid: uid,
+    source: 'gm',
+    npcId: input.npcId,
+    npcName: input.npcName.trim().slice(0, 160),
+    text: input.text.trim().slice(0, RUMOR_MAX_LENGTH),
+    status: 'pending',
+    createdAt: serverTimestamp(),
+  });
+}
+
+/** GM: delete rumors for good, with their secret draws. */
+export async function deleteRumors(rumorIds: string[]): Promise<void> {
+  // A batch holds 500 writes; two per rumor.
+  for (let i = 0; i < rumorIds.length; i += 200) {
+    const batch = writeBatch(db);
+    for (const id of rumorIds.slice(i, i + 200)) {
+      batch.delete(doc(db, RUMORS_COLLECTION, id));
+      batch.delete(doc(db, RUMOR_DRAWS_COLLECTION, id));
+    }
+    await batch.commit();
+  }
+}
+
+/** GM: every rumor started by one townie (any status). */
+export async function listRumorsForNpc(showId: string, npcId: string): Promise<Rumor[]> {
+  const snap = await getDocs(
+    query(collection(db, RUMORS_COLLECTION), where('showId', '==', showId), where('npcId', '==', npcId)),
+  );
+  return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Rumor, 'id'>) }));
+}
+
+/** GM: take every rumor a townie started out of play (kept, not deleted). */
+export async function withdrawRumorsForNpc(showId: string, npcId: string): Promise<number> {
+  const live = (await listRumorsForNpc(showId, npcId)).filter((r) => r.status !== 'rejected');
+  if (live.length === 0) return 0;
+  const batch = writeBatch(db);
+  for (const r of live) batch.update(doc(db, RUMORS_COLLECTION, r.id), { status: 'rejected', verdict: null });
+  await batch.commit();
+  return live.length;
 }
 
 /** GM: set the secret result by hand (the "all false, pick one" rule). */
