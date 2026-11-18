@@ -45,6 +45,7 @@ import SbpLabsPage from './pages/labs/SbpLabsPage';
 import SbpCharacterWizardPage from './pages/labs/SbpCharacterWizardPage';
 import SbpCharacterSheetPage from './pages/labs/SbpCharacterSheetPage';
 import JoinRedirectPage from './pages/JoinRedirectPage';
+import { PhoneScreenPage } from './features/big-screen';
 
 export default function App() {
   const location = useLocation();
@@ -108,6 +109,8 @@ export default function App() {
             {/* The stream overlay and the venue QR still encode the Honey Heist
                 join URL (May 2026). That show is over, so treat it as /join. */}
             <Route path="/shows/mad-libs-honey-heist/join" element={<Navigate to="/join" replace />} />
+            {/* Phone mirror of the projector (Green Oaks): townies + rumors, live */}
+            <Route path="/shows/:showId/screen" element={<PhoneScreenPage />} />
             {/* Audience NPC creation / join flow */}
             <Route path="/shows/:showId/join" element={<NpcCreationPage />} />
             {/* Cast hunter creation wizard */}

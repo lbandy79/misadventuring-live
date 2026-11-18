@@ -40,6 +40,17 @@ vi.mock('@mtp/lib/rumors', () => ({
   withdrawRumorsForNpc: (...a: unknown[]) => withdrawRumorsForNpc(...(a as [])),
 }));
 
+let boardOn = false;
+vi.mock('../../../platform/src/features/rumor-mill', () => ({
+  useRumorMillSession: () => ({ open: true, trumpSuit: null, boardOn }),
+}));
+// Only the warning and the mode logic are used here; the real files, not
+// the whole big-screen feature (which pulls in the projector and phone page).
+vi.mock('../../../platform/src/features/big-screen', async () => ({
+  ...(await vi.importActual<object>('../../../platform/src/features/big-screen/screenMode')),
+  ...(await vi.importActual<object>('../../../platform/src/features/big-screen/components/CrowdingWarning')),
+}));
+
 const config: TowniesShowConfig = {
   showId: SHOW,
   showName: 'Green Oaks',
@@ -68,6 +79,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   npcs = [townie('n1', 'Harry'), townie('n2', 'Dolores', { showOnDisplay: true, deviceToken: 'gm-abc' })];
   selection = null;
+  boardOn = false;
   vi.spyOn(window, 'confirm').mockReturnValue(true);
 });
 
@@ -87,17 +99,23 @@ describe('TowniesAdminPanel', () => {
     expect(within(dolores).getByText(/added by gm/i)).toBeInTheDocument();
   });
 
-  it('puts townies on the projector with one switch', async () => {
+  it('leaves the projector switch to the Big screen picker', () => {
     renderPanel();
-    await userEvent.click(screen.getByRole('button', { name: /townies are off the projector/i }));
-    expect(setWorldSelection).toHaveBeenCalledWith(SHOW, { displayMode: 'cast' });
+    expect(screen.queryByRole('button', { name: /on the projector/i })).not.toBeInTheDocument();
+    expect(screen.getByText(/big screen picker above/i)).toBeInTheDocument();
   });
 
-  it('takes them down again', async () => {
+  it('warns here too when marked townies outgrow the Both screen', () => {
+    boardOn = true;
     selection = { displayMode: 'cast' };
+    npcs = Array.from({ length: 11 }, (_, i) => townie(`n${i}`, `T${i}`, { showOnDisplay: true }));
     renderPanel();
-    await userEvent.click(screen.getByRole('button', { name: /townies are on the projector/i }));
-    expect(setWorldSelection).toHaveBeenCalledWith(SHOW, { displayMode: 'hidden' });
+    expect(screen.getByText(/11 townies marked, but both fits 9/i)).toBeInTheDocument();
+  });
+
+  it('stays quiet with room to spare', () => {
+    renderPanel();
+    expect(screen.queryByText(/townies marked, but/i)).not.toBeInTheDocument();
   });
 
   it('marks one townie for the screen', async () => {

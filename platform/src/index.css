@@ -4716,3 +4716,5 @@ details[open] .helper-footer__summary::before { content: '▾ '; }
   font-size: 0.9rem;
   opacity: 0.8;
 }
+
+.join-screen-link { margin-top: 1.25rem; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }

@@ -503,3 +503,5 @@
   border-radius: 4px;
 }
 .rumor-admin__add-field :focus-visible { outline: 3px solid var(--ink-blue); outline-offset: 2px; }
+
+.rumor-admin__board-note { font-family: var(--font-type); font-size: 0.9rem; }

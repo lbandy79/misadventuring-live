@@ -112,6 +112,8 @@ interface ShowConfig {
   };
   /** Present on shows with a Rumor Mill (Green Oaks). */
   rumorMill?: RawRumorMillConfig;
+  /** Big-screen wording (Green Oaks): the phone link label. */
+  bigScreen?: { phoneLink?: string };
 }
 
 type PagePhase = 'loading' | 'create' | 'reveal' | 'my-npc';
@@ -563,6 +565,7 @@ export default function NpcCreationPage() {
 
   const npcFieldDefs = fields.map((f) => ({ id: f.id, label: f.label, fieldType: f.fieldType }));
   const rumorMill = showConfig.rumorMill ? resolveRumorMillConfig(showConfig.rumorMill) : null;
+  const bigScreenLink = showConfig.bigScreen?.phoneLink ?? "See what's on the big screen →";
 
   return (
     <>
@@ -598,6 +601,12 @@ export default function NpcCreationPage() {
             byline={buildByline(rumorMill.bylineTemplate, myNpc.displayName, myNpc.fieldValues)}
             config={rumorMill}
           />
+        )}
+
+        {myNpc && rumorMill && (
+          <Link to={`/shows/${showId}/screen`} className="btn-secondary btn-block join-screen-link">
+            {bigScreenLink}
+          </Link>
         )}
 
         {myApprovedBeats.length > 0 && (

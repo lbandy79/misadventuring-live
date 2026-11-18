@@ -48,6 +48,13 @@ import {
   useRumorMillSession,
   type RawRumorMillConfig,
 } from '../features/rumor-mill';
+import { buildDemoTownies } from '../features/townies/demoTownies';
+import {
+  CombinedScreen,
+  resolveBigScreenCopy,
+  screenModeFrom,
+  type BigScreenCopy,
+} from '../features/big-screen';
 import { QRCodeSVG } from 'qrcode.react';
 import {
   getShow,
@@ -98,6 +105,8 @@ interface SystemConfig {
     npcCreation?: { displayNameTemplate: string; fields: unknown[] };
     /** Present on shows with a Rumor Mill (Green Oaks). */
     rumorMill?: RawRumorMillConfig;
+    /** Big-screen wording (Green Oaks). */
+    bigScreen?: Partial<BigScreenCopy>;
   };
 }
 
@@ -225,7 +234,9 @@ export default function MadLibsDisplayPage() {
     [config],
   );
   const rumorSession = useRumorMillSession(rumorMillConfig ? npcShowId : undefined);
-  const isRumorDemo = searchParams.get('demo') === 'rumors';
+  const demoParam = searchParams.get('demo');
+  const isBothDemo = demoParam === 'both';
+  const isRumorDemo = demoParam === 'rumors' || isBothDemo;
   const demoCount = Number(searchParams.get('n') ?? 8);
   const demoWorstCase = searchParams.get('len') === 'max';
   const demoRumors = useMemo(
@@ -234,6 +245,17 @@ export default function MadLibsDisplayPage() {
         ? buildDemoRumors(Number.isFinite(demoCount) ? demoCount : 8, demoWorstCase)
         : undefined,
     [isRumorDemo, demoCount, demoWorstCase],
+  );
+  // `?demo=townies&n=8` renders sample townies in the cast scene, no Firestore.
+  const isTownieDemo = demoParam === 'townies' || isBothDemo;
+  const demoTownies = useMemo(
+    () => {
+      if (!isTownieDemo) return null;
+      // ?demo=both&n=<townies>&r=<rumors>
+      const n = isBothDemo ? Number(searchParams.get('t') ?? 8) : demoCount;
+      return buildDemoTownies(Number.isFinite(n) ? n : 8);
+    },
+    [isTownieDemo, isBothDemo, demoCount, searchParams],
   );
 
   // ── Theming via CSS custom properties ────────────────────────────────
@@ -294,6 +316,34 @@ export default function MadLibsDisplayPage() {
     typeof window !== 'undefined'
       ? `${window.location.origin}/shows/${showId}/${joinPath}`
       : `/shows/${showId}/${joinPath}`;
+
+  // ── Big screen mode: Off / Townies / Rumors / Both (picked on /admin) ──
+  const screenMode = screenModeFrom(rumorSession.boardOn, worldSelection?.displayMode);
+  const bigScreenCopy = resolveBigScreenCopy(config.showConfig?.bigScreen);
+
+  if (rumorMillConfig && npcShowId && (screenMode === 'both' || isBothDemo)) {
+    return (
+      <section className="madlibs-display madlibs-display-rumors" style={themeStyle}>
+        <CombinedScreen
+          showId={npcShowId}
+          npcs={demoTownies ?? displayNpcs}
+          rumorConfig={rumorMillConfig}
+          open={rumorSession.open || isBothDemo}
+          joinUrl={voteUrl}
+          townieTitle={bigScreenCopy.townieTitle}
+          demoRumors={demoRumors}
+        />
+      </section>
+    );
+  }
+
+  if (demoTownies) {
+    return (
+      <section className="madlibs-display madlibs-display-cast" style={themeStyle}>
+        <DisplayNpcScene npcs={demoTownies} voteUrl={voteUrl} worldSelection={null} approvedBeats={[]} />
+      </section>
+    );
+  }
 
   if (rumorMillConfig && npcShowId && (rumorSession.boardOn || isRumorDemo)) {
     return (

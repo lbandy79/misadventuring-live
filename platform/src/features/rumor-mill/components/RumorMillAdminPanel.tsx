@@ -164,15 +164,10 @@ export function RumorMillAdminPanel({ showSlug, systemId }: Props) {
           >
             {session.open ? 'Mill is OPEN · close it' : 'Mill is CLOSED · open it'}
           </button>
-          <button
-            type="button"
-            className={session.boardOn ? 'btn-secondary' : 'btn-primary'}
-            aria-pressed={session.boardOn}
-            disabled={busy !== null}
-            onClick={() => run('board', () => setRumorMill(showId, { boardOn: !session.boardOn }))}
-          >
-            {session.boardOn ? 'Board is ON the projector · take it down' : 'Board is OFF · put it on the projector'}
-          </button>
+          <span className="rumor-admin__board-note">
+            {session.boardOn ? 'Board is on the projector.' : 'Board is off the projector.'} Use the
+            Big screen picker above to change it.
+          </span>
           <Link to={`/shows/${showSlug}/display`} target="_blank" rel="noreferrer" className="rumor-admin__link">
             Open projector view ↗
           </Link>

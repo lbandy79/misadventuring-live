@@ -27,6 +27,10 @@ interface Props {
   joinUrl: string;
   /** Layout preview: render these instead of subscribing to Firestore. */
   demoRumors?: Rumor[];
+  /** Notes per page; defaults to the show's boardPageSize. */
+  pageSize?: number;
+  /** 'side' = the right-hand part of the combined Townies + Rumors screen. */
+  variant?: 'full' | 'side';
 }
 
 function lengthBucket(text: string): 'short' | 'medium' | 'long' | 'xlong' {
@@ -47,8 +51,9 @@ export function splitByline(byline: string): [name: string, description: string]
   return [byline.slice(0, i).trim(), byline.slice(i + 1).trim()];
 }
 
-export function RumorBoard({ showId, config, open, joinUrl, demoRumors }: Props) {
+export function RumorBoard({ showId, config, open, joinUrl, demoRumors, pageSize, variant = 'full' }: Props) {
   const { copy } = config;
+  const perPage = pageSize ?? config.boardPageSize;
   const [liveRumors, setLiveRumors] = useState<Rumor[]>([]);
   const [page, setPage] = useState(0);
 
@@ -60,7 +65,7 @@ export function RumorBoard({ showId, config, open, joinUrl, demoRumors }: Props)
   }, [showId, demoRumors]);
 
   const rumors = demoRumors ?? liveRumors;
-  const pageCount = Math.max(1, Math.ceil(rumors.length / config.boardPageSize));
+  const pageCount = Math.max(1, Math.ceil(rumors.length / perPage));
   const current = Math.min(page, pageCount - 1);
 
   // Turn the page on a timer when there is more than one.
@@ -74,12 +79,12 @@ export function RumorBoard({ showId, config, open, joinUrl, demoRumors }: Props)
   }, [pageCount, config.boardPageSeconds]);
 
   const visible = useMemo(
-    () => rumors.slice(current * config.boardPageSize, (current + 1) * config.boardPageSize),
-    [rumors, current, config.boardPageSize],
+    () => rumors.slice(current * perPage, (current + 1) * perPage),
+    [rumors, current, perPage],
   );
 
   return (
-    <div className="rumor-board">
+    <div className={`rumor-board rumor-board--${variant}`}>
       <header className="rumor-board__header">
         <div>
           <p className="madlibs-display-eyebrow">{copy.boardSubtitle}</p>
