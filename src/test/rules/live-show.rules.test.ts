@@ -12,14 +12,14 @@
  */
 
 import { readFileSync } from 'node:fs';
-import { afterAll, beforeAll, beforeEach, describe, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import {
   assertFails,
   assertSucceeds,
   initializeTestEnvironment,
   type RulesTestEnvironment,
 } from '@firebase/rules-unit-testing';
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, query, setDoc, updateDoc, where } from 'firebase/firestore';
 
 const ADMIN = { uid: 'admin-uid', email: 'gm@example.com' };
 const CAST = { uid: 'cast-uid', email: 'player@example.com' };
@@ -133,54 +133,95 @@ afterAll(async () => {
 });
 
 // ─── npcs: create ─────────────────────────────────────────────────────────────
+// One townie per phone per show: an audience townie's id must be
+// {showId}__{uid}, so a second create from the same sign-in is refused
+// (it would be an overwrite, which the update rule doesn't allow).
+// The GM adds townies from /admin under any id.
+
+/** The only id an audience member may create a townie under. */
+const mine = (uid = OWNER_UID, showId = 'greenoaks-2026-11-28') => `${showId}__${uid}`;
 
 describe('npcs create', () => {
   it('lets an anonymous audience member create an NPC they own', async () => {
-    await assertSucceeds(setDoc(doc(asOwner(), 'npcs', 'new'), newNpc()));
+    await assertSucceeds(setDoc(doc(asOwner(), 'npcs', mine()), newNpc()));
+  });
+
+  it('allows one townie per phone per show', async () => {
+    await assertSucceeds(setDoc(doc(asOwner(), 'npcs', mine()), newNpc()));
+    // Writing the same id again can only ever be the owner editing that one
+    // townie; there is no way to add a second.
+    await setDoc(doc(asOwner(), 'npcs', mine()), newNpc({ displayName: 'Second' })).catch(() => {});
+    const all = await getDocs(query(collection(asAdmin(), 'npcs'), where('ownerUid', '==', OWNER_UID)));
+    // npc-1, npc-onscreen (fixtures) + exactly one created here.
+    expect(all.docs.filter((d) => d.id === mine()).length).toBe(1);
+    expect(all.docs.filter((d) => !['npc-1', 'npc-onscreen'].includes(d.id)).length).toBe(1);
+  });
+
+  it('refuses any other id from the audience', async () => {
+    await assertFails(setDoc(doc(asOwner(), 'npcs', 'random-id'), newNpc()));
+    await assertFails(setDoc(doc(asOwner(), 'npcs', `${mine()}__2`), newNpc()));
+    await assertFails(setDoc(doc(asOwner(), 'npcs', mine(STRANGER_UID)), newNpc()));
+    // The id's show has to match the townie's show.
+    await assertFails(setDoc(doc(asOwner(), 'npcs', mine(OWNER_UID, 'other-show')), newNpc()));
+  });
+
+  it('a different show is a fresh allowance', async () => {
+    await assertSucceeds(setDoc(doc(asOwner(), 'npcs', mine()), newNpc()));
+    await assertSucceeds(
+      setDoc(doc(asOwner(), 'npcs', mine(OWNER_UID, 'next-show')), newNpc({ showId: 'next-show' })),
+    );
+  });
+
+  it('lets the GM add townies under any id, as many as needed', async () => {
+    const gm = (id: string) =>
+      setDoc(doc(asAdmin(), 'npcs', id), newNpc({ ownerUid: ADMIN.uid, deviceToken: `gm-${id}` }));
+    await assertSucceeds(gm('gm-1'));
+    await assertSucceeds(gm('gm-2'));
+    await assertSucceeds(gm('gm-3'));
   });
 
   it('rejects an NPC owned by someone else', async () => {
-    await assertFails(setDoc(doc(asStranger(), 'npcs', 'new'), newNpc()));
+    await assertFails(setDoc(doc(asStranger(), 'npcs', mine(STRANGER_UID)), newNpc()));
   });
 
   it('rejects an NPC with no ownerUid', async () => {
     const npc: Record<string, unknown> = newNpc();
     delete npc.ownerUid;
-    await assertFails(setDoc(doc(asOwner(), 'npcs', 'new'), npc));
+    await assertFails(setDoc(doc(asOwner(), 'npcs', mine()), npc));
   });
 
   it('rejects creation while signed out', async () => {
-    await assertFails(setDoc(doc(asNobody(), 'npcs', 'new'), newNpc()));
+    await assertFails(setDoc(doc(asNobody(), 'npcs', mine()), newNpc()));
   });
 
   it('rejects an NPC that puts itself on the projector', async () => {
-    await assertFails(setDoc(doc(asOwner(), 'npcs', 'new'), newNpc({ showOnDisplay: true })));
+    await assertFails(setDoc(doc(asOwner(), 'npcs', mine()), newNpc({ showOnDisplay: true })));
   });
 
   it('rejects an NPC created archived or already tagged', async () => {
-    await assertFails(setDoc(doc(asOwner(), 'npcs', 'a'), newNpc({ isArchived: true })));
-    await assertFails(setDoc(doc(asOwner(), 'npcs', 'b'), newNpc({ hasBeenTagged: true })));
+    await assertFails(setDoc(doc(asOwner(), 'npcs', mine()), newNpc({ isArchived: true })));
+    await assertFails(setDoc(doc(asOwner(), 'npcs', mine()), newNpc({ hasBeenTagged: true })));
   });
 
   it('rejects fields outside the expected set', async () => {
-    await assertFails(setDoc(doc(asOwner(), 'npcs', 'new'), newNpc({ email: 'a@b.co' })));
-    await assertFails(setDoc(doc(asOwner(), 'npcs', 'new'), newNpc({ avatarUrl: 'x' })));
+    await assertFails(setDoc(doc(asOwner(), 'npcs', mine()), newNpc({ email: 'a@b.co' })));
+    await assertFails(setDoc(doc(asOwner(), 'npcs', mine()), newNpc({ avatarUrl: 'x' })));
   });
 
   it('accepts optional fieldWriteIns', async () => {
     await assertSucceeds(
-      setDoc(doc(asOwner(), 'npcs', 'new'), newNpc({ fieldWriteIns: { reputation: true } })),
+      setDoc(doc(asOwner(), 'npcs', mine()), newNpc({ fieldWriteIns: { reputation: true } })),
     );
   });
 
   it('caps displayName at 120 characters', async () => {
-    await assertSucceeds(setDoc(doc(asOwner(), 'npcs', 'a'), newNpc({ displayName: 'x'.repeat(120) })));
-    await assertFails(setDoc(doc(asOwner(), 'npcs', 'b'), newNpc({ displayName: 'x'.repeat(121) })));
+    await assertFails(setDoc(doc(asOwner(), 'npcs', mine()), newNpc({ displayName: 'x'.repeat(121) })));
+    await assertSucceeds(setDoc(doc(asOwner(), 'npcs', mine()), newNpc({ displayName: 'x'.repeat(120) })));
   });
 
   it('caps fieldValues at 20 fields', async () => {
     const many = Object.fromEntries(Array.from({ length: 21 }, (_, i) => [`f${i}`, 'x']));
-    await assertFails(setDoc(doc(asOwner(), 'npcs', 'new'), newNpc({ fieldValues: many })));
+    await assertFails(setDoc(doc(asOwner(), 'npcs', mine()), newNpc({ fieldValues: many })));
   });
 });
 
