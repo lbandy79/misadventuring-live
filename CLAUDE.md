@@ -51,7 +51,7 @@ The `platform/` app imports from `src/` using relative paths (`../../../src/…`
 
 - **Firebase access lives only in `src/firebase.ts` and `src/lib/*Api.ts`.** Pages and components call those APIs. They never import Firebase SDKs directly.
 - **New interaction features get a folder:** `platform/src/features/<feature-name>/` with `components/`, `hooks/`, and an `index.ts` that is the only file other code imports from. Existing pages move into this pattern gradually, one per session, never as a side effect.
-- **Reference feature:** `platform/src/features/rumor-mill/` (Rumor Mill, Green Oaks) is the first one built this way. Copy its shape: `config.ts` reads the system JSON, `src/lib/rumors` holds the data access, rules tests in `src/test/rules/`.
+- **Reference feature:** `platform/src/features/rumor-mill/` (Rumor Mill, Green Oaks) is the first one built this way; `townies/` and `big-screen/` follow it. Copy its shape: `config.ts` reads the system JSON, `src/lib/rumors` holds the data access, rules tests in `src/test/rules/`.
 - **Pages stay thin.** A page composes features and applies the show accent. Logic belongs in the feature or in `src/lib`.
 
 ---

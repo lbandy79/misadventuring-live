@@ -224,17 +224,27 @@ Each step is its own branch. Steps 1 to 3 are the only ones that should land bef
 
 Green Oaks already has a show (`src/lib/shows/green-oaks.show.ts`, `id: green-oaks`) and a system JSON (`src/systems/green-oaks.system.json`, Firestore episode id `greenoaks-2026-11-28`). On show day `config/platform.currentShowId` is set to that id and `/join` forwards there.
 
-**NPC creator (townies).** Already built: `npcCreation` in the system JSON drives `NpcCreationPage`; the GM puts townies on the projector from `NpcAdminPanel`. Needs only migration step 1 so "GM approves before big screen" is actually enforced.
+**NPC creator (townies).** `npcCreation` in the system JSON drives `NpcCreationPage`. GM control is the **Townies panel** (`platform/src/features/townies/`, Nov 2026), used for any show without a `stingerQueue`; Honey Heist keeps the old `NpcAdminPanel`. Add a townie (GM, `asGm`), mark for screen, Hide (archive + withdraw their rumors + off the recap), Delete (with their rumors).
+- One townie per phone per show: an audience townie's id is `{showId}__{uid}` (rules-enforced); `createNpc` returns the existing one if that sign-in already has one. The GM adds under random ids. Someone deliberately making fresh anonymous sign-ins can still add more; the GM deletes them. App Check would be the real fix (post-show).
+- Tests: `src/test/rules/live-show.rules.test.ts`, `src/test/components/TowniesAdminPanel.test.tsx`.
 
 **Rumor Mill** (built Nov 2026, `platform/src/features/rumor-mill/`; was "gossip line" in the first draft of this doc). The first feature in the `features/` structure. It follows the rulebook's own "Rumor mill" and "Testing the Rumors" steps: the Narrator may add rumors whispered by other residents (the audience's townies), and secretly draws a card per rumor, Trump Suit = true; if all are false the Narrator picks one.
 - Config: `showConfig.rumorMill` in `green-oaks.system.json` (limits, byline template, board page size, all copy). Resolved and clamped by `features/rumor-mill/config.ts`.
 - Data: `src/lib/rumors/` (`rumorApi.ts`, pure `cards.ts`). Collections: `rumor-mill/{showId}` (`open`, `trumpSuit`, `boardOn`; public read, admin write), `rumors/{showId}__{uid}__{slot}` (create-only, slot 0..2, so the doc id is the rate limit: three per person per show; public only once `status == 'circulating'`), `rumor-draws/{rumorId}` (the secret card; admin only). A verdict reaches the audience only when the GM reveals it, by writing `verdict` on the rumor.
-- Views: phone (`RumorMillPhone`, under the townie card on the join page), GM (`RumorMillAdminPanel` on `/admin`: Trump Suit, open/close, approve + secret draw, reveal, "make it true"), big screen (`RumorBoard`, takes over `/shows/:id/display` while `boardOn`; 8 notes per page, then it turns pages).
+- Views: phone (`RumorMillPhone`, under the townie card on the join page), GM (`RumorMillAdminPanel` on `/admin`: Trump Suit, open/close, approve + secret draw, reveal, "make it true", add a GM rumor (`source: 'gm'`, not bound by the limits), delete), big screen (`RumorBoard`; 8 notes per page alone, 6 on the combined screen, then it turns pages).
 - Layout preview without Firestore: `/shows/green-oaks/display?demo=rumors&n=8` (add `&len=max` for the worst case).
 - Tests: `src/test/rules/rumor-mill.rules.test.ts`, `src/test/components/RumorMill.test.tsx`, `src/lib/rumors/cards.test.ts`.
 - Not rules-checked: that the townie named in a rumor's byline belongs to the sender (pre-hotfix townies have no owner). The GM reads every rumor before it circulates.
 
-**Bingo** (`platform/src/features/bingo/`):
+**Big screen** (`platform/src/features/big-screen/`, Nov 2026): what the projector shows and its phone mirror.
+- Mode: **Off / Townies / Rumors / Both**, picked in one `ScreenPickerPanel` at the top of Show night. Stored in the two existing switches `rumor-mill/{showId}.boardOn` and `world-selections/{showId}.displayMode == 'cast'`; pure logic in `screenMode.ts` so projector, GM panel and phone always agree.
+- Both = `CombinedScreen`: townie column left, Rumor Mill right. Measured fits at 1920×1080 (`TOWNIE_FIT`): Both 9 townies, Townies-only 12. The GM panel and the Townies panel warn before marked townies exceed that.
+- Phone mirror: `PhoneScreenPage` at `/shows/:showId/screen` (linked from the join page): marked townies and rumors in circulation with stamps, live. Public data only. For venues without a projector.
+- Copy: `showConfig.bigScreen` in the system JSON.
+- Previews without Firestore: `/shows/green-oaks/display?demo=townies&n=12`, `?demo=both&t=9&n=6`.
+- Tests: `src/test/components/BigScreen.test.tsx`, `src/test/components/screenMode.test.ts`.
+
+**Bingo** (`platform/src/features/bingo/`, not built; Luke chose the Rumor Mill only for Nov 28):
 - Config: `showConfig.bingo.squares` (pool of strings) and card size in the system JSON.
 - Data: `src/lib/bingo/bingoApi.ts`. `bingo-calls/{showId}` (admin write: which squares the GM has called), `bingo-cards/{showId}__{uid}` (owner write: card layout seed + marks), `bingo-claims` (create-only by owner, admin moderates before a name hits the screen).
 - Views: phone (card, tap to mark, marks shown by shape and colour, not colour alone), GM (call squares, verify claims), big screen (called squares, approved winners).

@@ -186,11 +186,26 @@ export async function createNpc(input: {
   fieldValues: Record<string, string>;
   fieldWriteIns?: Record<string, boolean>;
   deviceToken: string;
+  /** True when the GM adds a townie from /admin: any number, random ids. */
+  asGm?: boolean;
 }): Promise<NpcProfile> {
   // firestore.rules makes the auth uid the owner; the join page signs in
   // anonymously before it lets anyone submit, so this is always set there.
   const ownerUid = auth.currentUser?.uid;
   if (!ownerUid) throw new Error('createNpc: not signed in');
+
+  // One townie per phone per show: firestore.rules only lets the audience
+  // create at {showId}__{uid}. If this sign-in already has one (e.g. the
+  // device token was cleared but the sign-in wasn't), hand that one back
+  // instead of failing.
+  const audienceRef = input.asGm ? null : doc(db, NPCS_COLLECTION, `${input.showId}__${ownerUid}`);
+  if (audienceRef) {
+    const existing = await getDoc(audienceRef);
+    if (existing.exists()) {
+      return { id: existing.id, ...(existing.data() as Omit<NpcProfile, 'id'>) };
+    }
+  }
+
   const doc_data: Record<string, unknown> = {
     showId: input.showId,
     systemId: input.systemId,
@@ -207,9 +222,15 @@ export async function createNpc(input: {
   if (input.fieldWriteIns && Object.keys(input.fieldWriteIns).length > 0) {
     doc_data.fieldWriteIns = input.fieldWriteIns;
   }
-  const ref = await addDoc(collection(db, NPCS_COLLECTION), doc_data);
+  let id: string;
+  if (audienceRef) {
+    await setDoc(audienceRef, doc_data);
+    id = audienceRef.id;
+  } else {
+    id = (await addDoc(collection(db, NPCS_COLLECTION), doc_data)).id;
+  }
   return {
-    id: ref.id,
+    id,
     showId: input.showId,
     systemId: input.systemId,
     displayName: input.displayName,

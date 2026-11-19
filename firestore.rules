@@ -132,6 +132,10 @@ service cloud.firestore {
         ])
         && request.resource.data.ownerUid == request.auth.uid
         && request.resource.data.showId is string
+        // One townie per phone per show (Nov 2026): an audience townie lives
+        // at {showId}__{uid}, so a second create from the same sign-in can
+        // only ever be an edit of that one. The GM adds townies under any id.
+        && (isAdmin() || npcId == request.resource.data.showId + '__' + request.auth.uid)
         && request.resource.data.systemId is string
         && validNpcName(request.resource.data.displayName)
         && validNpcFields(request.resource.data.fieldValues)

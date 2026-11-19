@@ -52,6 +52,7 @@ export function AddTownieForm({ config, systemId, onDone }: Props) {
         // GM-made townies get their own token so they never collide with
         // the GM's phone if they also join as a guest.
         deviceToken: `gm-${crypto.randomUUID()}`,
+        asGm: true,
       });
       onDone();
     } catch (err) {

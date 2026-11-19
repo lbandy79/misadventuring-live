@@ -169,6 +169,7 @@ describe('TowniesAdminPanel', () => {
         fieldValues: { adjective: 'deeply Lutheran', occupation: 'crossing guard' },
         fieldWriteIns: { occupation: true },
         deviceToken: expect.stringMatching(/^gm-/),
+        asGm: true,
       }),
     );
   });
