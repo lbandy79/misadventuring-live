@@ -139,7 +139,8 @@ export default function LandingPage() {
   const { allShows } = useShow();
   const upcomingShows = allShows.filter((s) => {
     const era = getShowEra(s);
-    return era === 'upcoming' || era === 'live';
+    // Undated 'upcoming' entries (e.g. MotW between episodes) stay off the list.
+    return era === 'live' || (era === 'upcoming' && !!s.nextDate);
   });
   const pastShows = allShows
     .filter((s) => getShowEra(s) === 'past')

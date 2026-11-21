@@ -162,7 +162,8 @@ export default function ShowsIndexPage() {
   const publicShows = allShows.filter((s) => getShowEra(s) !== 'shelved');
   const upcoming = publicShows.filter((s) => {
     const era = getShowEra(s);
-    return era === 'upcoming' || era === 'live';
+    // Undated 'upcoming' entries (e.g. MotW between episodes) stay off the list.
+    return era === 'live' || (era === 'upcoming' && !!s.nextDate);
   });
   const past = publicShows.filter((s) => getShowEra(s) === 'past');
 
